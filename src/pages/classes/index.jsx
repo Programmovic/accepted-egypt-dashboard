@@ -143,31 +143,37 @@ const Classes = () => {
           data={filteredData.length}
           title="Classes"
           enableOptions={false}
+          isLoading={loading}
         />
         <ClassCard
           data={cheapestClass?.title}
           title="Cheapest Class"
           enableOptions={false}
+          isLoading={loading}
         />
         <ClassCard
           data={newestClass?.title}
           title="Newest Class"
           enableOptions={false}
+          isLoading={loading}
         />
         <ClassCard
           data={oldestClass?.title}
           title="Oldest Class"
           enableOptions={false}
+          isLoading={loading}
         />
         <ClassCard
           data={highestPriceClass?.title}
           title="Highest Price Class"
           enableOptions={false}
+          isLoading={loading}
         />
         <ClassCard
           data={`${totalClassPrice} EGP`}
           title="Total Class Price"
           enableOptions={false}
+          isLoading={loading}
         />
       </div>
       <Card>
