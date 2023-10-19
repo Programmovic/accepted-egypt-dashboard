@@ -1,8 +1,8 @@
 import {
   Badge, Dropdown, Nav, NavItem,
-} from 'react-bootstrap'
-import Image from 'next/image'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+} from 'react-bootstrap';
+import Image from 'next/image';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBell,
   faCreditCard,
@@ -10,52 +10,72 @@ import {
   faFile,
   faMessage,
   faUser,
-} from '@fortawesome/free-regular-svg-icons'
-import { PropsWithChildren } from 'react'
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+} from '@fortawesome/free-regular-svg-icons';
+import { PropsWithChildren } from 'react';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import {
   faGear, faListCheck, faLock, faPowerOff,
-} from '@fortawesome/free-solid-svg-icons'
-import Link from 'next/link'
-import axios from 'axios'
-import { useRouter } from 'next/router'
+} from '@fortawesome/free-solid-svg-icons';
+import Link from 'next/link';
+import axios from 'axios';
+import { useRouter } from 'next/router';
+import Cookies from 'js-cookie';
+import { useState, useEffect } from 'react';
 
 type ItemWithIconProps = {
   icon: IconDefinition;
-} & PropsWithChildren
+} & PropsWithChildren;
 
 const ItemWithIcon = (props: ItemWithIconProps) => {
-  const { icon, children } = props
+  const { icon, children } = props;
 
   return (
     <>
       <FontAwesomeIcon className="me-2" icon={icon} fixedWidth />
       {children}
     </>
-  )
+  );
 }
 
 export default function HeaderProfileNav() {
-  const router = useRouter()
+  const [username, setUsername] = useState('');
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const logout = async () => {
-    const res = await axios.post('/api/mock/logout')
-    if (res.status === 200) {
-      router.push('/login')
+    try {
+      const res = await axios.post('/api/user/logout');
+      if (res.status === 200) {
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error(error);
     }
   }
+  useEffect(() => {
+    // Retrieve the token from cookies
+    const token = Cookies.get('client_token');
+
+    if (token) {
+      try {
+        // Decode the token to access the username
+        const decodedToken = JSON.parse(atob(token.split('.')[1]));
+        setUsername(decodedToken.username);
+      } catch (error) {
+        console.error('Error decoding token:', error);
+      } finally {
+        // Set loading to false after retrieving the username
+        setLoading(false);
+      }
+    }
+  }, []);
 
   return (
     <Nav>
       <Dropdown as={NavItem}>
-        <Dropdown.Toggle variant="link" bsPrefix="hide-caret" className="py-0 px-2 rounded-0" id="dropdown-profile">
-          <div className="avatar position-relative">
-            <Image
-              fill
-              className="rounded-circle"
-              src="/assets/img/avatars/8.jpg"
-              alt="user@email.com"
-            />
+        <Dropdown.Toggle variant="link" bsPrefix="hide-caret" className="rounded-0" id="dropdown-profile">
+          <div className="d-flex align-items-center justify-content-center">
+            <h3 className='rounded-circle text-decoration-none bg-black p-2 font-light'>{username && username[0].toUpperCase()}</h3>
           </div>
         </Dropdown.Toggle>
         <Dropdown.Menu className="pt-0">

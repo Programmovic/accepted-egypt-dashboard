@@ -18,6 +18,10 @@ import {
   faPencil,
   faPuzzlePiece,
   faRightToBracket,
+  faUser,
+  faSchool,
+  faPeopleGroup,
+  faStaffSnake
 } from '@fortawesome/free-solid-svg-icons'
 import React, {
   PropsWithChildren, useContext, useEffect, useState,
@@ -133,11 +137,19 @@ export default function SidebarNav() {
         Dashboard
         <small className="ms-auto"><Badge bg="info" className="ms-auto">NEW</Badge></small>
       </SidebarNavItem>
-      <SidebarNavItem icon={faCode} href="/pokemons">
-        Sample (SSR)
-        <small className="ms-auto"><Badge bg="danger" className="ms-auto">DEMO</Badge></small>
+      <SidebarNavItem icon={faUser} href="/admins">
+        Admins
       </SidebarNavItem>
-      <SidebarNavItem icon={faCode} href="/pokemons/client">
+      <SidebarNavItem icon={faSchool} href="/classes">
+        Classes
+      </SidebarNavItem>
+      <SidebarNavItem icon={faPeopleGroup} href="/groups">
+        Groups
+      </SidebarNavItem>
+      <SidebarNavItem icon={faStaffSnake} href="/students">
+        Students
+      </SidebarNavItem>
+      {/* <SidebarNavItem icon={faCode} href="/pokemons/client">
         Sample (CSR)
         <small className="ms-auto"><Badge bg="danger" className="ms-auto">DEMO</Badge></small>
       </SidebarNavItem>
@@ -162,9 +174,9 @@ export default function SidebarNav() {
         <SidebarNavItem href="#">Tables</SidebarNavItem>
         <SidebarNavItem href="#">Tabs</SidebarNavItem>
         <SidebarNavItem href="#">Tooltips</SidebarNavItem>
-      </SidebarNavGroup>
+      </SidebarNavGroup> */}
 
-      <SidebarNavGroup toggleIcon={faLocationArrow} toggleText="Buttons">
+      {/* <SidebarNavGroup toggleIcon={faLocationArrow} toggleText="Buttons">
         <SidebarNavItem href="#">Buttons</SidebarNavItem>
         <SidebarNavItem href="#">Buttons Group</SidebarNavItem>
         <SidebarNavItem href="#">Dropdowns</SidebarNavItem>
@@ -211,7 +223,7 @@ export default function SidebarNav() {
       </SidebarNavGroup>
 
       <SidebarNavItem icon={faFileLines} href="#">Docs</SidebarNavItem>
-      <SidebarNavItem icon={faLayerGroup} href="https://coreui.io/pro/">Try CoreUI PRO</SidebarNavItem>
+      <SidebarNavItem icon={faLayerGroup} href="https://coreui.io/pro/">Try CoreUI PRO</SidebarNavItem> */}
     </ul>
   )
 }
