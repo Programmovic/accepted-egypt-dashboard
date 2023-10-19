@@ -87,15 +87,15 @@ const Home: NextPage = () => {
   return (
     <AdminLayout>
       <div className="row">
-        <ClassCard data={users} title={'Admins'}/>
-        <ClassCard data={classes} title={'Classes'}/>
-        <ClassCard data={groups} title={'Groups'}/>
+        <ClassCard data={users} title={'Admins'} isLoading={loading}/>
+        <ClassCard data={classes} title={'Classes'} isLoading={loading}/>
+        <ClassCard data={groups} title={'Groups'} isLoading={loading}/>
         
 
         
       </div>
 
-      <Card className="mb-4">
+      {/* <Card className="mb-4">
         <Card.Body>
           <div className="d-flex justify-content-between">
             <div>
@@ -1161,7 +1161,7 @@ const Home: NextPage = () => {
             </Card.Body>
           </Card>
         </div>
-      </div>
+      </div> */}
     </AdminLayout>
   );
 };

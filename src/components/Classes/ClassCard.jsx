@@ -40,7 +40,7 @@ export default function ClassCard(props) {
   return (
     <div className="col-sm-6 col-lg-3">
       <Card text="white" className="mb-4" style={cardStyle}>
-        {isLoading ? (
+        {isLoading || !data ? (
           <div className="d-flex justify-content-center align-items-center h-100">
             <div className="spinner-border text-light" role="status">
               <span className="visually-hidden">Loading...</span>

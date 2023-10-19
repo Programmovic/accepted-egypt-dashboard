@@ -52,66 +52,42 @@ export default function HeaderProfileNav() {
       console.error(error);
     }
   }
+
   useEffect(() => {
     // Retrieve the token from cookies
     const token = Cookies.get('client_token');
 
-    if (token) {
-      try {
-        // Decode the token to access the username
-        const decodedToken = JSON.parse(atob(token.split('.')[1]));
-        setUsername(decodedToken.username);
-      } catch (error) {
-        console.error('Error decoding token:', error);
-      } finally {
-        // Set loading to false after retrieving the username
-        setLoading(false);
-      }
+    if (!token) {
+      // If the user is not signed in, redirect to the login page
+      router.push('/login');
+      return;
+    }
+
+    try {
+      // Decode the token to access the username
+      const decodedToken = JSON.parse(atob(token.split('.')[1]));
+      setUsername(decodedToken.username);
+    } catch (error) {
+      console.error('Error decoding token:', error);
+    } finally {
+      // Set loading to false after retrieving the username
+      setLoading(false);
     }
   }, []);
 
   return (
     <Nav>
       <Dropdown as={NavItem}>
-        <Dropdown.Toggle variant="link" bsPrefix="hide-caret" className="rounded-0" id="dropdown-profile">
+      <Dropdown.Toggle variant="link" bsPrefix="hide-caret" className="rounded-0" id="dropdown-profile">
           <div className="d-flex align-items-center justify-content-center">
-            <h3 className='rounded-circle text-decoration-none bg-black p-2 font-light'>{username && username[0].toUpperCase()}</h3>
+            <div className="rounded-circle bg-black p-2 font-light" style={{ width: '40px', height: '40px' }}>
+              <span className="text-decoration-none text-white">{username && username[0].toUpperCase()}</span>
+            </div>
           </div>
         </Dropdown.Toggle>
         <Dropdown.Menu className="pt-0">
-          <Dropdown.Header className="bg-light fw-bold rounded-top">Account</Dropdown.Header>
-          <Link href="#" passHref legacyBehavior>
-            <Dropdown.Item>
-              <ItemWithIcon icon={faBell}>
-                Updates
-                <Badge bg="info" className="ms-2">42</Badge>
-              </ItemWithIcon>
-            </Dropdown.Item>
-          </Link>
-          <Link href="#" passHref legacyBehavior>
-            <Dropdown.Item>
-              <ItemWithIcon icon={faEnvelopeOpen}>
-                Updates
-                <Badge bg="success" className="ms-2">42</Badge>
-              </ItemWithIcon>
-            </Dropdown.Item>
-          </Link>
-          <Link href="#" passHref legacyBehavior>
-            <Dropdown.Item>
-              <ItemWithIcon icon={faListCheck}>
-                Tasks
-                <Badge bg="danger" className="ms-2">42</Badge>
-              </ItemWithIcon>
-            </Dropdown.Item>
-          </Link>
-          <Link href="#" passHref legacyBehavior>
-            <Dropdown.Item>
-              <ItemWithIcon icon={faMessage}>
-                Messages
-                <Badge bg="warning" className="ms-2">42</Badge>
-              </ItemWithIcon>
-            </Dropdown.Item>
-          </Link>
+          <Dropdown.Header className="bg-light fw-bold rounded-top">{username}</Dropdown.Header>
+          
 
           <Dropdown.Header className="bg-light fw-bold">Settings</Dropdown.Header>
 
