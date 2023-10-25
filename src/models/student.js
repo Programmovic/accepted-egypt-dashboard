@@ -1,32 +1,59 @@
 const mongoose = require('mongoose');
-const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const studentSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
   },
-  // Add other student-related fields as needed
-  groups: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Group',
-  }],
-  cost: {
+  phoneNumber: {
+    type: String,
+    required: true,
+  },
+  email: {
+    type: String,
+  },
+  nationalId: {
+    type: String,
+  },
+  interestedInCourse: {
+    type: String,
+  },
+  status: {
+    type: String,
+    default: "Just Registered"
+  },
+  paid: {
     type: Number,
     default: 0,
   },
-  // Define a serial number field
-  serialNumber: {
-    type: Number,
-    unique: true, // Ensure uniqueness
+  level: {
+    type: String,
   },
+  waitingList: {
+    type: Boolean,
+    default: false,
+  },
+  placementTest: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PlacementTest'
+  },
+  batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Batch'
+  },
+  placementTestDate: {
+    type: Date,
+  },
+  due: {
+    type: Number,
+    default: 0,
+  },
+  joinedDate: {
+    type: Date,
+    default: Date.now,
+  },
+  
 });
 
-// Check if the sequence is already defined for the model
-if (!mongoose.models.Student) {
-  // Add the AutoIncrement plugin to generate the serial number
-  studentSchema.plugin(AutoIncrement, { id: 'custom_seqI', inc_field: 'serialNumber' });
-}
 
 module.exports = mongoose.models.Student || mongoose.model('Student', studentSchema);
-

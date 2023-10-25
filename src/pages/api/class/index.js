@@ -5,17 +5,17 @@ export default async (req, res) => {
   await connectDB();
   if (req.method === "POST") {
     try {
-      const { title, price, createdDate } = req.body;
+      const classData = req.body;
 
       // Check if a class with the same title already exists
-      const existingClass = await Class.findOne({ title });
+      const existingClass = await Class.findOne({ name: classData.name });
 
       if (existingClass) {
         return res.status(400).json({ error: "Class with this title already exists" });
       }
 
       // Create a new Class document and include the provided "createdDate"
-      const newClass = new Class({ title, price, createdDate });
+      const newClass = new Class(classData);
 
       // Save the new class to the database
       await newClass.save();

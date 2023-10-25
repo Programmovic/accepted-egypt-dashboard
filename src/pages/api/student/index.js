@@ -1,43 +1,75 @@
 import connectDB from "@lib/db";
 import Student from "../../../models/student";
-import Class from "../../../models/class";
-import Group from "../../../models/group";
-const mongoose = require('mongoose');
+import PlacementTest from "../../../models/placement_test";
+import Transaction from "../../../models/transaction";
 
 export default async (req, res) => {
-  await connectDB();
-  if (req.method === "POST") {
-    try {
-      const { name, groups } = req.body;
-      const groupIds = groups
+  try {
+    await connectDB();
 
-      const groupData = await Group.find({ _id: { $in: groupIds } });
-      const classIds = groupData.map(group => group.class);
-      const classData = await Class.find({ _id: { $in: classIds } });
-      let totalCost = 0;
-    
-      for (const classInfo of classData) {
-        totalCost += classInfo.price || 0;
-      };
+    if (req.method === "POST") {
+      const studentData = req.body;
 
-      // Create a new Student document with the calculated cost
-      const newStudent = new Student({ name, groups, cost: totalCost });
+      if (!studentData.name || !studentData.phoneNumber) {
+        return res.status(400).json({ error: "Name and phone number are required" });
+      }
 
-      // Save the new student to the database
+      // Create a new Student document
+      const newStudent = new Student(studentData);
+
+      // Calculate the due amount
+      const dueAmount = studentData.due;
+
+      // Create a transaction for the paid amount
+      const paidTransaction = new Transaction({
+        student: newStudent._id,
+        batch: studentData.batch, // You need to provide the batch ID
+        type: "Paid",
+        amount: studentData.paid,
+        
+      });
+
+      // Create a transaction for the due amount (if there is a due amount)
+      if (dueAmount > 0) {
+        const dueTransaction = new Transaction({
+          student: newStudent._id,
+          batch: studentData.batch, // You need to provide the batch ID
+          type: "Due",
+          amount: dueAmount,
+        });
+
+        // Save both transactions
+        await Promise.all([paidTransaction.save(), dueTransaction.save()]);
+      } else {
+        // Save only the paid transaction
+        await paidTransaction.save();
+      }
+
       await newStudent.save();
 
-      return res.status(201).json(newStudent);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Could not create the student" });
+      // Create a placement test for the new student
+      const newPlacementTest = new PlacementTest({
+        student: newStudent._id,
+        studentName: newStudent.name,
+        studentNationalID: newStudent.nationalId,
+        generalPlacementTest: newStudent.placementTest,
+        status: "Not Started Yet!",
+        date: new Date(studentData.placementTestDate),
+        // Add any other placement test fields here
+      });
+
+      await newPlacementTest.save();
+
+      return res.status(201).json({ newStudent });
+    } else if (req.method === "GET") {
+      const students = await Student.find();
+      // You can also fetch associated placement test and transaction data here if needed
+      return res.status(200).json({ students });
+    } else {
+      return res.status(400).json({ error: "Invalid request" });
     }
-  } else {
-    return res.status(400).json({ error: "Invalid request" });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: error.message });
   }
 };
-
-async function calculateCost(groups) {
-  
-  return totalCost;
-}
-

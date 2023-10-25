@@ -14,64 +14,39 @@ import Link from "next/link";
 export default function ClassCard(props) {
   const { title, data, enableOptions = true, isLoading } = props;
 
-  // Function to generate a random dark background color
-  const getRandomDarkBackgroundColor = () => {
-    const minBrightness = 30; // Adjust this to control darkness
-    const randomColor = () => Math.floor(Math.random() * 256);
-    const r = randomColor();
-    const g = randomColor();
-    const b = randomColor();
-
-    // Ensure the color is dark by checking its brightness
-    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    if (brightness < minBrightness) {
-      return `rgb(${r},${g},${b})`;
-    }
-
-    // If the color is too bright, recursively call the function to try again
-    return getRandomDarkBackgroundColor();
-  };
-
-  const cardStyle = {
-    backgroundColor: getRandomDarkBackgroundColor(),
-    height: "150px",
-  };
 
   return (
     <div className="col-sm-6 col-lg-3">
-      <Card text="white" className="mb-4" style={cardStyle}>
-        {isLoading || !data ? (
-          <div className="d-flex justify-content-center align-items-center h-100">
-            <div className="spinner-border text-light" role="status">
-              <span className="visually-hidden">Loading...</span>
+      <Card text="white" className="mb-4 border-none">
+        <Card.Body
+          className="pb-0 d-flex justify-content-between align-items-start text-dark"
+        >
+          
+          <div className="col-6">
+            <div className="border-start border-4 border-info px-3 mb-3">
+              <small className="text-black-50">{title}</small>
+              <div className="fs-5 fw-semibold">{data}</div>
             </div>
           </div>
-        ) : (
-          <Card.Body className="pb-0 d-flex justify-content-between align-items-start" style={{ height: "100%" }}>
-            <div style={{ height: "80%" }}>
-              <div className="fs-4 fw-semibold">{data}</div>
-              <div>{title}</div>
-            </div>
-            {enableOptions && (
-              <Dropdown align="end">
-                <Dropdown.Toggle
-                  as="button"
-                  bsPrefix="btn"
-                  className="btn-link rounded-0 text-white shadow-none p-0"
-                  id="dropdown-chart1"
-                >
-                  <FontAwesomeIcon fixedWidth icon={faEllipsisVertical} />
-                </Dropdown.Toggle>
+          {enableOptions && (
+            <Dropdown align="end">
+              <Dropdown.Toggle
+                as="button"
+                bsPrefix="btn"
+                className="btn-link rounded-0 text-dark shadow-none p-0"
+                id="dropdown-chart1"
+              >
+                <FontAwesomeIcon fixedWidth icon={faEllipsisVertical} />
+              </Dropdown.Toggle>
 
-                <Dropdown.Menu>
-                  <Dropdown.Item>
-                    <Link href={`/${title.toLowerCase()}`}>See them</Link>
-                  </Dropdown.Item>
-                </Dropdown.Menu>
-              </Dropdown>
-            )}
-          </Card.Body>
-        )}
+              <Dropdown.Menu>
+                <Dropdown.Item>
+                  <Link href={`/${title.toLowerCase()}`}>See them</Link>
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          )}
+        </Card.Body>
       </Card>
     </div>
   );

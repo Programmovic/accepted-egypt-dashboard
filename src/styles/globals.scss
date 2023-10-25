@@ -11,3 +11,11 @@ $enable-negative-margins: true;
 @import "~nprogress/nprogress.css";
 
 @import "_custom";
+
+body{
+    zoom: 70%;
+}
+.fade{
+    width: 100%;
+    height: 100%;
+}
