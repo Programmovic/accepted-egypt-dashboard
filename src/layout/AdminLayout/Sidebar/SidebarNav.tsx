@@ -196,10 +196,7 @@ export default function SidebarNav() {
       <SidebarNavItem icon={faMoneyBill} href="/transactions">
         Transactions
       </SidebarNavItem>
-      <SidebarNavItem icon={faPencil} href="#">
-        Typography
-      </SidebarNavItem>
-      <SidebarNavTitle>Components</SidebarNavTitle>
+      {/* <SidebarNavTitle>Components</SidebarNavTitle>
 
       <SidebarNavGroup toggleIcon={faPuzzlePiece} toggleText="Base">
         <SidebarNavItem href="#">Accordion</SidebarNavItem>
@@ -282,7 +279,7 @@ export default function SidebarNav() {
       </SidebarNavItem>
       <SidebarNavItem icon={faLayerGroup} href="https://coreui.io/pro/">
         Try CoreUI PRO
-      </SidebarNavItem>
+      </SidebarNavItem> */}
     </ul>
   );
 }
