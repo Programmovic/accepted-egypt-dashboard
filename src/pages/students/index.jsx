@@ -29,8 +29,7 @@ const Students = () => {
   const [sortBy, setSortBy] = useState("name"); // Default sorting criteria
   const [sortOrder, setSortOrder] = useState("asc"); // Default sorting order
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [showStudentDetailsModal, setShowStudentDetailsModal] = useState(false);
-
+  const [showStudentDetailsModal, setShowStudentDetailsModal] = useState(false)
   // State for new student creation
   const [newStudentName, setNewStudentName] = useState("");
   const [newStudentPhoneNumber, setNewStudentPhoneNumber] = useState("");
@@ -39,13 +38,11 @@ const Students = () => {
   const [newStudentPaid, setNewStudentPaid] = useState(0);
   const [newStudentPlacementTestDate, setNewStudentPlacementTestDate] =
     useState("");
-    const [newStudentPlacementTest, setNewStudentPlacementTest] =
-    useState("");
-  const [maxPaid, setMaxPaid] =
-    useState(0);
+  const [newStudentPlacementTest, setNewStudentPlacementTest] = useState("");
+  const [maxPaid, setMaxPaid] = useState(0);
   const [newStudentDue, setNewStudentDue] = useState(0);
   const [loadingAddStudent, setLoadingAddStudent] = useState(false);
-
+  const [rooms, setRooms] = useState([]);
   const fetchStudentData = async () => {
     try {
       const response = await axios.get("/api/student");
@@ -61,8 +58,22 @@ const Students = () => {
       setLoading(false);
     }
   };
-
+  const fetchRooms = async () => {
+    try {
+      const response = await axios.get("/api/room");
+      if (response.status === 200) {
+        const roomData = response.data;
+        setRooms(roomData);
+      }
+    } catch (error) {
+      console.error("Error fetching student data:", error);
+      setError("Failed to fetch student data. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
+    fetchRooms()
     fetchStudentData();
   }, []);
   console.log(filteredStudents.students);
@@ -129,12 +140,12 @@ const Students = () => {
     try {
       setLoadingAddStudent(true);
       if (newStudentPaid > maxPaid) {
-          toast.error("Paid amount cannot be more than the test cost.", {
-            position: "top-right",
-            autoClose: 3000,
-          });
-          return; // Exit the function without adding the student
-        }
+        toast.error("Paid amount cannot be more than the test cost.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return; // Exit the function without adding the student
+      }
       const response = await axios.post("/api/student", {
         name: newStudentName,
         phoneNumber: newStudentPhoneNumber,
@@ -241,7 +252,7 @@ const Students = () => {
   useEffect(() => {
     fetchPlacementTests();
   }, []);
-
+console.log(filteredStudents)
   return (
     <AdminLayout>
       <div className="row">
@@ -401,6 +412,47 @@ const Students = () => {
                 Joined Date:{" "}
                 {new Date(selectedStudent.joinedDate).toLocaleDateString()}
               </p>
+              <div className="container">
+                <ol className="progress-meter">
+                  <li className="progress-point done">Joined</li>
+                  <li
+                    className={`progress-point ${
+                      selectedStudent.status === "Under Placement Test" ||
+                      selectedStudent.status === "Waiting List" ||
+                      selectedStudent.status === "Joined Batch"
+                        ? "done"
+                        : "todo"
+                    }`}
+                  >
+                    Placement Test
+                  </li>
+                  <li
+                    className={`progress-point ${
+                      (selectedStudent.status === "Waiting List" ||
+                        selectedStudent.status === "Joined Batch") &&
+                      selectedStudent.status !== "Under Placement Test" &&
+                      selectedStudent.status !==
+                        "Under Placement Test at " +
+                          new Date(
+                            selectedStudent.placementTestDate
+                          ).toLocaleDateString()
+                        ? "done"
+                        : "todo"
+                    }`}
+                  >
+                    Waiting List
+                  </li>
+                  <li
+                    className={`progress-point ${
+                      selectedStudent.status === "Joined Batch"
+                        ? "done"
+                        : "todo"
+                    }`}
+                  >
+                    Joined Batch
+                  </li>
+                </ol>
+              </div>
             </div>
           )}
         </Modal.Body>
@@ -453,12 +505,12 @@ const Students = () => {
                 onChange={(e) => setNewStudentNationalId(e.target.value)}
               />
             </Form.Group>
-            
+
             <Form.Group className="mb-3">
               <Form.Label>Placement Test</Form.Label>
               <Form.Control
                 as="select"
-                value={newStudentPlacementTestDate}
+                value={newStudentPlacementTest}
                 onChange={(e) => {
                   setNewStudentPlacementTest(e.target.value);
                   // Find the selected test by its ID
@@ -466,16 +518,10 @@ const Students = () => {
                     (test) => test._id === e.target.value
                   );
                   setSelectedPlacementTest(selectedTest);
-                  setMaxPaid(selectedTest.cost)
+                  setMaxPaid(selectedTest.cost);
+                  setNewStudentPaid(selectedTest.cost);
                   setNewStudentPlacementTestDate(selectedTest.date);
-                  // Update the paid and due based on the selected test
-                  if (selectedTest) {
-                    if (newStudentPaid < selectedTest.cost) {
-                      setNewStudentDue(selectedTest.cost - newStudentPaid);
-                    } else {
-                      setNewStudentDue(0);
-                    }
-                  }
+                  setNewStudentDue(0);
                 }}
               >
                 <option value="" hidden>
@@ -485,7 +531,8 @@ const Students = () => {
                 </option>
                 {placementTests.map((test) => (
                   <option key={test._id} value={test._id}>
-                    {new Date(test.date).toLocaleDateString()} - {test.room} -{" "}
+                    {new Date(test.date).toLocaleDateString()} -{" "}
+                    {rooms.find((room) => room._id === test.room)?.name} -{" "}
                     {test.cost} EGP
                   </option>
                 ))}
@@ -496,12 +543,7 @@ const Students = () => {
               <Form.Control
                 type="number"
                 value={newStudentPaid}
-                disabled={selectedPlacementTest ? false : true}
-                onChange={(e) => {
-                  setNewStudentPaid(e.target.value)
-                  setNewStudentDue(maxPaid - e.target.value);
-                }}
-                
+                disabled={true}
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -519,7 +561,11 @@ const Students = () => {
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Close
           </Button>
-          <Button variant="success" onClick={handleAddStudent} disabled={placementTests.length > 0 ? false : true}>
+          <Button
+            variant="success"
+            onClick={handleAddStudent}
+            disabled={placementTests.length > 0 ? false : true}
+          >
             {loadingAddStudent ? "Adding Student..." : "Add Student"}
           </Button>
         </Modal.Footer>

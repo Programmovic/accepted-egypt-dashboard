@@ -15,6 +15,9 @@ const placementTestSchema = new mongoose.Schema({
     type: String, // Reference to the Student model
     required: true,
   },
+  assignedLevel: {
+    type: String,
+  },
   status: {
     type: String, // Reference to the Student model
     required: true,
@@ -22,6 +25,9 @@ const placementTestSchema = new mongoose.Schema({
   studentNationalID: {
     type: String, // Reference to the Student model
     required: true,
+  },
+  cost: {
+    type: Number, // Cost associated with taking the placement test
   },
   date: {
     type: Date,

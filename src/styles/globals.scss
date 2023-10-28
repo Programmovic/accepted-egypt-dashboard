@@ -10,10 +10,13 @@ $enable-negative-margins: true;
 
 @import "~nprogress/nprogress.css";
 
-@import "_custom";
+@import "_custom.scss";
 
 body{
     zoom: 70%;
+}
+.full-content-wrapper{
+    min-height: 141px;
 }
 .fade{
     width: 100%;

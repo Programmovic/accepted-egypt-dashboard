@@ -29,7 +29,10 @@ import {
   faPerson,
   faArrowRightFromBracket,
   faHeartCircleExclamation,
-  faMoneyBill
+  faMoneyBill,
+  faDollar,
+  faHome,
+  faHandsHelping
   
 } from "@fortawesome/free-solid-svg-icons";
 import React, {
@@ -167,34 +170,45 @@ export default function SidebarNav() {
       <SidebarNavItem icon={faUser} href="/admins">
         Admins
       </SidebarNavItem>
+      <SidebarNavItem icon={faHome} href="/rooms">
+        Rooms
+      </SidebarNavItem>
+      <SidebarNavItem icon={faEdit} href="/placement_tests">
+        Placement Test
+      </SidebarNavItem>
       <SidebarNavItem icon={faSchool} href="/courses">
         Courses
+      </SidebarNavItem>
+      <SidebarNavItem icon={faPerson} href="/students">
+        Students
+      </SidebarNavItem>
+      <SidebarNavItem icon={faClock} href="/waiting_list">
+        Waiting List
       </SidebarNavItem>
       <SidebarNavItem icon={faPeopleGroup} href="/batches">
         Batches
       </SidebarNavItem>
+      
       <SidebarNavItem icon={faPeopleGroup} href="/lectures">
         Lectures
       </SidebarNavItem>
       <SidebarNavItem icon={faChalkboardTeacher} href="/instructors">
         Instructors
       </SidebarNavItem>
-      <SidebarNavItem icon={faEdit} href="/placement_tests">
-        Placement Test
-      </SidebarNavItem>
-      <SidebarNavItem icon={faClock} href="/waiting_list">
-        Waiting List
-      </SidebarNavItem>
-      <SidebarNavItem icon={faPerson} href="/students">
-        Students
-      </SidebarNavItem>
+      
+      
+      
 
       <SidebarNavTitle>Finance</SidebarNavTitle>
       <SidebarNavItem icon={faHeartCircleExclamation} href="/sales_members">
         Sales Members
       </SidebarNavItem>
-      <SidebarNavItem icon={faMoneyBill} href="/transactions">
+      <SidebarNavItem icon={faDollar} href="/transactions">
         Transactions
+      </SidebarNavItem>
+      <SidebarNavTitle>Help</SidebarNavTitle>
+      <SidebarNavItem icon={faHandsHelping} href="/help">
+        How to Use?
       </SidebarNavItem>
       {/* <SidebarNavTitle>Components</SidebarNavTitle>
 

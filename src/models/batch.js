@@ -9,6 +9,9 @@ const batchSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  code: {
+    type: String,
+  },
   class: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Class',
@@ -34,14 +37,16 @@ const batchSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  lab: {
-    type: String,
-    required: true,
+  room: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Room',
   },
-  lecturesTimes: [
+  weeklyHours: [
     {
-      type: String,
-    },
+      day: String, // Day of the week, e.g., "Monday"
+      from: String, // Starting time, e.g., "09:00 AM"
+      to: String, // Ending time, e.g., "11:00 AM"
+    }
   ],
   description: {
     type: String,
@@ -52,4 +57,4 @@ const batchSchema = new mongoose.Schema({
   },
 });
 
-module.exports = mongoose.models.Batch || mongoose.model("Batch", batchSchema);
+module.exports = mongoose.models.Batch || mongoose.model('Batch', batchSchema);

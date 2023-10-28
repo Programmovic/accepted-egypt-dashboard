@@ -7,11 +7,16 @@ export default async (req, res) => {
     try {
       const classData = req.body;
 
-      // Check if a class with the same title already exists
-      const existingClass = await Class.findOne({ name: classData.name });
+      // Check if a class with the same name or code already exists
+      const existingClass = await Class.findOne({
+        $or: [
+          { name: classData.name },
+          { code: classData.code },
+        ],
+      });
 
       if (existingClass) {
-        return res.status(400).json({ error: "Class with this title already exists" });
+        return res.status(400).json({ error: "Class with this name or code already exists" });
       }
 
       // Create a new Class document and include the provided "createdDate"
@@ -32,7 +37,7 @@ export default async (req, res) => {
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Could not fetch classes" });
-    } 
+    }
   } else if (req.method === "DELETE") {
     try {
       // Drop the Class collection (delete the entire schema and its data)

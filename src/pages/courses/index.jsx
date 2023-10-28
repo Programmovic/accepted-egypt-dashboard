@@ -296,7 +296,7 @@ const Classes = () => {
             Close
           </Button>
           <Button variant="success" onClick={handleAddClass}>
-            Add Class
+            Add Course
           </Button>
         </Modal.Footer>
       </Modal>

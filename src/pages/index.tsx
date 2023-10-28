@@ -44,6 +44,7 @@ import { AdminLayout } from "@layout";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { ClassCard } from "@components/Classes";
+import { format, startOfWeek, endOfWeek, isWithinInterval } from "date-fns"; // Import date-fns functions
 
 Chart.register(
   CategoryScale,
@@ -73,7 +74,7 @@ const Home: NextPage = () => {
       const classes_response = await axios.get("/api/class");
       setClasses(classes_response.data.length);
       const batches_response = await axios.get("/api/batch");
-      setGroups(batches_response.data.length);
+      setGroups(batches_response.data);
       const instructors_response = await axios.get("/api/instructor");
       setInstructors(instructors_response.data.length);
       const lectures_response = await axios.get("/api/lecture");
@@ -88,13 +89,26 @@ const Home: NextPage = () => {
   useEffect(() => {
     fetchData();
   }, []);
-  
+  const currentDate = new Date();
+  const currentWeekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Adjust week start as needed
+  const currentWeekEnd = endOfWeek(currentDate, { weekStartsOn: 1 }); // Adjust week start as needed
+
+  // Filter lectures that fall within the current week
+  const upcomingLectures = lectures.filter((lecture) => {
+    const lectureDate = new Date(lecture.weeklyHours.day); // Assuming lecture.weeklyHours.day is a date string
+
+    // Check if the lecture date is within the current week
+    return isWithinInterval(lectureDate, {
+      start: currentWeekStart,
+      end: currentWeekEnd,
+    });
+  });
   return (
     <AdminLayout>
       <div className="row">
         <ClassCard data={users} title={"Admins"} isLoading={loading} />
         <ClassCard data={classes} title={"Classes"} isLoading={loading} />
-        <ClassCard data={groups} title={"Batches"} isLoading={loading} />
+        {/* <ClassCard data={groups.length} title={"Batches"} isLoading={loading} /> */}
         <ClassCard
           data={instructors}
           title={"Instructors"}
@@ -103,8 +117,8 @@ const Home: NextPage = () => {
       </div>
 
       <div className="row">
-        {/* Your lecture table */}
         <div className="col-md-12">
+          <h2>Upcoming Lectures for the Current Week</h2>
           <div className="table-responsive">
             <table className="table border mb-0">
               <thead className="table-light fw-semibold">
@@ -124,35 +138,31 @@ const Home: NextPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {lectures &&
-                  lectures.map((lecture: any, index) => (
-                    <tr key={index} className="align-middle">
-                      <td className="text-center">
-                        {/* You can display lecture-specific icons or images here */}
-                      </td>
-                      <td>{lecture.name}</td>
-                      <td>{lecture.batch ? lecture.batch.name : "N/A"}</td>
-                      <td>{lecture.hours}</td>
-                      <td>{lecture.cost}</td>
-                      <td>
-                        {lecture.lectureSchedule.map(
-                          (schedule:any, scheduleIndex:any) => (
-                            <div key={scheduleIndex}>
-                              {schedule.day}, {schedule.time}
-                            </div>
-                          )
-                        )}
-                      </td>
-                      <td>{lecture.lab}</td>
-                      <td>{lecture.description}</td>
-                      <td>{lecture.createdDate}</td>
-                      <td>
-                        <Dropdown align="end">
-                          {/* Dropdown actions for each lecture */}
-                        </Dropdown>
-                      </td>
-                    </tr>
-                  ))}
+                {upcomingLectures.map((lecture: any, index) => (
+                  <tr key={index} className="align-middle">
+                    <td className="text-center">
+                      {/* You can display lecture-specific icons or images here */}
+                    </td>
+                    <td>{lecture.name}</td>
+                    <td>{lecture.batch ? lecture.batch.name : "N/A"}</td>
+                    <td>{lecture.hours}</td>
+                    <td>{lecture.cost}</td>
+                    <td>
+                      {`${format(lectureDate, "EEEE")}: From ${format(
+                        lectureDate,
+                        "HH:mm a"
+                      )}`}
+                    </td>
+                    <td>{lecture.lab}</td>
+                    <td>{lecture.description}</td>
+                    <td>{lecture.createdDate}</td>
+                    <td>
+                      <Dropdown align="end">
+                        {/* Dropdown actions for each lecture */}
+                      </Dropdown>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -161,7 +171,7 @@ const Home: NextPage = () => {
       <div className="row mt-5">
         <ClassCard data={users} title={"Admins"} isLoading={loading} />
         <ClassCard data={classes} title={"Classes"} isLoading={loading} />
-        <ClassCard data={groups} title={"Batches"} isLoading={loading} />
+        {/* <ClassCard data={groups.length} title={"Batches"} isLoading={loading} /> */}
         <ClassCard
           data={instructors}
           title={"Instructors"}
@@ -202,13 +212,7 @@ const Home: NextPage = () => {
                       <td>{lecture.hours}</td>
                       <td>{lecture.cost}</td>
                       <td>
-                        {lecture.lectureSchedule.map(
-                          (schedule:any, scheduleIndex:any) => (
-                            <div key={scheduleIndex}>
-                              {schedule.day}, {schedule.time}
-                            </div>
-                          )
-                        )}
+                        {`${lecture.weeklyHours.day}: From ${lecture.weeklyHours.from} to ${lecture.weeklyHours.to}`}
                       </td>
                       <td>{lecture.lab}</td>
                       <td>{lecture.description}</td>

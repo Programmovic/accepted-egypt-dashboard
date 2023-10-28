@@ -6,6 +6,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@layout";
 import { useRouter } from "next/router"; // Import useRouter
+import { ClassCard } from "@components/Classes";
+import Select from "react-select";
 
 const PlacementTests = () => {
   const [placementTestSettings, setPlacementTestSettings] = useState([]);
@@ -20,6 +22,19 @@ const PlacementTests = () => {
     showGeneralPlacementTestDetailsModal,
     setShowGeneralPlacementTestDetailsModal,
   ] = useState(false);
+  const [newTestCost, setNewTestCost] = useState("");
+  const [newTestInstructions, setNewTestInstructions] = useState("");
+  const [newTestRoom, setNewTestRoom] = useState("");
+  const [newTestDate, setNewTestDate] = useState("");
+  // Add state variables for the filter values
+  const [filterStudentName, setFilterStudentName] = useState("");
+  const [filterLevel, setFilterLevel] = useState("");
+  const [filterFromDate, setFilterFromDate] = useState("");
+  const [filterToDate, setFilterToDate] = useState("");
+  const [filterdPlacementTests, setFilteredPlacementTests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [availableRooms, setAvailableRooms] = useState([]); // New state for rooms
+  const [selectedRoom, setSelectedRoom] = useState(null);
   const fetchPlacementTestData = async () => {
     try {
       const settingsResponse = await axios.get("/api/placement_test_settings");
@@ -28,6 +43,7 @@ const PlacementTests = () => {
       if (settingsResponse.status === 200 && testsResponse.status === 200) {
         setPlacementTestSettings(settingsResponse.data);
         setPlacementTests(testsResponse.data);
+        setFilteredPlacementTests(testsResponse.data);
       }
     } catch (error) {
       console.error("Error fetching placement test data:", error);
@@ -38,16 +54,54 @@ const PlacementTests = () => {
           autoClose: 3000,
         }
       );
+    } finally {
+      setLoading(false);
+    }
+  };
+  const date = newTestDate; // Use your desired date
+  const fromTime = "09:00 AM"; // Use your desired from time
+  const toTime = "05:00 AM"; // Use your desired to time
+
+  // Define the URL of your API endpoint
+  const apiUrl = "/api/reservation/available-rooms"; // Update the URL if needed
+
+  const fetchRooms = async () => {
+    try {
+      // Fetch all rooms
+      const params = {
+        date,
+        fromTime,
+        toTime,
+      };
+      const roomsResponse = await axios.get(apiUrl, { params });
+      if (roomsResponse.status !== 200) {
+        console.error("Error fetching rooms:", roomsResponse.statusText);
+        toast.error("Failed to fetch room data. Please try again later.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return;
+      }
+
+      const rooms = roomsResponse.data.map((room) => ({
+        value: room._id, // Use a unique identifier for each room
+        label: room.name, // Display room name as label
+      }));
+      setAvailableRooms(rooms);
+    } catch (error) {
+      console.error("Error fetching rooms and reservations:", error);
     }
   };
 
   useEffect(() => {
+    fetchRooms();
+  }, [newTestDate]);
+
+  useEffect(() => {
     fetchPlacementTestData();
   }, []);
-  const [newTestCost, setNewTestCost] = useState("");
-  const [newTestInstructions, setNewTestInstructions] = useState("");
-  const [newTestRoom, setNewTestRoom] = useState("");
-  const [newTestDate, setNewTestDate] = useState("");
+
+  console.log(selectedRoom);
   const handleAddPlacementTest = async () => {
     try {
       const response = await axios.post("/api/placement_test_settings", {
@@ -96,13 +150,13 @@ const PlacementTests = () => {
 
   const handleMoveToWaitingList = async () => {
     try {
-      if (selectedPlacementTest && selectedLevel) {
+      if (selectedPlacementTest) {
         // Make an API request to move the student to the waiting list
         const response = await axios.post("/api/waiting_list", {
           student: selectedPlacementTest.student, // Assuming student ID is used
           studentName: selectedPlacementTest.studentName,
           selectedLevel,
-          placementTestID: selectedPlacementTest._id
+          placementTestID: selectedPlacementTest._id,
         });
 
         if (response.status === 201) {
@@ -129,15 +183,273 @@ const PlacementTests = () => {
       });
     }
   };
-  const router = useRouter(); 
+  console.log(selectedLevel);
+  const handleAssignLevel = async () => {
+    try {
+      if (selectedPlacementTest && selectedLevel) {
+        // Make an API request to update the assigned level
+        const response = await axios.put(
+          `/api/student/assign-level/${selectedPlacementTest.student}`,
+          {
+            assignedLevel: selectedLevel,
+            student: selectedPlacementTest.student,
+            status: "Assigned Level",
+            placementTestID: selectedPlacementTest._id,
+          }
+        );
+
+        if (response.status === 200) {
+          // Assignment level updated successfully
+          toast.success("Level Assigned", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+          fetchPlacementTestData();
+
+          // Close the details modal
+          setShowPlacementTestDetailsModal(false);
+        } else {
+          // Handle other possible response status codes here
+          console.error("Unexpected status code:", response.status);
+        }
+      }
+    } catch (error) {
+      console.error("Error assigning level:", error.message);
+      toast.error("Failed to assign the level", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+  const router = useRouter();
   const totalNoOfStudentsInThisTest = (testID) => {
-    return placementTests.filter(
-      (test) => test?.generalPlacementTest === testID
-    ).length || "N/A";
+    return (
+      placementTests.filter((test) => test?.generalPlacementTest === testID)
+        .length || 0
+    );
+  };
+  const applyFilters = () => {
+    const filteredTests = placementTests.filter((test) => {
+      const isNameMatch =
+        filterStudentName === "" ||
+        test.studentName
+          .toLowerCase()
+          .includes(filterStudentName.toLowerCase());
+
+      const isLevelMatch =
+        filterLevel === "" || test.assignedLevel === filterLevel;
+
+      const testDate = new Date(test.date);
+      const startDate = filterFromDate ? new Date(filterFromDate) : null;
+      const endDate = filterToDate ? new Date(filterToDate) : null;
+
+      if (startDate && endDate) {
+        // Both start and end dates provided
+        return (
+          isNameMatch &&
+          isLevelMatch &&
+          testDate >= startDate &&
+          testDate <= endDate
+        );
+      } else if (startDate && endDate === null) {
+        // Only start date provided, filter from start date to now
+        return (
+          isNameMatch &&
+          isLevelMatch &&
+          testDate >= startDate &&
+          testDate <= new Date()
+        );
+      } else {
+        // No date filter, apply other filters
+        return isNameMatch && isLevelMatch;
+      }
+    });
+
+    // Set the filtered data in your state
+    setFilteredPlacementTests(filteredTests);
   };
 
+  const getTotalStudentsCount = () => filterdPlacementTests.length;
+
+  const getLevelCount = (level) => {
+    return filterdPlacementTests.filter((test) => test.assignedLevel === level)
+      .length;
+  };
+
+  const getWaitingListCount = () => {
+    return filterdPlacementTests.filter(
+      (test) => test.status === "Waiting List"
+    ).length;
+  };
+
+  const getNACount = () => {
+    return filterdPlacementTests.filter((test) => test.assignedLevel === "N/A")
+      .length;
+  };
+  const getTotalAmountReceived = () => {
+    const totalCost = filterdPlacementTests.reduce(
+      (acc, setting) => filterdPlacementTests.length * setting.cost,
+      0
+    );
+    return totalCost;
+  };
+  console.log(filterdPlacementTests[0])
+  const getAmountReceivedForLevel = (level) => {
+    const amountReceived = filterdPlacementTests.reduce((acc, setting) => {
+      const levelCount = filterdPlacementTests.filter(
+        (test) => test.assignedLevel === level
+      ).length;
+      return levelCount * setting.cost;
+    }, 0);
+    return `${amountReceived + " EGP"} (${
+      (+amountReceived / +getTotalAmountReceived()) * 100
+    }%)`;
+  };
+  const getPlacementTestCountByStatus = (status) => {
+    return filterdPlacementTests.filter((test) => test.status === status)
+      .length;
+  };
+  const clearFilters = () => {
+    // Clear the filter values and call fetchPlacementTestData without filters
+    setFilterStudentName("");
+    setFilterLevel("");
+    setFilterFromDate("");
+    setFilterToDate("");
+    fetchPlacementTestData();
+  };
+  useEffect(() => {
+    // Automatically apply filters when filter inputs change
+    applyFilters();
+  }, [filterStudentName, filterLevel, filterFromDate, filterToDate]);
+  console.log(newTestRoom);
+  const getClassName = (instructorId) => {
+    console.log("instructorId");
+    const selectedInstructor = availableRooms.find(
+      (instructor) => instructor.value === instructorId
+    );
+    console.log(instructorId);
+    return selectedInstructor ? selectedInstructor : "Unknown"; // You can provide a default value like 'Unknown'
+  };
   return (
     <AdminLayout>
+      <div className="row">
+        <ClassCard
+          data={getTotalStudentsCount()}
+          title="Total Students"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getLevelCount("A1")}
+          title="Level A1"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getLevelCount("A2")}
+          title="Level A2"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getLevelCount("A2/B1")}
+          title="Level A2/B1"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getLevelCount("B1 Talabat")}
+          title="Level B1 Talabat"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getLevelCount("B1 Etihad")}
+          title="Level B1 Etihad"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getLevelCount("B1+/B2")}
+          title="Level B1+/B2"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getNACount()}
+          title="Level N/A"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getWaitingListCount()}
+          title="Waiting List"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getAmountReceivedForLevel("A1")}
+          title="Amount Received for A1"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getAmountReceivedForLevel("A2")}
+          title="Amount Received for A2"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getAmountReceivedForLevel("A2/B1")}
+          title="Amount Received for A2/B1"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getAmountReceivedForLevel("B1 Talabat")}
+          title="Amount Received for B1 Talabat"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getAmountReceivedForLevel("B1 Etihad")}
+          title="Amount Received for B1 Etihad"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getAmountReceivedForLevel("B1+/B2")}
+          title="Amount Received for B1+/B2"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={`${getTotalAmountReceived()} EGP`}
+          title="Total Amount Received"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getPlacementTestCountByStatus("Not Started Yet!")}
+          title="Not Started Yet"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getPlacementTestCountByStatus("Assigned Level")}
+          title="Assigned Level"
+          enableOptions={false}
+          isLoading={loading}
+        />
+        <ClassCard
+          data={getPlacementTestCountByStatus(
+            "Finished, Moved to Waiting List"
+          )}
+          title="Finished, Moved to Waiting List"
+          enableOptions={false}
+          isLoading={loading}
+        />
+      </div>
       <Card>
         <Card.Header>Placement Tests</Card.Header>
         <Card.Body>
@@ -179,9 +491,13 @@ const PlacementTests = () => {
                           <td>{index + 1}</td>
                           <td>{setting.cost}</td>
                           <td>{setting.instructions || "No Instructions"}</td>
-                          <td>{setting.room}</td>
+                          <td>{getClassName(setting.room).label}</td>
                           <td>{new Date(setting.date).toLocaleDateString()}</td>
-                          <td>{totalNoOfStudentsInThisTest(setting._id) * setting.cost} EGP</td>
+                          <td>
+                            {+totalNoOfStudentsInThisTest(setting._id) *
+                              +setting.cost}{" "}
+                            EGP
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -197,25 +513,89 @@ const PlacementTests = () => {
               </Accordion.Header>
               <Accordion.Body>
                 <Card>
+                  <Form className="mb-3 p-5">
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Student Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={filterStudentName}
+                        onChange={(e) => setFilterStudentName(e.target.value)}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Level</Form.Label>
+                      <Form.Control
+                        as="select"
+                        value={filterLevel}
+                        onChange={(e) => setFilterLevel(e.target.value)}
+                      >
+                        <option value="All" hidden>
+                          All
+                        </option>
+                        {placementTests.map((test, i) => (
+                          <option value={test.assignedLevel} key={i}>
+                            {test.assignedLevel}
+                          </option>
+                        ))}
+
+                        {/* Add other level options */}
+                      </Form.Control>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Date (From)</Form.Label>
+                      <Form.Control
+                        type="date"
+                        value={filterFromDate}
+                        onChange={(e) => setFilterFromDate(e.target.value)}
+                      />
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Date (To)</Form.Label>
+                      <Form.Control
+                        type="date"
+                        value={filterToDate}
+                        onChange={(e) => setFilterToDate(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Form>
                   <Table striped bordered hover>
                     <thead>
                       <tr>
                         <th>#</th>
                         <th>Student Name</th>
                         <th>Status</th>
+                        <th>Assigned Level</th>
+                        <th>Cost</th>
                         <th>Date</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {placementTests.map((test, index) => (
+                      {filterdPlacementTests.map((test, index) => (
                         <tr
                           key={test._id}
-                          onClick={() => openPlacementTestDetailsModal(test)}
-                          style={{ cursor: "pointer" }}
+                          onClick={() => {
+                            if (
+                              test.status !== "Finished, Moved to Waiting List"
+                            ) {
+                              openPlacementTestDetailsModal(test);
+                            }
+                          }}
+                          style={{
+                            cursor:
+                              test.status !== "Finished, Moved to Waiting List"
+                                ? "pointer"
+                                : "not-allowed",
+                            color:
+                              test.status === "Finished, Moved to Waiting List"
+                                ? "gray"
+                                : "inherit",
+                          }}
                         >
                           <td>{index + 1}</td>
                           <td>{test.studentName}</td>
                           <td>{test.status}</td>
+                          <td>{test.assignedLevel}</td>
+                          <td>{test.cost || 0} EGP</td>
                           <td>{new Date(test.date).toLocaleDateString()}</td>
                         </tr>
                       ))}
@@ -253,10 +633,20 @@ const PlacementTests = () => {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Room</Form.Label>
-              <Form.Control
-                type="text"
-                value={newTestRoom}
-                onChange={(e) => setNewTestRoom(e.target.value)}
+              {/* Render the React-Select component for selecting a room */}
+              <Select
+                value={selectedRoom}
+                onChange={(selectedOption) => {
+                  setNewTestRoom(selectedOption.value);
+                  setSelectedRoom(selectedOption);
+                }}
+                options={availableRooms}
+                isDisabled={!newTestDate && true}
+                placeholder={
+                  newTestDate
+                    ? "Select Room"
+                    : "You Must Select a Date To Check Availability"
+                }
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -301,11 +691,11 @@ const PlacementTests = () => {
                     Select a level
                   </option>
                   <option value="A1">A1</option>
-                  <option value="A2">A1</option>
-                  <option value="B1">B1</option>
-                  <option value="B2">B1</option>
-                  <option value="C1">C1</option>
-                  <option value="C2">C1</option>
+                  <option value="A2">A2</option>
+                  <option value="A2/B1">A2/B1</option>
+                  <option value="B1 Talabat">B1 Talabat</option>
+                  <option value="B1 Etihad">B1 Etihad</option>
+                  <option value="B1+/B2">B1+/B2</option>
                 </Form.Control>
               </Form.Group>
 
@@ -328,8 +718,15 @@ const PlacementTests = () => {
           </Button>
           <Button
             variant="success"
-            onClick={handleMoveToWaitingList}
+            onClick={handleAssignLevel}
             disabled={!selectedLevel}
+          >
+            Assign Level
+          </Button>
+          <Button
+            variant="success"
+            onClick={handleMoveToWaitingList}
+            disabled={!selectedPlacementTest?.assignedLevel}
           >
             Move to Waiting List
           </Button>
@@ -344,7 +741,10 @@ const PlacementTests = () => {
         </Modal.Header>
         <Modal.Body>
           <div>
-            <p>Number of Students: {totalNoOfStudentsInThisTest(selectedGeneralPlacementTest?._id)}</p>
+            <p>
+              Number of Students:{" "}
+              {totalNoOfStudentsInThisTest(selectedGeneralPlacementTest?._id)}
+            </p>
           </div>
         </Modal.Body>
         <Modal.Footer>

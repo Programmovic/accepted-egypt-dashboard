@@ -5,6 +5,7 @@ import axios from "axios";
 import { Modal } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Select from "react-select";
 
 const Batches = () => {
   const [batchResource, setBatchResource] = useState([]);
@@ -18,6 +19,7 @@ const Batches = () => {
   const [showModal, setShowModal] = useState(false);
   const [newBatchName, setNewBatchName] = useState("");
   const [newBatchStatus, setNewBatchStatus] = useState("");
+  const [newBatchSelectedClass, setNewBatchSelectedClass] = useState("");
   const [newBatchClass, setNewBatchClass] = useState("");
   const [newBatchHours, setNewBatchHours] = useState("");
   const [newBatchCost, setNewBatchCost] = useState("");
@@ -25,10 +27,42 @@ const Batches = () => {
   const [newBatchShouldStartAt, setNewBatchShouldStartAt] = useState("");
   const [newBatchShouldEndAt, setNewBatchShouldEndAt] = useState("");
   const [newBatchLab, setNewBatchLab] = useState("");
-  const [newBatchLecturesTimes, setNewBatchLecturesTimes] = useState([]);
   const [newBatchDescription, setNewBatchDescription] = useState("");
   const [classList, setClassList] = useState([]);
+  const [newBatchCode, setNewBatchCode] = useState("");
+  const [newBatchLecturesTimes, setNewBatchLecturesTimes] = useState([]);
+  const [showBatchDetailsModal, setShowBatchDetailsModal] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState(null);
 
+  // Function to open the modal and set the selected batch details
+  const openBatchDetailsModal = (batch) => {
+    setSelectedBatch(batch);
+    setShowBatchDetailsModal(true);
+  };
+  // Other state variables for your form inputs
+
+  const handleWeekdayChange = (day, isChecked) => {
+    if (isChecked) {
+      // Check if the day is already in the array, if not, add it
+      if (!newBatchLecturesTimes.some((time) => time.day === day)) {
+        setNewBatchLecturesTimes((prevTimes) => [
+          ...prevTimes,
+          { day, from: "", to: "" }, // Initialize the lecture times
+        ]);
+      }
+    } else {
+      // Remove the day from the array
+      setNewBatchLecturesTimes((prevTimes) =>
+        prevTimes.filter((time) => time.day !== day)
+      );
+    }
+  };
+
+  const handleLectureTimeChange = (index, field, value) => {
+    const updatedTimes = [...newBatchLecturesTimes];
+    updatedTimes[index][field] = value;
+    setNewBatchLecturesTimes(updatedTimes);
+  };
   const fetchBatchData = async () => {
     try {
       const response = await axios.get("/api/batch");
@@ -67,7 +101,17 @@ const Batches = () => {
     // Automatically apply filters when filter inputs change
     handleFilter();
   }, [filterName, filterStatus, sortBy, sortOrder, batchResource]);
-
+  const calculateBatchCode = () => {
+    if (newBatchClass && classList) {
+      const classCount = batchResource.filter(
+        (cls) => cls.class === newBatchClass
+      ).length;
+      setNewBatchCode(`${+getClassName(newBatchClass).code + classCount + 1}`);
+    }
+  };
+  useEffect(() => {
+    calculateBatchCode();
+  }, [newBatchClass]);
   const handleFilter = () => {
     let filteredBatches = [...batchResource];
 
@@ -125,14 +169,15 @@ const Batches = () => {
       await axios.post("/api/batch", {
         name: newBatchName,
         status: newBatchStatus,
+        code: newBatchCode,
         class: newBatchClass,
         hours: newBatchHours,
         cost: newBatchCost,
         limitTrainees: newBatchLimitTrainees,
         shouldStartAt: newBatchShouldStartAt,
         shouldEndAt: newBatchShouldEndAt,
-        lab: newBatchLab,
-        lecturesTimes: newBatchLecturesTimes,
+        room: newBatchLab,
+        weeklyHours: newBatchLecturesTimes,
         description: newBatchDescription,
         // Add other batch attributes here
       });
@@ -145,7 +190,6 @@ const Batches = () => {
       toast.error(error.message); // Error toast
     }
   };
-
   const clearFilters = () => {
     setFilterName("");
     setFilterStatus("");
@@ -156,7 +200,7 @@ const Batches = () => {
   const handleGenerateName = () => {
     const generatedName = `${
       newBatchClass ? getClassName(newBatchClass).name : "N/A"
-    } - ${newBatchLab} - ${newBatchHours} - ${newBatchCost} - ${newBatchShouldStartAt} to ${newBatchShouldEndAt} Batch`;
+    } - ${roomOptions.find((room) => newBatchLab === room.value)?.label} - ${newBatchHours} - ${newBatchCost} - ${newBatchShouldStartAt} to ${newBatchShouldEndAt} Batch`;
     setNewBatchName(generatedName.toUpperCase());
   };
   useEffect(() => {
@@ -205,6 +249,36 @@ const Batches = () => {
       handleGenerateStatus();
     }
   }, [newBatchShouldStartAt, newBatchShouldEndAt]);
+  const [roomOptions, setRoomOptions] = useState([]);
+  const mapApiDataToOptions = (apiData) => {
+    // Assuming your API response is an array of objects with a 'roomName' property
+    return apiData.map((room) => ({
+      value: room._id, // Use a unique identifier as the value
+      label: room.name, // Room name as the label
+    }));
+  };
+
+  // Inside your fetchRoomsData function
+  const fetchRoomsData = async () => {
+    try {
+      const response = await axios.get("/api/room");
+      if (response.status === 200) {
+        const roomData = response.data;
+        console.log(roomData);
+        const options = mapApiDataToOptions(roomData);
+        console.log(options);
+        setRoomOptions(options);
+      }
+    } catch (error) {
+      console.error("Error fetching class data:", error);
+      // Handle error
+    }
+  };
+  console.log(roomOptions);
+  useEffect(() => {
+    // Fetch room options from your API endpoint
+    fetchRoomsData();
+  }, []);
   return (
     <AdminLayout>
       <ToastContainer />
@@ -228,28 +302,46 @@ const Batches = () => {
               </Col>
               <Col xs={6}>
                 <Form.Group className="mb-3">
+                  <Form.Label>Batch Code</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={newBatchCode}
+                    readOnly
+                    disabled
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
                   <Form.Label>Status</Form.Label>
-                  <Form.Control type="text" value={newBatchStatus} placeholder="Wait For Dates.." disabled />
+                  <Form.Control
+                    type="text"
+                    value={newBatchStatus}
+                    placeholder="Wait For Dates.."
+                    disabled
+                  />
                 </Form.Group>
               </Col>
               <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Class</Form.Label>
-                  <Form.Select
-                    value={newBatchClass}
+
+                  <Select
+                    value={newBatchSelectedClass}
+                    options={classList.map((student) => ({
+                      value: student._id,
+                      label: student.name,
+                    }))}
                     onChange={(e) => {
-                      setNewBatchClass(e.target.value);
-                      setNewBatchHours(getClassName(e.target.value).hours)
-                      setNewBatchCost(getClassName(e.target.value).cost)
+                      setNewBatchClass(e.value);
+                      setNewBatchSelectedClass(e);
+                      setNewBatchHours(getClassName(e.value).hours);
+                      setNewBatchCost(getClassName(e.value).cost);
                     }}
-                  >
-                    <option value="">Select a Class</option>
-                    {classList.map((item) => (
-                      <option key={item._id} value={item._id}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </Form.Select>
+                    isClearable={true}
+                    isSearchable={true}
+                    placeholder="Class"
+                  />
                 </Form.Group>
               </Col>
               <Col xs={6}>
@@ -305,30 +397,78 @@ const Batches = () => {
               </Col>
               <Col xs={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Lab</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={newBatchLab}
-                    onChange={(e) => setNewBatchLab(e.target.value)}
+                  <Form.Label>Room</Form.Label>
+                  <Select
+                    options={roomOptions}
+                    value={roomOptions.find(
+                      (room) => room.value === newBatchLab
+                    )}
+                    onChange={(selectedOption) => {
+                      setNewBatchLab(
+                        selectedOption ? selectedOption.value : ""
+                      );
+                    }}
                   />
                 </Form.Group>
               </Col>
               <Col xs={12}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Lectures Times (comma-separated)</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={newBatchLecturesTimes.join(", ")} // Convert the array to a comma-separated string for display
-                    onChange={(e) => {
-                      const timesString = e.target.value;
-                      const timesArray = timesString
-                        .split(",")
-                        .map((time) => time.trim());
-                      setNewBatchLecturesTimes(timesArray);
-                    }}
-                  />
+                  <Form.Label>Weekdays</Form.Label>
+                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map(
+                    (day, index) => (
+                      <div key={day}>
+                        <Form.Check
+                          type="checkbox"
+                          label={day}
+                          checked={newBatchLecturesTimes.some(
+                            (time) => time.day === day
+                          )}
+                          onChange={(e) =>
+                            handleWeekdayChange(day, e.target.checked)
+                          }
+                        />
+                        {newBatchLecturesTimes.some(
+                          (time) => time.day === day
+                        ) && (
+                          <Row className="my-4">
+                            <Col xs={6}>
+                              <Form.Label>From:</Form.Label>
+                              <Form.Control
+                                type="text"
+                                placeholder="Lecture start time"
+                                value={newBatchLecturesTimes[index]?.from || ""}
+                                onChange={(e) =>
+                                  handleLectureTimeChange(
+                                    index,
+                                    "from",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </Col>
+                            <Col xs={6}>
+                              <Form.Label>To:</Form.Label>
+                              <Form.Control
+                                type="text"
+                                placeholder="Lecture end time"
+                                value={newBatchLecturesTimes[index]?.to || ""}
+                                onChange={(e) =>
+                                  handleLectureTimeChange(
+                                    index,
+                                    "to",
+                                    e.target.value
+                                  )
+                                }
+                              />
+                            </Col>
+                          </Row>
+                        )}
+                      </div>
+                    )
+                  )}
                 </Form.Group>
               </Col>
+
               <Col xs={12}>
                 <Form.Group className="mb-3">
                   <Form.Label>Description</Form.Label>
@@ -411,6 +551,7 @@ const Batches = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
+            <div style={{ overflowX: 'auto' }}>
             <Table striped bordered hover>
               <thead>
                 <tr>
@@ -428,9 +569,7 @@ const Batches = () => {
                   </th>
                   <th onClick={() => handleSort("shouldEndAt")}>End Date</th>
                   <th onClick={() => handleSort("lab")}>Lab</th>
-                  <th onClick={() => handleSort("lecturesTimes")}>
-                    Lectures Times
-                  </th>
+                  <th onClick={() => handleSort("code")}>Code</th>
                   <th onClick={() => handleSort("description")}>Description</th>
                   <th onClick={() => handleSort("createdDate")}>
                     Created Date
@@ -439,24 +578,76 @@ const Batches = () => {
               </thead>
               <tbody>
                 {sortedBatches.map((batch, index) => (
-                  <tr key={batch._id}>
+                  <tr
+                    key={batch._id}
+                    onClick={() => openBatchDetailsModal(batch)}
+                  >
                     <td>{index + 1}</td>
                     <td>{batch.name}</td>
                     <td>{batch.status}</td>
-                    <td>{batch.class ? getClassName(batch.class).name : "N/A"}</td>
+                    <td>
+                      {batch.class ? getClassName(batch.class).name : "N/A"}
+                    </td>
                     <td>{batch.hours}</td>
                     <td>{batch.cost} EGP</td>
                     <td>{batch.limitTrainees} Trainees</td>
                     <td>{batch.shouldStartAt}</td>
                     <td>{batch.shouldEndAt}</td>
-                    <td>{batch.lab}</td>
-                    <td>{batch.lecturesTimes.join(", ")}</td>
+                    <td>{roomOptions.find((room) => room.value === batch.room)?.label}</td>
+                    <td>{batch.code}</td>
                     <td>{batch.description}</td>
                     <td>{batch.createdDate}</td>
                   </tr>
                 ))}
               </tbody>
             </Table>
+            </div>
+          )}
+          {selectedBatch && (
+            <Modal
+              show={showBatchDetailsModal}
+              onHide={() => setShowBatchDetailsModal(false)}
+            >
+              <Modal.Header closeButton>
+                <Modal.Title>Batch Details</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>Name: {selectedBatch.name}</p>
+                <p>Status: {selectedBatch.status}</p>
+                <p>Code: {selectedBatch.code}</p>
+                <p>
+                  Class:{" "}
+                  {selectedBatch.class}
+                </p>
+                <p>Hours: {selectedBatch.hours}</p>
+                <p>Cost: {selectedBatch.cost} EGP</p>
+                <p>Limit Trainees: {selectedBatch.limitTrainees} Trainees</p>
+                <p>Start Date: {new Date(selectedBatch.shouldStartAt).toLocaleDateString()}</p>
+                <p>End Date: {new Date(selectedBatch.shouldEndAt).toLocaleDateString()}</p>
+                <p>
+                  Room: {roomOptions.find((room) => room.value === selectedBatch.room).label} 
+                </p>
+                <p>Description: {selectedBatch.description}</p>
+                
+                <p>Lecture Times:</p>
+                <ul>
+                  {selectedBatch.weeklyHours.map((time, index) => (
+                    <li key={index}>
+                      {`${time.day}: From ${time.from} to ${time.to}`}
+                    </li>
+                  ))}
+                </ul>
+                <p>Created Date: {new Date(selectedBatch.createdDate).toLocaleDateString()}</p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowBatchDetailsModal(false)}
+                >
+                  Close
+                </Button>
+              </Modal.Footer>
+            </Modal>
           )}
         </Card.Body>
       </Card>

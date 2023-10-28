@@ -5,6 +5,7 @@ const lectureSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+
   status: {
     type: String,
     required: true,
@@ -26,24 +27,21 @@ const lectureSchema = new mongoose.Schema({
     required: true,
     default: 0,
   },
-  lectureSchedule: [
-    {
-      day: {
-        type: String, // You can use a specific type for days (e.g., 'Monday', 'Tuesday')
-        required: true,
-      },
-      time: {
-        type: String, // You can use a specific type for clock times (e.g., '09:00 AM')
-        required: true,
-      },
-    },
-  ],
-  lab: {
-    type: String,
-    required: true,
+  weeklyHours:
+  {
+    day: String, // Day of the week, e.g., "Monday"
+    from: String, // Starting time, e.g., "09:00 AM"
+    to: String, // Ending time, e.g., "11:00 AM"
+  },
+  room: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Room',
   },
   description: {
     type: String,
+  },
+  date: {
+    type: Date,
   },
   createdDate: {
     type: Date,

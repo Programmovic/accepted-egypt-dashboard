@@ -15,7 +15,8 @@ const placementTestSettingsSchema = new mongoose.Schema({
     default: Date.now, // Set the default value to the current date and time
   },
   room: {
-    type: String, // Room where the placement test is conducted
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Room',
   },
   // You can add more fields based on your application's requirements
   // Example: testDate, location, maximumAttempts, etc.

@@ -4,6 +4,7 @@ import { AdminLayout } from "@layout";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Link from "next/link";
 
 const Lectures = () => {
   const [lectureResource, setLectureResource] = useState([]);
@@ -11,6 +12,12 @@ const Lectures = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filterTitle, setFilterTitle] = useState("");
+  const [filterStatus, setFilterStatus] = useState("");
+  const [filterBatch, setFilterBatch] = useState("");
+  const [filterHours, setFilterHours] = useState("");
+  const [filterCost, setFilterCost] = useState("");
+  const [filterLab, setFilterLab] = useState("");
+  const [filterDescription, setFilterDescription] = useState("");
   const [sortBy, setSortBy] = useState("");
   const [sortOrder, setSortOrder] = useState("asc");
   const [showModal, setShowModal] = useState(false);
@@ -25,7 +32,14 @@ const Lectures = () => {
   const [newLectureDescription, setNewLectureDescription] = useState("");
   const [instructorList, setInstructorList] = useState([]);
   const [batchList, setBatchList] = useState([]);
+  const [showLectureDetailsModal, setShowLectureDetailsModal] = useState(false);
+  const [selectedLecture, setSelectedLecture] = useState(null);
 
+  // Function to open the modal and set the selected batch details
+  const openLectureDetailsModal = (lecture) => {
+    setSelectedLecture(lecture);
+    setShowLectureDetailsModal(true);
+  };
   const fetchInstructorData = async () => {
     try {
       const response = await axios.get("/api/instructor");
@@ -75,14 +89,70 @@ const Lectures = () => {
 
   useEffect(() => {
     handleFilter();
-  }, [filterTitle, sortBy, sortOrder, lectureResource]);
+  }, [
+    filterTitle,
+    filterStatus,
+    filterBatch,
+    filterHours,
+    filterCost,
+    filterLab,
+    filterDescription,
+    sortBy,
+    sortOrder,
+    lectureResource,
+  ]);
 
   const handleFilter = () => {
     let filteredLectures = [...lectureResource];
 
+    // Filter by Title
     if (filterTitle) {
       filteredLectures = filteredLectures.filter((lecture) =>
         lecture.name.toLowerCase().includes(filterTitle.toLowerCase())
+      );
+    }
+
+    // Filter by Status
+    if (filterStatus) {
+      filteredLectures = filteredLectures.filter(
+        (lecture) => lecture.status.toLowerCase() === filterStatus.toLowerCase()
+      );
+    }
+
+    // Filter by Batch
+    if (filterBatch) {
+      filteredLectures = filteredLectures.filter(
+        (lecture) => lecture.batch.toLowerCase() === filterBatch.toLowerCase()
+      );
+    }
+
+    // Filter by Hours
+    if (filterHours) {
+      filteredLectures = filteredLectures.filter(
+        (lecture) => lecture.hours === parseInt(filterHours)
+      );
+    }
+
+    // Filter by Cost
+    if (filterCost) {
+      filteredLectures = filteredLectures.filter(
+        (lecture) => lecture.cost === parseFloat(filterCost)
+      );
+    }
+
+    // Filter by Lab
+    if (filterLab) {
+      filteredLectures = filteredLectures.filter((lecture) =>
+        lecture.lab.toLowerCase().includes(filterLab.toLowerCase())
+      );
+    }
+
+    // Filter by Description
+    if (filterDescription) {
+      filteredLectures = filteredLectures.filter((lecture) =>
+        lecture.description
+          .toLowerCase()
+          .includes(filterDescription.toLowerCase())
       );
     }
 
@@ -180,7 +250,7 @@ const Lectures = () => {
       [key]: value,
     }));
   };
-  console.log(filteredData)
+  console.log(filteredData);
   return (
     <AdminLayout>
       <ToastContainer />
@@ -219,14 +289,18 @@ const Lectures = () => {
                     value={newLectureBatch}
                     onChange={(e) => {
                       setNewLectureBatch(e.target.value);
-                      setNewLectureHours(getBatchName(e.target.value).hours)
-                      setNewLectureCost(getBatchName(e.target.value).cost)
-                      setNewLectureLimitTrainees(getBatchName(e.target.value).limitTrainees)
-                      setNewLectureStatus(getBatchName(e.target.value).status)
-                      setNewLectureLab(getBatchName(e.target.value).lab)
+                      setNewLectureHours(getBatchName(e.target.value).hours);
+                      setNewLectureCost(getBatchName(e.target.value).cost);
+                      setNewLectureLimitTrainees(
+                        getBatchName(e.target.value).limitTrainees
+                      );
+                      setNewLectureStatus(getBatchName(e.target.value).status);
+                      setNewLectureLab(getBatchName(e.target.value).lab);
                     }}
                   >
-                    <option value="" hidden>Select a Batch</option>
+                    <option value="" hidden>
+                      Select a Batch
+                    </option>
                     {batchList.map((batch) => (
                       <option key={batch._id} value={batch._id}>
                         {batch.name}
@@ -238,10 +312,7 @@ const Lectures = () => {
               <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Lecture Hours</Form.Label>
-                  <Form.Control
-                    type="number"
-                    value={newLectureHours}
-                  />
+                  <Form.Control type="number" value={newLectureHours} />
                 </Form.Group>
               </Col>
               <Col xs={6}>
@@ -324,28 +395,98 @@ const Lectures = () => {
         <Card.Body>
           <Form className="mb-3">
             <Row>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Title</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={filterTitle}
-                    onChange={(e) => setFilterTitle(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={6}>
-                <Button variant="secondary" onClick={clearFilters}>
-                  Clear Filters
-                </Button>
-              </Col>
-              <Col xs={6}>
-                <Button variant="success" onClick={openModal}>
-                  Add New Lecture
-                </Button>
-              </Col>
+              <Form className="mb-3">
+                <Row>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Title</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={filterTitle}
+                        onChange={(e) => setFilterTitle(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Status</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={filterStatus}
+                        onChange={(e) => setFilterStatus(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Batch</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={filterBatch}
+                        onChange={(e) => setFilterBatch(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Hours</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={filterHours}
+                        onChange={(e) => setFilterHours(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Cost</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={filterCost}
+                        onChange={(e) => setFilterCost(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Lab</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={filterLab}
+                        onChange={(e) => setFilterLab(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs={12}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Description</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={filterDescription}
+                        onChange={(e) => setFilterDescription(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs={6}>
+                    <Button variant="secondary" onClick={clearFilters}>
+                      Clear Filters
+                    </Button>
+                  </Col>
+                  <Col xs={6}>
+                    <Button variant="success" onClick={openModal}>
+                      Add New Lecture
+                    </Button>
+                  </Col>
+                </Row>
+              </Form>
             </Row>
           </Form>
 
@@ -354,44 +495,108 @@ const Lectures = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th onClick={() => handleSort("name")}>Name</th>
-                  <th onClick={() => handleSort("status")}>Status</th>
-                  <th onClick={() => handleSort("batch")}>Batch</th>
-                  <th onClick={() => handleSort("hours")}>Hours</th>
-                  <th onClick={() => handleSort("cost")}>Cost</th>
-                  <th onClick={() => handleSort("lab")}>Lab</th>
-                  <th onClick={() => handleSort("lectureSchedule")}>
-                    Lecture Schedule
-                  </th>
-                  <th onClick={() => handleSort("description")}>Description</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedLectures.map((lecture, index) => (
-                  <tr key={lecture._id}>
-                    <td>{index + 1}</td>
-                    <td>{lecture.name}</td>
-                    <td>{lecture.status}</td>
-                    <td>{lecture.batch.name}</td>
-                    <td>{lecture.hours}</td>
-                    <td>{lecture.cost}</td>
-                    <td>{lecture.lab}</td>
-                    <td>
-                      {lecture.lectureSchedule.map((schedule, index) => (
-                        <div key={index}>
-                          {schedule.day} - {schedule.time}
-                        </div>
-                      ))}
-                    </td>
-                    <td>{lecture.description}</td>
+            <div style={{ overflowX: "auto" }}>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th onClick={() => handleSort("name")}>Name</th>
+                    <th onClick={() => handleSort("status")}>Status</th>
+                    <th onClick={() => handleSort("batch")}>Batch</th>
+                    <th onClick={() => handleSort("hours")}>Hours</th>
+                    <th onClick={() => handleSort("cost")}>Cost</th>
+                    <th onClick={() => handleSort("lab")}>Lab</th>
+                    <th onClick={() => handleSort("lectureSchedule")}>
+                      Lecture Schedule
+                    </th>
+                    <th onClick={() => handleSort("description")}>
+                      Description
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
+                </thead>
+                <tbody>
+                  {sortedLectures.map((lecture, index) => (
+                    <tr
+                      key={lecture._id}
+                      onClick={() => openLectureDetailsModal(lecture)}
+                    >
+                      <td>{index + 1}</td>
+                      <td>{lecture.name}</td>
+                      <td>{lecture.status}</td>
+                      <td>
+                        {
+                          batchList.find((batch) => batch._id === lecture.batch)
+                            ?.name
+                        }
+                      </td>
+                      <td>{lecture.hours}</td>
+                      <td>{lecture.cost}</td>
+                      <td>{lecture.room}</td>
+                      <td>
+                        <ul>
+                          <li>
+                            {`${lecture.weeklyHours.day}: From ${lecture.weeklyHours.from} to ${lecture.weeklyHours.to}`}
+                          </li>
+                        </ul>
+                      </td>
+                      <td>{lecture.description}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
+          {selectedLecture && (
+            <Modal
+              show={showLectureDetailsModal}
+              onHide={() => setShowLectureDetailsModal(false)}
+            >
+              <Modal.Header closeButton>
+                <Modal.Title>Batch Details</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>Name: {selectedLecture.name}</p>
+                <p>Status: {selectedLecture.status}</p>
+                <p>Hours: {selectedLecture.hours}</p>
+                <p>Cost: {selectedLecture.cost} EGP</p>
+                <p>Limit Trainees: {selectedLecture.limitTrainees} Trainees</p>
+                <p>
+                  Start Date:{" "}
+                  {new Date(selectedLecture.shouldStartAt).toLocaleDateString()}
+                </p>
+                <p>
+                  End Date:{" "}
+                  {new Date(selectedLecture.shouldEndAt).toLocaleDateString()}
+                </p>
+                <p>Room: {selectedLecture.room}</p>
+                <p>Description: {selectedLecture.description}</p>
+
+                <p>Lecture Times:</p>
+                <ul>
+                  <li>
+                    {`${selectedLecture.weeklyHours.day}: From ${selectedLecture.weeklyHours.from} to ${selectedLecture.weeklyHours.to}`}
+                  </li>
+                </ul>
+                <p>
+                  Created Date:{" "}
+                  {new Date(selectedLecture.createdDate).toLocaleDateString()}
+                </p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowLectureDetailsModal(false)}
+                >
+                  Close
+                </Button>
+                <Link
+                  href={`/lectures/${selectedLecture._id}`}
+                  className="btn btn-success text-decoration-none text-light"
+                >
+                  View Lecture Attendances
+                </Link>
+              </Modal.Footer>
+            </Modal>
           )}
         </Card.Body>
       </Card>

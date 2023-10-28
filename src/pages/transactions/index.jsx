@@ -5,6 +5,7 @@ import { AdminLayout } from "@layout";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClassCard } from "@components/Classes";
+import Select from "react-select";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -19,13 +20,15 @@ const Transactions = () => {
   const [toDate, setToDate] = useState(null);
   const [filterDescription, setFilterDescription] = useState("");
   // State for new transaction creation
+  const [newTransactionSelectedStudent, setNewTransactionSelectedStudent] =
+    useState("");
   const [newTransactionStudent, setNewTransactionStudent] = useState("");
   const [newTransactionBatch, setNewTransactionBatch] = useState("");
   const [newTransactionType, setNewTransactionType] = useState("");
-  const [newTransactionAmount, setNewTransactionAmount] = useState("");
+  const [newTransactionAmount, setNewTransactionAmount] = useState(0);
   const [newTransactionDescription, setNewTransactionDescription] =
     useState("");
-
+  const [students, setStudents] = useState([]);
 
   // State for statistics
   const [statistics, setStatistics] = useState({
@@ -33,9 +36,20 @@ const Transactions = () => {
     totalTransactionAmount: 0,
     averageTransactionAmount: 0,
     receivedAmount: 0,
-    dueAmount: 0
+    dueAmount: 0,
+    placementTestAmount: 0,
   });
-
+  useEffect(() => {
+    // Fetch the list of students when the component mounts
+    axios.get("/api/student").then((response) => {
+      if (response.status === 200) {
+        console.log(response);
+        setStudents(response.data.students);
+      } else {
+        console.error("Failed to fetch students.");
+      }
+    });
+  }, []);
   const fetchTransactionData = async () => {
     try {
       const response = await axios.get("/api/transaction");
@@ -58,9 +72,9 @@ const Transactions = () => {
 
   const handleAddTransaction = async () => {
     try {
-      const response = await axios.post("/api/transactions", {
-        student: newTransactionStudent,
-        batch: newTransactionBatch,
+      const response = await axios.post("/api/transaction", {
+        student: newTransactionStudent || null,
+        batch: newTransactionBatch || null,
         type: newTransactionType,
         amount: newTransactionAmount,
         description: newTransactionDescription,
@@ -114,9 +128,10 @@ const Transactions = () => {
     }
     // Add description filter
     if (filterDescription) {
-      filtered = filtered.filter(
-        (transaction) =>
-          transaction.description?.toLowerCase().includes(filterDescription.toLowerCase())
+      filtered = filtered.filter((transaction) =>
+        transaction.description
+          ?.toLowerCase()
+          .includes(filterDescription.toLowerCase())
       );
     }
     setFilteredTransactions(filtered);
@@ -142,7 +157,7 @@ const Transactions = () => {
     const averageTransactionAmount =
       totalTransactions > 0 ? totalTransactionAmount / totalTransactions : 0;
     const receivedAmount = filteredTransactions.reduce((total, transaction) => {
-      if (transaction.type === "Paid") {
+      if (transaction.type === "Income") {
         return total + transaction.amount;
       }
       return total;
@@ -154,13 +169,23 @@ const Transactions = () => {
       }
       return total;
     }, 0);
+    const placementTestAmount = filteredTransactions.reduce(
+      (total, transaction) => {
+        if (transaction.description === "Placement Test") {
+          return total + transaction.amount;
+        }
+        return total;
+      },
+      0
+    );
 
     setStatistics({
       totalTransactions,
       totalTransactionAmount,
       averageTransactionAmount,
       receivedAmount,
-      dueAmount
+      dueAmount,
+      placementTestAmount,
     });
   }, [filteredTransactions]);
   const sortTable = (column) => {
@@ -193,7 +218,10 @@ const Transactions = () => {
       setFilteredTransactions(sortedTransactions);
     }
   }, [sortBy, sortOrder, filteredTransactions]);
-
+  const handleTypeChange = (e) => {
+    setNewTransactionType(e.target.value);
+  };
+  console.log(newTransactionStudent.value);
   return (
     <AdminLayout>
       <div className="row">
@@ -222,13 +250,18 @@ const Transactions = () => {
           title="Total Due Amount"
           enableOptions={false}
         />
+        <ClassCard
+          data={`${statistics.placementTestAmount} EGP`}
+          title="Total Received From Placement Test"
+          enableOptions={false}
+        />
       </div>
       <Card>
         <Card.Header>Transactions</Card.Header>
         <Card.Body>
           <Form className="mb-3">
             <Row>
-            <Col xs={4}>
+              <Col xs={4}>
                 {/* Date filtering inputs */}
                 <Form.Group className="mb-3">
                   <Form.Label>From Date</Form.Label>
@@ -238,8 +271,8 @@ const Transactions = () => {
                     onChange={(e) => setFromDate(e.target.value)}
                   />
                 </Form.Group>
-                </Col>
-                <Col xs={4}>
+              </Col>
+              <Col xs={4}>
                 <Form.Group className="mb-3">
                   <Form.Label>To Date</Form.Label>
                   <Form.Control
@@ -252,31 +285,42 @@ const Transactions = () => {
               <Col xs={4}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Type</Form.Label>
-                  <Form.Check
-                    type="checkbox"
-                    label="Received"
-                    id="type1"
-                    checked={filterType === "Paid"}
-                    onChange={() =>
-                      setFilterType(filterType === "Paid" ? "" : "Paid")
-                    }
-                  />
-                  <Form.Check
-                    type="checkbox"
-                    label="Due"
-                    id="type2"
-                    checked={filterType === "Due"}
-                    onChange={() =>
-                      setFilterType(filterType === "Due" ? "" : "Due")
-                    }
-                  />
+                  <div className="d-flex justify-content-between">
+                    <Form.Check
+                      type="checkbox"
+                      label="Received"
+                      id="type1"
+                      checked={filterType === "Income"}
+                      onChange={() =>
+                        setFilterType(filterType === "Income" ? "" : "Income")
+                      }
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="Due"
+                      id="type2"
+                      checked={filterType === "Due"}
+                      onChange={() =>
+                        setFilterType(filterType === "Due" ? "" : "Due")
+                      }
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="Expense"
+                      id="type2"
+                      checked={filterType === "Expense"}
+                      onChange={() =>
+                        setFilterType(filterType === "Expense" ? "" : "Expense")
+                      }
+                    />
+                  </div>
                 </Form.Group>
               </Col>
               <Col xs={12}>
                 <Form.Group className="mb-3">
                   <Form.Label>Description</Form.Label>
                   <Form.Control
-                  as="textarea"
+                    as="textarea"
                     type="text"
                     value={filterDescription}
                     onChange={(e) => setFilterDescription(e.target.value)}
@@ -300,7 +344,7 @@ const Transactions = () => {
           <Table striped bordered hover>
             <thead>
               <tr>
-              <th>#</th>
+                <th>#</th>
                 <th onClick={() => sortTable("student")}>
                   Student {sortBy === "student" && `(${sortOrder})`}
                 </th>
@@ -325,10 +369,10 @@ const Transactions = () => {
               {filteredTransactions.map((transaction, index) => (
                 <tr key={transaction._id}>
                   <td>{index + 1}</td>
-                  <td>{transaction.student}</td>
-                  <td>{transaction.batch}</td>
+                  <td>{transaction.student || "No Student"}</td>
+                  <td>{transaction.batch || "No Batch"}</td>
                   <td>{transaction.type}</td>
-                  <td>{transaction.amount}</td>
+                  <td>{transaction.amount} EGP</td>
                   <td>{transaction.description}</td>
                   <td>
                     {new Date(transaction.createdAt).toLocaleDateString()}
@@ -348,10 +392,19 @@ const Transactions = () => {
           <Form>
             <Form.Group className="mb-3">
               <Form.Label>Student</Form.Label>
-              <Form.Control
-                type="text"
-                value={newTransactionStudent}
-                onChange={(e) => setNewTransactionStudent(e.target.value)}
+              <Select
+                value={newTransactionSelectedStudent}
+                options={students.map((student) => ({
+                  value: student._id,
+                  label: student.name,
+                }))}
+                onChange={(e) => {
+                  setNewTransactionSelectedStudent(e);
+                  setNewTransactionStudent(e.value);
+                }}
+                isClearable={true}
+                isSearchable={true}
+                placeholder="Student"
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -364,16 +417,40 @@ const Transactions = () => {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Type</Form.Label>
-              <Form.Control
-                type="text"
-                value={newTransactionType}
-                onChange={(e) => setNewTransactionType(e.target.value)}
-              />
+              <div className="radio-group">
+                <Form.Check
+                  type="radio"
+                  name="transactionType"
+                  id="incomeRadio"
+                  label="Receivable (income)"
+                  value="Received"
+                  checked={newTransactionType === "Received"}
+                  onChange={handleTypeChange}
+                />
+                <Form.Check
+                  type="radio"
+                  name="transactionType"
+                  id="expenseRadio"
+                  label="Payable (Expense)"
+                  value="Paid"
+                  checked={newTransactionType === "Paid"}
+                  onChange={handleTypeChange}
+                />
+                <Form.Check
+                  type="radio"
+                  name="transactionType"
+                  id="dueRadio"
+                  label="Due"
+                  value="Due"
+                  checked={newTransactionType === "Due"}
+                  onChange={handleTypeChange}
+                />
+              </div>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Amount</Form.Label>
               <Form.Control
-                type="text"
+                type="number"
                 value={newTransactionAmount}
                 onChange={(e) => setNewTransactionAmount(e.target.value)}
               />

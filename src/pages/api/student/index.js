@@ -24,9 +24,10 @@ export default async (req, res) => {
       const paidTransaction = new Transaction({
         student: newStudent._id,
         batch: studentData.batch, // You need to provide the batch ID
-        type: "Paid",
+        type: "Income",
         amount: studentData.paid,
-        
+        description: "Placement Test"
+
       });
 
       // Create a transaction for the due amount (if there is a due amount)
@@ -46,20 +47,22 @@ export default async (req, res) => {
       }
 
       await newStudent.save();
-
-      // Create a placement test for the new student
-      const newPlacementTest = new PlacementTest({
+      const placementTestData = {
         student: newStudent._id,
         studentName: newStudent.name,
         studentNationalID: newStudent.nationalId,
         generalPlacementTest: newStudent.placementTest,
         status: "Not Started Yet!",
+        assignedLevel: "N/A",
+        cost: newStudent.paid,
         date: new Date(studentData.placementTestDate),
         // Add any other placement test fields here
-      });
+      }
+      // Create a placement test for the new student
+      const newPlacementTest = new PlacementTest(placementTestData);
 
       await newPlacementTest.save();
-
+      console.log(placementTestData)
       return res.status(201).json({ newStudent });
     } else if (req.method === "GET") {
       const students = await Student.find();

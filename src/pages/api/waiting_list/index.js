@@ -15,7 +15,7 @@ export default async (req, res) => {
       await newStudent.save()
       const updatedStudent = await Student.findByIdAndUpdate(
         student.student,
-        { status: "Waiting List", level: student.selectedLevel },
+        { status: "Waiting List"},
         { new: true }
       );
       const updatedPlacementTest = await PlacementTest.findByIdAndUpdate(
