@@ -1,5 +1,4 @@
-import type { NextPage } from "next";
-import Image from "next/image";
+import React, { useState, useEffect } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowDown,
@@ -39,12 +38,10 @@ import {
   faLinkedinIn,
   faTwitter,
 } from "@fortawesome/free-brands-svg-icons";
-import React from "react";
 import { AdminLayout } from "@layout";
 import axios from "axios";
-import { useEffect, useState } from "react";
-import { ClassCard } from "@components/Classes";
 import { format, startOfWeek, endOfWeek, isWithinInterval } from "date-fns"; // Import date-fns functions
+import { ClassCard } from "@components/Classes";
 
 Chart.register(
   CategoryScale,
@@ -56,10 +53,9 @@ Chart.register(
   Filler
 );
 
-const random = (min: number, max: number) =>
-  Math.floor(Math.random() * (max - min + 1) + min);
+const random = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
-const Home: NextPage = () => {
+const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [users, setUsers] = useState(null);
@@ -67,6 +63,7 @@ const Home: NextPage = () => {
   const [groups, setGroups] = useState(null);
   const [instructors, setInstructors] = useState(null);
   const [lectures, setLectures] = useState([]);
+
   const fetchData = async () => {
     try {
       const users_response = await axios.get("/api/user");
@@ -86,9 +83,11 @@ const Home: NextPage = () => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     fetchData();
   }, []);
+
   const currentDate = new Date();
   const currentWeekStart = startOfWeek(currentDate, { weekStartsOn: 1 }); // Adjust week start as needed
   const currentWeekEnd = endOfWeek(currentDate, { weekStartsOn: 1 }); // Adjust week start as needed
@@ -103,6 +102,7 @@ const Home: NextPage = () => {
       end: currentWeekEnd,
     });
   });
+
   return (
     <AdminLayout>
       <div className="row">
@@ -138,7 +138,7 @@ const Home: NextPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {upcomingLectures.map((lecture: any, index) => (
+                {upcomingLectures.map((lecture, index) => (
                   <tr key={index} className="align-middle">
                     <td className="text-center">
                       {/* You can display lecture-specific icons or images here */}
@@ -168,6 +168,7 @@ const Home: NextPage = () => {
           </div>
         </div>
       </div>
+
       <div className="row mt-5">
         <ClassCard data={users} title={"Admins"} isLoading={loading} />
         <ClassCard data={classes} title={"Classes"} isLoading={loading} />
@@ -202,7 +203,7 @@ const Home: NextPage = () => {
               </thead>
               <tbody>
                 {lectures &&
-                  lectures.map((lecture: any, index) => (
+                  lectures.map((lecture, index) => (
                     <tr key={index} className="align-middle">
                       <td className="text-center">
                         {/* You can display lecture-specific icons or images here */}
