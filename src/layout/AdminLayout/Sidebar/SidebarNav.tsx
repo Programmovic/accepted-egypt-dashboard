@@ -32,7 +32,8 @@ import {
   faMoneyBill,
   faDollar,
   faHome,
-  faHandsHelping
+  faHandsHelping,
+  faLevelUp
   
 } from "@fortawesome/free-solid-svg-icons";
 import React, {
@@ -169,6 +170,9 @@ export default function SidebarNav() {
       </SidebarNavItem>
       <SidebarNavItem icon={faUser} href="/admins">
         Admins
+      </SidebarNavItem>
+      <SidebarNavItem icon={faLevelUp} href="/levels">
+        Levels
       </SidebarNavItem>
       <SidebarNavItem icon={faHome} href="/rooms">
         Rooms

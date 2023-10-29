@@ -118,6 +118,10 @@ const PlacementTests = () => {
           autoClose: 3000,
         });
         setShowModal(false);
+        setNewTestCost("");
+        setNewTestDate("");
+        setNewTestInstructions("");
+        setNewTestRoom("");
         // Clear the form fields
         // ...
       } else {
@@ -293,7 +297,7 @@ const PlacementTests = () => {
     );
     return totalCost;
   };
-  console.log(filterdPlacementTests[0])
+  console.log(filterdPlacementTests[0]);
   const getAmountReceivedForLevel = (level) => {
     const amountReceived = filterdPlacementTests.reduce((acc, setting) => {
       const levelCount = filterdPlacementTests.filter(
@@ -330,6 +334,20 @@ const PlacementTests = () => {
     console.log(instructorId);
     return selectedInstructor ? selectedInstructor : "Unknown"; // You can provide a default value like 'Unknown'
   };
+  const [levels, setLevels] = useState([]); // Store the selected level here
+
+  useEffect(() => {
+    // Fetch levels from the /api/level endpoint when the component mounts
+    fetch("/api/level")
+      .then((response) => response.json())
+      .then((data) => {
+        setLevels(data); // Set the levels in the state
+      })
+      .catch((error) => {
+        console.error("Error fetching levels:", error);
+      });
+  }, []);
+
   return (
     <AdminLayout>
       <div className="row">
@@ -690,12 +708,11 @@ const PlacementTests = () => {
                   <option value="" hidden>
                     Select a level
                   </option>
-                  <option value="A1">A1</option>
-                  <option value="A2">A2</option>
-                  <option value="A2/B1">A2/B1</option>
-                  <option value="B1 Talabat">B1 Talabat</option>
-                  <option value="B1 Etihad">B1 Etihad</option>
-                  <option value="B1+/B2">B1+/B2</option>
+                  {levels.map((level) => (
+                    <option key={level._id} value={level.name}>
+                      {level.name}
+                    </option>
+                  ))}
                 </Form.Control>
               </Form.Group>
 

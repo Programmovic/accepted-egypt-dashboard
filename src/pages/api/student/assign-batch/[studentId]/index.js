@@ -36,13 +36,13 @@ export default async (req, res) => {
       }
 
       // Calculate the due amount
-      const dueAmount = batchData.cost - paidAmount;
+      const dueAmount = +batchData.cost - (+paidAmount);
 
       // Assign the student to the batch
       student.batch = batch;
-      student.placementTestDate = new Date(); // Set the placement test date as the current date
-      student.paid += paidAmount;
-      student.due = dueAmount;
+      student.status = "Joined Batch";
+      student.paid += +paidAmount;
+      student.due = +dueAmount;
 
       // Create a transaction for the received amount
       const receivedTransaction = new Transaction({

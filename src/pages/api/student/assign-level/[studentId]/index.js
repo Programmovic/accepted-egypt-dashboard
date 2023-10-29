@@ -25,7 +25,7 @@ export default async (req, res) => {
 
       const updatedStudent = await Student.findByIdAndUpdate(
         studentId,
-        { level: assignedLevel },
+        { level: assignedLevel, status: status },
         { new: true }
       );
       const updatedPlacementTest = await PlacementTest.findByIdAndUpdate(

@@ -41,6 +41,13 @@ const batchSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room',
   },
+  level: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Level',
+  },
+  levelName: {
+    type: String,
+  },
   weeklyHours: [
     {
       day: String, // Day of the week, e.g., "Monday"

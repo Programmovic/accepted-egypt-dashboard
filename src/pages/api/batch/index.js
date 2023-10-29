@@ -26,18 +26,27 @@ export default async (req, res) => {
       // Save the new batch to the database
       await newBatch.save();
 
+      // ...
+
       // Create lectures for the batch
       const lectures = [];
       let lectureCounter = 0;
+      const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
       for (let i = 0; i < lectureCount; i++) {
         for (let j = 0; j < batchData.weeklyHours.length; j++) {
           lectureCounter++;
-          const date = new Date(startDate);
-          date.setDate(date.getDate() + (i * 7 + j)); 
+          // Calculate the date based on the day of the week
+          const startBatchDate = new Date(startDate);
+          startBatchDate.setDate(startBatchDate.getDate() + i * 7); // Start date for this lecture set
+          const dayOfWeek = daysOfWeek.indexOf(batchData.weeklyHours[j].day);
+          const lectureDate = new Date(startBatchDate);
+          lectureDate.setDate(lectureDate.getDate() + dayOfWeek); // Calculate the lecture date
+
           const lectureData = {
             name: `${newBatch.name} Lecture ${lectureCounter}`.toUpperCase(),
             status: 'Scheduled',
-            date: date,
+            date: lectureDate,
             batch: newBatch._id,
             hours: batchData.weeklyHours.length,
             cost: newBatch.cost,
@@ -45,15 +54,14 @@ export default async (req, res) => {
             weeklyHours: batchData.weeklyHours[j],
             room: batchData.room,
             description: batchData.description,
+            level: batchData.level,
+            levelName: batchData.levelName
           };
-
-          // Calculate the date based on the day of the week
-          // Adjust the date
 
           const reservationData = {
             title: lectureData.name,
-            date: date,
-            daysOfWeek: batchData.weeklyHours[j].day,
+            date: lectureDate,
+            daysOfWeek: [batchData.weeklyHours[j].day], // Convert to an array for consistency
             startTime: batchData.weeklyHours[j].from,
             endTime: batchData.weeklyHours[j].to,
             room: batchData.room,
@@ -67,6 +75,8 @@ export default async (req, res) => {
           lectures.push(newLecture);
         }
       }
+
+      // ...
 
       return res.status(201).json(newBatch);
     } catch (error) {

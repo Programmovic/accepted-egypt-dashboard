@@ -5,6 +5,7 @@ import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
+import { format } from "date-fns";
 
 const Lectures = () => {
   const [lectureResource, setLectureResource] = useState([]);
@@ -34,7 +35,20 @@ const Lectures = () => {
   const [batchList, setBatchList] = useState([]);
   const [showLectureDetailsModal, setShowLectureDetailsModal] = useState(false);
   const [selectedLecture, setSelectedLecture] = useState(null);
+  const [showTodaysLectures, setShowTodaysLectures] = useState(false);
 
+  // Function to filter lectures for today
+  const filterTodaysLectures = () => {
+    const today = new Date();
+    return filteredData.filter((lecture) => {
+      const lectureDate = new Date(lecture.date);
+      return (
+        lectureDate.getDate() === today.getDate() &&
+        lectureDate.getMonth() === today.getMonth() &&
+        lectureDate.getFullYear() === today.getFullYear()
+      );
+    });
+  };
   // Function to open the modal and set the selected batch details
   const openLectureDetailsModal = (lecture) => {
     setSelectedLecture(lecture);
@@ -88,8 +102,13 @@ const Lectures = () => {
   }, []);
 
   useEffect(() => {
-    handleFilter();
+    if (showTodaysLectures) {
+      setFilteredData(filterTodaysLectures());
+    } else {
+      handleFilter();
+    }
   }, [
+    showTodaysLectures,
     filterTitle,
     filterStatus,
     filterBatch,
@@ -155,7 +174,9 @@ const Lectures = () => {
           .includes(filterDescription.toLowerCase())
       );
     }
-
+    if (showTodaysLectures) {
+      filteredLectures = filterTodaysLectures();
+    }
     setFilteredData(filteredLectures);
   };
 
@@ -251,6 +272,23 @@ const Lectures = () => {
     }));
   };
   console.log(filteredData);
+  const isCurrentLecture = (lecture) => {
+    const currentDate = new Date();
+    const lectureDate = new Date(lecture.date);
+
+    const currentHour = String(currentDate.getHours()).padStart(2, "0");
+    const currentMinute = String(currentDate.getMinutes()).padStart(2, "0");
+
+    const currentTime = `${currentHour}:${currentMinute}`;
+    console.log(lecture.weeklyHours.from, currentTime);
+    console.log(
+      currentDate.toLocaleDateString(),
+      lectureDate.toLocaleDateString()
+    );
+    return (
+      currentDate.toLocaleDateString() === lectureDate.toLocaleDateString()
+    );
+  };
   return (
     <AdminLayout>
       <ToastContainer />
@@ -391,11 +429,21 @@ const Lectures = () => {
       </Modal>
 
       <Card>
-        <Card.Header>Lectures</Card.Header>
+        <Card.Header className="d-flex justify-content-between">
+          Lectures{" "}
+          <Form.Group>
+            <Form.Check
+              type="checkbox"
+              label="Show Today's Lectures Only"
+              checked={showTodaysLectures}
+              onChange={() => setShowTodaysLectures(!showTodaysLectures)}
+            />
+          </Form.Group>
+        </Card.Header>
         <Card.Body>
           <Form className="mb-3">
             <Row>
-              <Form className="mb-3">
+              {/* <Form className="mb-3">
                 <Row>
                   <Col xs={6}>
                     <Form.Group className="mb-3">
@@ -417,8 +465,6 @@ const Lectures = () => {
                       />
                     </Form.Group>
                   </Col>
-                </Row>
-                <Row>
                   <Col xs={6}>
                     <Form.Group className="mb-3">
                       <Form.Label>Filter by Batch</Form.Label>
@@ -439,8 +485,6 @@ const Lectures = () => {
                       />
                     </Form.Group>
                   </Col>
-                </Row>
-                <Row>
                   <Col xs={6}>
                     <Form.Group className="mb-3">
                       <Form.Label>Filter by Cost</Form.Label>
@@ -461,8 +505,6 @@ const Lectures = () => {
                       />
                     </Form.Group>
                   </Col>
-                </Row>
-                <Row>
                   <Col xs={12}>
                     <Form.Group className="mb-3">
                       <Form.Label>Filter by Description</Form.Label>
@@ -473,8 +515,6 @@ const Lectures = () => {
                       />
                     </Form.Group>
                   </Col>
-                </Row>
-                <Row>
                   <Col xs={6}>
                     <Button variant="secondary" onClick={clearFilters}>
                       Clear Filters
@@ -486,7 +526,7 @@ const Lectures = () => {
                     </Button>
                   </Col>
                 </Row>
-              </Form>
+              </Form> */}
             </Row>
           </Form>
 
@@ -502,8 +542,10 @@ const Lectures = () => {
                     <th>#</th>
                     <th onClick={() => handleSort("name")}>Name</th>
                     <th onClick={() => handleSort("status")}>Status</th>
+                    <th onClick={() => handleSort("level")}>Level</th>
                     <th onClick={() => handleSort("batch")}>Batch</th>
                     <th onClick={() => handleSort("hours")}>Hours</th>
+                    <th onClick={() => handleSort("date")}>Date</th>
                     <th onClick={() => handleSort("cost")}>Cost</th>
                     <th onClick={() => handleSort("lab")}>Lab</th>
                     <th onClick={() => handleSort("lectureSchedule")}>
@@ -520,9 +562,18 @@ const Lectures = () => {
                       key={lecture._id}
                       onClick={() => openLectureDetailsModal(lecture)}
                     >
-                      <td>{index + 1}</td>
+                      <td
+                        className={
+                          isCurrentLecture(lecture)
+                            ? "bg-success text-light"
+                            : ""
+                        }
+                      >
+                        {index + 1}
+                      </td>
                       <td>{lecture.name}</td>
-                      <td>{lecture.status}</td>
+                      <td>{isCurrentLecture(lecture) ? "On Progress" : ""}</td>
+                      <td>{lecture.levelName}</td>
                       <td>
                         {
                           batchList.find((batch) => batch._id === lecture.batch)
@@ -530,6 +581,7 @@ const Lectures = () => {
                         }
                       </td>
                       <td>{lecture.hours}</td>
+                      <td>{new Date(lecture.date).toLocaleDateString()}</td>
                       <td>{lecture.cost}</td>
                       <td>{lecture.room}</td>
                       <td>
@@ -561,12 +613,7 @@ const Lectures = () => {
                 <p>Cost: {selectedLecture.cost} EGP</p>
                 <p>Limit Trainees: {selectedLecture.limitTrainees} Trainees</p>
                 <p>
-                  Start Date:{" "}
-                  {new Date(selectedLecture.shouldStartAt).toLocaleDateString()}
-                </p>
-                <p>
-                  End Date:{" "}
-                  {new Date(selectedLecture.shouldEndAt).toLocaleDateString()}
+                  Date: {new Date(selectedLecture.date).toLocaleDateString()}
                 </p>
                 <p>Room: {selectedLecture.room}</p>
                 <p>Description: {selectedLecture.description}</p>

@@ -179,6 +179,8 @@ const Batches = () => {
         room: newBatchLab,
         weeklyHours: newBatchLecturesTimes,
         description: newBatchDescription,
+        level: selectedLevel,
+        levelName: selectedLevelName
         // Add other batch attributes here
       });
       closeModal();
@@ -279,6 +281,26 @@ const Batches = () => {
     // Fetch room options from your API endpoint
     fetchRoomsData();
   }, []);
+  const [levels, setLevels] = useState([]); // Store the selected level here
+
+  useEffect(() => {
+    // Fetch levels from the /api/level endpoint when the component mounts
+    fetch("/api/level")
+      .then((response) => response.json())
+      .then((data) => {
+        setLevels(data); // Set the levels in the state
+      })
+      .catch((error) => {
+        console.error("Error fetching levels:", error);
+      });
+  }, []);
+  const [selectedLevel, setSelectedLevel] = useState(""); 
+  const [selectedLevelName, setSelectedLevelName] = useState(""); 
+  // Function to handle level selection
+  const handleLevelSelect = (e) => {
+    setSelectedLevel(e.target.value);
+    setSelectedLevelName(levels.find((level) => level._id === e.target.value).name);
+  };
   return (
     <AdminLayout>
       <ToastContainer />
@@ -411,10 +433,25 @@ const Batches = () => {
                   />
                 </Form.Group>
               </Col>
+              <Col xs={6}>
+              <Form.Group>
+                <Form.Label>Set Level:</Form.Label>
+                <Form.Control as="select" onChange={handleLevelSelect}>
+                  <option value="" hidden>
+                    Select a level
+                  </option>
+                  {levels.map((level) => (
+                    <option key={level._id} value={level._id}>
+                      {level.name}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+              </Col>
               <Col xs={12}>
                 <Form.Group className="mb-3">
                   <Form.Label>Weekdays</Form.Label>
-                  {["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].map(
+                  {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"].map(
                     (day, index) => (
                       <div key={day}>
                         <Form.Check

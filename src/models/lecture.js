@@ -37,6 +37,13 @@ const lectureSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room',
   },
+  level: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Level',
+  },
+  levelName: {
+    type: String,
+  },
   description: {
     type: String,
   },

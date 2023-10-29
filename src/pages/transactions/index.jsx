@@ -29,6 +29,7 @@ const Transactions = () => {
   const [newTransactionDescription, setNewTransactionDescription] =
     useState("");
   const [students, setStudents] = useState([]);
+  const [batches, setBatches] = useState([]);
 
   // State for statistics
   const [statistics, setStatistics] = useState({
@@ -45,6 +46,17 @@ const Transactions = () => {
       if (response.status === 200) {
         console.log(response);
         setStudents(response.data.students);
+      } else {
+        console.error("Failed to fetch students.");
+      }
+    });
+  }, []);
+  useEffect(() => {
+    // Fetch the list of students when the component mounts
+    axios.get("/api/batch").then((response) => {
+      if (response.status === 200) {
+        console.log(response);
+        setBatches(response.data);
       } else {
         console.error("Failed to fetch students.");
       }
@@ -74,7 +86,7 @@ const Transactions = () => {
     try {
       const response = await axios.post("/api/transaction", {
         student: newTransactionStudent || null,
-        batch: newTransactionBatch || null,
+        batch: newTransactionBatch._id || null,
         type: newTransactionType,
         amount: newTransactionAmount,
         description: newTransactionDescription,
@@ -88,11 +100,7 @@ const Transactions = () => {
         });
         setShowModal(false);
         // Clear the form fields
-        setNewTransactionStudent("");
-        setNewTransactionBatch("");
-        setNewTransactionType("");
-        setNewTransactionAmount("");
-        setNewTransactionDescription("");
+        resetNewTransactionForm();
       } else {
         console.error("Unexpected status code:", response.status);
       }
@@ -221,7 +229,27 @@ const Transactions = () => {
   const handleTypeChange = (e) => {
     setNewTransactionType(e.target.value);
   };
-  console.log(newTransactionStudent.value);
+  const batch = batches.find(
+    (batch) =>
+      batch._id ===
+      students.find(
+        (student) => student._id === newTransactionSelectedStudent?.value
+      )?.batch
+  );
+
+  useEffect(() => {
+    // Automatically apply filters when filter inputs change
+    setNewTransactionBatch(batch);
+  }, [batch, newTransactionStudent]);
+  const resetNewTransactionForm = () => {
+    setNewTransactionSelectedStudent("");
+    setNewTransactionStudent("");
+    setNewTransactionBatch("");
+    setNewTransactionType("");
+    setNewTransactionAmount(0);
+    setNewTransactionDescription("");
+  };
+
   return (
     <AdminLayout>
       <div className="row">
@@ -384,7 +412,13 @@ const Transactions = () => {
         </Card.Body>
       </Card>
       <ToastContainer position="top-right" autoClose={3000} />
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal
+        show={showModal}
+        onHide={() => {
+          setShowModal(false);
+          resetNewTransactionForm();
+        }}
+      >
         <Modal.Header closeButton>
           <Modal.Title>Create New Transaction</Modal.Title>
         </Modal.Header>
@@ -400,7 +434,7 @@ const Transactions = () => {
                 }))}
                 onChange={(e) => {
                   setNewTransactionSelectedStudent(e);
-                  setNewTransactionStudent(e.value);
+                  setNewTransactionStudent(e?.value);
                 }}
                 isClearable={true}
                 isSearchable={true}
@@ -411,8 +445,9 @@ const Transactions = () => {
               <Form.Label>Batch</Form.Label>
               <Form.Control
                 type="text"
-                value={newTransactionBatch}
+                value={newTransactionBatch?.name}
                 onChange={(e) => setNewTransactionBatch(e.target.value)}
+                disabled
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -423,18 +458,20 @@ const Transactions = () => {
                   name="transactionType"
                   id="incomeRadio"
                   label="Receivable (income)"
-                  value="Received"
-                  checked={newTransactionType === "Received"}
+                  value="Income"
+                  checked={newTransactionType === "Income"}
                   onChange={handleTypeChange}
+                  required
                 />
                 <Form.Check
                   type="radio"
                   name="transactionType"
                   id="expenseRadio"
                   label="Payable (Expense)"
-                  value="Paid"
-                  checked={newTransactionType === "Paid"}
+                  value="Expense"
+                  checked={newTransactionType === "Expense"}
                   onChange={handleTypeChange}
+                  required
                 />
                 <Form.Check
                   type="radio"
@@ -444,6 +481,7 @@ const Transactions = () => {
                   value="Due"
                   checked={newTransactionType === "Due"}
                   onChange={handleTypeChange}
+                  required
                 />
               </div>
             </Form.Group>
@@ -453,14 +491,18 @@ const Transactions = () => {
                 type="number"
                 value={newTransactionAmount}
                 onChange={(e) => setNewTransactionAmount(e.target.value)}
+                required
               />
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Description</Form.Label>
               <Form.Control
                 type="text"
-                value={newTransactionDescription}
+                value={
+                  newTransactionBatch ? "Course Fee" : newTransactionDescription
+                }
                 onChange={(e) => setNewTransactionDescription(e.target.value)}
+                required
               />
             </Form.Group>
           </Form>
