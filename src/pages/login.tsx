@@ -9,6 +9,8 @@ import { SyntheticEvent, useState } from 'react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import Cookies from 'js-cookie'; // Import the js-cookie library
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login: NextPage = () => {
   const router = useRouter();
@@ -39,17 +41,30 @@ const Login: NextPage = () => {
 
         // Redirect to the homepage
         router.push(getRedirect());
+
+        // Show a success message using react-toastify
+        toast.success('Login successful!', {
+          position: 'top-right',
+        });
       } else {
         // Handle authentication error, e.g., show a message to the user
+        toast.error('Authentication error. Please check your username and password.', {
+          position: 'top-right',
+        });
       }
     } catch (error) {
       // Handle other errors, e.g., network error
+      toast.error('An error occurred. Please try again later.', {
+        position: 'top-right',
+      });
     } finally {
       setSubmitting(false);
     }
   };
+
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center dark-bg-transparent">
+      <ToastContainer position="top-right" autoClose={3000} />
       <Container>
         <Row className="justify-content-center align-items-center px-3">
           <Col lg={5}>

@@ -2,6 +2,7 @@ import connectDB from '@lib/db';
 import Admin from '@models/admin';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import { serialize } from 'cookie';
 
 export default async (req, res) => {
   if (req.method === 'POST') {
@@ -24,12 +25,34 @@ export default async (req, res) => {
         return res.status(401).json({ error: 'Invalid username or password' });
       }
 
-      // Generate a JWT token
-      const token = jwt.sign({ username: admin.username, role: admin.role }, 'your-secret-key', {
-        expiresIn: '1h', // Adjust the token expiration as needed
+      // Generate a JWT token with admin ID and username
+      const token = jwt.sign({ adminId: admin._id, username: admin.username, role: admin.role }, 'your-secret-key', {
+        expiresIn: '1h',
       });
 
-      return res.status(200).json({ token }); // Send the token in the response
+      // Set the token as a cookie in the response
+      res.setHeader('Set-Cookie', serialize('token', token, {
+        httpOnly: true,
+        maxAge: 3600,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+      }));
+      
+      // Set the username and admin ID as cookies
+      res.setHeader('Set-Cookie', serialize('username', admin.username, {
+        httpOnly: false, // You may set it to true if needed
+        maxAge: 3600,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+      }));
+      res.setHeader('Set-Cookie', serialize('adminId', admin._id, {
+        httpOnly: false, // You may set it to true if needed
+        maxAge: 3600,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production',
+      }));
+
+      return res.status(200).json({ success: 'Logged in', token });
 
     } catch (error) {
       console.error(error);

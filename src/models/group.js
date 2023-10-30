@@ -38,6 +38,13 @@ const groupSchema = new mongoose.Schema({
     type: Date,
     required: true,
   },
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.models.Group || mongoose.model('Group', groupSchema);

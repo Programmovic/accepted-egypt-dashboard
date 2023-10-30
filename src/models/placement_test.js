@@ -34,6 +34,13 @@ const placementTestSchema = new mongoose.Schema({
     required: true,
     default: Date.now,
   },
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
+  },
   // Add other placement test fields here
   // Example: testScore, examiner, etc.
 });

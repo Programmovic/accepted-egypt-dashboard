@@ -18,6 +18,13 @@ const placementTestSettingsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room',
   },
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
+  },
   // You can add more fields based on your application's requirements
   // Example: testDate, location, maximumAttempts, etc.
 });

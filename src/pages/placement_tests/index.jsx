@@ -64,7 +64,7 @@ const PlacementTests = () => {
 
   // Define the URL of your API endpoint
   const apiUrl = "/api/reservation/available-rooms"; // Update the URL if needed
-
+console.log(date, new Date())
   const fetchRooms = async () => {
     try {
       // Fetch all rooms
@@ -357,42 +357,16 @@ const PlacementTests = () => {
           enableOptions={false}
           isLoading={loading}
         />
-        <ClassCard
-          data={getLevelCount("A1")}
-          title="Level A1"
+        {levels.map((level, i) => (
+          <ClassCard
+          data={getLevelCount(level.name)}
+          title={`Level ${level.name}`}
           enableOptions={false}
           isLoading={loading}
         />
-        <ClassCard
-          data={getLevelCount("A2")}
-          title="Level A2"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getLevelCount("A2/B1")}
-          title="Level A2/B1"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getLevelCount("B1 Talabat")}
-          title="Level B1 Talabat"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getLevelCount("B1 Etihad")}
-          title="Level B1 Etihad"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getLevelCount("B1+/B2")}
-          title="Level B1+/B2"
-          enableOptions={false}
-          isLoading={loading}
-        />
+        ))}
+        
+       
         <ClassCard
           data={getNACount()}
           title="Level N/A"
@@ -405,42 +379,14 @@ const PlacementTests = () => {
           enableOptions={false}
           isLoading={loading}
         />
-        <ClassCard
-          data={getAmountReceivedForLevel("A1")}
-          title="Amount Received for A1"
+        {levels.map((level, i) => (
+          <ClassCard
+          data={getAmountReceivedForLevel(level.name)}
+          title={`Amount Received for Level ${level.name}`}
           enableOptions={false}
           isLoading={loading}
         />
-        <ClassCard
-          data={getAmountReceivedForLevel("A2")}
-          title="Amount Received for A2"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getAmountReceivedForLevel("A2/B1")}
-          title="Amount Received for A2/B1"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getAmountReceivedForLevel("B1 Talabat")}
-          title="Amount Received for B1 Talabat"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getAmountReceivedForLevel("B1 Etihad")}
-          title="Amount Received for B1 Etihad"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getAmountReceivedForLevel("B1+/B2")}
-          title="Amount Received for B1+/B2"
-          enableOptions={false}
-          isLoading={loading}
-        />
+        ))}
         <ClassCard
           data={`${getTotalAmountReceived()} EGP`}
           title="Total Amount Received"

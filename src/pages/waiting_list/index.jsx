@@ -7,6 +7,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@layout";
 import { useRouter } from "next/router"; // Import useRouter
 import Select from "react-select";
+import { ClassCard } from "@components/Classes";
 
 const WaitingList = () => {
   const [waitingListItems, setWaitingListItems] = useState([]);
@@ -21,6 +22,7 @@ const WaitingList = () => {
   const [selectedBatch, setSelectedBatch] = useState("");
   const [paidAmount, setPaidAmount] = useState("");
   const [student, setStudent] = useState({});
+  const [students, setStudents] = useState([]);
 
   async function fetchBatches() {
     try {
@@ -31,7 +33,7 @@ const WaitingList = () => {
       }
     } catch (error) {
       console.error("Error fetching batches:", error);
-      toast.error("Failed to fetch batches. Please try again later.", {
+      toast.error(error.message, {
         position: "top-right",
         autoClose: 3000,
       });
@@ -39,7 +41,9 @@ const WaitingList = () => {
   }
   async function fetchStudentData() {
     try {
-      const response = await axios.get(`/api/student/${selectedWaitingListItem.student}`);
+      const response = await axios.get(
+        `/api/student/${selectedWaitingListItem?.student}`
+      );
       console.log(response);
       if (response.status === 200) {
         setStudent(response.data);
@@ -71,15 +75,34 @@ const WaitingList = () => {
       );
     }
   };
-
+  const fetchStudentsData = async () => {
+    try {
+      const response = await axios.get("/api/student");
+      if (response.status === 200) {
+        console.log(response)
+        setStudents(response.data.students);
+      }
+    } catch (error) {
+      console.error("Error fetching waiting list data:", error);
+      toast.error(
+        "Failed to fetch waiting list data. Please try again later.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+        }
+      );
+    }
+  };
   useEffect(() => {
     fetchWaitingListData();
     fetchBatches();
+    fetchStudentsData()
   }, []);
+  console.log(students)
   useEffect(() => {
-    fetchStudentData()
+    {selectedWaitingListItem?.student && fetchStudentData();}
   }, [selectedWaitingListItem]);
-  console.log(student)
+  console.log(student);
   const assignToBatch = async () => {
     try {
       if (selectedWaitingListItem && selectedBatch) {
@@ -180,6 +203,20 @@ const WaitingList = () => {
   console.log(selectedBatch);
   return (
     <AdminLayout>
+      <Row>
+        <ClassCard
+          data={`${waitingListItems.length}`}
+          title="Total Students"
+          enableOptions={false}
+        />
+        <ClassCard
+          data={`${students && students.filter(
+            (student) => student.batch && student.batch !== ""
+          ).length}`}
+          title="Students Converted from EWFS to Batches"
+          enableOptions={false}
+        />
+      </Row>
       <Card>
         <Card.Header>Waiting List</Card.Header>
 

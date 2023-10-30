@@ -11,6 +11,13 @@ const employeeSchema = new mongoose.Schema({
   phoneNumber: {
     type: String,
   },
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
+  },
 }
   , {
     timestamps: true

@@ -6,6 +6,7 @@ import { Modal } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
+import Link from "next/link";
 
 const Batches = () => {
   const [batchResource, setBatchResource] = useState([]);
@@ -33,6 +34,7 @@ const Batches = () => {
   const [newBatchLecturesTimes, setNewBatchLecturesTimes] = useState([]);
   const [showBatchDetailsModal, setShowBatchDetailsModal] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
+  const [creatingBatch, setCreatingBatch] = useState(false);
 
   // Function to open the modal and set the selected batch details
   const openBatchDetailsModal = (batch) => {
@@ -166,6 +168,7 @@ const Batches = () => {
 
   const handleAddBatch = async () => {
     try {
+      setCreatingBatch(true);
       await axios.post("/api/batch", {
         name: newBatchName,
         status: newBatchStatus,
@@ -180,7 +183,7 @@ const Batches = () => {
         weeklyHours: newBatchLecturesTimes,
         description: newBatchDescription,
         level: selectedLevel,
-        levelName: selectedLevelName
+        levelName: selectedLevelName,
         // Add other batch attributes here
       });
       closeModal();
@@ -190,6 +193,8 @@ const Batches = () => {
       console.log("Error adding batch:", error.message);
       setError("Failed to add the batch. Please try again.");
       toast.error(error.message); // Error toast
+    } finally {
+      setCreatingBatch(false); // Set creatingBatch state to false after the request is complete
     }
   };
   const clearFilters = () => {
@@ -202,7 +207,9 @@ const Batches = () => {
   const handleGenerateName = () => {
     const generatedName = `${
       newBatchClass ? getClassName(newBatchClass).name : "N/A"
-    } - ${roomOptions.find((room) => newBatchLab === room.value)?.label} - ${newBatchHours} - ${newBatchCost} - ${newBatchShouldStartAt} to ${newBatchShouldEndAt} Batch`;
+    } - ${
+      roomOptions.find((room) => newBatchLab === room.value)?.label
+    } - ${newBatchHours} - ${newBatchCost} - ${newBatchShouldStartAt} to ${newBatchShouldEndAt} Batch`;
     setNewBatchName(generatedName.toUpperCase());
   };
   useEffect(() => {
@@ -294,12 +301,14 @@ const Batches = () => {
         console.error("Error fetching levels:", error);
       });
   }, []);
-  const [selectedLevel, setSelectedLevel] = useState(""); 
-  const [selectedLevelName, setSelectedLevelName] = useState(""); 
+  const [selectedLevel, setSelectedLevel] = useState("");
+  const [selectedLevelName, setSelectedLevelName] = useState("");
   // Function to handle level selection
   const handleLevelSelect = (e) => {
     setSelectedLevel(e.target.value);
-    setSelectedLevelName(levels.find((level) => level._id === e.target.value).name);
+    setSelectedLevelName(
+      levels.find((level) => level._id === e.target.value).name
+    );
   };
   return (
     <AdminLayout>
@@ -434,19 +443,19 @@ const Batches = () => {
                 </Form.Group>
               </Col>
               <Col xs={6}>
-              <Form.Group>
-                <Form.Label>Set Level:</Form.Label>
-                <Form.Control as="select" onChange={handleLevelSelect}>
-                  <option value="" hidden>
-                    Select a level
-                  </option>
-                  {levels.map((level) => (
-                    <option key={level._id} value={level._id}>
-                      {level.name}
+                <Form.Group>
+                  <Form.Label>Set Level:</Form.Label>
+                  <Form.Control as="select" onChange={handleLevelSelect}>
+                    <option value="" hidden>
+                      Select a level
                     </option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
+                    {levels.map((level) => (
+                      <option key={level._id} value={level._id}>
+                        {level.name}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
               </Col>
               <Col xs={12}>
                 <Form.Group className="mb-3">
@@ -525,7 +534,7 @@ const Batches = () => {
             Close
           </Button>
           <Button variant="success" onClick={handleAddBatch}>
-            Add Batch
+          {creatingBatch ? "Creating..." : "Add New Batch"}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -570,7 +579,7 @@ const Batches = () => {
                     classList.length <= 0 &&
                     "Cannot Create Batches Without Classes!"
                   }
-                  disabled={classList.length > 0 ? false : true}
+                  disabled={creatingBatch || classList.length <= 0 || levels.length <= 0 } 
                 >
                   Add New Batch
                 </Button>
@@ -588,56 +597,63 @@ const Batches = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
-            <div style={{ overflowX: 'auto' }}>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th onClick={() => handleSort("name")}>Name</th>
-                  <th onClick={() => handleSort("status")}>Status</th>
-                  <th onClick={() => handleSort("class")}>Class</th>
-                  <th onClick={() => handleSort("hours")}>Hours</th>
-                  <th onClick={() => handleSort("cost")}>Cost</th>
-                  <th onClick={() => handleSort("limitTrainees")}>
-                    Limit Trainees
-                  </th>
-                  <th onClick={() => handleSort("shouldStartAt")}>
-                    Start Date
-                  </th>
-                  <th onClick={() => handleSort("shouldEndAt")}>End Date</th>
-                  <th onClick={() => handleSort("lab")}>Lab</th>
-                  <th onClick={() => handleSort("code")}>Code</th>
-                  <th onClick={() => handleSort("description")}>Description</th>
-                  <th onClick={() => handleSort("createdDate")}>
-                    Created Date
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedBatches.map((batch, index) => (
-                  <tr
-                    key={batch._id}
-                    onClick={() => openBatchDetailsModal(batch)}
-                  >
-                    <td>{index + 1}</td>
-                    <td>{batch.name}</td>
-                    <td>{batch.status}</td>
-                    <td>
-                      {batch.class ? getClassName(batch.class).name : "N/A"}
-                    </td>
-                    <td>{batch.hours}</td>
-                    <td>{batch.cost} EGP</td>
-                    <td>{batch.limitTrainees} Trainees</td>
-                    <td>{batch.shouldStartAt}</td>
-                    <td>{batch.shouldEndAt}</td>
-                    <td>{roomOptions.find((room) => room.value === batch.room)?.label}</td>
-                    <td>{batch.code}</td>
-                    <td>{batch.description}</td>
-                    <td>{batch.createdDate}</td>
+            <div style={{ overflowX: "auto" }}>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th onClick={() => handleSort("name")}>Name</th>
+                    <th onClick={() => handleSort("status")}>Status</th>
+                    <th onClick={() => handleSort("class")}>Class</th>
+                    <th onClick={() => handleSort("hours")}>Hours</th>
+                    <th onClick={() => handleSort("cost")}>Cost</th>
+                    <th onClick={() => handleSort("limitTrainees")}>
+                      Limit Trainees
+                    </th>
+                    <th onClick={() => handleSort("shouldStartAt")}>
+                      Start Date
+                    </th>
+                    <th onClick={() => handleSort("shouldEndAt")}>End Date</th>
+                    <th onClick={() => handleSort("lab")}>Lab</th>
+                    <th onClick={() => handleSort("code")}>Code</th>
+                    <th onClick={() => handleSort("description")}>
+                      Description
+                    </th>
+                    <th onClick={() => handleSort("createdDate")}>
+                      Created Date
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
+                </thead>
+                <tbody>
+                  {sortedBatches.map((batch, index) => (
+                    <tr
+                      key={batch._id}
+                      onClick={() => openBatchDetailsModal(batch)}
+                    >
+                      <td>{index + 1}</td>
+                      <td>{batch.name}</td>
+                      <td>{batch.status}</td>
+                      <td>
+                        {batch.class ? getClassName(batch.class).name : "N/A"}
+                      </td>
+                      <td>{batch.hours}</td>
+                      <td>{batch.cost} EGP</td>
+                      <td>{batch.limitTrainees} Trainees</td>
+                      <td>{batch.shouldStartAt}</td>
+                      <td>{batch.shouldEndAt}</td>
+                      <td>
+                        {
+                          roomOptions.find((room) => room.value === batch.room)
+                            ?.label
+                        }
+                      </td>
+                      <td>{batch.code}</td>
+                      <td>{batch.description}</td>
+                      <td>{batch.createdDate}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
             </div>
           )}
           {selectedBatch && (
@@ -652,20 +668,28 @@ const Batches = () => {
                 <p>Name: {selectedBatch.name}</p>
                 <p>Status: {selectedBatch.status}</p>
                 <p>Code: {selectedBatch.code}</p>
-                <p>
-                  Class:{" "}
-                  {selectedBatch.class}
-                </p>
+                <p>Class: {selectedBatch.class}</p>
                 <p>Hours: {selectedBatch.hours}</p>
                 <p>Cost: {selectedBatch.cost} EGP</p>
                 <p>Limit Trainees: {selectedBatch.limitTrainees} Trainees</p>
-                <p>Start Date: {new Date(selectedBatch.shouldStartAt).toLocaleDateString()}</p>
-                <p>End Date: {new Date(selectedBatch.shouldEndAt).toLocaleDateString()}</p>
                 <p>
-                  Room: {roomOptions.find((room) => room.value === selectedBatch.room).label} 
+                  Start Date:{" "}
+                  {new Date(selectedBatch.shouldStartAt).toLocaleDateString()}
+                </p>
+                <p>
+                  End Date:{" "}
+                  {new Date(selectedBatch.shouldEndAt).toLocaleDateString()}
+                </p>
+                <p>
+                  Room:{" "}
+                  {
+                    roomOptions.find(
+                      (room) => room.value === selectedBatch.room
+                    ).label
+                  }
                 </p>
                 <p>Description: {selectedBatch.description}</p>
-                
+
                 <p>Lecture Times:</p>
                 <ul>
                   {selectedBatch.weeklyHours.map((time, index) => (
@@ -674,7 +698,10 @@ const Batches = () => {
                     </li>
                   ))}
                 </ul>
-                <p>Created Date: {new Date(selectedBatch.createdDate).toLocaleDateString()}</p>
+                <p>
+                  Created Date:{" "}
+                  {new Date(selectedBatch.createdDate).toLocaleDateString()}
+                </p>
               </Modal.Body>
               <Modal.Footer>
                 <Button
@@ -682,6 +709,14 @@ const Batches = () => {
                   onClick={() => setShowBatchDetailsModal(false)}
                 >
                   Close
+                </Button>
+                <Button variant="success">
+                  <Link
+                    href={`/batches/${selectedBatch._id}`}
+                    className="text-decoration-none text-light"
+                  >
+                    View Lectures
+                  </Link>
                 </Button>
               </Modal.Footer>
             </Modal>

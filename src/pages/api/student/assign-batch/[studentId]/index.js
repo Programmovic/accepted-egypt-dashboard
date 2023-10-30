@@ -4,6 +4,7 @@ import Batch from "../../../../../models/batch";
 import Transaction from "../../../../../models/transaction";
 import Attendance from "../../../../../models/attendance";
 import Lecture from "../../../../../models/lecture";
+import WaitingList from "../../../../../models/waiting_list";
 
 export default async (req, res) => {
   try {
@@ -56,6 +57,7 @@ export default async (req, res) => {
       receivedTransaction.save()
       // Save the updated student
       await student.save();
+      await WaitingList.findOneAndRemove({ student: student._id });
       const lectures = await Lecture.find({ batch: batch });
       console.log(req.body)
       for (const lectureId of lectures) {

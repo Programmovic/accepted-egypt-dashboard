@@ -249,7 +249,40 @@ const Transactions = () => {
     setNewTransactionAmount(0);
     setNewTransactionDescription("");
   };
+  const initialLevelIncomes = {};
 
+  // ...
+
+  // Calculate incomes for each level
+  const calculateLevelIncomes = () => {
+    // Initialize the level incomes with zeros
+    const levelIncomes = { ...initialLevelIncomes };
+
+    filteredTransactions.forEach((transaction) => {
+      // Find the associated batch based on the student ID
+      const batch = batches.find(
+        (b) => transaction.batch && b._id === transaction.batch
+      );
+
+      if (batch) {
+        const levelName = batch.levelName;
+
+        // Calculate income only for "Income" type transactions
+        if (transaction.type === "Income") {
+          // Initialize the level's income if it's not in the levelIncomes object
+          if (!levelIncomes[levelName]) {
+            levelIncomes[levelName] = 0;
+          }
+
+          // Accumulate the income for the level
+          levelIncomes[levelName] += transaction.amount;
+        }
+      }
+    });
+
+    return levelIncomes;
+  };
+  const levelIncomes = calculateLevelIncomes();
   return (
     <AdminLayout>
       <div className="row">
@@ -280,9 +313,16 @@ const Transactions = () => {
         />
         <ClassCard
           data={`${statistics.placementTestAmount} EGP`}
-          title="Total Received From Placement Test"
+          title="Total Received From Placement Test (E2WFS)"
           enableOptions={false}
         />
+        {Object.keys(levelIncomes).map((levelName) => (
+          <ClassCard
+            data={`${levelIncomes[levelName]} EGP (${((levelIncomes[levelName] / statistics.receivedAmount) * 100).toFixed(2)}%)`}
+            title={`Income for ${levelName}`}
+            enableOptions={false}
+          />
+        ))}
       </div>
       <Card>
         <Card.Header>Transactions</Card.Header>

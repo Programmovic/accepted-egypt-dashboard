@@ -16,10 +16,21 @@ const waitingListSchema = new mongoose.Schema({
   assignedLevel: {
     type: String,
   },
+  isArchived: {
+    type: Boolean,
+    default: false,
+  },
   date: {
     type: Date,
     required: true,
     default: Date.now,
+  },
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
   },
   // You can add other waiting list fields here
   // Example: priority, reason, etc.

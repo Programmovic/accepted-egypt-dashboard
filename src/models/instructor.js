@@ -22,6 +22,13 @@ const instructorSchema = new mongoose.Schema({
     type: Date,
     default: Date.now, // Set the default value to the current date
   },
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.models.Instructor || mongoose.model("Instructor", instructorSchema);

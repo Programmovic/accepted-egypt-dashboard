@@ -178,7 +178,7 @@ export default function SidebarNav() {
         Rooms
       </SidebarNavItem>
       <SidebarNavItem icon={faEdit} href="/placement_tests">
-        Placement Test
+        Placement Test (EWF2 Test)
       </SidebarNavItem>
       <SidebarNavItem icon={faSchool} href="/courses">
         Courses

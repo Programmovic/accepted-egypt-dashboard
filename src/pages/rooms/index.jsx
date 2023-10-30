@@ -122,55 +122,50 @@ const Rooms = () => {
     const minutes = hours * 60 + parseInt(mm, 10);
     return minutes;
   }
-  const isRoomAvailable = (room, currentTime) => {
-    const currentDate = currentTime.toLocaleDateString("en-US", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-    const currentDay = currentTime.toLocaleDateString("en-US", {
-      weekday: "long",
-    });
-    const currentTimeString = currentTime.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    // Filter the reservations to only include those for the current room
-    const roomReservations = currentReservations.filter(
-      (reservation) => reservation.room === room._id
-    );
-    // Check if there are any reservations for the current room that match the current date, day, and time
-    return roomReservations.every((reservation) => {
-      const reservationDate = new Date(reservation.date).toLocaleDateString(
-        "en-US",
-        {
-          weekday: "long",
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-        }
-      );
-      const startTimeString = reservation.startTime;
-      const endTimeString = reservation.endTime;
-      console.log(reservationDate === currentDate);
-      if (
-        reservationDate === currentDate &&
-        compareTimes(currentTimeString, startTimeString) &&
-        compareTimes(endTimeString, currentTimeString)
-      ) {
-        console.log(currentDate, reservation.startDate);
-        return false; // Room is reserved at this date and time
-      }
-      return true; // Room is available
-    });
-  };
 
   const handleRowClick = (room) => {
     setSelectedRoom(room);
     setShowDetailsModal(true);
   };
+
+  const checkRoomAvailability = async (
+    selectedRoomId,
+    date,
+    fromTime,
+    toTime
+  ) => {
+    const apiUrl = "/api/reservation/available-rooms"; // Update the URL if needed
+console.log(date)
+    try {
+      const params = {
+        date,
+        fromTime,
+        toTime,
+      };
+
+      const availableRoomsResponse = await axios.get(apiUrl, { params });
+
+      if (availableRoomsResponse.status !== 200) {
+        console.error(
+          "Error fetching available rooms:",
+          availableRoomsResponse.statusText
+        );
+        return false; // Unable to determine room availability
+      }
+
+      // Extract the available room IDs from the response
+      const availableRoomIds = availableRoomsResponse.data.map(
+        (room) => room._id
+      );
+      console.log(availableRoomIds);
+      // Check if the selected room is among the available rooms
+      return availableRoomIds.includes(selectedRoomId);
+    } catch (error) {
+      console.error("Error checking room availability:", error);
+      return false; // Unable to determine room availability (consider handling errors more specifically)
+    }
+  };
+
   return (
     <AdminLayout>
       <Card>
@@ -209,7 +204,13 @@ const Rooms = () => {
             </thead>
             <tbody>
               {rooms.map((room, index) => {
-                const isRoomReserved = !isRoomAvailable(room, currentTime);
+                const isRoomReserved = !checkRoomAvailability(
+                  room._id,
+                  new Date().toLocaleDateString(),
+                  "9:00",
+                  "5:00"
+                );
+
                 return (
                   <tr key={room._id} onClick={() => handleRowClick(room)}>
                     <td>{index + 1}</td>

@@ -1,7 +1,15 @@
 // LectureAttendance.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Table, Form, Modal, Accordion, Button, Row } from "react-bootstrap";
+import {
+  Card,
+  Table,
+  Form,
+  Modal,
+  Accordion,
+  Button,
+  Row,
+} from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@layout";
@@ -12,7 +20,8 @@ import { ClassCard } from "@components/Classes";
 const LectureAttendance = () => {
   const [lectureAttendances, setLectureAttendances] = useState([]);
   const [selectedLecture, setSelectedLecture] = useState(null);
-  const [showAttendanceDetailsModal, setShowAttendanceDetailsModal] = useState(false);
+  const [showAttendanceDetailsModal, setShowAttendanceDetailsModal] =
+    useState(false);
   const [students, setStudents] = useState([]);
   // Add state variables for the filter values
   const [filterTraineeName, setFilterTraineeName] = useState("");
@@ -25,7 +34,7 @@ const LectureAttendance = () => {
   const router = useRouter();
   const { id } = router.query;
   // Function to fetch lecture attendance data
-  console.log(id)
+  console.log(id);
   const fetchLectureAttendanceData = async () => {
     try {
       const response = await axios.get(`/api/attendance/${id}`);
@@ -36,10 +45,13 @@ const LectureAttendance = () => {
       }
     } catch (error) {
       console.error("Error fetching lecture attendance data:", error);
-      toast.error("Failed to fetch lecture attendance data. Please try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error(
+        "Failed to fetch lecture attendance data. Please try again later.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+        }
+      );
     } finally {
       setLoading(false);
     }
@@ -52,15 +64,18 @@ const LectureAttendance = () => {
       }
     } catch (error) {
       console.error("Error fetching lecture attendance data:", error);
-      toast.error("Failed to fetch lecture attendance data. Please try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error(
+        "Failed to fetch lecture attendance data. Please try again later.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+        }
+      );
     } finally {
       setLoading(false);
     }
   };
-  
+
   useEffect(() => {
     if (id) {
       fetchLectureAttendanceData();
@@ -72,17 +87,31 @@ const LectureAttendance = () => {
   const applyFilters = () => {
     const filteredData = lectureAttendances.filter((attendance) => {
       const isTraineeNameMatch =
-        filterTraineeName === "" || attendance.trainee.name.toLowerCase().includes(filterTraineeName.toLowerCase());
-      const isStatusMatch = filterStatus === "" || attendance.status === filterStatus;
+        filterTraineeName === "" ||
+        attendance.trainee.name
+          .toLowerCase()
+          .includes(filterTraineeName.toLowerCase());
+      const isStatusMatch =
+        filterStatus === "" || attendance.status === filterStatus;
 
       const attendanceDate = new Date(attendance.date);
       const startDate = filterFromDate ? new Date(filterFromDate) : null;
       const endDate = filterToDate ? new Date(filterToDate) : null;
 
       if (startDate && endDate) {
-        return isTraineeNameMatch && isStatusMatch && attendanceDate >= startDate && attendanceDate <= endDate;
+        return (
+          isTraineeNameMatch &&
+          isStatusMatch &&
+          attendanceDate >= startDate &&
+          attendanceDate <= endDate
+        );
       } else if (startDate && endDate === null) {
-        return isTraineeNameMatch && isStatusMatch && attendanceDate >= startDate && attendanceDate <= new Date();
+        return (
+          isTraineeNameMatch &&
+          isStatusMatch &&
+          attendanceDate >= startDate &&
+          attendanceDate <= new Date()
+        );
       } else {
         return isTraineeNameMatch && isStatusMatch;
       }
@@ -105,14 +134,20 @@ const LectureAttendance = () => {
     if (selectedLecture) {
       try {
         // Make an API call to update the attendance status
-        const response = await axios.put(`/api/attendance/${selectedLecture._id}`, {
-          attendanceId: selectedLecture._id,
-          status: selectedAttendanceStatus,
-        });
+        const response = await axios.put(
+          `/api/attendance/${selectedLecture._id}`,
+          {
+            attendanceId: selectedLecture._id,
+            status: selectedAttendanceStatus,
+          }
+        );
 
         if (response.status === 200) {
           // Update the attendance status in the UI
-          setSelectedLecture({ ...selectedLecture, status: selectedAttendanceStatus });
+          setSelectedLecture({
+            ...selectedLecture,
+            status: selectedAttendanceStatus,
+          });
           toast.success("Attendance status updated successfully!", {
             position: "top-right",
             autoClose: 3000,
@@ -120,29 +155,34 @@ const LectureAttendance = () => {
           fetchLectureAttendanceData();
           setShowAttendanceDetailsModal(false); // Close the modal
         } else {
-          toast.error("Failed to update attendance status. Please try again later.", {
-            position: "top-right",
-            autoClose: 3000,
-          });
+          toast.error(
+            "Failed to update attendance status. Please try again later.",
+            {
+              position: "top-right",
+              autoClose: 3000,
+            }
+          );
         }
       } catch (error) {
         console.error("Error updating attendance status:", error);
-        toast.error("Failed to update attendance status. Please try again later.", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.error(
+          "Failed to update attendance status. Please try again later.",
+          {
+            position: "top-right",
+            autoClose: 3000,
+          }
+        );
       }
     }
   };
-  
+
   const getAttendanceByStatus = (status) => {
-    return filteredAttendances.filter((test) => test.status === status)
-      .length;
+    return filteredAttendances.filter((test) => test.status === status).length;
   };
   return (
     <AdminLayout>
       <Row>
-      <ClassCard
+        <ClassCard
           data={getAttendanceByStatus("Absent")}
           title="Total Absent Students"
           enableOptions={false}
@@ -174,14 +214,14 @@ const LectureAttendance = () => {
         />
       </Row>
       <Card>
-
         <Card.Header>Lecture Attendances</Card.Header>
         <Card.Body>
-
           <Accordion defaultActiveKey="0" allowMultiple>
             {/* Filter Form */}
-            <Accordion.Item eventKey="0" >
-              <Accordion.Header as={Card.Header}>Filter Options</Accordion.Header>
+            <Accordion.Item eventKey="0">
+              <Accordion.Header as={Card.Header}>
+                Filter Options
+              </Accordion.Header>
               <Accordion.Body>
                 <Form className="mb-3 p-5">
                   <Form.Group className="mb-3">
@@ -229,7 +269,9 @@ const LectureAttendance = () => {
 
             {/* Lecture Attendance Table */}
             <Accordion.Item eventKey="1">
-              <Accordion.Header as={Card.Header}>Lecture Attendances</Accordion.Header>
+              <Accordion.Header as={Card.Header}>
+                Lecture Attendances
+              </Accordion.Header>
               <Accordion.Body>
                 <Table striped bordered hover>
                   <thead>
@@ -244,14 +286,24 @@ const LectureAttendance = () => {
                   <tbody>
                     {filteredAttendances.map((attendance) => (
                       <tr key={attendance._id}>
-                        <td>{students.find((student) => student._id === attendance.trainee)?.name}</td>
-                        <td>{new Date(attendance.date).toLocaleDateString()}</td>
+                        <td>
+                          {
+                            students.find(
+                              (student) => student._id === attendance.trainee
+                            )?.name
+                          }
+                        </td>
+                        <td>
+                          {new Date(attendance.date).toLocaleDateString()}
+                        </td>
                         <td>{attendance.status}</td>
                         <td>{attendance.remarks || "-"}</td>
                         <td>
                           <button
                             className="btn btn-info btn-sm"
-                            onClick={() => openAttendanceDetailsModal(attendance)}
+                            onClick={() =>
+                              openAttendanceDetailsModal(attendance)
+                            }
                           >
                             View Details
                           </button>
@@ -266,7 +318,10 @@ const LectureAttendance = () => {
         </Card.Body>
       </Card>
 
-      <Modal show={showAttendanceDetailsModal} onHide={() => setShowAttendanceDetailsModal(false)}>
+      <Modal
+        show={showAttendanceDetailsModal}
+        onHide={() => setShowAttendanceDetailsModal(false)}
+      >
         <Modal.Header>
           <Modal.Title>Attendance Details</Modal.Title>
         </Modal.Header>
@@ -283,7 +338,9 @@ const LectureAttendance = () => {
                 <Form.Label>Assign Attendance Status</Form.Label>
                 <Select
                   value={selectedAttendanceStatus}
-                  onChange={(selectedOption) => setSelectedAttendanceStatus(selectedOption.value)}
+                  onChange={(selectedOption) =>
+                    setSelectedAttendanceStatus(selectedOption.value)
+                  }
                   options={[
                     { value: "Attended", label: "Attended" },
                     { value: "Absent", label: "Absent" },
@@ -294,18 +351,14 @@ const LectureAttendance = () => {
                 />
               </Form.Group>
               <Modal.Footer>
-          <Button
-            variant="success"
-            onClick={saveAttendanceStatus}
-          >
-            Save
-          </Button>
-        </Modal.Footer>
+                <Button variant="success" onClick={saveAttendanceStatus}>
+                  Save
+                </Button>
+              </Modal.Footer>
             </div>
           )}
         </Modal.Body>
       </Modal>
-
 
       <ToastContainer />
     </AdminLayout>

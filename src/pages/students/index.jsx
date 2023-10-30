@@ -14,6 +14,7 @@ import { AdminLayout } from "@layout";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClassCard } from "@components/Classes";
+import Link from "next/link";
 
 const Students = () => {
   const [students, setStudents] = useState([]);
@@ -29,7 +30,7 @@ const Students = () => {
   const [sortBy, setSortBy] = useState("name"); // Default sorting criteria
   const [sortOrder, setSortOrder] = useState("asc"); // Default sorting order
   const [selectedStudent, setSelectedStudent] = useState(null);
-  const [showStudentDetailsModal, setShowStudentDetailsModal] = useState(false)
+  const [showStudentDetailsModal, setShowStudentDetailsModal] = useState(false);
   // State for new student creation
   const [newStudentName, setNewStudentName] = useState("");
   const [newStudentPhoneNumber, setNewStudentPhoneNumber] = useState("");
@@ -73,7 +74,7 @@ const Students = () => {
     }
   };
   useEffect(() => {
-    fetchRooms()
+    fetchRooms();
     fetchStudentData();
   }, []);
   console.log(filteredStudents.students);
@@ -252,7 +253,11 @@ const Students = () => {
   useEffect(() => {
     fetchPlacementTests();
   }, []);
-console.log(filteredStudents)
+  console.log(filteredStudents);
+  const getStudentsCountByStatus = (status) => {
+    return filteredStudents.filter((student) => student.status === status)
+      .length;
+  };
   return (
     <AdminLayout>
       <div className="row">
@@ -396,8 +401,10 @@ console.log(filteredStudents)
         <Modal.Header closeButton className="bg-primary text-white">
           <Modal.Title className="mb-0">Student Details</Modal.Title>
         </Modal.Header>
+        {selectedStudent && (
+          <>
         <Modal.Body>
-          {selectedStudent && (
+          
             <div>
               <p>Name: {selectedStudent.name}</p>
               <p>Email: {selectedStudent.email}</p>
@@ -454,7 +461,7 @@ console.log(filteredStudents)
                 </ol>
               </div>
             </div>
-          )}
+         
         </Modal.Body>
         <Modal.Footer>
           <Button
@@ -464,7 +471,17 @@ console.log(filteredStudents)
           >
             Close
           </Button>
+          <Button variant="success">
+            <Link
+              href={`/students/${selectedStudent._id}`}
+              className="text-decoration-none text-light"
+            >
+              View Student Profile
+            </Link>
+          </Button>
         </Modal.Footer>
+        </>
+         )}
       </Modal>
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>

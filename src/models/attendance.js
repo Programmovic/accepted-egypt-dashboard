@@ -18,12 +18,19 @@ const attendanceSchema = new mongoose.Schema({
   status: {
     type: String,
     required: true,
-    enum: ['Attended', 'Absent', 'Late', 'Excused', "Not Assigned"], // Add more options as needed
+    enum: ['Attended', 'Absent', 'Late', 'Excused', 'Not Assigned'],
   },
   remarks: {
     type: String,
   },
-  // You can add more fields as needed, e.g., location, additional details, etc.
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
+  },
+  // Other fields as needed
 });
 
 module.exports = mongoose.models.Attendance || mongoose.model('Attendance', attendanceSchema);

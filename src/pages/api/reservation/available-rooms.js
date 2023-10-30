@@ -5,29 +5,33 @@ import Room from "../../../models/room";
 export default async (req, res) => {
   await connectDB();
   if (req.method === "POST") {
-    
+    // Handle POST request
   } else if (req.method === "GET") {
-    // Handle fetching all rooms
     try {
-      const { date, fromTime, toTime } = req.query;
- 
+      // Check if the 'date' parameter is provided, otherwise use the current date
+      const { date } = req.query;
+      const currentDate = new Date(date) //date ? new Date(date) : new Date();
+      const offsetMinutes = currentDate.getTimezoneOffset();
+      const adjustedDate = new Date(currentDate.getTime() - offsetMinutes * 60000);
       // Find all reservations that overlap with the specified date and time range
-      const reservationDate = new Date(date);
-      console.log(reservationDate)
+      const checkedDate = date ? date : adjustedDate
+      console.log(checkedDate)
       const overlappingReservations = await Reservation.find({
-        date: reservationDate,
+        date: checkedDate,
       });
-      console.log(overlappingReservations)
+
       // Find all rooms that are not reserved during the specified time range
-      const reservedRoomIds = overlappingReservations.map((reservation) => reservation.room);
+      const reservedRoomIds = overlappingReservations.map(
+        (reservation) => reservation.room
+      );
       const availableRooms = await Room.find({
         _id: { $nin: reservedRoomIds },
       });
-  
+
       res.json(availableRooms);
     } catch (error) {
-      console.error('Error fetching available rooms:', error);
-      res.status(500).json({ error: 'Failed to fetch available rooms.' });
+      console.error("Error fetching available rooms:", error);
+      res.status(500).json({ error: "Failed to fetch available rooms." });
     }
   } else {
     return res.status(400).json({ error: "Invalid request" });

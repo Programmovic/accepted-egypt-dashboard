@@ -54,6 +54,13 @@ const lectureSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.models.Lecture || mongoose.model("Lecture", lectureSchema);

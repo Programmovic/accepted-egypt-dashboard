@@ -24,6 +24,13 @@ const roomSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.models.Room || mongoose.model('Room', roomSchema);

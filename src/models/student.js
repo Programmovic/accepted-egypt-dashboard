@@ -52,6 +52,13 @@ const studentSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
+  },
   
 });
 

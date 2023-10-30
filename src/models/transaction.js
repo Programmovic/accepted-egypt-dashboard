@@ -24,7 +24,14 @@ const transactionSchema = new mongoose.Schema({
   description: {
     type: String,
     description: 'Additional description or notes for the transaction',
-  }
+  },
+  createdByAdmin: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Admin',
+  },
+  adminName: {
+    type: String,
+  },
 }, {
   timestamps: true, // Automatically manage createdAt and updatedAt fields
 });
