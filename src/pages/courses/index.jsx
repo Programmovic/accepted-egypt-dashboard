@@ -271,24 +271,7 @@ const Classes = () => {
                 onChange={(e) => setHours(e.target.value)}
               />
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Instructors</Form.Label>
-              <Select
-                value={instructors.map((instructor) => ({
-                  value: instructor.value,
-                  label: instructor.label,
-                }))}
-                isMulti={true} // Enable multiple selection
-                options={instructorsData.map((instructor) => ({
-                  value: instructor._id, // Use the instructor's name as the value
-                  label: instructor.name, // Use the instructor's name as the label
-                }))}
-                onChange={(selectedOption) => setInstructors(selectedOption)}
-                isClearable={true}
-                isSearchable={true}
-                placeholder="Select one or more Instructor"
-              />
-            </Form.Group>
+            
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -396,23 +379,7 @@ const Classes = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Instructors</Form.Label>
-                  <Select
-                    value={filterInstructors}
-                    options={instructorsData.map((instructor) => ({
-                      value: instructor._id,
-                      label: instructor.name,
-                    }))}
-                    onChange={(selectedOption) => setFilterInstructors(selectedOption)}
-                    isClearable={true}
-                    isSearchable={true}
-                    isMulti={true}
-                    placeholder="Select an Instructor"
-                  />
-                </Form.Group>
-              </Col>
+              
               <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Description</Form.Label>

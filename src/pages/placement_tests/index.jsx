@@ -161,7 +161,6 @@ const PlacementTests = () => {
         const response = await axios.post("/api/waiting_list", {
           student: selectedPlacementTest.student, // Assuming student ID is used
           studentName: selectedPlacementTest.studentName,
-          selectedLevel,
           placementTestID: selectedPlacementTest._id,
         });
 
@@ -378,7 +377,7 @@ const PlacementTests = () => {
   useEffect(() => {
     fetchInstructors();
   }, []);
-  console.log();
+  console.log(selectedPlacementTest.assignedLevel !== "N/A");
   return (
     <AdminLayout>
       <div className="row">
@@ -479,7 +478,14 @@ const PlacementTests = () => {
                         >
                           <td>{index + 1}</td>
                           <td>{setting.cost}</td>
-                          <td>{instructors.find((instructor) => instructor.value === setting.instructor)?.label}</td>
+                          <td>
+                            {
+                              instructors.find(
+                                (instructor) =>
+                                  instructor.value === setting.instructor
+                              )?.label
+                            }
+                          </td>
                           <td>{setting.instructions || "No Instructions"}</td>
                           <td>{getClassName(setting.room).label}</td>
                           <td>{new Date(setting.date).toLocaleDateString()}</td>
@@ -701,6 +707,7 @@ const PlacementTests = () => {
         </Modal.Header>
         <Modal.Body>
           {selectedPlacementTest && (
+            
             <div>
               <p>Student ID: {selectedPlacementTest.student}</p>
               <p>Student Name: {selectedPlacementTest.studentName}</p>
@@ -708,19 +715,22 @@ const PlacementTests = () => {
                 Date:{" "}
                 {new Date(selectedPlacementTest.date).toLocaleDateString()}
               </p>
-              <Form.Group>
-                <Form.Label>Set Level:</Form.Label>
-                <Form.Control as="select" onChange={handleLevelSelect}>
-                  <option value="" hidden>
-                    Select a level
-                  </option>
-                  {levels.map((level) => (
-                    <option key={level._id} value={level.name}>
-                      {level.name}
-                    </option>
-                  ))}
-                </Form.Control>
-              </Form.Group>
+              
+              {selectedPlacementTest && selectedPlacementTest.assignedLevel === 'N/A' && (
+            <Form.Group>
+            <Form.Label>Set Level:</Form.Label>
+            <Form.Control as="select" onChange={handleLevelSelect}>
+              <option value="" hidden>
+                Select a level
+              </option>
+              {levels.map((level) => (
+                <option key={level._id} value={level.name}>
+                  {level.name}
+                </option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+          )}
 
               {moveToWaitingList && (
                 <p className="text-success mt-2">
@@ -739,13 +749,15 @@ const PlacementTests = () => {
           >
             Close
           </Button>
-          <Button
-            variant="success"
-            onClick={handleAssignLevel}
-            disabled={!selectedLevel}
-          >
-            Assign Level
-          </Button>
+          {selectedPlacementTest && selectedPlacementTest.assignedLevel === 'N/A' && (
+            <Button
+              variant="success"
+              onClick={handleAssignLevel}
+              disabled={!selectedLevel}
+            >
+              Assign Level
+            </Button>
+          )}
           <Button
             variant="success"
             onClick={handleMoveToWaitingList}
