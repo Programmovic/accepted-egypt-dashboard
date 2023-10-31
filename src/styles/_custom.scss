@@ -1,37 +1,42 @@
 .radio-group {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .radio-group .custom-control-label::before {
-    width: 1.3rem;
-    height: 1.3rem;
-    border: 2px solid #007bff; /* Border color for the unselected state */
-    border-radius: 50%;
-  }
-  
-  .radio-group .custom-control-input:checked ~ .custom-control-label::before {
-    background-color: #007bff; /* Background color for the selected state */
-    border: none; /* Remove border in the selected state */
-  }
-  
-  .radio-group .custom-control-label::after {
-    content: '';
-    width: 0.6rem;
-    height: 0.6rem;
-    background-color: white; /* Color for the radio dot */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    display: none;
-  }
-  
-  .radio-group .custom-control-input:checked ~ .custom-control-label::after {
-    display: block; /* Show the radio dot in the selected state */
-  }
-  
+  display: flex;
+  flex-direction: column;
+}
+
+.radio-group .custom-control-label::before {
+  width: 1.3rem;
+  height: 1.3rem;
+  border: 2px solid #007bff;
+  /* Border color for the unselected state */
+  border-radius: 50%;
+}
+
+.radio-group .custom-control-input:checked~.custom-control-label::before {
+  background-color: #007bff;
+  /* Background color for the selected state */
+  border: none;
+  /* Remove border in the selected state */
+}
+
+.radio-group .custom-control-label::after {
+  content: '';
+  width: 0.6rem;
+  height: 0.6rem;
+  background-color: white;
+  /* Color for the radio dot */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  display: none;
+}
+
+.radio-group .custom-control-input:checked~.custom-control-label::after {
+  display: block;
+  /* Show the radio dot in the selected state */
+}
+
 .progress-meter {
   padding: 0;
 }
@@ -40,6 +45,7 @@ ol.progress-meter {
   padding-bottom: 9.5px;
   list-style-type: none;
 }
+
 ol.progress-meter li {
   display: inline-block;
   text-align: center;
@@ -50,6 +56,7 @@ ol.progress-meter li {
   border-bottom-width: 4px;
   border-bottom-style: solid;
 }
+
 ol.progress-meter li:before {
   position: relative;
   float: left;
@@ -60,9 +67,11 @@ ol.progress-meter li:before {
   left: -o-calc(50% - 9.5px);
   left: calc(50% - 9.5px);
 }
+
 ol.progress-meter li.done {
   font-size: 12px;
 }
+
 ol.progress-meter li.done:before {
   content: "\2713";
   height: 19px;
@@ -72,27 +81,33 @@ ol.progress-meter li.done:before {
   border: none;
   border-radius: 19px;
 }
+
 ol.progress-meter li.todo {
   font-size: 12px;
 }
+
 ol.progress-meter li.todo:before {
   content: "\2B24";
   font-size: 17.1px;
   bottom: -26.95px;
   line-height: 18.05px;
 }
+
 ol.progress-meter li.done {
   color: black;
   border-bottom-color: yellowgreen;
 }
+
 ol.progress-meter li.done:before {
   color: white;
   background-color: yellowgreen;
 }
+
 ol.progress-meter li.todo {
   color: silver;
   border-bottom-color: silver;
 }
+
 ol.progress-meter li.todo:before {
   color: silver;
 }
@@ -150,12 +165,219 @@ ol.progress-meter li.todo:before {
   color: #682773;
   cursor: pointer
 }
-.labels{
+
+.labels {
   padding: 10px 10px;
 }
+
 .add-experience:hover {
   background: #BA68C8;
   color: #fff;
   cursor: pointer;
   border: solid 1px #BA68C8
+}
+
+.bike {
+  display: block;
+  margin: auto;
+  width: 16em;
+  height: auto;
+}
+
+.bike__body,
+.bike__front,
+.bike__handlebars,
+.bike__pedals,
+.bike__pedals-spin,
+.bike__seat,
+.bike__spokes,
+.bike__spokes-spin,
+.bike__tire {
+  animation: bikeBody 3s ease-in-out infinite;
+  stroke: var(--primary);
+  transition: stroke var(--trans-dur);
+}
+
+.bike__front {
+  animation-name: bikeFront;
+}
+
+.bike__handlebars {
+  animation-name: bikeHandlebars;
+}
+
+.bike__pedals {
+  animation-name: bikePedals;
+}
+
+.bike__pedals-spin {
+  animation-name: bikePedalsSpin;
+}
+
+.bike__seat {
+  animation-name: bikeSeat;
+}
+
+.bike__spokes,
+.bike__tire {
+  stroke: currentColor;
+}
+
+.bike__spokes {
+  animation-name: bikeSpokes;
+}
+
+.bike__spokes-spin {
+  animation-name: bikeSpokesSpin;
+}
+
+.bike__tire {
+  animation-name: bikeTire;
+}
+
+/* Dark theme */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: hsl(var(--hue), 90%, 10%);
+    --fg: hsl(var(--hue), 90%, 90%);
+  }
+}
+
+/* Animations */
+@keyframes bikeBody {
+  from {
+    stroke-dashoffset: 79;
+  }
+
+  33%,
+  67% {
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dashoffset: -79;
+  }
+}
+
+@keyframes bikeFront {
+  from {
+    stroke-dashoffset: 19;
+  }
+
+  33%,
+  67% {
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dashoffset: -19;
+  }
+}
+
+@keyframes bikeHandlebars {
+  from {
+    stroke-dashoffset: 10;
+  }
+
+  33%,
+  67% {
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dashoffset: -10;
+  }
+}
+
+@keyframes bikePedals {
+  from {
+    animation-timing-function: ease-in;
+    stroke-dashoffset: -25.133;
+  }
+
+  33%,
+  67% {
+    animation-timing-function: ease-out;
+    stroke-dashoffset: -21.991;
+  }
+
+  to {
+    stroke-dashoffset: -25.133;
+  }
+}
+
+@keyframes bikePedalsSpin {
+  from {
+    transform: rotate(0.1875turn);
+  }
+
+  to {
+    transform: rotate(3.1875turn);
+  }
+}
+
+@keyframes bikeSeat {
+  from {
+    stroke-dashoffset: 5;
+  }
+
+  33%,
+  67% {
+    stroke-dashoffset: 0;
+  }
+
+  to {
+    stroke-dashoffset: -5;
+  }
+}
+
+@keyframes bikeSpokes {
+  from {
+    animation-timing-function: ease-in;
+    stroke-dashoffset: -31.416;
+  }
+
+  33%,
+  67% {
+    animation-timing-function: ease-out;
+    stroke-dashoffset: -23.562;
+  }
+
+  to {
+    stroke-dashoffset: -31.416;
+  }
+}
+
+@keyframes bikeSpokesSpin {
+  from {
+    transform: rotate(0);
+  }
+
+  to {
+    transform: rotate(3turn);
+  }
+}
+
+@keyframes bikeTire {
+  from {
+    animation-timing-function: ease-in;
+    stroke-dashoffset: 56.549;
+    transform: rotate(0);
+  }
+
+  33% {
+    stroke-dashoffset: 0;
+    transform: rotate(0.33turn);
+  }
+
+  67% {
+    animation-timing-function: ease-out;
+    stroke-dashoffset: 0;
+    transform: rotate(0.67turn);
+  }
+
+  to {
+    stroke-dashoffset: -56.549;
+    transform: rotate(1turn);
+  }
 }

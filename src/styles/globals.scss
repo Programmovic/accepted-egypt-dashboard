@@ -11,7 +11,13 @@ $enable-negative-margins: true;
 @import "~nprogress/nprogress.css";
 
 @import "_custom.scss";
-
+:root {
+	--hue: 223;
+	--bg: hsl(var(--hue),90%,90%);
+	--fg: hsl(var(--hue),90%,10%);
+	--primary: hsl(var(--hue),90%,50%);
+	--trans-dur: 0.3s;
+}
 body{
     zoom: 70%;
     background-image: url('/accepted-egypt-dashboard/public/assets/img/393465684_707567994740060_449291053190160838_n.jpg');

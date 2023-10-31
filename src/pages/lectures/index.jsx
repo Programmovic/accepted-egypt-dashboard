@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
 import { format } from "date-fns";
+import { Loader } from "@components/Loader";
 
 const Lectures = () => {
   const [lectureResource, setLectureResource] = useState([]);
@@ -605,7 +606,7 @@ const Lectures = () => {
           </Form>
 
           {loading ? (
-            <p>Loading lectures...</p>
+            <Loader />
           ) : error ? (
             <p>{error}</p>
           ) : (
