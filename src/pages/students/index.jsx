@@ -258,6 +258,21 @@ const Students = () => {
     return filteredStudents.filter((student) => student.status === status)
       .length;
   };
+  useEffect(() => {
+    // Fetch levels from the /api/level endpoint when the component mounts
+    fetch("/api/level")
+      .then((response) => response.json())
+      .then((data) => {
+        setLevels(data); // Set the levels in the state
+      })
+      .catch((error) => {
+        console.error("Error fetching levels:", error);
+      });
+  }, []);
+  const getLevelCount = (level) => {
+    return filteredStudents.filter((test) => test.level === level)
+      .length;
+  };
   return (
     <AdminLayout>
       <div className="row">
@@ -273,12 +288,14 @@ const Students = () => {
           enableOptions={false}
           isLoading={loading}
         />
-        <ClassCard
-          data={a1LevelStudentsCount}
-          title="A1 Students"
-          enableOptions={false}
-          isLoading={loading}
-        />
+        {levels.map((level, i) => (
+          <ClassCard
+            data={getLevelCount(level.name)}
+            title={`Level ${level.name}`}
+            enableOptions={false}
+            isLoading={loading}
+          />
+        ))}
       </div>
       <Card>
         <Card.Header>Students</Card.Header>
