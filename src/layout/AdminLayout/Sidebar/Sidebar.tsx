@@ -31,8 +31,8 @@ export default function Sidebar(props: { isShow: boolean; isShowMd: boolean }) {
       })}
       id="sidebar"
     >
-      <div className="sidebar-brand d-none d-md-flex align-items-center justify-content-center">
-        <h1>ACCEPTED</h1>
+      <div className="p-2 sidebar-brand d-none d-md-flex align-items-center justify-content-between">
+        <h3>ACCEPTED</h3>
       </div>
 
       <div className="sidebar-nav flex-fill">

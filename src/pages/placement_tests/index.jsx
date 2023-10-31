@@ -64,7 +64,7 @@ const PlacementTests = () => {
 
   // Define the URL of your API endpoint
   const apiUrl = "/api/reservation/available-rooms"; // Update the URL if needed
-console.log(date, new Date())
+  console.log(date, new Date());
   const fetchRooms = async () => {
     try {
       // Fetch all rooms
@@ -359,33 +359,26 @@ console.log(date, new Date())
         />
         {levels.map((level, i) => (
           <ClassCard
-          data={getLevelCount(level.name)}
-          title={`Level ${level.name}`}
-          enableOptions={false}
-          isLoading={loading}
-        />
+            data={getLevelCount(level.name)}
+            title={`Level ${level.name}`}
+            enableOptions={false}
+            isLoading={loading}
+          />
         ))}
-        
-       
+
         <ClassCard
           data={getNACount()}
           title="Level N/A"
           enableOptions={false}
           isLoading={loading}
         />
-        <ClassCard
-          data={getWaitingListCount()}
-          title="Waiting List"
-          enableOptions={false}
-          isLoading={loading}
-        />
         {levels.map((level, i) => (
           <ClassCard
-          data={getAmountReceivedForLevel(level.name)}
-          title={`Amount Received for Level ${level.name}`}
-          enableOptions={false}
-          isLoading={loading}
-        />
+            data={getAmountReceivedForLevel(level.name)}
+            title={`Amount Received for Level ${level.name}`}
+            enableOptions={false}
+            isLoading={loading}
+          />
         ))}
         <ClassCard
           data={`${getTotalAmountReceived()} EGP`}
@@ -596,7 +589,7 @@ console.log(date, new Date())
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Room</Form.Label>
+              <Form.Label>Available Rooms</Form.Label>
               {/* Render the React-Select component for selecting a room */}
               <Select
                 value={selectedRoom}

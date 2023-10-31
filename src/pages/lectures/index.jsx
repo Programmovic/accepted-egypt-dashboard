@@ -120,6 +120,8 @@ const Lectures = () => {
     sortOrder,
     lectureResource,
   ]);
+  const [filterStartDate, setFilterStartDate] = useState("");
+  const [filterEndDate, setFilterEndDate] = useState("");
 
   const handleFilter = () => {
     let filteredLectures = [...lectureResource];
@@ -174,12 +176,45 @@ const Lectures = () => {
           .includes(filterDescription.toLowerCase())
       );
     }
+
+    // Filter by Date Range
+    if (filterStartDate && filterEndDate) {
+      const startDate = new Date(filterStartDate);
+      const endDate = new Date(filterEndDate);
+      filteredLectures = filteredLectures.filter((lecture) => {
+        const lectureDate = new Date(lecture.date);
+        return lectureDate >= startDate && lectureDate <= endDate;
+      });
+    }
+
     if (showTodaysLectures) {
       filteredLectures = filterTodaysLectures();
     }
+
     setFilteredData(filteredLectures);
   };
 
+  useEffect(() => {
+    if (showTodaysLectures) {
+      setFilteredData(filterTodaysLectures());
+    } else {
+      handleFilter();
+    }
+  }, [
+    showTodaysLectures,
+    filterTitle,
+    filterStatus,
+    filterBatch,
+    filterHours,
+    filterCost,
+    filterLab,
+    filterDescription,
+    filterStartDate, // Include filterStartDate in dependencies
+    filterEndDate, // Include filterEndDate in dependencies
+    sortBy,
+    sortOrder,
+    lectureResource,
+  ]);
   const handleSort = (criteria) => {
     if (criteria === sortBy) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -243,9 +278,12 @@ const Lectures = () => {
 
   const clearFilters = () => {
     setFilterTitle("");
-    setSortBy("");
-    setSortOrder("asc");
-    setFilteredData(lectureResource);
+    setFilterStatus("");
+    setFilterBatch("");
+    setFilterHours("");
+    setFilterCost("");
+    setFilterLab("");
+    setFilterDescription("");
   };
 
   const getBatchName = (batchId) => {
@@ -289,6 +327,24 @@ const Lectures = () => {
       currentDate.toLocaleDateString() === lectureDate.toLocaleDateString()
     );
   };
+  function calculateTimeDuration(startTime, endTime) {
+    // Split the time strings into hours and minutes
+    const [startHour, startMinute] = startTime.split(":");
+    const [endHour, endMinute] = endTime.split(":");
+  
+    // Convert hours and minutes to numbers
+    const startHourNum = parseInt(startHour, 10);
+    const startMinuteNum = parseInt(startMinute, 10);
+    const endHourNum = parseInt(endHour, 10);
+    const endMinuteNum = parseInt(endMinute, 10);
+  
+    // Calculate the duration in minutes
+    const totalMinutesStart = startHourNum * 60 + startMinuteNum;
+    const totalMinutesEnd = endHourNum * 60 + endMinuteNum;
+    const duration = totalMinutesEnd - totalMinutesStart;
+  
+    return duration;
+  }
   return (
     <AdminLayout>
       <ToastContainer />
@@ -320,6 +376,7 @@ const Lectures = () => {
                   />
                 </Form.Group>
               </Col>
+
               <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Select a Batch</Form.Label>
@@ -443,90 +500,107 @@ const Lectures = () => {
         <Card.Body>
           <Form className="mb-3">
             <Row>
-              {/* <Form className="mb-3">
-                <Row>
-                  <Col xs={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Filter by Title</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={filterTitle}
-                        onChange={(e) => setFilterTitle(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Filter by Status</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={filterStatus}
-                        onChange={(e) => setFilterStatus(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Filter by Batch</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={filterBatch}
-                        onChange={(e) => setFilterBatch(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Filter by Hours</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={filterHours}
-                        onChange={(e) => setFilterHours(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Filter by Cost</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={filterCost}
-                        onChange={(e) => setFilterCost(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={6}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Filter by Lab</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={filterLab}
-                        onChange={(e) => setFilterLab(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={12}>
-                    <Form.Group className="mb-3">
-                      <Form.Label>Filter by Description</Form.Label>
-                      <Form.Control
-                        type="text"
-                        value={filterDescription}
-                        onChange={(e) => setFilterDescription(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={6}>
-                    <Button variant="secondary" onClick={clearFilters}>
-                      Clear Filters
-                    </Button>
-                  </Col>
-                  <Col xs={6}>
-                    <Button variant="success" onClick={openModal}>
-                      Add New Lecture
-                    </Button>
-                  </Col>
-                </Row>
-              </Form> */}
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Title</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filterTitle}
+                    onChange={(e) => setFilterTitle(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Start Date</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={filterStartDate}
+                    onChange={(e) => setFilterStartDate(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>End Date</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={filterEndDate}
+                    onChange={(e) => setFilterEndDate(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Status</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Batch</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filterBatch}
+                    onChange={(e) => setFilterBatch(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Hours</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filterHours}
+                    onChange={(e) => setFilterHours(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Cost</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filterCost}
+                    onChange={(e) => setFilterCost(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Lab</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filterLab}
+                    onChange={(e) => setFilterLab(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={12}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Description</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filterDescription}
+                    onChange={(e) => setFilterDescription(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Button variant="secondary" onClick={clearFilters}>
+                  Clear Filters
+                </Button>
+              </Col>
+              <Col xs={6}>
+                <Button variant="success" onClick={openModal}>
+                  Add New Lecture
+                </Button>
+              </Col>
             </Row>
           </Form>
 
@@ -544,7 +618,7 @@ const Lectures = () => {
                     <th onClick={() => handleSort("status")}>Status</th>
                     <th onClick={() => handleSort("level")}>Level</th>
                     <th onClick={() => handleSort("batch")}>Batch</th>
-                    <th onClick={() => handleSort("hours")}>Hours</th>
+                    <th onClick={() => handleSort("hours")}>Duration</th>
                     <th onClick={() => handleSort("date")}>Date</th>
                     <th onClick={() => handleSort("cost")}>Cost</th>
                     <th onClick={() => handleSort("lab")}>Lab</th>
@@ -580,7 +654,7 @@ const Lectures = () => {
                             ?.name
                         }
                       </td>
-                      <td>{lecture.hours}</td>
+                      <td>{calculateTimeDuration(lecture.weeklyHours.from, lecture.weeklyHours.to)} Minutes</td>
                       <td>{new Date(lecture.date).toLocaleDateString()}</td>
                       <td>{lecture.cost}</td>
                       <td>{lecture.room}</td>

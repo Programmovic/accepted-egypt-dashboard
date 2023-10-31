@@ -37,6 +37,7 @@ const Transactions = () => {
     totalTransactionAmount: 0,
     averageTransactionAmount: 0,
     receivedAmount: 0,
+    expensesAmount: 0,
     dueAmount: 0,
     placementTestAmount: 0,
   });
@@ -86,7 +87,7 @@ const Transactions = () => {
     try {
       const response = await axios.post("/api/transaction", {
         student: newTransactionStudent || null,
-        batch: newTransactionBatch._id || null,
+        batch: newTransactionBatch?._id || null,
         type: newTransactionType,
         amount: newTransactionAmount,
         description: newTransactionDescription,
@@ -170,7 +171,12 @@ const Transactions = () => {
       }
       return total;
     }, 0);
-
+    const expensesAmount = filteredTransactions.reduce((total, transaction) => {
+      if (transaction.type === "Expense") {
+        return total + transaction.amount;
+      }
+      return total;
+    }, 0);
     const dueAmount = filteredTransactions.reduce((total, transaction) => {
       if (transaction.type === "Due") {
         return total + transaction.amount;
@@ -194,6 +200,7 @@ const Transactions = () => {
       receivedAmount,
       dueAmount,
       placementTestAmount,
+      expensesAmount
     });
   }, [filteredTransactions]);
   const sortTable = (column) => {
@@ -309,6 +316,11 @@ const Transactions = () => {
         <ClassCard
           data={`${statistics.dueAmount} EGP`}
           title="Total Due Amount"
+          enableOptions={false}
+        />
+        <ClassCard
+          data={`${statistics.expensesAmount} EGP`}
+          title="Total Expenses Amount"
           enableOptions={false}
         />
         <ClassCard

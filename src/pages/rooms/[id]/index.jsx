@@ -5,6 +5,8 @@ import { AdminLayout } from "@layout";
 import { useRouter } from "next/router";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
+import bootstrap5Plugin from '@fullcalendar/bootstrap5';
+
 // Import your custom CSS for styling
 
 const RoomReservations = () => {
@@ -46,10 +48,15 @@ const RoomReservations = () => {
         </Card.Header>
         <Card.Body>
           <FullCalendar
-            plugins={[dayGridPlugin]}
+            plugins={[dayGridPlugin, bootstrap5Plugin]}
             initialView="dayGridMonth"
             weekends={true}
             events={calendarEvents}
+            selectable={true}
+            editable
+            eventColor= '#378006'
+            eventBackgroundColor="black"
+            displayEventTime={true}
           />
         </Card.Body>
       </Card>

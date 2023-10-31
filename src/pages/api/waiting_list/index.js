@@ -15,12 +15,15 @@ export default async (req, res) => {
       await newStudent.save()
       const updatedStudent = await Student.findByIdAndUpdate(
         student.student,
-        { status: "Waiting List"},
+        {
+          status: "Waiting List",
+          batch: ""
+        },
         { new: true }
       );
       const updatedPlacementTest = await PlacementTest.findByIdAndUpdate(
         student.placementTestID,
-        { status: "Finished, Moved to Waiting List"},
+        { status: "Finished, Moved to Waiting List" },
         { new: true }
       );
       console.log(student.placementTestID)

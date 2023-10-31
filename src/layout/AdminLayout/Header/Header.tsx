@@ -37,16 +37,16 @@ export default function Header(props: HeaderProps) {
         <Link href="/" className="header-brand d-md-none">
           <svg width="80" height="46">
             <title>CoreUI Logo</title>
-            <use xlinkHref="/assets/brand/coreui.svg#full" />
+            <use xlinkHref="/assets/img/393465684_707567994740060_449291053190160838_n.jpg" />
           </svg>
         </Link>
-        <div className="header-nav d-none d-md-flex">
+        {/* <div className="header-nav d-none d-md-flex">
           <HeaderFeaturedNav />
         </div>
         <div className="header-nav ms-auto">
           <HeaderNotificationNav />
-        </div>
-        <div className="header-nav ms-2">
+        </div> */}
+        <div className="header-nav ms-auto">
           <HeaderProfileNav />
         </div>
       </Container>

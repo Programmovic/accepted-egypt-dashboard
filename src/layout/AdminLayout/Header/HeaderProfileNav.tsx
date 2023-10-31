@@ -89,36 +89,8 @@ export default function HeaderProfileNav() {
           <Dropdown.Header className="bg-light fw-bold rounded-top">{username}</Dropdown.Header>
           
 
-          <Dropdown.Header className="bg-light fw-bold">Settings</Dropdown.Header>
-
-          <Link href="#" passHref legacyBehavior>
-            <Dropdown.Item>
-              <ItemWithIcon icon={faUser}>Profile</ItemWithIcon>
-            </Dropdown.Item>
-          </Link>
-          <Link href="#" passHref legacyBehavior>
-            <Dropdown.Item>
-              <ItemWithIcon icon={faGear}>Settings</ItemWithIcon>
-            </Dropdown.Item>
-          </Link>
-          <Link href="#" passHref legacyBehavior>
-            <Dropdown.Item>
-              <ItemWithIcon icon={faCreditCard}>Payments</ItemWithIcon>
-            </Dropdown.Item>
-          </Link>
-          <Link href="#" passHref legacyBehavior>
-            <Dropdown.Item>
-              <ItemWithIcon icon={faFile}>Projects</ItemWithIcon>
-            </Dropdown.Item>
-          </Link>
-
-          <Dropdown.Divider />
-
-          <Link href="#" passHref legacyBehavior>
-            <Dropdown.Item>
-              <ItemWithIcon icon={faLock}>Lock Account</ItemWithIcon>
-            </Dropdown.Item>
-          </Link>
+          
+          
           <Dropdown.Item onClick={logout}>
             <ItemWithIcon icon={faPowerOff}>Logout</ItemWithIcon>
           </Dropdown.Item>

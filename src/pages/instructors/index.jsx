@@ -57,7 +57,7 @@ const Instructors = () => {
   const fetchBatchesData = async () => {
     try {
       const response = await axios.get("/api/batch");
-      console.log(response)
+      console.log(response);
       if (response.status === 200) {
         const batchesData = response.data;
         setBatchesData(batchesData);
@@ -215,7 +215,7 @@ const Instructors = () => {
       setError("Failed to fetch instructor classes. Please try again later.");
     }
   };
-  console.log(selectedInstructor)
+  console.log(selectedInstructor);
   const router = useRouter();
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [showAssignBatchModal, setShowAssignBatchModal] = useState(false);
@@ -242,13 +242,10 @@ const Instructors = () => {
       }
     } catch (error) {
       console.error("Error assigning instructor to batch:", error);
-      toast.error(
-        error.message,
-        {
-          position: "top-right",
-          autoClose: 3000,
-        }
-      );
+      toast.error(error.message, {
+        position: "top-right",
+        autoClose: 3000,
+      });
     }
   };
   const getBatchName = (instructorId) => {
@@ -397,10 +394,7 @@ const Instructors = () => {
                 Joined Date:{" "}
                 {new Date(selectedInstructor.joinedDate).toLocaleDateString()}
               </p>
-              <p>
-                Joined Date:{" "}
-                {getBatchName(selectedInstructor.batch).name}
-              </p>
+              <p>Joined Date: {getBatchName(selectedInstructor.batch).name}</p>
 
               {/* Display instructor's classes in a table */}
             </div>
@@ -434,55 +428,62 @@ const Instructors = () => {
         </Modal.Footer>
       </Modal>
 
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Create New Instructor</Modal.Title>
+      <Modal
+        show={showInstructorDetailsModal}
+        onHide={closeInstructorDetailsModal}
+      >
+        <Modal.Header closeButton className="bg-primary text-white">
+          <Modal.Title className="mb-0">Instructor Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={newInstructorName}
-                onChange={(e) => setNewInstructorName(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="email"
-                value={newInstructorEmail}
-                onChange={(e) => setNewInstructorEmail(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Phone Number</Form.Label>
-              <Form.Control
-                type="text"
-                value={newInstructorPhoneNumber}
-                onChange={(e) => setNewInstructorPhoneNumber(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Picture URL</Form.Label>
-              <Form.Control
-                type="text"
-                value={newInstructorPicture}
-                onChange={(e) => setNewInstructorPicture(e.target.value)}
-              />
-            </Form.Group>
-          </Form>
+          {selectedInstructor && (
+            <div>
+              <p>Name: {selectedInstructor.name}</p>
+              <p>Email: {selectedInstructor.email}</p>
+              <p>Phone Number: {selectedInstructor.phoneNumber}</p>
+              <p>
+                Joined Date:{" "}
+                {new Date(selectedInstructor.joinedDate).toLocaleDateString()}
+              </p>
+              <p>
+                Batch:{" "}
+                {selectedInstructor.batch}
+              </p>
+              <p>Created By Admin: {selectedInstructor.createdByAdmin}</p>
+              <p>Admin Name: {selectedInstructor.adminName}</p>
+              <p>Picture: {selectedInstructor.picture}</p>
+              {/* You can add more fields here */}
+            </div>
+          )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button
+            variant="secondary"
+            className="text-white"
+            onClick={closeInstructorDetailsModal}
+          >
             Close
           </Button>
-          <Button variant="success" onClick={handleAddInstructor}>
-            Add Instructor
+          <Button
+            variant="primary"
+            onClick={() =>
+              router.push(`/instructors/${selectedInstructor._id}`)
+            }
+          >
+            View Instructor
+          </Button>
+          <Button
+            variant="primary"
+            onClick={() => {
+              setSelectedInstructor(selectedInstructor);
+              setShowAssignBatchModal(true);
+            }}
+          >
+            Assign to Batch
           </Button>
         </Modal.Footer>
       </Modal>
+
       <Modal
         show={showAssignBatchModal}
         onHide={() => setShowAssignBatchModal(false)}

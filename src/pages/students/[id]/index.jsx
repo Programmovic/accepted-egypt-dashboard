@@ -78,7 +78,9 @@ const StudentProfile = () => {
   };
   const fetchAttendancesForStudent = async () => {
     try {
-      const response = await axios.get(`/api/attendance/student-attendances?studentId=${studentData._id}`); // Replace with your actual API endpoint for batch lectures
+      const response = await axios.get(
+        `/api/attendance/student-attendances?studentId=${studentData._id}`
+      ); // Replace with your actual API endpoint for batch lectures
 
       if (response.status === 200) {
         console.log(response);
@@ -105,8 +107,27 @@ const StudentProfile = () => {
         studentData._id && fetchAttendancesForStudent();
       }
     }
-  }, [id, studentData.batch, studentData._id]);
-  console.log(attendances);
+  }, [id, studentData.batch, studentData._id, studentData.placementTestDate]);
+  function calculateTimeDuration(startTime, endTime) {
+    // Split the time strings into hours and minutes
+    const [startHour, startMinute] = startTime.split(":");
+    const [endHour, endMinute] = endTime.split(":");
+  
+    // Convert hours and minutes to numbers
+    const startHourNum = parseInt(startHour, 10);
+    const startMinuteNum = parseInt(startMinute, 10);
+    const endHourNum = parseInt(endHour, 10);
+    const endMinuteNum = parseInt(endMinute, 10);
+  
+    // Calculate the duration in minutes
+    const totalMinutesStart = startHourNum * 60 + startMinuteNum;
+    const totalMinutesEnd = endHourNum * 60 + endMinuteNum;
+    const duration = totalMinutesEnd - totalMinutesStart;
+  
+    return duration;
+  }
+  
+  
   return (
     <AdminLayout>
       <div className="row">
@@ -117,31 +138,75 @@ const StudentProfile = () => {
           isLoading={loading}
         />
         <ClassCard
-          data={`${attendances.filter((attendance) => attendance.status === "Attend").length} (${((attendances.filter((attendance) => attendance.status === "Attend").length / attendances.length)*100).toFixed(2)}%)`}
+          data={`${
+            attendances.filter((attendance) => attendance.status === "Attended")
+              .length
+          } (${(
+            (attendances.filter(
+              (attendance) => attendance.status === "Attended"
+            ).length /
+              attendances.length) *
+            100
+          ).toFixed(2)}%)`}
           title="Total Attendend Lectures"
           enableOptions={false}
           isLoading={loading}
         />
         <ClassCard
-          data={`${attendances.filter((attendance) => attendance.status === "Absent").length} (${((attendances.filter((attendance) => attendance.status === "Absent").length / attendances.length)*100).toFixed(2)}%)`}
+          data={`${
+            attendances.filter((attendance) => attendance.status === "Absent")
+              .length
+          } (${(
+            (attendances.filter((attendance) => attendance.status === "Absent")
+              .length /
+              attendances.length) *
+            100
+          ).toFixed(2)}%)`}
           title="Total Absent Lectures"
           enableOptions={false}
           isLoading={loading}
         />
         <ClassCard
-          data={`${attendances.filter((attendance) => attendance.status === "Execused").length} (${((attendances.filter((attendance) => attendance.status === "Execused").length / attendances.length)*100).toFixed(2)}%)`}
+          data={`${
+            attendances.filter((attendance) => attendance.status === "Execused")
+              .length
+          } (${(
+            (attendances.filter(
+              (attendance) => attendance.status === "Execused"
+            ).length /
+              attendances.length) *
+            100
+          ).toFixed(2)}%)`}
           title="Total Execused Lectures"
           enableOptions={false}
           isLoading={loading}
         />
         <ClassCard
-          data={`${attendances.filter((attendance) => attendance.status === "Late").length} (${((attendances.filter((attendance) => attendance.status === "Late").length / attendances.length)*100).toFixed(2)}%)`}
+          data={`${
+            attendances.filter((attendance) => attendance.status === "Late")
+              .length
+          } (${(
+            (attendances.filter((attendance) => attendance.status === "Late")
+              .length /
+              attendances.length) *
+            100
+          ).toFixed(2)}%)`}
           title="Total Late Lectures"
           enableOptions={false}
           isLoading={loading}
         />
         <ClassCard
-          data={`${attendances.filter((attendance) => attendance.status === "Not Assigned").length} (${((attendances.filter((attendance) => attendance.status === "Not Assigned").length / attendances.length)*100).toFixed(2)}%)`}
+          data={`${
+            attendances.filter(
+              (attendance) => attendance.status === "Not Assigned"
+            ).length
+          } (${(
+            (attendances.filter(
+              (attendance) => attendance.status === "Not Assigned"
+            ).length /
+              attendances.length) *
+            100
+          ).toFixed(2)}%)`}
           title="Not Assigned Lectures"
           enableOptions={false}
           isLoading={loading}
@@ -149,7 +214,7 @@ const StudentProfile = () => {
       </div>
       <div className="container rounded bg-white mt-5 mb-5">
         <div className="row">
-          <div className="col-md-8 border-right">
+          <div className="col-md-12 border-right">
             <div>
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4 className="text-right">{studentData.name}</h4>
@@ -262,81 +327,54 @@ const StudentProfile = () => {
                   />
                 </div>
               </div>
-              <div className="mt-5 text-center">
+              <div className="mt-5 text-end">
                 <button
                   className="btn btn-primary profile-button"
                   type="button"
                 >
-                  Save Profile
+                  Move To Waiting list
                 </button>
               </div>
             </div>
           </div>
-          <div className="col-md-4">
-            <div className="p-3 py-5">
-              <div className="d-flex justify-content-between align-items-center experience">
-                <span>Edit Experience</span>
-                <span className="border px-3 p-1 add-experience">
-                  <i className="fa fa-plus" />
-                  &nbsp;Experience
-                </span>
-              </div>
-              <br />
-              <div className="col-md-12">
-                <label className="labels">Experience in Designing</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="experience"
-                  defaultValue={studentData.designExperience}
-                />
-              </div>
-              <br />
-              <div className="col-md-12">
-                <label className="labels">Additional Details</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="additional details"
-                  defaultValue={studentData.additionalDetails}
-                />
-              </div>
-            </div>
-          </div>
+          
         </div>
       </div>
       <Card>
         <Card.Header>Lectures for {batchData.name}</Card.Header>
         <Card.Body>
-        <Table striped bordered hover>
-  <thead>
-    <tr>
-      <th>Lecture Name</th>
-      <th>Date</th>
-      <th>Time</th>
-      <th>Duration</th>
-      <th>Attendance Status</th> {/* Add this column */}
-    </tr>
-  </thead>
-  <tbody>
-    {lectures.map((lecture) => {
-      // Find the attendance record for this lecture
-      const attendanceRecord = attendances.find((attendance) => attendance.lecture === lecture._id);
-      const status = attendanceRecord ? attendanceRecord.status : 'Not Assigned';
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Lecture Name</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Duration</th>
+                <th>Attendance Status</th> {/* Add this column */}
+              </tr>
+            </thead>
+            <tbody>
+              {lectures.map((lecture) => {
+                // Find the attendance record for this lecture
+                const attendanceRecord = attendances.find(
+                  (attendance) => attendance.lecture === lecture._id
+                );
+                const status = attendanceRecord
+                  ? attendanceRecord.status
+                  : "Not Assigned";
 
-      return (
-        <tr key={lecture._id}>
-          <td>{lecture.name}</td>
-          <td>{new Date(lecture.date).toLocaleDateString()}</td>
-          <td>{`${lecture.weeklyHours.day}: ${lecture.weeklyHours.from} to ${lecture.weeklyHours.to}`}</td>
-          <td>{lecture.hours} hours</td>
-          <td>{status}</td> {/* Display attendance status here */}
-        </tr>
-      );
-    })}
-  </tbody>
-</Table>
-
+                return (
+                  <tr key={lecture._id}>
+                    <td>{lecture.name}</td>
+                    <td>{new Date(lecture.date).toLocaleDateString()}</td>
+                    <td>{`${lecture.weeklyHours.day}: ${lecture.weeklyHours.from} to ${lecture.weeklyHours.to}`}</td>
+                    <td>{calculateTimeDuration(lecture.weeklyHours.from, lecture.weeklyHours.to)} Minutes</td>
+                    <td>{status}</td> {/* Display attendance status here */}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
         </Card.Body>
       </Card>
       <ToastContainer />

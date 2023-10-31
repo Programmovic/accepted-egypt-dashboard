@@ -31,7 +31,7 @@ export default async (req, res) => {
       res.json(availableRooms);
     } catch (error) {
       console.error("Error fetching available rooms:", error);
-      res.status(500).json({ error: "Failed to fetch available rooms." });
+      res.status(500).json({ error: error.message });
     }
   } else {
     return res.status(400).json({ error: "Invalid request" });

@@ -150,11 +150,9 @@ ol.progress-meter li.todo:before {
   color: #682773;
   cursor: pointer
 }
-
-.labels {
-  font-size: 11px
+.labels{
+  padding: 10px 10px;
 }
-
 .add-experience:hover {
   background: #BA68C8;
   color: #fff;

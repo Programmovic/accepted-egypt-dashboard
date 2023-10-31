@@ -18,7 +18,8 @@ import Link from "next/link";
 
 const BatchLectures = () => {
   const [batchLectures, setBatchLectures] = useState([]);
-  const [batchStudents, setBatchStudents] = useState([]); // New state for batch students
+  const [batchStudents, setBatchStudents] = useState([]);
+  const [batchInstructors, setBatchInstructors] = useState([]); // New state for batch instructors
   const [selectedLecture, setSelectedLecture] = useState(null);
   const [showLectureDetailsModal, setShowLectureDetailsModal] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -28,7 +29,7 @@ const BatchLectures = () => {
   // Function to fetch batch lectures
   const fetchBatchLectures = async () => {
     try {
-      const response = await axios.get(`/api/batch/${id}`); // Fetch batch lectures
+      const response = await axios.get(`/api/batch/${id}`);
 
       if (response.status === 200) {
         setBatchLectures(response.data);
@@ -47,10 +48,9 @@ const BatchLectures = () => {
   // Function to fetch batch students
   const fetchBatchStudents = async () => {
     try {
-      const response = await axios.get(`/api/batch/${id}/students`); // Fetch batch students
+      const response = await axios.get(`/api/batch/${id}/students`);
 
       if (response.status === 200) {
-        console.log(response)
         setBatchStudents(response.data);
       }
     } catch (error) {
@@ -62,10 +62,28 @@ const BatchLectures = () => {
     }
   };
 
+  // Function to fetch batch instructors
+  const fetchBatchInstructors = async () => {
+    try {
+      const response = await axios.get(`/api/batch/${id}/instructors`); // Fetch all instructors
+
+      if (response.status === 200) {
+        setBatchInstructors(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching batch instructors:", error);
+      toast.error("Failed to fetch batch instructors. Please try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
   useEffect(() => {
     if (id) {
       fetchBatchLectures();
       fetchBatchStudents();
+      fetchBatchInstructors();
     }
   }, [id]);
 
@@ -74,19 +92,17 @@ const BatchLectures = () => {
     setShowLectureDetailsModal(true);
   };
 
-  // Calculate lecture progress (similar to your existing code)
+  // Calculate lecture progress
   const calculateProgress = () => {
     const currentDate = new Date();
 
     const completedLectures = batchLectures.filter((lecture) => {
       const lectureDate = new Date(lecture.date);
-      // Compare the lecture date with the current date
       return lectureDate <= currentDate;
     });
 
     const remainingLectures = batchLectures.filter((lecture) => {
       const lectureDate = new Date(lecture.date);
-      // Compare the lecture date with the current date
       return lectureDate > currentDate;
     });
 
@@ -177,7 +193,6 @@ const BatchLectures = () => {
                 <th>Student Name</th>
                 <th>Email</th>
                 <th>Phone</th>
-                {/* Add more student-related table headers */}
               </tr>
             </thead>
             <tbody>
@@ -186,7 +201,32 @@ const BatchLectures = () => {
                   <td>{student.name}</td>
                   <td>{student.email}</td>
                   <td>{student.phoneNumber}</td>
-                  {/* Display more student details */}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </Card.Body>
+      </Card>
+
+      <Card>
+        <Card.Header>Batch Instructors</Card.Header>
+        <Card.Body>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Instructor Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                {/* Add more instructor-related table headers */}
+              </tr>
+            </thead>
+            <tbody>
+              {batchInstructors.map((instructor) => (
+                <tr key={instructor._id}>
+                  <td>{instructor.name}</td>
+                  <td>{instructor.email}</td>
+                  <td>{instructor.phoneNumber}</td>
+                  {/* Display more instructor details */}
                 </tr>
               ))}
             </tbody>

@@ -7,6 +7,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Select from "react-select";
 import Link from "next/link";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
 
 const Batches = () => {
   const [batchResource, setBatchResource] = useState([]);
@@ -31,7 +34,6 @@ const Batches = () => {
   const [newBatchDescription, setNewBatchDescription] = useState("");
   const [classList, setClassList] = useState([]);
   const [newBatchCode, setNewBatchCode] = useState("");
-  const [newBatchLecturesTimes, setNewBatchLecturesTimes] = useState([]);
   const [showBatchDetailsModal, setShowBatchDetailsModal] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [creatingBatch, setCreatingBatch] = useState(false);
@@ -42,7 +44,14 @@ const Batches = () => {
     setShowBatchDetailsModal(true);
   };
   // Other state variables for your form inputs
-
+  const initialLectureTimes = [
+    { day: "Sunday", from: "", to: "" },
+    { day: "Monday", from: "", to: "" },
+    { day: "Tuesday", from: "", to: "" },
+    { day: "Wednesday", from: "", to: "" },
+    { day: "Thursday", from: "", to: "" },
+  ];
+  const [newBatchLecturesTimes, setNewBatchLecturesTimes] = useState([]);
   const handleWeekdayChange = (day, isChecked) => {
     if (isChecked) {
       // Check if the day is already in the array, if not, add it
@@ -325,6 +334,7 @@ const Batches = () => {
                   <Form.Label>Batch Name</Form.Label>
                   <Form.Control
                     type="text"
+                    required
                     value={newBatchName}
                     readOnly
                     disabled
@@ -336,6 +346,7 @@ const Batches = () => {
                   <Form.Label>Batch Code</Form.Label>
                   <Form.Control
                     type="text"
+                    required
                     value={newBatchCode}
                     readOnly
                     disabled
@@ -347,6 +358,7 @@ const Batches = () => {
                   <Form.Label>Status</Form.Label>
                   <Form.Control
                     type="text"
+                    required
                     value={newBatchStatus}
                     placeholder="Wait For Dates.."
                     disabled
@@ -380,6 +392,7 @@ const Batches = () => {
                   <Form.Label>Hours</Form.Label>
                   <Form.Control
                     type="number"
+                    required
                     value={newBatchHours}
                     onChange={(e) => setNewBatchHours(e.target.value)}
                   />
@@ -391,6 +404,7 @@ const Batches = () => {
                   <Form.Label>Cost</Form.Label>
                   <Form.Control
                     type="number"
+                    required
                     value={newBatchCost}
                     onChange={(e) => setNewBatchCost(e.target.value)}
                   />
@@ -401,6 +415,7 @@ const Batches = () => {
                   <Form.Label>Limit Trainees</Form.Label>
                   <Form.Control
                     type="number"
+                    required
                     value={newBatchLimitTrainees}
                     onChange={(e) => setNewBatchLimitTrainees(e.target.value)}
                   />
@@ -411,6 +426,7 @@ const Batches = () => {
                   <Form.Label>Start Date</Form.Label>
                   <Form.Control
                     type="date"
+                    required
                     value={newBatchShouldStartAt}
                     onChange={(e) => setNewBatchShouldStartAt(e.target.value)}
                   />
@@ -421,6 +437,7 @@ const Batches = () => {
                   <Form.Label>End Date</Form.Label>
                   <Form.Control
                     type="date"
+                    required
                     value={newBatchShouldEndAt}
                     onChange={(e) => setNewBatchShouldEndAt(e.target.value)}
                   />
@@ -446,7 +463,7 @@ const Batches = () => {
                 <Form.Group>
                   <Form.Label>Set Level:</Form.Label>
                   <Form.Control as="select" onChange={handleLevelSelect}>
-                    <option value="" hidden>
+                    <option value="" required hidden>
                       Select a level
                     </option>
                     {levels.map((level) => (
@@ -480,9 +497,9 @@ const Batches = () => {
                             <Col xs={6}>
                               <Form.Label>From:</Form.Label>
                               <Form.Control
-                                type="text"
-                                placeholder="Lecture start time"
-                                value={newBatchLecturesTimes[index]?.from || ""}
+                                type="time"
+                                required
+                                value={newBatchLecturesTimes[index]?.from}
                                 onChange={(e) =>
                                   handleLectureTimeChange(
                                     index,
@@ -495,9 +512,9 @@ const Batches = () => {
                             <Col xs={6}>
                               <Form.Label>To:</Form.Label>
                               <Form.Control
-                                type="text"
-                                placeholder="Lecture end time"
-                                value={newBatchLecturesTimes[index]?.to || ""}
+                                type="time"
+                                required
+                                value={newBatchLecturesTimes[index]?.to}
                                 onChange={(e) =>
                                   handleLectureTimeChange(
                                     index,
@@ -520,6 +537,7 @@ const Batches = () => {
                   <Form.Label>Description</Form.Label>
                   <Form.Control
                     type="textarea"
+                    required
                     value={newBatchDescription}
                     onChange={(e) => setNewBatchDescription(e.target.value)}
                   />
@@ -534,7 +552,7 @@ const Batches = () => {
             Close
           </Button>
           <Button variant="success" onClick={handleAddBatch}>
-          {creatingBatch ? "Creating..." : "Add New Batch"}
+            {creatingBatch ? "Creating..." : "Add New Batch"}
           </Button>
         </Modal.Footer>
       </Modal>
@@ -549,6 +567,7 @@ const Batches = () => {
                   <Form.Label>Filter by Name</Form.Label>
                   <Form.Control
                     type="text"
+                    required
                     value={filterName}
                     onChange={(e) => setFilterName(e.target.value)}
                   />
@@ -559,6 +578,7 @@ const Batches = () => {
                   <Form.Label>Filter by Status</Form.Label>
                   <Form.Control
                     type="text"
+                    required
                     value={filterStatus}
                     onChange={(e) => setFilterStatus(e.target.value)}
                   />
@@ -579,7 +599,9 @@ const Batches = () => {
                     classList.length <= 0 &&
                     "Cannot Create Batches Without Classes!"
                   }
-                  disabled={creatingBatch || classList.length <= 0 || levels.length <= 0 } 
+                  disabled={
+                    creatingBatch || classList.length <= 0 || levels.length <= 0
+                  }
                 >
                   Add New Batch
                 </Button>
