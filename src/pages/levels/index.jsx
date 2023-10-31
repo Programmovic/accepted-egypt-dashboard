@@ -15,6 +15,7 @@ const Levels = () => {
   const [filterName, setFilterName] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [newLevelName, setNewLevelName] = useState("");
+  const [newLevelCode, setNewLevelCode] = useState("");
   const [students, setStudents] = useState([]);
   const [batches, setBatches] = useState([]);
 
@@ -95,7 +96,8 @@ const Levels = () => {
     try {
       // Send a POST request to your API to create a new level
       const response = await axios.post("/api/level", {
-        name: newLevelName, // Adjust this to match your schema
+        name: newLevelName,
+        code: newLevelCode // Adjust this to match your schema
       });
 
       if (response.status === 201) {
@@ -127,6 +129,14 @@ const Levels = () => {
                 type="text"
                 value={newLevelName}
                 onChange={(e) => setNewLevelName(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Code</Form.Label>
+              <Form.Control
+                type="text"
+                value={newLevelCode}
+                onChange={(e) => setNewLevelCode(e.target.value)}
               />
             </Form.Group>
           </Form>
@@ -180,8 +190,9 @@ const Levels = () => {
               <thead>
                 <tr>
                   <th>Class Level</th>
+                  <th>Level Code</th>
                   <th>Number of batches</th>
-                  <th>Batches code</th>
+                  <th>Batch code</th>
                   <th>Number of students</th>
                   {/* Add other fields here */}
                 </tr>
@@ -190,6 +201,7 @@ const Levels = () => {
                 {filteredData.map((level, index) => (
                   <tr key={level._id}>
                     <td>{level.name}</td>
+                    <td>{level.code}</td>
                     <td>
                       {
                         batches.filter((batch) => batch.level === level._id)

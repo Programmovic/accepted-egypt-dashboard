@@ -37,7 +37,8 @@ const Batches = () => {
   const [showBatchDetailsModal, setShowBatchDetailsModal] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
   const [creatingBatch, setCreatingBatch] = useState(false);
-
+  const [selectedLevel, setSelectedLevel] = useState("");
+  const [selectedLevelName, setSelectedLevelName] = useState("");
   // Function to open the modal and set the selected batch details
   const openBatchDetailsModal = (batch) => {
     setSelectedBatch(batch);
@@ -113,16 +114,17 @@ const Batches = () => {
     handleFilter();
   }, [filterName, filterStatus, sortBy, sortOrder, batchResource]);
   const calculateBatchCode = () => {
-    if (newBatchClass && classList) {
+    if (selectedLevel && levels) {
       const classCount = batchResource.filter(
-        (cls) => cls.class === newBatchClass
+        (cls) => cls.class === selectedLevel
       ).length;
-      setNewBatchCode(`${+getClassName(newBatchClass).code + classCount + 1}`);
+      setNewBatchCode(`${+(levels.find((lvl) => lvl._id === selectedLevel).code) + classCount + 1}`);
     }
   };
   useEffect(() => {
     calculateBatchCode();
-  }, [newBatchClass]);
+  }, [selectedLevel]);
+  
   const handleFilter = () => {
     let filteredBatches = [...batchResource];
 
@@ -218,7 +220,7 @@ const Batches = () => {
       newBatchClass ? getClassName(newBatchClass).name : "N/A"
     } - ${
       roomOptions.find((room) => newBatchLab === room.value)?.label
-    } - ${newBatchHours} - ${newBatchCost} - ${newBatchShouldStartAt} to ${newBatchShouldEndAt} Batch`;
+    } - ${newBatchCode} - ${newBatchCost} - ${newBatchShouldStartAt} to ${newBatchShouldEndAt} Batch`;
     setNewBatchName(generatedName.toUpperCase());
   };
   useEffect(() => {
@@ -233,6 +235,7 @@ const Batches = () => {
     newBatchHours,
     newBatchShouldStartAt,
     newBatchShouldEndAt,
+    newBatchCode
   ]);
   const getClassName = (instructorId) => {
     console.log(instructorId);
@@ -310,8 +313,7 @@ const Batches = () => {
         console.error("Error fetching levels:", error);
       });
   }, []);
-  const [selectedLevel, setSelectedLevel] = useState("");
-  const [selectedLevelName, setSelectedLevelName] = useState("");
+  
   // Function to handle level selection
   const handleLevelSelect = (e) => {
     setSelectedLevel(e.target.value);
@@ -319,6 +321,7 @@ const Batches = () => {
       levels.find((level) => level._id === e.target.value).name
     );
   };
+  console.log(levels.find((lvl) => lvl._id === selectedLevel)?.code)
   return (
     <AdminLayout>
       <ToastContainer />

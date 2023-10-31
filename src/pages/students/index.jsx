@@ -258,12 +258,13 @@ const Students = () => {
     return filteredStudents.filter((student) => student.status === status)
       .length;
   };
+  const [levels, setLevels] = useState([]);
   useEffect(() => {
     // Fetch levels from the /api/level endpoint when the component mounts
     fetch("/api/level")
       .then((response) => response.json())
       .then((data) => {
-        setLevels(data); // Set the levels in the state
+        setLevels(data.levels); // Set the levels in the state
       })
       .catch((error) => {
         console.error("Error fetching levels:", error);
@@ -288,7 +289,7 @@ const Students = () => {
           enableOptions={false}
           isLoading={loading}
         />
-        {levels.map((level, i) => (
+        {levels?.map((level, i) => (
           <ClassCard
             data={getLevelCount(level.name)}
             title={`Level ${level.name}`}
@@ -516,7 +517,7 @@ const Students = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Email</Form.Label>
+              <Form.Label>Email (Optional)</Form.Label>
               <Form.Control
                 type="email"
                 value={newStudentEmail}
@@ -532,7 +533,7 @@ const Students = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>National ID</Form.Label>
+              <Form.Label>National ID (Optional)</Form.Label>
               <Form.Control
                 type="text"
                 value={newStudentNationalId}

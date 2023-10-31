@@ -272,6 +272,7 @@ const WaitingList = () => {
                 <th>#</th>
                 <th>Student ID</th>
                 <th>Student Name</th>
+                <th>Assigned Level</th>
                 <th>Date</th>
                 {/* Add more table headers as needed */}
               </tr>
@@ -286,6 +287,7 @@ const WaitingList = () => {
                   <td>{index + 1}</td>
                   <td>{waitingListItem.student}</td>
                   <td>{waitingListItem.studentName}</td>
+                  <td>{waitingListItem.assignedLevel}</td>
                   <td>{new Date(waitingListItem.date).toLocaleDateString()}</td>
                   {/* Add more table cells for other waiting list item data */}
                 </tr>

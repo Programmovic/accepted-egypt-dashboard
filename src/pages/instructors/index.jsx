@@ -34,10 +34,19 @@ const Instructors = () => {
   const [instructorClasses, setInstructorClasses] = useState([]);
   const [batchesData, setBatchesData] = useState([]);
   // State for new instructor creation
-  const [newInstructorName, setNewInstructorName] = useState("");
-  const [newInstructorEmail, setNewInstructorEmail] = useState("");
-  const [newInstructorPhoneNumber, setNewInstructorPhoneNumber] = useState("");
-  const [newInstructorPicture, setNewInstructorPicture] = useState("");
+  const [showCreateInstructorModal, setShowCreateInstructorModal] = useState(false);
+const [newInstructorName, setNewInstructorName] = useState("");
+const [newInstructorEmail, setNewInstructorEmail] = useState("");
+const [newInstructorPhoneNumber, setNewInstructorPhoneNumber] = useState("");
+const [newInstructorPicture, setNewInstructorPicture] = useState("");
+const openCreateInstructorModal = () => {
+  setShowCreateInstructorModal(true);
+};
+
+const closeCreateInstructorModal = () => {
+  setShowCreateInstructorModal(false);
+};
+
 
   const fetchInstructorData = async () => {
     try {
@@ -134,22 +143,22 @@ const Instructors = () => {
     setFilteredInstructors(instructors);
   };
 
-  const handleAddInstructor = async () => {
+  const handleCreateInstructor = async () => {
     try {
       const response = await axios.post("/api/instructor", {
         name: newInstructorName,
         email: newInstructorEmail,
         phoneNumber: newInstructorPhoneNumber,
-        picture: newInstructorPicture,
+        // Other properties as needed
       });
       if (response.status === 201) {
         // Data added successfully
-        fetchInstructorData();
+        fetchInstructorData(); // Refresh the instructor list
         toast.success("Instructor added successfully!", {
           position: "top-right",
           autoClose: 3000,
         });
-        setShowModal(false);
+        closeCreateInstructorModal(); // Close the modal
         // Clear the form fields
         setNewInstructorName("");
         setNewInstructorEmail("");
@@ -161,13 +170,13 @@ const Instructors = () => {
       }
     } catch (error) {
       console.error("Error adding instructor:", error);
-      setError("Failed to add the instructor. Please try again.");
       toast.error("Failed to add the instructor. Please try again.", {
         position: "top-right",
         autoClose: 3000,
       });
     }
   };
+  
   const handleSort = (criteria) => {
     if (criteria === sortBy) {
       // Toggle the sorting order if the same criteria is clicked again
@@ -322,7 +331,7 @@ const Instructors = () => {
 
           <Button
             variant="success"
-            onClick={() => setShowModal(true)}
+            onClick={() => openCreateInstructorModal(true)}
             className="mb-3"
           >
             Add Instructor
@@ -429,60 +438,51 @@ const Instructors = () => {
       </Modal>
 
       <Modal
-        show={showInstructorDetailsModal}
-        onHide={closeInstructorDetailsModal}
-      >
-        <Modal.Header closeButton className="bg-primary text-white">
-          <Modal.Title className="mb-0">Instructor Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {selectedInstructor && (
-            <div>
-              <p>Name: {selectedInstructor.name}</p>
-              <p>Email: {selectedInstructor.email}</p>
-              <p>Phone Number: {selectedInstructor.phoneNumber}</p>
-              <p>
-                Joined Date:{" "}
-                {new Date(selectedInstructor.joinedDate).toLocaleDateString()}
-              </p>
-              <p>
-                Batch:{" "}
-                {selectedInstructor.batch}
-              </p>
-              <p>Created By Admin: {selectedInstructor.createdByAdmin}</p>
-              <p>Admin Name: {selectedInstructor.adminName}</p>
-              <p>Picture: {selectedInstructor.picture}</p>
-              {/* You can add more fields here */}
-            </div>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            className="text-white"
-            onClick={closeInstructorDetailsModal}
-          >
-            Close
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() =>
-              router.push(`/instructors/${selectedInstructor._id}`)
-            }
-          >
-            View Instructor
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setSelectedInstructor(selectedInstructor);
-              setShowAssignBatchModal(true);
-            }}
-          >
-            Assign to Batch
-          </Button>
-        </Modal.Footer>
-      </Modal>
+  show={showCreateInstructorModal}
+  onHide={closeCreateInstructorModal}
+>
+  <Modal.Header closeButton>
+    <Modal.Title>Create New Instructor</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form>
+      <Form.Group className="mb-3">
+        <Form.Label>Name</Form.Label>
+        <Form.Control
+          type="text"
+          value={newInstructorName}
+          onChange={(e) => setNewInstructorName(e.target.value)}
+        />
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Email</Form.Label>
+        <Form.Control
+          type="text"
+          value={newInstructorEmail}
+          onChange={(e) => setNewInstructorEmail(e.target.value)}
+        />
+      </Form.Group>
+      <Form.Group className="mb-3">
+        <Form.Label>Phone Number</Form.Label>
+        <Form.Control
+          type="text"
+          value={newInstructorPhoneNumber}
+          onChange={(e) => setNewInstructorPhoneNumber(e.target.value)}
+        />
+      </Form.Group>
+      {/* Add other form fields for additional properties */}
+    </Form>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={closeCreateInstructorModal}>
+      Close
+    </Button>
+    <Button variant="primary" onClick={handleCreateInstructor}>
+      Create Instructor
+    </Button>
+  </Modal.Footer>
+</Modal>
+
 
       <Modal
         show={showAssignBatchModal}

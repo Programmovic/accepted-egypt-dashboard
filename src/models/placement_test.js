@@ -23,8 +23,10 @@ const placementTestSchema = new mongoose.Schema({
     required: true,
   },
   studentNationalID: {
-    type: String, // Reference to the Student model
-    required: true,
+    type: String, 
+  },
+  studentPhoneNumber: {
+    type: String, 
   },
   cost: {
     type: Number, // Cost associated with taking the placement test

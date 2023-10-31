@@ -109,6 +109,7 @@ const PlacementTests = () => {
         instructions: newTestInstructions,
         room: newTestRoom,
         date: newTestDate,
+        instructor: selectedInstructor.value,
       });
       if (response.status === 201) {
         // Data added successfully
@@ -122,6 +123,7 @@ const PlacementTests = () => {
         setNewTestDate("");
         setNewTestInstructions("");
         setNewTestRoom("");
+        setSelectedInstructor("");
         // Clear the form fields
         // ...
       } else {
@@ -347,7 +349,36 @@ const PlacementTests = () => {
         console.error("Error fetching levels:", error);
       });
   }, []);
+  const [instructors, setInstructors] = useState([]); // State variable to store instructors
+  const [selectedInstructor, setSelectedInstructor] = useState(null); // State variable to store the selected instructor
 
+  // Fetch instructors from the /api/instructor endpoint
+  const fetchInstructors = async () => {
+    try {
+      const instructorsResponse = await axios.get("/api/instructor");
+
+      if (instructorsResponse.status === 200) {
+        const formattedInstructors = instructorsResponse.data.map(
+          (instructor) => ({
+            value: instructor._id, // Use a unique identifier for each instructor
+            label: instructor.name, // Display instructor name as label
+          })
+        );
+        setInstructors(formattedInstructors);
+      }
+    } catch (error) {
+      console.error("Error fetching instructors:", error);
+      toast.error("Failed to fetch instructor data. Please try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchInstructors();
+  }, []);
+  console.log();
   return (
     <AdminLayout>
       <div className="row">
@@ -372,7 +403,7 @@ const PlacementTests = () => {
           enableOptions={false}
           isLoading={loading}
         />
-        {levels.map((level, i) => (
+        {levels?.map((level, i) => (
           <ClassCard
             data={getAmountReceivedForLevel(level.name)}
             title={`Amount Received for Level ${level.name}`}
@@ -430,6 +461,7 @@ const PlacementTests = () => {
                       <tr>
                         <th>#</th>
                         <th>Cost</th>
+                        <th>Instructor</th>
                         <th>Instructions</th>
                         <th>Room</th>
                         <th>Date</th>
@@ -447,6 +479,7 @@ const PlacementTests = () => {
                         >
                           <td>{index + 1}</td>
                           <td>{setting.cost}</td>
+                          <td>{instructors.find((instructor) => instructor.value === setting.instructor)?.label}</td>
                           <td>{setting.instructions || "No Instructions"}</td>
                           <td>{getClassName(setting.room).label}</td>
                           <td>{new Date(setting.date).toLocaleDateString()}</td>
@@ -522,6 +555,7 @@ const PlacementTests = () => {
                         <th>Student Name</th>
                         <th>Status</th>
                         <th>Assigned Level</th>
+                        <th>Phone Number</th>
                         <th>Cost</th>
                         <th>Date</th>
                       </tr>
@@ -552,6 +586,7 @@ const PlacementTests = () => {
                           <td>{test.studentName}</td>
                           <td>{test.status}</td>
                           <td>{test.assignedLevel}</td>
+                          <td>{test.studentPhoneNumber}</td>
                           <td>{test.cost || 0} EGP</td>
                           <td>{new Date(test.date).toLocaleDateString()}</td>
                         </tr>
@@ -566,7 +601,17 @@ const PlacementTests = () => {
       </Card>
       <ToastContainer position="top-right" autoClose={3000} />
       {/* Modal for adding a new placement test */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal
+        show={showModal}
+        onHide={() => {
+          setShowModal(false);
+          setNewTestCost("");
+          setNewTestDate("");
+          setNewTestInstructions("");
+          setNewTestRoom("");
+          setSelectedInstructor("");
+        }}
+      >
         <Modal.Header closeButton>
           <Modal.Title>Create New Placement Test</Modal.Title>
         </Modal.Header>
@@ -586,6 +631,18 @@ const PlacementTests = () => {
                 type="text"
                 value={newTestInstructions}
                 onChange={(e) => setNewTestInstructions(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Select an Instructor</Form.Label>
+              <Select
+                value={selectedInstructor}
+                onChange={(selectedOption) =>
+                  setSelectedInstructor(selectedOption)
+                }
+                options={instructors}
+                isSearchable={true} // Enable search functionality
+                placeholder="Select an Instructor"
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -617,7 +674,17 @@ const PlacementTests = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              setShowModal(false);
+              setNewTestCost("");
+              setNewTestDate("");
+              setNewTestInstructions("");
+              setNewTestRoom("");
+              setSelectedInstructor("");
+            }}
+          >
             Close
           </Button>
           <Button variant="success" onClick={handleAddPlacementTest}>

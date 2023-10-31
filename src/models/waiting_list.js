@@ -13,6 +13,9 @@ const waitingListSchema = new mongoose.Schema({
   studentNationalID: {
     type: String,
   },
+  studentPhoneNumber: {
+    type: String,
+  },
   assignedLevel: {
     type: String,
   },

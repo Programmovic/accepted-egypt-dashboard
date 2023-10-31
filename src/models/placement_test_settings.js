@@ -18,6 +18,10 @@ const placementTestSettingsSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room',
   },
+  instructor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Instructor',
+  },
   createdByAdmin: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin',
