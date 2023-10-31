@@ -27,7 +27,7 @@ export default async (req, res) => {
       await newBatch.save();
 
       // ...
-
+console.log(batchData.weeklyHours)
       // Create lectures for the batch
       const lectures = [];
       let lectureCounter = 0;
@@ -92,7 +92,32 @@ export default async (req, res) => {
       return res.status(500).json({ error: "Could not fetch rooms" });
     }
   } else if (req.method === "DELETE") {
-    // ...
+    try {
+      const { id } = req.query;
+
+      // Find the batch to be deleted
+      const batch = await Batch.findOne({ _id: id });
+      if (!batch) {
+        return res.status(404).json({ error: "Batch not found" });
+      }
+
+      // Delete associated lectures
+      await Lecture.deleteMany({ batch: batch._id });
+
+      // Delete associated reservations (for each lecture)
+      const lectures = await Lecture.find({ batch: batch._id });
+      for (const lecture of lectures) {
+        await Reservation.deleteMany({ title: lecture.name });
+      }
+
+      // Delete the batch
+      await Batch.deleteOne({ _id: batch._id });
+
+      return res.status(200).json({ message: "Batch and its dependencies deleted" });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Could not delete batch and its dependencies" });
+    }
   }
 
   return res.status(400).json({ error: "Invalid request" });

@@ -6,10 +6,30 @@ export default async (req, res) => {
     await connectDB();
 
     if (req.method === "POST") {
-      
+
+    } if (req.method === "PUT") {
+      const { id } = req.query;
+      const updateData = req.body; // Assuming your request body contains the updated data
+
+      const updatedStudent = await Student.findOneAndUpdate(
+        { _id: id },
+        updateData,
+        { new: true }
+      );
+
+      if (updatedStudent) {
+        return res.status(200).json({ student: updatedStudent });
+      } else {
+        return res.status(404).json({ error: "Student not found" });
+      }
     } else if (req.method === "GET") {
-      const {id} = req.query
-      const students = await Student.find({_id: id});
+      const { id } = req.query;
+      const students = await Student.find({ _id: id });
+      // You can also fetch associated placement test and transaction data here if needed
+      return res.status(200).json({ students });
+    } else if (req.method === "GET") {
+      const { id } = req.query
+      const students = await Student.find({ _id: id });
       // You can also fetch associated placement test and transaction data here if needed
       return res.status(200).json({ students });
     } else {

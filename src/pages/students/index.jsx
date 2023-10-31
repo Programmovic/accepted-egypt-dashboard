@@ -274,6 +274,33 @@ const Students = () => {
     return filteredStudents.filter((test) => test.level === level)
       .length;
   };
+  const handleDeleteStudent = async (studentId) => {
+    if (window.confirm("Are you sure you want to delete this student?")) {
+      try {
+        const response = await axios.delete(`/api/student?id=${studentId}`);
+        if (response.status === 200) {
+          // Remove the deleted student from the local state
+          setStudents((prevStudents) =>
+            prevStudents.filter((student) => student._id !== studentId)
+          );
+          toast.success("Student deleted successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        } else {
+          // Handle other possible response status codes here
+          console.error("Unexpected status code:", response.status);
+        }
+      } catch (error) {
+        console.error("Error deleting student:", error);
+        toast.error("Failed to delete the student. Please try again.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    }
+  };
+  
   return (
     <AdminLayout>
       <div className="row">
@@ -408,6 +435,18 @@ const Students = () => {
                   <td>{student.email}</td>
                   <td>{student.phoneNumber}</td>
                   <td>{new Date(student.joinedDate).toLocaleDateString()}</td>
+                  {/* Inside your table row */}
+<td>
+  {/* Add the delete button or icon */}
+  <Button
+    variant="danger"
+    size="sm"
+    onClick={() => handleDeleteStudent(student._id)}
+  >
+    Delete
+  </Button>
+</td>
+
                 </tr>
               ))}
             </tbody>

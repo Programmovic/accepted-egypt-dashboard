@@ -53,27 +53,34 @@ const Batches = () => {
     { day: "Thursday", from: "", to: "" },
   ];
   const [newBatchLecturesTimes, setNewBatchLecturesTimes] = useState([]);
+  const [selectedWeekdays, setSelectedWeekdays] = useState([
+    { day: "Sunday", isChecked: false },
+    { day: "Monday", isChecked: false },
+    { day: "Tuesday", isChecked: false },
+    { day: "Wednesday", isChecked: false },
+    { day: "Thursday", isChecked: false },
+  ]);
+
+  const [lectureTimes, setLectureTimes] = useState([
+    { day: "Sunday", from: "", to: "" },
+    { day: "Monday", from: "", to: "" },
+    { day: "Tuesday", from: "", to: "" },
+    { day: "Wednesday", from: "", to: "" },
+    { day: "Thursday", from: "", to: "" },
+  ]);
   const handleWeekdayChange = (day, isChecked) => {
-    if (isChecked) {
-      // Check if the day is already in the array, if not, add it
-      if (!newBatchLecturesTimes.some((time) => time.day === day)) {
-        setNewBatchLecturesTimes((prevTimes) => [
-          ...prevTimes,
-          { day, from: "", to: "" }, // Initialize the lecture times
-        ]);
-      }
-    } else {
-      // Remove the day from the array
-      setNewBatchLecturesTimes((prevTimes) =>
-        prevTimes.filter((time) => time.day !== day)
-      );
-    }
+    const updatedWeekdays = [...selectedWeekdays];
+    const index = updatedWeekdays.findIndex((weekday) => weekday.day === day);
+    updatedWeekdays[index].isChecked = isChecked;
+    setSelectedWeekdays(updatedWeekdays);
   };
 
-  const handleLectureTimeChange = (index, field, value) => {
-    const updatedTimes = [...newBatchLecturesTimes];
+  // Function to handle lecture time change
+  const handleLectureTimeChange = (day, field, value) => {
+    const updatedTimes = [...lectureTimes];
+    const index = updatedTimes.findIndex((time) => time.day === day);
     updatedTimes[index][field] = value;
-    setNewBatchLecturesTimes(updatedTimes);
+    setLectureTimes(updatedTimes);
   };
   const fetchBatchData = async () => {
     try {
@@ -118,13 +125,17 @@ const Batches = () => {
       const classCount = batchResource.filter(
         (cls) => cls.class === selectedLevel
       ).length;
-      setNewBatchCode(`${+(levels.find((lvl) => lvl._id === selectedLevel).code) + classCount + 1}`);
+      setNewBatchCode(
+        `${
+          +levels.find((lvl) => lvl._id === selectedLevel).code + classCount + 1
+        }`
+      );
     }
   };
   useEffect(() => {
     calculateBatchCode();
   }, [selectedLevel]);
-  
+
   const handleFilter = () => {
     let filteredBatches = [...batchResource];
 
@@ -176,11 +187,24 @@ const Batches = () => {
     setNewBatchName(""); // Reset the new batch name input
     setNewBatchClass(""); // Reset the new batch class input
   };
+  const handleSelectedLectureTimes = () => {
+    const selectedTimes = selectedWeekdays
+      .filter((day) => day.isChecked)
+      .map((day) => {
+        const time = lectureTimes.find((time) => time.day === day.day);
+        return {
+          day: day.day,
+          from: time.from,
+          to: time.to,
+        };
+      });
 
+    setNewBatchLecturesTimes(selectedTimes);
+  };
   const handleAddBatch = async () => {
     try {
       setCreatingBatch(true);
-      await axios.post("/api/batch", {
+      const response=  await axios.post("/api/batch", {
         name: newBatchName,
         status: newBatchStatus,
         code: newBatchCode,
@@ -217,14 +241,15 @@ const Batches = () => {
   };
   const handleGenerateName = () => {
     const generatedName = `${
-      newBatchClass ? getClassName(newBatchClass).name : "N/A"
+      levels.find((lvl) => lvl?._id === selectedLevel)?.name
     } - ${
       roomOptions.find((room) => newBatchLab === room.value)?.label
     } - ${newBatchCode} - ${newBatchCost} - ${newBatchShouldStartAt} to ${newBatchShouldEndAt} Batch`;
     setNewBatchName(generatedName.toUpperCase());
   };
+  console.log();
   useEffect(() => {
-    if (newBatchClass) {
+    if (newBatchCode) {
       // Generate the name based on the class (if selected)
       handleGenerateName();
     }
@@ -235,7 +260,7 @@ const Batches = () => {
     newBatchHours,
     newBatchShouldStartAt,
     newBatchShouldEndAt,
-    newBatchCode
+    newBatchCode,
   ]);
   const getClassName = (instructorId) => {
     console.log(instructorId);
@@ -313,7 +338,7 @@ const Batches = () => {
         console.error("Error fetching levels:", error);
       });
   }, []);
-  
+
   // Function to handle level selection
   const handleLevelSelect = (e) => {
     setSelectedLevel(e.target.value);
@@ -321,10 +346,68 @@ const Batches = () => {
       levels.find((level) => level._id === e.target.value).name
     );
   };
-  console.log(levels.find((lvl) => lvl._id === selectedLevel)?.code)
+  console.log(levels.find((lvl) => lvl._id === selectedLevel)?.code);
+  const [deletingBatch, setDeletingBatch] = useState(false);
+  const [batchToDelete, setBatchToDelete] = useState(null);
+
+  const openDeleteConfirmationModal = (batch) => {
+    setBatchToDelete(batch);
+  };
+
+  const closeDeleteConfirmationModal = () => {
+    setBatchToDelete(null);
+  };
+  const handleBatchDelete = async () => {
+    try {
+      setDeletingBatch(true);
+
+      // Make an API request to delete the batch
+      const response = await axios.delete(`/api/batch?id=${batchToDelete._id}`);
+
+      if (response.status === 200) {
+        // Batch deleted successfully, update the UI
+        const updatedBatches = batchResource.filter(
+          (batch) => batch._id !== batchToDelete._id
+        );
+        setBatchResource(updatedBatches);
+        toast.success("Batch deleted successfully!");
+        closeDeleteConfirmationModal();
+      } else {
+        toast.error("Failed to delete the batch");
+      }
+    } catch (error) {
+      console.error("Error deleting batch:", error);
+      toast.error("Failed to delete the batch");
+    } finally {
+      setDeletingBatch(false);
+    }
+  };
+console.log(newBatchLecturesTimes)
   return (
     <AdminLayout>
       <ToastContainer />
+      {batchToDelete && (
+        <Modal show={true} onHide={closeDeleteConfirmationModal}>
+          <Modal.Header closeButton>
+            <Modal.Title>Confirm Deletion</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            Are you sure you want to delete the batch: {batchToDelete.name}?
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={closeDeleteConfirmationModal}>
+              Cancel
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleBatchDelete}
+              disabled={deletingBatch}
+            >
+              {deletingBatch ? "Deleting..." : "Delete Batch"}
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      )}
       <Modal show={showModal} onHide={closeModal}>
         <Modal.Header closeButton>
           <Modal.Title>Create New Batch</Modal.Title>
@@ -379,10 +462,10 @@ const Batches = () => {
                       label: student.name,
                     }))}
                     onChange={(e) => {
-                      setNewBatchClass(e.value);
+                      setNewBatchClass(e?.value);
                       setNewBatchSelectedClass(e);
-                      setNewBatchHours(getClassName(e.value).hours);
-                      setNewBatchCost(getClassName(e.value).cost);
+                      setNewBatchHours(getClassName(e?.value)?.hours);
+                      setNewBatchCost(getClassName(e?.value)?.cost);
                     }}
                     isClearable={true}
                     isSearchable={true}
@@ -480,58 +563,50 @@ const Batches = () => {
               <Col xs={12}>
                 <Form.Group className="mb-3">
                   <Form.Label>Weekdays</Form.Label>
-                  {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday"].map(
-                    (day, index) => (
-                      <div key={day}>
-                        <Form.Check
-                          type="checkbox"
-                          label={day}
-                          checked={newBatchLecturesTimes.some(
-                            (time) => time.day === day
-                          )}
-                          onChange={(e) =>
-                            handleWeekdayChange(day, e.target.checked)
-                          }
-                        />
-                        {newBatchLecturesTimes.some(
-                          (time) => time.day === day
-                        ) && (
-                          <Row className="my-4">
-                            <Col xs={6}>
-                              <Form.Label>From:</Form.Label>
-                              <Form.Control
-                                type="time"
-                                required
-                                value={newBatchLecturesTimes[index]?.from}
-                                onChange={(e) =>
-                                  handleLectureTimeChange(
-                                    index,
-                                    "from",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </Col>
-                            <Col xs={6}>
-                              <Form.Label>To:</Form.Label>
-                              <Form.Control
-                                type="time"
-                                required
-                                value={newBatchLecturesTimes[index]?.to}
-                                onChange={(e) =>
-                                  handleLectureTimeChange(
-                                    index,
-                                    "to",
-                                    e.target.value
-                                  )
-                                }
-                              />
-                            </Col>
-                          </Row>
-                        )}
-                      </div>
-                    )
-                  )}
+                  {selectedWeekdays.map((weekday, index) => (
+                    <div key={index}>
+                      <Form.Check
+                        type="checkbox"
+                        label={weekday.day}
+                        checked={weekday.isChecked}
+                        onChange={(e) =>
+                          handleWeekdayChange(weekday.day, e.target.checked)
+                        }
+                      />
+                      {weekday.isChecked && (
+                        <Row className="my-4">
+                          <Col xs={6}>
+                            <Form.Label>From:</Form.Label>
+                            <Form.Control
+                              type="time"
+                              value={lectureTimes[index]?.from}
+                              onChange={(e) =>
+                                handleLectureTimeChange(
+                                  weekday.day,
+                                  "from",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </Col>
+                          <Col xs={6}>
+                            <Form.Label>To:</Form.Label>
+                            <Form.Control
+                              type="time"
+                              value={lectureTimes[index]?.to}
+                              onChange={(e) =>
+                                handleLectureTimeChange(
+                                  weekday.day,
+                                  "to",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </Col>
+                        </Row>
+                      )}
+                    </div>
+                  ))}
                 </Form.Group>
               </Col>
 
@@ -554,7 +629,14 @@ const Batches = () => {
           <Button variant="secondary" onClick={closeModal}>
             Close
           </Button>
-          <Button variant="success" onClick={handleAddBatch}>
+          <Button
+            variant="success"
+            onClick={() => {
+              handleSelectedLectureTimes() 
+              handleAddBatch();
+
+            }}
+          >
             {creatingBatch ? "Creating..." : "Add New Batch"}
           </Button>
         </Modal.Footer>
@@ -675,6 +757,13 @@ const Batches = () => {
                       <td>{batch.code}</td>
                       <td>{batch.description}</td>
                       <td>{batch.createdDate}</td>
+                      <td>
+                        <button
+                          onClick={() => openDeleteConfirmationModal(batch)}
+                        >
+                          Delete
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

@@ -161,6 +161,7 @@ const PlacementTests = () => {
         const response = await axios.post("/api/waiting_list", {
           student: selectedPlacementTest?.student, // Assuming student ID is used
           studentName: selectedPlacementTest?.studentName,
+          assignedLevel: selectedPlacementTest?.assignedLevel,
           placementTestID: selectedPlacementTest?._id,
         });
 

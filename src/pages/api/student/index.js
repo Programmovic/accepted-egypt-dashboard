@@ -13,6 +13,15 @@ export default async (req, res) => {
       if (!studentData.name || !studentData.phoneNumber) {
         return res.status(400).json({ error: "Name and phone number are required" });
       }
+      const existingStudent = await Student.findOne({
+        phoneNumber: studentData.phoneNumber,
+      });
+
+      if (existingStudent) {
+        return res
+          .status(409)
+          .json({ error: "Student with the same phone number already exists" });
+      }
 
       // Create a new Student document
       const newStudent = new Student(studentData);
@@ -68,6 +77,20 @@ export default async (req, res) => {
       const students = await Student.find();
       // You can also fetch associated placement test and transaction data here if needed
       return res.status(200).json({ students });
+    } else if (req.method === "DELETE") {
+      // Handle student deletion
+      const studentId = req.query.id; // Assuming you pass the student ID in the request query parameters
+
+      // Find the student by ID
+      
+      // Delete the student document
+      await Student.deleteOne({_id: studentId})
+
+      // Optionally, you can also delete associated placement test and transactions
+      await PlacementTest.deleteMany({ student: studentId });
+      await Transaction.deleteMany({ student: studentId });
+
+      return res.status(200).json({ message: "Student deleted successfully" });
     } else {
       return res.status(400).json({ error: "Invalid request" });
     }

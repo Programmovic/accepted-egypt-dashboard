@@ -23,7 +23,39 @@ const StudentProfile = () => {
   const [attendances, setAttendances] = useState([]);
   const router = useRouter();
   const { id } = router.query;
-
+  const [name, setName] = useState(studentData.name);
+  const [phoneNumber, setPhoneNumber] = useState(studentData.phoneNumber);
+  const [email, setEmail] = useState(studentData.email);
+  const [nationalId, setNationalId] = useState(studentData.nationalId);
+  const [status, setStatus] = useState(studentData.status);
+  
+  // Add state variables for other fields as needed
+  const handleSave = async () => {
+    try {
+      const response = await axios.put(`/api/student/${id}`, {
+        name,
+        phoneNumber,
+        email,
+        nationalId,
+        status,
+        // Include other fields in the request body as needed
+      });
+  
+      if (response.status === 200) {
+        toast.success("Student information updated successfully.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating student data:", error);
+      toast.error("Failed to update student information. Please try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+    
   // Function to fetch student data
   const fetchStudentData = async () => {
     try {
@@ -333,6 +365,13 @@ const StudentProfile = () => {
                   type="button"
                 >
                   Move To Waiting list
+                </button>
+                <button
+                  className="btn btn-primary profile-button"
+                  type="button"
+                  onClick={handleSave}
+                >
+                  Update
                 </button>
               </div>
             </div>
