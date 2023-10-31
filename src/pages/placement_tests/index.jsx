@@ -308,7 +308,7 @@ const PlacementTests = () => {
       return levelCount * setting.cost;
     }, 0);
     return `${amountReceived + " EGP"} (${
-      (+amountReceived / +getTotalAmountReceived()) * 100
+      ((+amountReceived / +getTotalAmountReceived()) * 100).toFixed(2)
     }%)`;
   };
   const getPlacementTestCountByStatus = (status) => {
@@ -388,7 +388,7 @@ const PlacementTests = () => {
           enableOptions={false}
           isLoading={loading}
         />
-        {levels.map((level, i) => (
+        {levels?.map((level, i) => (
           <ClassCard
             data={getLevelCount(level.name)}
             title={`Level ${level.name}`}
