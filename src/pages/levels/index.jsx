@@ -114,14 +114,7 @@ const Levels = () => {
   return (
     <AdminLayout>
       <ToastContainer />
-      <Row>
-        <ClassCard data={``} title="Total Students" enableOptions={false} />
-        <ClassCard
-          data={``}
-          title="Students Converted from EWFS to Batches"
-          enableOptions={false}
-        />
-      </Row>
+      
       <Modal show={showModal} onHide={closeModal}>
         <Modal.Header closeButton>
           <Modal.Title>Create New Level</Modal.Title>
