@@ -159,9 +159,9 @@ const PlacementTests = () => {
       if (selectedPlacementTest) {
         // Make an API request to move the student to the waiting list
         const response = await axios.post("/api/waiting_list", {
-          student: selectedPlacementTest.student, // Assuming student ID is used
-          studentName: selectedPlacementTest.studentName,
-          placementTestID: selectedPlacementTest._id,
+          student: selectedPlacementTest?.student, // Assuming student ID is used
+          studentName: selectedPlacementTest?.studentName,
+          placementTestID: selectedPlacementTest?._id,
         });
 
         if (response.status === 201) {
@@ -194,12 +194,12 @@ const PlacementTests = () => {
       if (selectedPlacementTest && selectedLevel) {
         // Make an API request to update the assigned level
         const response = await axios.put(
-          `/api/student/assign-level/${selectedPlacementTest.student}`,
+          `/api/student/assign-level/${selectedPlacementTest?.student}`,
           {
             assignedLevel: selectedLevel,
-            student: selectedPlacementTest.student,
+            student: selectedPlacementTest?.student,
             status: "Assigned Level",
-            placementTestID: selectedPlacementTest._id,
+            placementTestID: selectedPlacementTest?._id,
           }
         );
 
@@ -377,7 +377,7 @@ const PlacementTests = () => {
   useEffect(() => {
     fetchInstructors();
   }, []);
-  console.log(selectedPlacementTest.assignedLevel !== "N/A");
+  console.log(selectedPlacementTest?.assignedLevel !== "N/A");
   return (
     <AdminLayout>
       <div className="row">
@@ -709,14 +709,14 @@ const PlacementTests = () => {
           {selectedPlacementTest && (
             
             <div>
-              <p>Student ID: {selectedPlacementTest.student}</p>
-              <p>Student Name: {selectedPlacementTest.studentName}</p>
+              <p>Student ID: {selectedPlacementTest?.student}</p>
+              <p>Student Name: {selectedPlacementTest?.studentName}</p>
               <p>
                 Date:{" "}
-                {new Date(selectedPlacementTest.date).toLocaleDateString()}
+                {new Date(selectedPlacementTest?.date).toLocaleDateString()}
               </p>
               
-              {selectedPlacementTest && selectedPlacementTest.assignedLevel === 'N/A' && (
+              {selectedPlacementTest && selectedPlacementTest?.assignedLevel === 'N/A' && (
             <Form.Group>
             <Form.Label>Set Level:</Form.Label>
             <Form.Control as="select" onChange={handleLevelSelect}>
@@ -749,7 +749,7 @@ const PlacementTests = () => {
           >
             Close
           </Button>
-          {selectedPlacementTest && selectedPlacementTest.assignedLevel === 'N/A' && (
+          {selectedPlacementTest && selectedPlacementTest?.assignedLevel === 'N/A' && (
             <Button
               variant="success"
               onClick={handleAssignLevel}
