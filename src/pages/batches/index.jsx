@@ -10,6 +10,7 @@ import Link from "next/link";
 import TimePicker from "react-time-picker";
 import "react-time-picker/dist/TimePicker.css";
 import "react-clock/dist/Clock.css";
+import { Loader } from "@components/Loader";
 
 const Batches = () => {
   const [batchResource, setBatchResource] = useState([]);
@@ -123,7 +124,7 @@ const Batches = () => {
   const calculateBatchCode = () => {
     if (selectedLevel && levels) {
       const classCount = batchResource.filter(
-        (cls) => cls.class === selectedLevel
+        (cls) => cls.level === selectedLevel
       ).length;
       setNewBatchCode(
         `${
@@ -746,8 +747,8 @@ console.log(newBatchLecturesTimes)
                       <td>{batch.hours}</td>
                       <td>{batch.cost} EGP</td>
                       <td>{batch.limitTrainees} Trainees</td>
-                      <td>{batch.shouldStartAt}</td>
-                      <td>{batch.shouldEndAt}</td>
+                      <td>{new Date(batch.shouldStartAt).toLocaleDateString()}</td>
+                      <td>{new Date(batch.shouldEndAt).toLocaleDateString()}</td>
                       <td>
                         {
                           roomOptions.find((room) => room.value === batch.room)
@@ -756,7 +757,7 @@ console.log(newBatchLecturesTimes)
                       </td>
                       <td>{batch.code}</td>
                       <td>{batch.description}</td>
-                      <td>{batch.createdDate}</td>
+                      <td>{new Date(batch.createdDate).toLocaleDateString()}</td>
                       <td>
                         <button
                           onClick={() => openDeleteConfirmationModal(batch)}
