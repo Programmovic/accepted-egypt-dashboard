@@ -35,6 +35,9 @@ const waitingListSchema = new mongoose.Schema({
   adminName: {
     type: String,
   },
+  source: {
+    type: String, // This field can be a string, e.g., "Batch" or "EWFS"
+  },
   // You can add other waiting list fields here
   // Example: priority, reason, etc.
 });

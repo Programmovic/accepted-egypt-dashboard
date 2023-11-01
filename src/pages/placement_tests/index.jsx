@@ -8,6 +8,7 @@ import { AdminLayout } from "@layout";
 import { useRouter } from "next/router"; // Import useRouter
 import { ClassCard } from "@components/Classes";
 import Select from "react-select";
+import PlacementTestsSummary from "../../components/PlacementTestsSummary";
 
 const PlacementTests = () => {
   const [placementTestSettings, setPlacementTestSettings] = useState([]);
@@ -163,6 +164,7 @@ const PlacementTests = () => {
           studentName: selectedPlacementTest?.studentName,
           assignedLevel: selectedPlacementTest?.assignedLevel,
           placementTestID: selectedPlacementTest?._id,
+          source: "EWFS"
         });
 
         if (response.status === 201) {
@@ -438,6 +440,7 @@ const PlacementTests = () => {
           isLoading={loading}
         />
       </div>
+      <PlacementTestsSummary filterdPlacementTests={filterdPlacementTests} levels={levels} getAmountReceivedForLevel={getAmountReceivedForLevel()}/>
       <Card>
         <Card.Header>Placement Tests</Card.Header>
         <Card.Body>

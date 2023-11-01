@@ -8,6 +8,7 @@ import { AdminLayout } from "@layout";
 import { useRouter } from "next/router"; // Import useRouter
 import Select from "react-select";
 import { ClassCard } from "@components/Classes";
+import WaitingListSummary from "../../components/WaitingListSummary";
 
 const WaitingList = () => {
   const [waitingListItems, setWaitingListItems] = useState([]);
@@ -201,6 +202,19 @@ const WaitingList = () => {
     applyFilters();
   }, [filterStudentName, filterLevel, filterFromDate, filterToDate]);
   console.log(selectedBatch);
+  const [levels, setLevels] = useState([]); // Store the selected level here
+
+  useEffect(() => {
+    // Fetch levels from the /api/level endpoint when the component mounts
+    fetch("/api/level")
+      .then((response) => response.json())
+      .then((data) => {
+        setLevels(data); // Set the levels in the state
+      })
+      .catch((error) => {
+        console.error("Error fetching levels:", error);
+      });
+  }, []);
   return (
     <AdminLayout>
       <Row>
@@ -217,6 +231,7 @@ const WaitingList = () => {
           enableOptions={false}
         />
       </Row>
+      <WaitingListSummary levels={levels} filterdWaitingList={filterdWitingLists} students={students}/>
       <Card>
         <Card.Header>Waiting List</Card.Header>
 
@@ -273,6 +288,7 @@ const WaitingList = () => {
                 <th>Student ID</th>
                 <th>Student Name</th>
                 <th>Assigned Level</th>
+                <th>Came From</th>
                 <th>Date</th>
                 {/* Add more table headers as needed */}
               </tr>
@@ -288,7 +304,9 @@ const WaitingList = () => {
                   <td>{waitingListItem.student}</td>
                   <td>{waitingListItem.studentName}</td>
                   <td>{waitingListItem.assignedLevel}</td>
+                  <td>{waitingListItem.source}</td>
                   <td>{new Date(waitingListItem.date).toLocaleDateString()}</td>
+                  
                   {/* Add more table cells for other waiting list item data */}
                 </tr>
               ))}

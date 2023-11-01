@@ -6,6 +6,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClassCard } from "@components/Classes";
 import Select from "react-select";
+import TransactionsSummary from "../../components/FinanceSummary";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -336,6 +337,7 @@ const Transactions = () => {
           />
         ))}
       </div>
+      <TransactionsSummary transactions={transactions} statistics={statistics} batches={batches} levelIncomes={levelIncomes}/>
       <Card>
         <Card.Header>Transactions</Card.Header>
         <Card.Body>

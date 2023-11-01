@@ -27,7 +27,7 @@ export default async (req, res) => {
       await newBatch.save();
 
       // ...
-console.log(batchData.weeklyHours)
+      console.log(batchData.weeklyHours)
       // Create lectures for the batch
       const lectures = [];
       let lectureCounter = 0;

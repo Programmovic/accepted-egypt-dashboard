@@ -388,6 +388,17 @@ const Batches = () => {
     }
   };
   console.log(newBatchLecturesTimes);
+  const [editingBatch, setEditingBatch] = useState(null);
+const [showEditModal, setShowEditModal] = useState(false);
+const openEditModal = (batch) => {
+  setEditingBatch(batch);
+  setShowEditModal(true);
+};
+const closeEditModal = () => {
+  setEditingBatch(null);
+  setShowEditModal(false);
+};
+
   return (
     <AdminLayout>
       <ToastContainer />
@@ -836,10 +847,16 @@ const Batches = () => {
                   </Link>
                 </Button>
                 <Button
-                  variant="success"
+                  variant="danger"
                   onClick={() => openDeleteConfirmationModal(selectedBatch)}
                 >
                   Delete
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => openEditModal(selectedBatch)}
+                >
+                  Edit
                 </Button>
               </Modal.Footer>
             </Modal>
