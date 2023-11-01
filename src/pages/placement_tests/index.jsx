@@ -376,9 +376,27 @@ const PlacementTests = () => {
       });
     }
   };
+  const [rooms, setRooms] = useState([]);
+  // Fetch instructors from the /api/instructor endpoint
+  const fetchAllRooms = async () => {
+    try {
+      const roomsResponse = await axios.get("/api/room");
 
+      if (roomsResponse.status === 200) {
+        
+        setRooms(roomsResponse.data);
+      }
+    } catch (error) {
+      console.error("Error fetching instructors:", error);
+      toast.error("Failed to fetch instructor data. Please try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
   useEffect(() => {
     fetchInstructors();
+    fetchAllRooms()
   }, []);
   console.log(selectedPlacementTest?.assignedLevel !== "N/A");
   return (
@@ -491,7 +509,7 @@ const PlacementTests = () => {
                             }
                           </td>
                           <td>{setting.instructions || "No Instructions"}</td>
-                          <td>{getClassName(setting.room).label}</td>
+                          <td>{rooms.find((room) => room._id === setting.room)?.name}</td>
                           <td>{new Date(setting.date).toLocaleDateString()}</td>
                           <td>
                             {+totalNoOfStudentsInThisTest(setting._id) *

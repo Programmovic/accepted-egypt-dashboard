@@ -9,21 +9,23 @@ export default async (req, res) => {
         student,
         batch,
         type,
+        expense_type,
         amount,
         description
       } = req.body;
-  
+
       const newTransaction = new Transaction({
         student,
         batch,
         type,
+        expense_type,
         amount,
         description
       });
-  
+
       // Save the new transaction
       await newTransaction.save();
-  
+
       // If both student and batch are provided, update the student's due
       if (student && batch && type === 'Income') {
         // Calculate the new due amount for the student
@@ -33,19 +35,19 @@ export default async (req, res) => {
           // from the current due amount
           const updatedDue = +studentDoc.due - +amount;
           const updatedPaid = +studentDoc.paid + +amount;
-  
+
           // Update the student's due in the database
           await Student.findByIdAndUpdate(student, { due: updatedDue, paid: updatedPaid });
         }
       }
-  
+
       return res.status(201).json(newTransaction);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Could not create a new transaction" });
     }
   }
-   else if (req.method === "GET") {
+  else if (req.method === "GET") {
     // Handle fetching all transactions
     try {
       const allTransactions = await Transaction.find();
@@ -54,7 +56,28 @@ export default async (req, res) => {
       console.error(error);
       return res.status(500).json({ error: "Could not fetch transactions" });
     }
-  } else {
+  } else if (req.method === "DELETE") {
+    try {
+      const transactionId = req.query.id; // Access the transaction ID from the route parameter
+    
+      // Check if the transaction with the given ID exists
+      const transaction = await Transaction.findById(transactionId);
+    
+      if (!transaction) {
+        // Handle the case when the transaction is not found
+        return res.status(404).json({ error: "Transaction not found" });
+      }
+    
+      // Delete the transaction from the database
+      await transaction.deleteOne();
+    
+      return res.status(204).send(); // Respond with a 204 status for successful deletion
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: error.message });
+    }
+    
+  }else {
     return res.status(400).json({ error: "Invalid request" });
   }
 };

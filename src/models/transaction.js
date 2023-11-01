@@ -16,6 +16,10 @@ const transactionSchema = new mongoose.Schema({
     required: true,
     description: 'The type of transaction (e.g., payment, refund, etc.)',
   },
+  expense_type: {
+    type: String,
+    description: 'The type of transaction (e.g., payment, refund, etc.)',
+  },
   amount: {
     type: Number,
     required: true,

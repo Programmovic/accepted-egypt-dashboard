@@ -29,6 +29,8 @@ const Transactions = () => {
   const [newTransactionAmount, setNewTransactionAmount] = useState(0);
   const [newTransactionDescription, setNewTransactionDescription] =
     useState("");
+  const [newTransactionExpenseType, setNewTransactionExpenseType] =
+    useState("");
   const [students, setStudents] = useState([]);
   const [batches, setBatches] = useState([]);
 
@@ -90,6 +92,7 @@ const Transactions = () => {
         student: newTransactionStudent || null,
         batch: newTransactionBatch?._id || null,
         type: newTransactionType,
+        expense_type: newTransactionExpenseType,
         amount: newTransactionAmount,
         description: newTransactionDescription,
       });
@@ -201,7 +204,7 @@ const Transactions = () => {
       receivedAmount,
       dueAmount,
       placementTestAmount,
-      expensesAmount
+      expensesAmount,
     });
   }, [filteredTransactions]);
   const sortTable = (column) => {
@@ -237,18 +240,21 @@ const Transactions = () => {
   const handleTypeChange = (e) => {
     setNewTransactionType(e.target.value);
   };
-  const batch = batches.find(
-    (batch) =>
-      batch._id ===
-      students.find(
-        (student) => student._id === newTransactionSelectedStudent?.value
-      )?.batch
-  );
+  const batch =
+    batches.find(
+      (batch) =>
+        batch._id ===
+        students.find(
+          (student) => student._id === newTransactionSelectedStudent?.value
+        )?.batch
+    ) || "";
 
   useEffect(() => {
     // Automatically apply filters when filter inputs change
     setNewTransactionBatch(batch);
   }, [batch, newTransactionStudent]);
+
+  console.log("newTransactionBatch", newTransactionBatch);
   const resetNewTransactionForm = () => {
     setNewTransactionSelectedStudent("");
     setNewTransactionStudent("");
@@ -291,6 +297,38 @@ const Transactions = () => {
     return levelIncomes;
   };
   const levelIncomes = calculateLevelIncomes();
+  const expenseOptions = [
+    "Extras",
+    "Maintenance",
+    "Tools for the office",
+    "Water",
+    "Electricity",
+    "Cleaning",
+    "Stationery",
+    "Salary",
+  ];
+  const handleDeleteTransaction = async (transactionId) => {
+    try {
+      const response = await axios.delete(`/api/transaction?id=${transactionId}`);
+      if (response.status === 200) {
+        // Data deleted successfully
+        fetchTransactionData();
+        toast.success("Transaction deleted successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      } else {
+        console.error("Unexpected status code:", response.status);
+      }
+    } catch (error) {
+      console.error("Error deleting transaction:", error);
+      setError("Failed to delete the transaction. Please try again.");
+      toast.error("Failed to delete the transaction. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
   return (
     <AdminLayout>
       <div className="row">
@@ -331,13 +369,21 @@ const Transactions = () => {
         />
         {Object.keys(levelIncomes).map((levelName) => (
           <ClassCard
-            data={`${levelIncomes[levelName]} EGP (${((levelIncomes[levelName] / statistics.receivedAmount) * 100).toFixed(2)}%)`}
+            data={`${levelIncomes[levelName]} EGP (${(
+              (levelIncomes[levelName] / statistics.receivedAmount) *
+              100
+            ).toFixed(2)}%)`}
             title={`Income for ${levelName}`}
             enableOptions={false}
           />
         ))}
       </div>
-      <TransactionsSummary transactions={transactions} statistics={statistics} batches={batches} levelIncomes={levelIncomes}/>
+      <TransactionsSummary
+        transactions={transactions}
+        statistics={statistics}
+        batches={batches}
+        levelIncomes={levelIncomes}
+      />
       <Card>
         <Card.Header>Transactions</Card.Header>
         <Card.Body>
@@ -389,10 +435,19 @@ const Transactions = () => {
                     <Form.Check
                       type="checkbox"
                       label="Expense"
-                      id="type2"
+                      id="type3"
                       checked={filterType === "Expense"}
                       onChange={() =>
                         setFilterType(filterType === "Expense" ? "" : "Expense")
+                      }
+                    />
+                    <Form.Check
+                      type="checkbox"
+                      label="Refund"
+                      id="type4"
+                      checked={filterType === "Refund"}
+                      onChange={() =>
+                        setFilterType(filterType === "Refund" ? "" : "Refund")
                       }
                     />
                   </div>
@@ -445,6 +500,7 @@ const Transactions = () => {
                 <th onClick={() => sortTable("createdAt")}>
                   Created At {sortBy === "createdAt" && `(${sortOrder})`}
                 </th>
+                <th className="text-center">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -459,6 +515,14 @@ const Transactions = () => {
                   <td>
                     {new Date(transaction.createdAt).toLocaleDateString()}
                   </td>
+                  <td>
+  <Button variant="warning" onClick={() => handleUpdateTransaction(transaction)} className="mx-2">
+    Update
+  </Button>
+  <Button variant="danger" onClick={() => handleDeleteTransaction(transaction._id)}>
+    Delete
+  </Button>
+</td>
                 </tr>
               ))}
             </tbody>
@@ -499,8 +563,7 @@ const Transactions = () => {
               <Form.Label>Batch</Form.Label>
               <Form.Control
                 type="text"
-                value={newTransactionBatch?.name}
-                onChange={(e) => setNewTransactionBatch(e.target.value)}
+                value={newTransactionBatch && newTransactionBatch?.name}
                 disabled
               />
             </Form.Group>
@@ -537,8 +600,36 @@ const Transactions = () => {
                   onChange={handleTypeChange}
                   required
                 />
+                <Form.Check
+                  type="radio"
+                  name="transactionType"
+                  id="refundRadio"
+                  label="Refund"
+                  value="Refund"
+                  checked={newTransactionType === "Refund"}
+                  onChange={handleTypeChange}
+                  required
+                />
               </div>
             </Form.Group>
+            {newTransactionType === "Expense" && (
+              <Form.Group className="mb-3">
+                <Form.Label>Expense Type</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={newTransactionExpenseType}
+                  onChange={(e) => setNewTransactionExpenseType(e.target.value)}
+                  required
+                >
+                  <option value="">Select an Expense Type</option>
+                  {expenseOptions.map((expenseType) => (
+                    <option key={expenseType} value={expenseType}>
+                      {expenseType}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+            )}
             <Form.Group className="mb-3">
               <Form.Label>Amount</Form.Label>
               <Form.Control
