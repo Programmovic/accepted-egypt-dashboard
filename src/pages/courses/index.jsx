@@ -102,7 +102,7 @@ const Classes = () => {
 
     setFilteredData(filteredClasses);
   };
-
+console.log(filteredData)
   const handleSort = (criteria) => {
     if (criteria === sortBy) {
       // Toggle the sorting order if the same criteria is clicked again
@@ -214,6 +214,7 @@ const Classes = () => {
 
     fetchInstructors();
   }, []);
+  console.log(instructorsData.filter((instructor) => instructor._id === instructor)?.name)
   const getInstructorName = (instructorId) => {
     console.log(instructorId)
     const selectedInstructor = instructorsData.find(
@@ -442,7 +443,7 @@ const Classes = () => {
                             variant="primary"
                             className="me-2"
                           >
-                            {getInstructorName(instructor)}
+                            {instructorsData.find((inst) => inst._id === instructor)?.name}
                           </Badge>
                       ))}
                     </td>

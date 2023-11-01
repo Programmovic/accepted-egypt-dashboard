@@ -202,10 +202,14 @@ const Batches = () => {
 
     setNewBatchLecturesTimes(selectedTimes);
   };
+  useEffect(() => {
+    handleSelectedLectureTimes();
+  }, [selectedWeekdays, lectureTimes]);
+  console.log("newBatchLecturesTimes", newBatchLecturesTimes);
   const handleAddBatch = async () => {
     try {
       setCreatingBatch(true);
-      const response=  await axios.post("/api/batch", {
+      const response = await axios.post("/api/batch", {
         name: newBatchName,
         status: newBatchStatus,
         code: newBatchCode,
@@ -383,7 +387,7 @@ const Batches = () => {
       setDeletingBatch(false);
     }
   };
-console.log(newBatchLecturesTimes)
+  console.log(newBatchLecturesTimes);
   return (
     <AdminLayout>
       <ToastContainer />
@@ -633,9 +637,8 @@ console.log(newBatchLecturesTimes)
           <Button
             variant="success"
             onClick={() => {
-              handleSelectedLectureTimes() 
+              handleSelectedLectureTimes();
               handleAddBatch();
-
             }}
           >
             {creatingBatch ? "Creating..." : "Add New Batch"}
@@ -747,8 +750,12 @@ console.log(newBatchLecturesTimes)
                       <td>{batch.hours}</td>
                       <td>{batch.cost} EGP</td>
                       <td>{batch.limitTrainees} Trainees</td>
-                      <td>{new Date(batch.shouldStartAt).toLocaleDateString()}</td>
-                      <td>{new Date(batch.shouldEndAt).toLocaleDateString()}</td>
+                      <td>
+                        {new Date(batch.shouldStartAt).toLocaleDateString()}
+                      </td>
+                      <td>
+                        {new Date(batch.shouldEndAt).toLocaleDateString()}
+                      </td>
                       <td>
                         {
                           roomOptions.find((room) => room.value === batch.room)
@@ -757,13 +764,8 @@ console.log(newBatchLecturesTimes)
                       </td>
                       <td>{batch.code}</td>
                       <td>{batch.description}</td>
-                      <td>{new Date(batch.createdDate).toLocaleDateString()}</td>
                       <td>
-                        <button
-                          onClick={() => openDeleteConfirmationModal(batch)}
-                        >
-                          Delete
-                        </button>
+                        {new Date(batch.createdDate).toLocaleDateString()}
                       </td>
                     </tr>
                   ))}
@@ -832,6 +834,12 @@ console.log(newBatchLecturesTimes)
                   >
                     View Lectures
                   </Link>
+                </Button>
+                <Button
+                  variant="success"
+                  onClick={() => openDeleteConfirmationModal(selectedBatch)}
+                >
+                  Delete
                 </Button>
               </Modal.Footer>
             </Modal>
