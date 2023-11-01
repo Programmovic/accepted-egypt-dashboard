@@ -351,7 +351,6 @@ const Batches = () => {
       levels.find((level) => level._id === e.target.value).name
     );
   };
-  console.log(levels.find((lvl) => lvl._id === selectedLevel)?.code);
   const [deletingBatch, setDeletingBatch] = useState(false);
   const [batchToDelete, setBatchToDelete] = useState(null);
 
@@ -389,16 +388,37 @@ const Batches = () => {
   };
   console.log(newBatchLecturesTimes);
   const [editingBatch, setEditingBatch] = useState(null);
-const [showEditModal, setShowEditModal] = useState(false);
-const openEditModal = (batch) => {
-  setEditingBatch(batch);
-  setShowEditModal(true);
-};
-const closeEditModal = () => {
-  setEditingBatch(null);
-  setShowEditModal(false);
-};
-
+  const [showEditModal, setShowEditModal] = useState(false);
+  const openEditModal = (batch) => {
+    setEditingBatch(batch);
+    setShowEditModal(true);
+  };
+  const closeEditModal = () => {
+    setEditingBatch(null);
+    setNewBatchLecturesTimes("")
+    setShowEditModal(false);
+  };
+  const handleUpdateBatch = async (updatedBatchData) => {
+    try {
+      
+      const response = await axios.put(`/api/batch?id=${editingBatch._id}`, updatedBatchData);
+  
+      if (response.status === 200) {
+        // Batch updated successfully, update the UI with the updated data
+        // You can also choose to close the edit modal at this point
+        fetchBatchData(); // Fetch updated batch data
+        toast.success("Batch updated successfully!");
+        setNewBatchLecturesTimes("")
+        closeEditModal(); // Close the edit modal
+      } else {
+        toast.error("Failed to update the batch");
+      }
+    } catch (error) {
+      console.error("Error updating batch:", error);
+      toast.error("Failed to update the batch");
+    }
+  };
+  console.log(newBatchLecturesTimes)
   return (
     <AdminLayout>
       <ToastContainer />
@@ -424,6 +444,330 @@ const closeEditModal = () => {
           </Modal.Footer>
         </Modal>
       )}
+      <Modal show={showEditModal} onHide={() => closeEditModal()}>
+        <Modal.Header closeButton>
+          <Modal.Title>Update {editingBatch?.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Row>
+              <Col xs={12}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Batch Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    required
+                    value={editingBatch?.name}
+                    readOnly
+                    disabled
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Batch Code</Form.Label>
+                  <Form.Control
+                    type="text"
+                    required
+                    value={editingBatch?.code}
+                    readOnly
+                    disabled
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Status</Form.Label>
+                  <Form.Control
+                    type="text"
+                    required
+                    value={editingBatch?.status}
+                    placeholder="Wait For Dates.."
+                    disabled
+                  />
+                </Form.Group>
+              </Col>
+
+              <Col xs={12}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Weekdays</Form.Label>
+                  {selectedWeekdays.map((weekday, index) => (
+                    <div key={index}>
+                      <Form.Check
+                        type="checkbox"
+                        label={weekday.day}
+                        checked={weekday.isChecked}
+                        onChange={(e) =>
+                          handleWeekdayChange(weekday.day, e.target.checked)
+                        }
+                      />
+                      {weekday.isChecked && (
+                        <Row className="my-4">
+                          <Col xs={6}>
+                            <Form.Label>From:</Form.Label>
+                            <Form.Control
+                              type="time"
+                              value={lectureTimes[index]?.from}
+                              onChange={(e) =>
+                                handleLectureTimeChange(
+                                  weekday.day,
+                                  "from",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </Col>
+                          <Col xs={6}>
+                            <Form.Label>To:</Form.Label>
+                            <Form.Control
+                              type="time"
+                              value={lectureTimes[index]?.to}
+                              onChange={(e) =>
+                                handleLectureTimeChange(
+                                  weekday.day,
+                                  "to",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </Col>
+                        </Row>
+                      )}
+                    </div>
+                  ))}
+                </Form.Group>
+              </Col>
+
+              {/* Add form fields for other batch attributes */}
+            </Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeEditModal}>
+            Close
+          </Button>
+          <Button
+            variant="success"
+            onClick={() => {
+              const updatedBatchData = {
+                name: editingBatch.name, // Include any other fields that need to be updated
+                // Add other fields here based on your form inputs
+                weeklyHours: newBatchLecturesTimes, // Include the updated lecture times
+              };
+              handleUpdateBatch(updatedBatchData); // Call the function to update the batch
+            }}
+          >
+            {"Update Batch"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      <Card>
+        <Card.Header>Batches</Card.Header>
+        <Card.Body>
+          <Form className="mb-3">
+            <Row>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    required
+                    value={filterName}
+                    onChange={(e) => setFilterName(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Status</Form.Label>
+                  <Form.Control
+                    type="text"
+                    required
+                    value={filterStatus}
+                    onChange={(e) => setFilterStatus(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={6}>
+                <Button variant="secondary" onClick={clearFilters}>
+                  Clear Filters
+                </Button>
+              </Col>
+              <Col xs={6}>
+                <Button
+                  variant="success"
+                  onClick={openModal}
+                  title={
+                    classList.length <= 0 &&
+                    "Cannot Create Batches Without Classes!"
+                  }
+                  disabled={
+                    creatingBatch || classList.length <= 0 || levels.length <= 0
+                  }
+                >
+                  Add New Batch
+                </Button>
+                {classList.length <= 0 && (
+                  <span className="text-danger ms-3 fw-bold">
+                    Cannot Create Batches Without Courses!
+                  </span>
+                )}
+              </Col>
+            </Row>
+          </Form>
+
+          {loading ? (
+            <p>Loading batches...</p>
+          ) : error ? (
+            <p>{error}</p>
+          ) : (
+            <div style={{ overflowX: "auto" }}>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th onClick={() => handleSort("name")}>Name</th>
+                    <th onClick={() => handleSort("status")}>Status</th>
+                    <th onClick={() => handleSort("class")}>Class</th>
+                    <th onClick={() => handleSort("hours")}>Hours</th>
+                    <th onClick={() => handleSort("cost")}>Cost</th>
+                    <th onClick={() => handleSort("limitTrainees")}>
+                      Limit Trainees
+                    </th>
+                    <th onClick={() => handleSort("shouldStartAt")}>
+                      Start Date
+                    </th>
+                    <th onClick={() => handleSort("shouldEndAt")}>End Date</th>
+                    <th onClick={() => handleSort("lab")}>Lab</th>
+                    <th onClick={() => handleSort("code")}>Code</th>
+                    <th onClick={() => handleSort("description")}>
+                      Description
+                    </th>
+                    <th onClick={() => handleSort("createdDate")}>
+                      Created Date
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedBatches.map((batch, index) => (
+                    <tr
+                      key={batch._id}
+                      onClick={() => openBatchDetailsModal(batch)}
+                    >
+                      <td>{index + 1}</td>
+                      <td>{batch.name}</td>
+                      <td>{batch.status}</td>
+                      <td>
+                        {batch.class ? getClassName(batch.class).name : "N/A"}
+                      </td>
+                      <td>{batch.hours}</td>
+                      <td>{batch.cost} EGP</td>
+                      <td>{batch.limitTrainees} Trainees</td>
+                      <td>
+                        {new Date(batch.shouldStartAt).toLocaleDateString()}
+                      </td>
+                      <td>
+                        {new Date(batch.shouldEndAt).toLocaleDateString()}
+                      </td>
+                      <td>
+                        {
+                          roomOptions.find((room) => room.value === batch.room)
+                            ?.label
+                        }
+                      </td>
+                      <td>{batch.code}</td>
+                      <td>{batch.description}</td>
+                      <td>
+                        {new Date(batch.createdDate).toLocaleDateString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+          )}
+          {selectedBatch && (
+            <Modal
+              show={showBatchDetailsModal}
+              onHide={() => setShowBatchDetailsModal(false)}
+            >
+              <Modal.Header closeButton>
+                <Modal.Title>Batch Details</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <p>Name: {selectedBatch.name}</p>
+                <p>Status: {selectedBatch.status}</p>
+                <p>Code: {selectedBatch.code}</p>
+                <p>Class: {selectedBatch.class}</p>
+                <p>Hours: {selectedBatch.hours}</p>
+                <p>Cost: {selectedBatch.cost} EGP</p>
+                <p>Limit Trainees: {selectedBatch.limitTrainees} Trainees</p>
+                <p>
+                  Start Date:{" "}
+                  {new Date(selectedBatch.shouldStartAt).toLocaleDateString()}
+                </p>
+                <p>
+                  End Date:{" "}
+                  {new Date(selectedBatch.shouldEndAt).toLocaleDateString()}
+                </p>
+                <p>
+                  Room:{" "}
+                  {
+                    roomOptions.find(
+                      (room) => room.value === selectedBatch.room
+                    ).label
+                  }
+                </p>
+                <p>Description: {selectedBatch.description}</p>
+
+                <p>Lecture Times:</p>
+                <ul>
+                  {selectedBatch.weeklyHours.map((time, index) => (
+                    <li key={index}>
+                      {`${time.day}: From ${time.from} to ${time.to}`}
+                    </li>
+                  ))}
+                </ul>
+                <p>
+                  Created Date:{" "}
+                  {new Date(selectedBatch.createdDate).toLocaleDateString()}
+                </p>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button
+                  variant="secondary"
+                  onClick={() => setShowBatchDetailsModal(false)}
+                >
+                  Close
+                </Button>
+                <Button variant="success">
+                  <Link
+                    href={`/batches/${selectedBatch._id}`}
+                    className="text-decoration-none text-light"
+                  >
+                    View Lectures
+                  </Link>
+                </Button>
+                <Button
+                  variant="danger"
+                  onClick={() => openDeleteConfirmationModal(selectedBatch)}
+                >
+                  Delete
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => openEditModal(selectedBatch)}
+                >
+                  Edit
+                </Button>
+              </Modal.Footer>
+            </Modal>
+          )}
+        </Card.Body>
+      </Card>
       <Modal show={showModal} onHide={closeModal}>
         <Modal.Header closeButton>
           <Modal.Title>Create New Batch</Modal.Title>
@@ -656,213 +1000,6 @@ const closeEditModal = () => {
           </Button>
         </Modal.Footer>
       </Modal>
-
-      <Card>
-        <Card.Header>Batches</Card.Header>
-        <Card.Body>
-          <Form className="mb-3">
-            <Row>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    required
-                    value={filterName}
-                    onChange={(e) => setFilterName(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Status</Form.Label>
-                  <Form.Control
-                    type="text"
-                    required
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={6}>
-                <Button variant="secondary" onClick={clearFilters}>
-                  Clear Filters
-                </Button>
-              </Col>
-              <Col xs={6}>
-                <Button
-                  variant="success"
-                  onClick={openModal}
-                  title={
-                    classList.length <= 0 &&
-                    "Cannot Create Batches Without Classes!"
-                  }
-                  disabled={
-                    creatingBatch || classList.length <= 0 || levels.length <= 0
-                  }
-                >
-                  Add New Batch
-                </Button>
-                {classList.length <= 0 && (
-                  <span className="text-danger ms-3 fw-bold">
-                    Cannot Create Batches Without Courses!
-                  </span>
-                )}
-              </Col>
-            </Row>
-          </Form>
-
-          {loading ? (
-            <p>Loading batches...</p>
-          ) : error ? (
-            <p>{error}</p>
-          ) : (
-            <div style={{ overflowX: "auto" }}>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th onClick={() => handleSort("name")}>Name</th>
-                    <th onClick={() => handleSort("status")}>Status</th>
-                    <th onClick={() => handleSort("class")}>Class</th>
-                    <th onClick={() => handleSort("hours")}>Hours</th>
-                    <th onClick={() => handleSort("cost")}>Cost</th>
-                    <th onClick={() => handleSort("limitTrainees")}>
-                      Limit Trainees
-                    </th>
-                    <th onClick={() => handleSort("shouldStartAt")}>
-                      Start Date
-                    </th>
-                    <th onClick={() => handleSort("shouldEndAt")}>End Date</th>
-                    <th onClick={() => handleSort("lab")}>Lab</th>
-                    <th onClick={() => handleSort("code")}>Code</th>
-                    <th onClick={() => handleSort("description")}>
-                      Description
-                    </th>
-                    <th onClick={() => handleSort("createdDate")}>
-                      Created Date
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedBatches.map((batch, index) => (
-                    <tr
-                      key={batch._id}
-                      onClick={() => openBatchDetailsModal(batch)}
-                    >
-                      <td>{index + 1}</td>
-                      <td>{batch.name}</td>
-                      <td>{batch.status}</td>
-                      <td>
-                        {batch.class ? getClassName(batch.class).name : "N/A"}
-                      </td>
-                      <td>{batch.hours}</td>
-                      <td>{batch.cost} EGP</td>
-                      <td>{batch.limitTrainees} Trainees</td>
-                      <td>
-                        {new Date(batch.shouldStartAt).toLocaleDateString()}
-                      </td>
-                      <td>
-                        {new Date(batch.shouldEndAt).toLocaleDateString()}
-                      </td>
-                      <td>
-                        {
-                          roomOptions.find((room) => room.value === batch.room)
-                            ?.label
-                        }
-                      </td>
-                      <td>{batch.code}</td>
-                      <td>{batch.description}</td>
-                      <td>
-                        {new Date(batch.createdDate).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          )}
-          {selectedBatch && (
-            <Modal
-              show={showBatchDetailsModal}
-              onHide={() => setShowBatchDetailsModal(false)}
-            >
-              <Modal.Header closeButton>
-                <Modal.Title>Batch Details</Modal.Title>
-              </Modal.Header>
-              <Modal.Body>
-                <p>Name: {selectedBatch.name}</p>
-                <p>Status: {selectedBatch.status}</p>
-                <p>Code: {selectedBatch.code}</p>
-                <p>Class: {selectedBatch.class}</p>
-                <p>Hours: {selectedBatch.hours}</p>
-                <p>Cost: {selectedBatch.cost} EGP</p>
-                <p>Limit Trainees: {selectedBatch.limitTrainees} Trainees</p>
-                <p>
-                  Start Date:{" "}
-                  {new Date(selectedBatch.shouldStartAt).toLocaleDateString()}
-                </p>
-                <p>
-                  End Date:{" "}
-                  {new Date(selectedBatch.shouldEndAt).toLocaleDateString()}
-                </p>
-                <p>
-                  Room:{" "}
-                  {
-                    roomOptions.find(
-                      (room) => room.value === selectedBatch.room
-                    ).label
-                  }
-                </p>
-                <p>Description: {selectedBatch.description}</p>
-
-                <p>Lecture Times:</p>
-                <ul>
-                  {selectedBatch.weeklyHours.map((time, index) => (
-                    <li key={index}>
-                      {`${time.day}: From ${time.from} to ${time.to}`}
-                    </li>
-                  ))}
-                </ul>
-                <p>
-                  Created Date:{" "}
-                  {new Date(selectedBatch.createdDate).toLocaleDateString()}
-                </p>
-              </Modal.Body>
-              <Modal.Footer>
-                <Button
-                  variant="secondary"
-                  onClick={() => setShowBatchDetailsModal(false)}
-                >
-                  Close
-                </Button>
-                <Button variant="success">
-                  <Link
-                    href={`/batches/${selectedBatch._id}`}
-                    className="text-decoration-none text-light"
-                  >
-                    View Lectures
-                  </Link>
-                </Button>
-                <Button
-                  variant="danger"
-                  onClick={() => openDeleteConfirmationModal(selectedBatch)}
-                >
-                  Delete
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => openEditModal(selectedBatch)}
-                >
-                  Edit
-                </Button>
-              </Modal.Footer>
-            </Modal>
-          )}
-        </Card.Body>
-      </Card>
     </AdminLayout>
   );
 };

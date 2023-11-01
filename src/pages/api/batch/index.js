@@ -91,7 +91,140 @@ export default async (req, res) => {
       console.error(error);
       return res.status(500).json({ error: "Could not fetch rooms" });
     }
-  } else if (req.method === "DELETE") {
+
+  } else if (req.method === "PUT") {
+    try {
+      const { id } = req.query;
+      const batchData = req.body;
+
+      // Find the batch to be updated
+      const batch = await Batch.findOne({ _id: id });
+      if (!batch) {
+        return res.status(404).json({ error: "Batch not found" });
+      }
+
+      // Calculate the number of weeks between start and end dates
+      const startDate = new Date(batch.shouldStartAt);
+      const endDate = new Date(batch.shouldEndAt);
+      const timeDifference = endDate.getTime() - startDate.getTime();
+      const weeks = Math.ceil(timeDifference / (7 * 24 * 60 * 60 * 1000));
+
+      // Calculate the number of lectures based on the number of days in a week
+      const lectureCount = weeks * batchData.weeklyHours.length;
+      // Update the batch document
+      const existingLectures = await Lecture.find({ batch: batch._id });
+      console.log(timeDifference)
+      await Batch.updateOne({ _id: batch._id }, batchData);
+      if (existingLectures.length === 0) {
+
+        const lectures = [];
+        let lectureCounter = 0;
+        const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+        for (let i = 0; i < lectureCount; i++) {
+          for (let j = 0; j < batchData.weeklyHours.length; j++) {
+            lectureCounter++;
+            // Calculate the date based on the day of the week
+            const startBatchDate = new Date(startDate);
+            startBatchDate.setDate(startBatchDate.getDate() + i * 7); // Start date for this lecture set
+            const dayOfWeek = daysOfWeek.indexOf(batchData.weeklyHours[j].day);
+            const lectureDate = new Date(startBatchDate);
+            lectureDate.setDate(lectureDate.getDate() + dayOfWeek); // Calculate the lecture date
+
+            const lectureData = {
+              name: `${batch.name} Lecture ${lectureCounter}`.toUpperCase(),
+              status: 'Scheduled',
+              date: lectureDate,
+              batch: batch._id,
+              hours: batch.weeklyHours.length,
+              cost: batch.cost,
+              limitTrainees: batch.limitTrainees,
+              weeklyHours: batch.weeklyHours[j],
+              room: batch.room,
+              description: batch.description,
+              level: batch.level,
+              levelName: batch.levelName
+            };
+
+            const reservationData = {
+              title: lectureData.name,
+              date: lectureDate,
+              daysOfWeek: [batch.weeklyHours[j].day], // Convert to an array for consistency
+              startTime: batch.weeklyHours[j].from,
+              endTime: batch.weeklyHours[j].to,
+              room: batch.room,
+            };
+
+            const newReservation = new Reservation(reservationData);
+            await newReservation.save();
+
+            const newLecture = new Lecture(lectureData);
+            await newLecture.save();
+            lectures.push(newLecture);
+          }
+        }
+        // Update old lectures
+        // const updatedLectures = [];
+        // const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        // let lectureCounter = 0;
+
+        // for (let i = 0; i < lectureCount; i++) {
+        //   for (let j = 0; j < batchData.weeklyHours.length; j++) {
+        //     lectureCounter++;
+        //     const startBatchDate = new Date(startDate);
+        //     startBatchDate.setDate(startBatchDate.getDate() + i * 7);
+        //     const dayOfWeek = daysOfWeek.indexOf(batchData.weeklyHours[j].day);
+        //     const lectureDate = new Date(startBatchDate);
+        //     lectureDate.setDate(lectureDate.getDate() + dayOfWeek);
+
+        //     // Update lecture data
+        //     const lectureUpdateData = {
+        //       name: `${batchData.name} Lecture ${lectureCounter}`.toUpperCase(),
+        //       date: lectureDate,
+        //       hours: batchData.weeklyHours.length,
+        //       cost: batchData.cost,
+        //       limitTrainees: batchData.limitTrainees,
+        //       weeklyHours: batchData.weeklyHours[j],
+        //       room: batchData.room,
+        //       description: batchData.description,
+        //       level: batchData.level,
+        //       levelName: batchData.levelName,
+        //     };
+
+        //     const updatedLecture = await Lecture.findOneAndUpdate(
+        //       { batch: batch._id, date: lectureDate },
+        //       lectureUpdateData,
+        //       { new: true }
+        //     );
+
+        //     updatedLectures.push(updatedLecture);
+        //   }
+        // }
+
+        // // Update old reservations for the updated lectures
+        // for (const updatedLecture of updatedLectures) {
+        //   const reservationUpdateData = {
+        //     date: updatedLecture.date,
+        //     daysOfWeek: [updatedLecture.weeklyHours.day],
+        //     startTime: updatedLecture.weeklyHours.from,
+        //     endTime: updatedLecture.weeklyHours.to,
+        //     room: updatedLecture.room,
+        //   };
+
+        //   await Reservation.updateMany(
+        //     { title: updatedLecture.name },
+        //     reservationUpdateData
+        //   );
+        // }
+
+        return res.status(200).json({ message: "Batch and its dependencies updated" });
+      }
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Could not update batch and its dependencies" });
+    }
+  }
+  else if (req.method === "DELETE") {
     try {
       const { id } = req.query;
 
