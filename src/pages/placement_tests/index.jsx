@@ -9,6 +9,7 @@ import { useRouter } from "next/router"; // Import useRouter
 import { ClassCard } from "@components/Classes";
 import Select from "react-select";
 import PlacementTestsSummary from "../../components/PlacementTestsSummary";
+import { Loader } from "@components/Loader";
 
 const PlacementTests = () => {
   const [placementTestSettings, setPlacementTestSettings] = useState([]);

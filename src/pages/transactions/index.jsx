@@ -309,7 +309,9 @@ const Transactions = () => {
   ];
   const handleDeleteTransaction = async (transactionId) => {
     try {
-      const response = await axios.delete(`/api/transaction?id=${transactionId}`);
+      const response = await axios.delete(
+        `/api/transaction?id=${transactionId}`
+      );
       if (response.status === 200) {
         // Data deleted successfully
         fetchTransactionData();
@@ -329,8 +331,39 @@ const Transactions = () => {
       });
     }
   };
+  const [currentPage, setCurrentPage] = useState(1); // Current page number
+  const transactionsPerPage = 10; // Number of transactions to display per page
+
+  // Calculate the indexes for transactions to display on the current page
+  const indexOfLastTransaction = currentPage * transactionsPerPage;
+  const indexOfFirstTransaction = indexOfLastTransaction - transactionsPerPage;
+  const currentTransactions = filteredTransactions.slice(
+    indexOfFirstTransaction,
+    indexOfLastTransaction
+  );
+
+  // Function to change the current page
+  const paginate = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+  const [showUpdateModal, setShowUpdateModal] = useState(false);
+  const [updatingTransaction, setUpdatingTransaction] = useState(null);
+  const handleUpdateTransaction = (transaction) => {
+    // Set the transaction to update
+
+    // Show the modal for updating the transaction
+    setShowUpdateModal(true);
+  };
+
   return (
     <AdminLayout>
+      <TransactionsSummary
+        transactions={transactions}
+        statistics={statistics}
+        batches={batches}
+        levelIncomes={levelIncomes}
+        expenseOptions={expenseOptions}
+      />
       <div className="row">
         <ClassCard
           data={statistics.totalTransactions}
@@ -378,12 +411,7 @@ const Transactions = () => {
           />
         ))}
       </div>
-      <TransactionsSummary
-        transactions={transactions}
-        statistics={statistics}
-        batches={batches}
-        levelIncomes={levelIncomes}
-      />
+      
       <Card>
         <Card.Header>Transactions</Card.Header>
         <Card.Body>
@@ -504,11 +532,16 @@ const Transactions = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredTransactions.map((transaction, index) => (
+              {currentTransactions.map((transaction, index) => (
                 <tr key={transaction._id}>
                   <td>{index + 1}</td>
-                  <td>{transaction.student || "No Student"}</td>
-                  <td>{transaction.batch || "No Batch"}</td>
+                  <td>{students.find((student) => student._id === transaction.student)?.name}</td>
+                  <td>
+                    {transaction.batch
+                      ? batches.find((batch) => batch._id === transaction.batch)
+                          .name
+                      : "No Batch"}
+                  </td>
                   <td>{transaction.type}</td>
                   <td>{transaction.amount} EGP</td>
                   <td>{transaction.description}</td>
@@ -516,13 +549,23 @@ const Transactions = () => {
                     {new Date(transaction.createdAt).toLocaleDateString()}
                   </td>
                   <td>
-  <Button variant="warning" onClick={() => handleUpdateTransaction(transaction)} className="mx-2">
-    Update
-  </Button>
-  <Button variant="danger" onClick={() => handleDeleteTransaction(transaction._id)}>
-    Delete
-  </Button>
-</td>
+                    <Button
+                      variant="warning"
+                      onClick={() => {
+                        setShowUpdateModal(true);
+                        setUpdatingTransaction(transaction);
+                      }}
+                      className="mx-2"
+                    >
+                      Update
+                    </Button>
+                    <Button
+                      variant="danger"
+                      onClick={() => handleDeleteTransaction(transaction._id)}
+                    >
+                      Delete
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -661,6 +704,78 @@ const Transactions = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <Modal
+        show={showUpdateModal}
+        onHide={() => {
+          setShowUpdateModal(false);
+          setUpdatingTransaction(null); // Reset the transaction to update
+        }}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Update Transaction</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {updatingTransaction && (
+            <Form>
+              {/* Similar form fields as in the "Add Transaction" modal */}
+              {/* Populate the form fields with updatingTransaction data */}
+              <Form.Group className="mb-3">
+                <Form.Label>Amount</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={updatingTransaction.amount}
+                  onChange={(e) =>
+                    setUpdatingTransaction({
+                      ...updatingTransaction,
+                      amount: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={updatingTransaction.description}
+                  onChange={(e) =>
+                    setUpdatingTransaction({
+                      ...updatingTransaction,
+                      description: e.target.value,
+                    })
+                  }
+                />
+              </Form.Group>
+            </Form>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowUpdateModal(false)}>
+            Close
+          </Button>
+          <Button variant="success" onClick={handleUpdateTransaction}>
+            Update Transaction
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <div className="pagination py-5 flex justify-content-between">
+        <Button
+          variant="secondary"
+          disabled={currentPage === 1}
+          onClick={() => paginate(currentPage - 1)}
+        >
+          Previous
+        </Button>
+        <Button
+          variant="secondary"
+          disabled={
+            currentPage ===
+            Math.ceil(filteredTransactions.length / transactionsPerPage)
+          }
+          onClick={() => paginate(currentPage + 1)}
+        >
+          Next
+        </Button>
+      </div>
     </AdminLayout>
   );
 };

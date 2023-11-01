@@ -6,6 +6,7 @@ const TransactionsSummary = ({
   batches,
   levelIncomes,
   statistics,
+  expenseOptions,
 }) => {
   // Calculate the total amount received from all transactions
   const totalReceivedAmount = transactions.reduce((total, transaction) => {
@@ -14,20 +15,31 @@ const TransactionsSummary = ({
     }
     return total;
   }, 0);
+  const totalExpensedAmount = transactions.reduce((total, transaction) => {
+    if (transaction.type === "Expense") {
+      return total + transaction.amount;
+    }
+    return total;
+  }, 0);
 
-  const [target, setTarget] = useState(0); // State for the "Target" input
+  const [targetValues, setTargetValues] = useState({});
 
-  // Function to update the target and calculate the percentage
-  const handleTargetChange = (e) => {
-    const newTarget = parseFloat(e.target.value);
-    setTarget(newTarget);
+  // Function to update the target for a specific level
+  const handleTargetChange = (levelName, value) => {
+    setTargetValues({
+      ...targetValues,
+      [levelName]: value,
+    });
   };
+  const [expenseTargetValues, setExpenseTargetValues] = useState({});
 
-  // Calculate the percentage based on the "Target" and "Achieved" amounts
-  const percentage = ((statistics.placementTestAmount / target) * 100).toFixed(
-    2
-  );
-
+  // Function to update the target for a specific expense type
+  const handleExpenseTargetChange = (expenseType, value) => {
+    setExpenseTargetValues({
+      ...expenseTargetValues,
+      [expenseType]: value,
+    });
+  };
   return (
     <Card className="mb-4">
       <Card.Header>Received Amount Summary</Card.Header>
@@ -57,18 +69,21 @@ const TransactionsSummary = ({
             <tr>
               <td>EWFS</td>
               <td>
-              <Form.Control
+                <Form.Control
                   type="number"
-                  value={target}
-                  onChange={handleTargetChange}
+                  value={targetValues["EWFS"] || 0}
+                  onChange={(e) =>
+                    handleTargetChange("EWFS", parseFloat(e.target.value))
+                  }
                 />
               </td>
               <td>{statistics.placementTestAmount}</td>
               <td>
-                {!isNaN(target) && target > 0
-                  ? ((statistics.placementTestAmount / target) * 100).toFixed(
-                      2
-                    ) + "%"
+                {!isNaN(targetValues["EWFS"]) && targetValues["EWFS"] > 0
+                  ? (
+                      (statistics.placementTestAmount / targetValues["EWFS"]) *
+                      100
+                    ).toFixed(2) + "%"
                   : "N/A"}
               </td>
             </tr>
@@ -78,27 +93,28 @@ const TransactionsSummary = ({
                 <td>
                   <Form.Control
                     type="number"
-                    value={0} // You should replace 0 with the appropriate value for the target
-                    onChange={() => {
-                      // Handle target input change for each level if needed
-                    }}
+                    value={targetValues[levelName] || 0}
+                    onChange={(e) =>
+                      handleTargetChange(levelName, parseFloat(e.target.value))
+                    }
                   />
                 </td>
                 <td>{levelIncomes[levelName]}</td>
                 <td>
-                  {(
-                    (+levelIncomes[levelName] / totalReceivedAmount) *
-                    100
-                  ).toFixed(2)}
+                  {targetValues[levelName] > 0
+                    ? (
+                        (levelIncomes[levelName] / targetValues[levelName]) *
+                        100
+                      ).toFixed(2) + "%"
+                    : "N/A"}
                   %
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
-        
       </Card.Body>
-      <Card.Header>Transactions Summary</Card.Header>
+      <Card.Header>Expensed Amount Summary</Card.Header>
       <Card.Body>
         <Table striped bordered hover>
           <thead>
@@ -108,63 +124,54 @@ const TransactionsSummary = ({
           </thead>
           <tbody>
             <tr>
-              <td>{totalReceivedAmount.toFixed(2)} EGP</td>
+              <td>{totalExpensedAmount.toFixed(2)} EGP</td>
             </tr>
           </tbody>
         </Table>
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>Item</th>
+              <th>Expense Type</th>
               <th>Target</th>
-              <th>Achieved</th>
+              <th>Expensed</th>
               <th>Percentage (%)</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>EWFS</td>
-              <td>
-              <Form.Control
-                  type="number"
-                  value={target}
-                  onChange={handleTargetChange}
-                />
-              </td>
-              <td>{statistics.placementTestAmount}</td>
-              <td>
-                {!isNaN(target) && target > 0
-                  ? ((statistics.placementTestAmount / target) * 100).toFixed(
-                      2
-                    ) + "%"
-                  : "N/A"}
-              </td>
-            </tr>
-            {Object.keys(levelIncomes).map((levelName) => (
-              <tr key={levelName}>
-                <td>{levelName}</td>
+            {expenseOptions.map((expenseType) => (
+              <tr key={expenseType}>
+                <td>{expenseType}</td>
                 <td>
                   <Form.Control
                     type="number"
-                    value={0} // You should replace 0 with the appropriate value for the target
-                    onChange={() => {
-                      // Handle target input change for each level if needed
-                    }}
+                    value={expenseTargetValues[expenseType] || 0}
+                    onChange={(e) =>
+                      handleExpenseTargetChange(expenseType, parseFloat(e.target.value))
+                    }
                   />
                 </td>
-                <td>{levelIncomes[levelName]}</td>
                 <td>
-                  {(
-                    (+levelIncomes[levelName] / totalReceivedAmount) *
-                    100
-                  ).toFixed(2)}
-                  %
+                  {/* Calculate the total expenses for this expense type */}
+                  {transactions
+                    .filter((transaction) => transaction.type === "Expense" && transaction.expense_type === expenseType)
+                    .reduce((total, transaction) => total + transaction.amount, 0)
+                    .toFixed(2)} EGP
+                </td>
+                <td>
+                  {expenseTargetValues[expenseType] > 0
+                    ? (
+                        (transactions
+                          .filter((transaction) => transaction.type === "Expense" && transaction.expense_type === expenseType)
+                          .reduce((total, transaction) => total + transaction.amount, 0) /
+                          expenseTargetValues[expenseType]) *
+                        100
+                      ).toFixed(2) + "%"
+                    : "N/A"}
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
-        
       </Card.Body>
     </Card>
   );

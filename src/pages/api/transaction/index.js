@@ -59,25 +59,57 @@ export default async (req, res) => {
   } else if (req.method === "DELETE") {
     try {
       const transactionId = req.query.id; // Access the transaction ID from the route parameter
-    
+
       // Check if the transaction with the given ID exists
       const transaction = await Transaction.findById(transactionId);
-    
+
       if (!transaction) {
         // Handle the case when the transaction is not found
         return res.status(404).json({ error: "Transaction not found" });
       }
-    
+
       // Delete the transaction from the database
       await transaction.deleteOne();
-    
+
       return res.status(204).send(); // Respond with a 204 status for successful deletion
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: error.message });
     }
-    
-  }else {
+
+  } else if (req.method === "PUT") {
+    try {
+      const transactionId = req.query.id; // Access the transaction ID from the route parameter
+      const { amount, description, type } = req.body;
+
+      // Check if the transaction with the given ID exists
+      const transaction = await Transaction.findById(transactionId);
+
+      if (!transaction) {
+        // Handle the case when the transaction is not found
+        return res.status(404).json({ error: "Transaction not found" });
+      }
+
+      // Update the transaction properties
+      if (amount) {
+        transaction.amount = amount;
+      }
+      if (description) {
+        transaction.description = description;
+      }
+      if (type) {
+        transaction.type = type;
+      }
+
+      // Save the updated transaction
+      await transaction.save();
+
+      return res.status(200).json(transaction);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Could not update the transaction" });
+    }
+  } else {
     return res.status(400).json({ error: "Invalid request" });
   }
 };
