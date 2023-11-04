@@ -8,11 +8,11 @@ export default async (req, res) => {
   if (req.method === "POST") {
     // ... (existing POST logic) ...
   } else if (req.method === "GET") {
-    const { instructorIds } = req.query;
+    const { instructorId } = req.query;
 
     try {
       // Find classes taught by any of the specified instructors and populate
-      const batches = await Batch.find({ _id: instructorIds });
+      const batches = await Batch.find({ _id: instructorId });
       console.log(batches);
 
       return res.status(200).json(batches);

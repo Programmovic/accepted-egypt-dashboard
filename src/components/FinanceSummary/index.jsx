@@ -146,23 +146,41 @@ const TransactionsSummary = ({
                     type="number"
                     value={expenseTargetValues[expenseType] || 0}
                     onChange={(e) =>
-                      handleExpenseTargetChange(expenseType, parseFloat(e.target.value))
+                      handleExpenseTargetChange(
+                        expenseType,
+                        parseFloat(e.target.value)
+                      )
                     }
                   />
                 </td>
                 <td>
                   {/* Calculate the total expenses for this expense type */}
                   {transactions
-                    .filter((transaction) => transaction.type === "Expense" && transaction.expense_type === expenseType)
-                    .reduce((total, transaction) => total + transaction.amount, 0)
-                    .toFixed(2)} EGP
+                    .filter(
+                      (transaction) =>
+                        transaction.type === "Expense" &&
+                        transaction.expense_type === expenseType
+                    )
+                    .reduce(
+                      (total, transaction) => total + transaction.amount,
+                      0
+                    )
+                    .toFixed(2)}{" "}
+                  EGP
                 </td>
                 <td>
                   {expenseTargetValues[expenseType] > 0
                     ? (
                         (transactions
-                          .filter((transaction) => transaction.type === "Expense" && transaction.expense_type === expenseType)
-                          .reduce((total, transaction) => total + transaction.amount, 0) /
+                          .filter(
+                            (transaction) =>
+                              transaction.type === "Expense" &&
+                              transaction.expense_type === expenseType
+                          )
+                          .reduce(
+                            (total, transaction) => total + transaction.amount,
+                            0
+                          ) /
                           expenseTargetValues[expenseType]) *
                         100
                       ).toFixed(2) + "%"
@@ -170,6 +188,84 @@ const TransactionsSummary = ({
                 </td>
               </tr>
             ))}
+          </tbody>
+        </Table>
+      </Card.Body>
+      <Card.Header>Finance Summary</Card.Header>
+      <Card.Body>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Income Target</th>
+              <th>Income achieved</th>
+              <th>%</th>
+              <th>Expenses Target</th>
+              <th>Expenses achieved</th>
+              <th>%</th>
+              <th>Refund Target</th>
+              <th>Refund Achieved</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                <Form.Control
+                  type="number"
+                  value={targetValues["income"] || 0}
+                  onChange={(e) =>
+                    handleTargetChange("income", parseFloat(e.target.value))
+                  }
+                />
+              </td>
+              <td>{totalReceivedAmount.toFixed(2)} EGP</td>
+              <td>
+                {targetValues["income"] > 0
+                  ? (
+                      (totalReceivedAmount / targetValues["income"]) *
+                      100
+                    ).toFixed(2) + "%"
+                  : "N/A"}
+              </td>
+              <td>
+                <Form.Control
+                  type="number"
+                  value={targetValues["expenses"] || 0}
+                  onChange={(e) =>
+                    handleTargetChange("expenses", parseFloat(e.target.value))
+                  }
+                />
+              </td>
+              <td>{totalExpensedAmount.toFixed(2)} EGP</td>
+
+              <td>
+                {targetValues["expenses"] > 0
+                  ? (
+                      (totalExpensedAmount / targetValues["expenses"]) *
+                      100
+                    ).toFixed(2) + "%"
+                  : "N/A"}
+              </td>
+
+              <td>
+                <Form.Control
+                  type="number"
+                  value={targetValues["refund"] || 0}
+                  onChange={(e) =>
+                    handleTargetChange("refund", parseFloat(e.target.value))
+                  }
+                />
+              </td>
+              <td>{totalExpensedAmount.toFixed(2)} EGP</td>
+              <td>
+                {targetValues["expenses"] > 0
+                  ? (
+                      (totalExpensedAmount / targetValues["expenses"]) *
+                      100
+                    ).toFixed(2) + "%"
+                  : "N/A"}
+              </td>
+            </tr>
           </tbody>
         </Table>
       </Card.Body>
