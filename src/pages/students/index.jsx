@@ -15,6 +15,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ClassCard } from "@components/Classes";
 import Link from "next/link";
+import { Pagination } from "react-bootstrap";
 
 const Students = () => {
   const [students, setStudents] = useState([]);
@@ -271,8 +272,7 @@ const Students = () => {
       });
   }, []);
   const getLevelCount = (level) => {
-    return filteredStudents.filter((test) => test.level === level)
-      .length;
+    return filteredStudents.filter((test) => test.level === level).length;
   };
   const handleDeleteStudent = async (studentId) => {
     if (window.confirm("Are you sure you want to delete this student?")) {
@@ -300,7 +300,39 @@ const Students = () => {
       }
     }
   };
-  
+  const [currentPage, setCurrentPage] = useState(1);
+  const [studentsPerPage] = useState(10); // Number of students to display per page
+
+  // Calculate the index of the last student to display
+  const indexOfLastStudent = currentPage * studentsPerPage;
+  // Calculate the index of the first student to display
+  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
+
+  // Get the current page of students
+  const currentStudents = sortedStudents.slice(
+    indexOfFirstStudent,
+    indexOfLastStudent
+  );
+
+  // Calculate the total number of pages
+  const totalPages = Math.ceil(sortedStudents.length / studentsPerPage);
+
+  // Function to change the current page
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  // Function to go to the previous page
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
   return (
     <AdminLayout>
       <div className="row">
@@ -387,14 +419,24 @@ const Students = () => {
               Clear Filters
             </Button>
           </Form>
-
-          <Button
-            variant="success"
-            onClick={() => setShowModal(true)}
-            className="mb-3"
-          >
-            Add Student
-          </Button>
+          <Row>
+            <Col xs={6}>
+              <Button
+                variant="success"
+                onClick={() => setShowModal(true)}
+                className="mb-3"
+              >
+                Add Student
+              </Button>
+            </Col>
+            <Col xs={6}>
+              <p className="mt-2">
+                Showing {indexOfFirstStudent + 1} -{" "}
+                {Math.min(indexOfLastStudent, totalStudentsCount)} of{" "}
+                {totalStudentsCount} students
+              </p>
+            </Col>
+          </Row>
 
           <Table striped bordered hover>
             <thead>
@@ -425,7 +467,7 @@ const Students = () => {
               </tr>
             </thead>
             <tbody>
-              {sortedStudents.map((student, index) => (
+              {currentStudents.map((student, index) => (
                 <tr
                   key={student._id}
                   onClick={() => openStudentDetailsModal(student)}
@@ -436,17 +478,16 @@ const Students = () => {
                   <td>{student.phoneNumber}</td>
                   <td>{new Date(student.joinedDate).toLocaleDateString()}</td>
                   {/* Inside your table row */}
-<td>
-  {/* Add the delete button or icon */}
-  <Button
-    variant="danger"
-    size="sm"
-    onClick={() => handleDeleteStudent(student._id)}
-  >
-    Delete
-  </Button>
-</td>
-
+                  <td>
+                    {/* Add the delete button or icon */}
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDeleteStudent(student._id)}
+                    >
+                      Delete
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -460,85 +501,83 @@ const Students = () => {
         </Modal.Header>
         {selectedStudent && (
           <>
-        <Modal.Body>
-          
-            <div>
-              <p>Name: {selectedStudent.name}</p>
-              <p>Email: {selectedStudent.email}</p>
-              <p>Phone Number: {selectedStudent.phoneNumber}</p>
-              <p>National ID: {selectedStudent.nationalId}</p>
-              <p>Paid: {selectedStudent.paid} EGP</p>
-              <p>Placement Test Date: {selectedStudent.placementTestDate}</p>
-              <p>Due: {selectedStudent.due} EGP</p>
-              <p>Level: {selectedStudent.level}</p>
-              <p>Status: {selectedStudent.status}</p>
-              <p>
-                Joined Date:{" "}
-                {new Date(selectedStudent.joinedDate).toLocaleDateString()}
-              </p>
-              <div className="container">
-                <ol className="progress-meter">
-                  <li className="progress-point done">Joined</li>
-                  <li
-                    className={`progress-point ${
-                      selectedStudent.status === "Under Placement Test" ||
-                      selectedStudent.status === "Waiting List" ||
-                      selectedStudent.status === "Joined Batch"
-                        ? "done"
-                        : "todo"
-                    }`}
-                  >
-                    Placement Test
-                  </li>
-                  <li
-                    className={`progress-point ${
-                      (selectedStudent.status === "Waiting List" ||
-                        selectedStudent.status === "Joined Batch") &&
-                      selectedStudent.status !== "Under Placement Test" &&
-                      selectedStudent.status !==
-                        "Under Placement Test at " +
-                          new Date(
-                            selectedStudent.placementTestDate
-                          ).toLocaleDateString()
-                        ? "done"
-                        : "todo"
-                    }`}
-                  >
-                    Waiting List
-                  </li>
-                  <li
-                    className={`progress-point ${
-                      selectedStudent.status === "Joined Batch"
-                        ? "done"
-                        : "todo"
-                    }`}
-                  >
-                    Joined Batch
-                  </li>
-                </ol>
+            <Modal.Body>
+              <div>
+                <p>Name: {selectedStudent.name}</p>
+                <p>Email: {selectedStudent.email}</p>
+                <p>Phone Number: {selectedStudent.phoneNumber}</p>
+                <p>National ID: {selectedStudent.nationalId}</p>
+                <p>Paid: {selectedStudent.paid} EGP</p>
+                <p>Placement Test Date: {selectedStudent.placementTestDate}</p>
+                <p>Due: {selectedStudent.due} EGP</p>
+                <p>Level: {selectedStudent.level}</p>
+                <p>Status: {selectedStudent.status}</p>
+                <p>
+                  Joined Date:{" "}
+                  {new Date(selectedStudent.joinedDate).toLocaleDateString()}
+                </p>
+                <div className="container">
+                  <ol className="progress-meter">
+                    <li className="progress-point done">Joined</li>
+                    <li
+                      className={`progress-point ${
+                        selectedStudent.status === "Under Placement Test" ||
+                        selectedStudent.status === "Waiting List" ||
+                        selectedStudent.status === "Joined Batch"
+                          ? "done"
+                          : "todo"
+                      }`}
+                    >
+                      Placement Test
+                    </li>
+                    <li
+                      className={`progress-point ${
+                        (selectedStudent.status === "Waiting List" ||
+                          selectedStudent.status === "Joined Batch") &&
+                        selectedStudent.status !== "Under Placement Test" &&
+                        selectedStudent.status !==
+                          "Under Placement Test at " +
+                            new Date(
+                              selectedStudent.placementTestDate
+                            ).toLocaleDateString()
+                          ? "done"
+                          : "todo"
+                      }`}
+                    >
+                      Waiting List
+                    </li>
+                    <li
+                      className={`progress-point ${
+                        selectedStudent.status === "Joined Batch"
+                          ? "done"
+                          : "todo"
+                      }`}
+                    >
+                      Joined Batch
+                    </li>
+                  </ol>
+                </div>
               </div>
-            </div>
-         
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            className="text-white"
-            onClick={closeStudentDetailsModal}
-          >
-            Close
-          </Button>
-          <Button variant="success">
-            <Link
-              href={`/students/${selectedStudent._id}`}
-              className="text-decoration-none text-light"
-            >
-              View Student Profile
-            </Link>
-          </Button>
-        </Modal.Footer>
-        </>
-         )}
+            </Modal.Body>
+            <Modal.Footer>
+              <Button
+                variant="secondary"
+                className="text-white"
+                onClick={closeStudentDetailsModal}
+              >
+                Close
+              </Button>
+              <Button variant="success">
+                <Link
+                  href={`/students/${selectedStudent._id}`}
+                  className="text-decoration-none text-light"
+                >
+                  View Student Profile
+                </Link>
+              </Button>
+            </Modal.Footer>
+          </>
+        )}
       </Modal>
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
@@ -644,6 +683,22 @@ const Students = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <Pagination className="py-3 flex justify-content-between">
+        <Button
+          variant="secondary"
+          onClick={prevPage}
+          disabled={currentPage === 1}
+        >
+          Back
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={nextPage}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </Button>
+      </Pagination>
     </AdminLayout>
   );
 };

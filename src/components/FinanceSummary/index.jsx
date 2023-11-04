@@ -52,7 +52,12 @@ const TransactionsSummary = ({
           </thead>
           <tbody>
             <tr>
-              <td>{totalReceivedAmount.toFixed(2)} EGP</td>
+              <td>
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "EGP",
+                }).format(totalReceivedAmount)}
+              </td>
             </tr>
           </tbody>
         </Table>
@@ -77,7 +82,12 @@ const TransactionsSummary = ({
                   }
                 />
               </td>
-              <td>{statistics.placementTestAmount}</td>
+              <td>
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "EGP",
+                }).format(statistics.placementTestAmount)}
+              </td>
               <td>
                 {!isNaN(targetValues["EWFS"]) && targetValues["EWFS"] > 0
                   ? (
@@ -99,7 +109,12 @@ const TransactionsSummary = ({
                     }
                   />
                 </td>
-                <td>{levelIncomes[levelName]}</td>
+                <td>
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "EGP",
+                  }).format(levelIncomes[levelName])}
+                </td>
                 <td>
                   {targetValues[levelName] > 0
                     ? (
@@ -124,7 +139,12 @@ const TransactionsSummary = ({
           </thead>
           <tbody>
             <tr>
-              <td>{totalExpensedAmount.toFixed(2)} EGP</td>
+              <td>
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "EGP",
+                }).format(totalExpensedAmount)}
+              </td>
             </tr>
           </tbody>
         </Table>
@@ -154,19 +174,21 @@ const TransactionsSummary = ({
                   />
                 </td>
                 <td>
-                  {/* Calculate the total expenses for this expense type */}
-                  {transactions
-                    .filter(
-                      (transaction) =>
-                        transaction.type === "Expense" &&
-                        transaction.expense_type === expenseType
-                    )
-                    .reduce(
-                      (total, transaction) => total + transaction.amount,
-                      0
-                    )
-                    .toFixed(2)}{" "}
-                  EGP
+                  {new Intl.NumberFormat("en-US", {
+                    style: "currency",
+                    currency: "EGP",
+                  }).format(
+                    transactions
+                      .filter(
+                        (transaction) =>
+                          transaction.type === "Expense" &&
+                          transaction.expense_type === expenseType
+                      )
+                      .reduce(
+                        (total, transaction) => total + transaction.amount,
+                        0
+                      )
+                  )}
                 </td>
                 <td>
                   {expenseTargetValues[expenseType] > 0
@@ -218,7 +240,12 @@ const TransactionsSummary = ({
                   }
                 />
               </td>
-              <td>{totalReceivedAmount.toFixed(2)} EGP</td>
+              <td>
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "EGP",
+                }).format(totalReceivedAmount)}
+              </td>
               <td>
                 {targetValues["income"] > 0
                   ? (
@@ -236,7 +263,12 @@ const TransactionsSummary = ({
                   }
                 />
               </td>
-              <td>{totalExpensedAmount.toFixed(2)} EGP</td>
+              <td>
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "EGP",
+                }).format(totalExpensedAmount)}
+              </td>
 
               <td>
                 {targetValues["expenses"] > 0
@@ -256,7 +288,12 @@ const TransactionsSummary = ({
                   }
                 />
               </td>
-              <td>{totalExpensedAmount.toFixed(2)} EGP</td>
+              <td>
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "EGP",
+                }).format(totalExpensedAmount)}
+              </td>
               <td>
                 {targetValues["expenses"] > 0
                   ? (
