@@ -402,7 +402,7 @@ const PlacementTests = () => {
   console.log(selectedPlacementTest?.assignedLevel !== "N/A");
   return (
     <AdminLayout>
-      <div className="row">
+      {/* <div className="row">
         <ClassCard
           data={getTotalStudentsCount()}
           title="Total Students"
@@ -458,7 +458,7 @@ const PlacementTests = () => {
           enableOptions={false}
           isLoading={loading}
         />
-      </div>
+      </div> */}
       <PlacementTestsSummary filterdPlacementTests={filterdPlacementTests} levels={levels} getAmountReceivedForLevel={getAmountReceivedForLevel()}/>
       <Card>
         <Card.Header>Placement Tests</Card.Header>

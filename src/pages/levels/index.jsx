@@ -1,11 +1,9 @@
-import { Card, Form, Button, Row, Col, Table, Badge } from "react-bootstrap";
-import { useEffect, useState } from "react";
-import { AdminLayout } from "@layout";
-import axios from "axios";
-import { Modal } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Card, Form, Button, Row, Col, Table, Modal } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ClassCard } from "@components/Classes";
+import axios from "axios";
+import { AdminLayout } from "@layout";
 
 const Levels = () => {
   const [levelResource, setLevelResource] = useState([]);
@@ -34,6 +32,7 @@ const Levels = () => {
       setLoading(false);
     }
   };
+
   const fetchStudentsData = async () => {
     try {
       const response = await axios.get("/api/student");
@@ -42,12 +41,11 @@ const Levels = () => {
         setStudents(studentsData.students);
       }
     } catch (error) {
-      console.error("Error fetching level data:", error);
-      setError("Failed to fetch level data. Please try again later.");
-    } finally {
-      setLoading(false);
+      console.error("Error fetching student data:", error);
+      setError("Failed to fetch student data. Please try again later.");
     }
   };
+
   const fetchBatchesData = async () => {
     try {
       const response = await axios.get("/api/batch");
@@ -56,15 +54,18 @@ const Levels = () => {
         setBatches(batchesData);
       }
     } catch (error) {
-      console.error("Error fetching level data:", error);
-      setError("Failed to fetch level data. Please try again later.");
-    } finally {
-      setLoading(false);
+      console.error("Error fetching batch data:", error);
+      setError("Failed to fetch batch data. Please try again later.");
     }
   };
+
+  const filterOngoingBatches = () => {
+    return batches.filter((batch) => batch.status === "Ongoing");
+  };
+
   useEffect(() => {
-    fetchStudentsData();
     fetchLevelData();
+    fetchStudentsData();
     fetchBatchesData();
   }, []);
 
@@ -97,7 +98,7 @@ const Levels = () => {
       // Send a POST request to your API to create a new level
       const response = await axios.post("/api/level", {
         name: newLevelName,
-        code: newLevelCode // Adjust this to match your schema
+        code: newLevelCode, // Adjust this to match your schema
       });
 
       if (response.status === 201) {
@@ -112,11 +113,11 @@ const Levels = () => {
       toast.error("Failed to add the level. Please try again."); // Error toast
     }
   };
-  console.log(students);
+
   return (
     <AdminLayout>
       <ToastContainer />
-      
+
       <Modal show={showModal} onHide={closeModal}>
         <Modal.Header closeButton>
           <Modal.Title>Create New Level</Modal.Title>
@@ -194,7 +195,6 @@ const Levels = () => {
                   <th>Number of batches</th>
                   <th>Batch code</th>
                   <th>Number of students</th>
-                  {/* Add other fields here */}
                 </tr>
               </thead>
               <tbody>
@@ -204,21 +204,22 @@ const Levels = () => {
                     <td>{level.code}</td>
                     <td>
                       {
-                        batches.filter((batch) => batch.level === level._id)
-                          .length
+                        filterOngoingBatches().filter(
+                          (batch) => batch.level === level._id
+                        ).length || '-'
                       }
                     </td>
                     <td>
-                      {batches
+                      {filterOngoingBatches()
                         .filter((batch) => batch.level === level._id)
                         .map((batch, i) => (
                           <tr key={i}>
                             <td>{batch.code}</td>
                           </tr>
-                        ))}
+                        )) || '-'}
                     </td>
                     <td>
-                      {batches
+                      {filterOngoingBatches()
                         .filter((batch) => batch.level === level._id)
                         .map((batch) => {
                           const studentsInBatch = students.filter(
@@ -231,7 +232,6 @@ const Levels = () => {
                           );
                         })}
                     </td>
-                    {/* Add other fields here */}
                   </tr>
                 ))}
               </tbody>

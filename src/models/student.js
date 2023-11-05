@@ -59,7 +59,10 @@ const studentSchema = new mongoose.Schema({
   adminName: {
     type: String,
   },
-  
+  salesMember: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SalesMember'
+  }
 });
 
 

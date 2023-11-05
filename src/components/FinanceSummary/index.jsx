@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Table, Card, Form } from "react-bootstrap";
+import { Table, Card, Form, Accordion } from "react-bootstrap";
 
 const TransactionsSummary = ({
   transactions,
@@ -42,6 +42,7 @@ const TransactionsSummary = ({
   };
   return (
     <Card className="mb-4">
+      
       <Card.Header>Received Amount Summary</Card.Header>
       <Card.Body>
         <Table striped bordered hover>
@@ -301,6 +302,26 @@ const TransactionsSummary = ({
                       100
                     ).toFixed(2) + "%"
                   : "N/A"}
+              </td>
+            </tr>
+          </tbody>
+        </Table>
+      </Card.Body>
+      <Card.Header>Revenue Summary</Card.Header>
+      <Card.Body>
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>Total Revenue (EGP)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>
+                {new Intl.NumberFormat("en-US", {
+                  style: "currency",
+                  currency: "EGP",
+                }).format(totalReceivedAmount - totalExpensedAmount)}
               </td>
             </tr>
           </tbody>

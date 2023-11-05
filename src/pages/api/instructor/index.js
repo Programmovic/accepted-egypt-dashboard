@@ -44,7 +44,7 @@ export default async (req, res) => {
       if (!instructor) {
         console.log({ error: "Instructor not found" });
         return res.status(404).json({ error: "Instructor not found" });
-        
+
       }
 
       instructor.batch = batchId; // Assuming you have a field 'batch' in your Instructor model
@@ -55,7 +55,8 @@ export default async (req, res) => {
       console.error(error);
       return res.status(500).json({ error: "Failed to assign instructor to the batch" });
     }
-  } else if (req.method === "DELETE") {
+  }
+   else if (req.method === "DELETE") {
     try {
       // Delete all Instructor documents (clear the instructors data)
       await Instructor.deleteMany({});

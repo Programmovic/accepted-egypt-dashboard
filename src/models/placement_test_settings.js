@@ -31,6 +31,9 @@ const placementTestSettingsSchema = new mongoose.Schema({
   },
   // You can add more fields based on your application's requirements
   // Example: testDate, location, maximumAttempts, etc.
-});
+},
+  {
+    timestamps: true
+  });
 
 module.exports = mongoose.models.PlacementTestSettings || mongoose.model('PlacementTestSettings', placementTestSettingsSchema);

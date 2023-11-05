@@ -442,6 +442,10 @@ const Batches = () => {
   };
   console.log(newBatchLecturesTimes);
   console.log(sortedBatches);
+  const filterOngoingBatches = () => {
+    return sortedBatches.filter((batch) => batch.status === "Ongoing");
+  };
+
   return (
     <AdminLayout>
       <ToastContainer />
@@ -689,7 +693,7 @@ const Batches = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedBatches.map((batch, index) => (
+                  {sortedBatches.filter((batch) => batch.status === "Ended").map((batch, index) => (
                     <tr
                       key={batch._id}
                       onClick={() => openBatchDetailsModal(batch)}

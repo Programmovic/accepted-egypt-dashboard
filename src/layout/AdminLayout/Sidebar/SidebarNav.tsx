@@ -160,14 +160,6 @@ const SidebarNavGroup = (props: SidebarNavGroupProps) => {
 export default function SidebarNav() {
   return (
     <ul className="list-unstyled">
-      <SidebarNavItem icon={faGauge} href="/">
-        Dashboard
-        <small className="ms-auto">
-          <Badge bg="info" className="ms-auto">
-            NEW
-          </Badge>
-        </small>
-      </SidebarNavItem>
       <SidebarNavItem icon={faUser} href="/admins">
         Admins
       </SidebarNavItem>
@@ -192,6 +184,9 @@ export default function SidebarNav() {
       <SidebarNavItem icon={faPeopleGroup} href="/batches">
         Batches
       </SidebarNavItem>
+      <SidebarNavItem icon={faPeopleGroup} href="/finalized_batches">
+        Finalized Batches
+      </SidebarNavItem>
       
       <SidebarNavItem icon={faPeopleGroup} href="/lectures">
         Lectures
@@ -210,8 +205,11 @@ export default function SidebarNav() {
       <SidebarNavItem icon={faDollar} href="/transactions">
         Transactions
       </SidebarNavItem>
+      <SidebarNavItem icon={faDollar} href="/students_with_due">
+        Students With Due
+      </SidebarNavItem>
       <SidebarNavTitle>Help</SidebarNavTitle>
-      <SidebarNavItem icon={faHandsHelping} href="/help">
+      <SidebarNavItem icon={faHandsHelping} href="/">
         How to Use?
       </SidebarNavItem>
       {/* <SidebarNavTitle>Components</SidebarNavTitle>

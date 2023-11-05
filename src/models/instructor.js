@@ -29,6 +29,9 @@ const instructorSchema = new mongoose.Schema({
   adminName: {
     type: String,
   },
-});
+},
+  {
+    timestamps: true
+  });
 
 module.exports = mongoose.models.Instructor || mongoose.model("Instructor", instructorSchema);

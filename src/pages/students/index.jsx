@@ -16,6 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { ClassCard } from "@components/Classes";
 import Link from "next/link";
 import { Pagination } from "react-bootstrap";
+import Select from "react-select";
 
 const Students = () => {
   const [students, setStudents] = useState([]);
@@ -45,6 +46,8 @@ const Students = () => {
   const [newStudentDue, setNewStudentDue] = useState(0);
   const [loadingAddStudent, setLoadingAddStudent] = useState(false);
   const [rooms, setRooms] = useState([]);
+  const [salesMembers, setSalesMembers] = useState([]);
+  const [selectedSalesMember, setSelectedSalesMember] = useState(null);
   const fetchStudentData = async () => {
     try {
       const response = await axios.get("/api/student");
@@ -161,6 +164,7 @@ const Students = () => {
           newStudentPlacementTestDate
         ).toLocaleDateString()}`,
         level: "N/A",
+        salesMember: selectedSalesMember.value
       });
       if (response.status === 201) {
         // Data added successfully
@@ -194,7 +198,7 @@ const Students = () => {
       setLoadingAddStudent(false);
     }
   };
-
+console.log(selectedSalesMember)
   const handleSort = (criteria) => {
     if (criteria === sortBy) {
       // Toggle the sorting order if the same criteria is clicked again
@@ -333,6 +337,23 @@ const Students = () => {
       setCurrentPage(currentPage - 1);
     }
   };
+  
+
+  useEffect(() => {
+    // Fetch sales members from your API
+    const fetchSalesMembers = async () => {
+      try {
+        const response = await axios.get("/api/sales_member"); // Replace with your API endpoint
+        if (response.status === 200) {
+          setSalesMembers(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching sales members:", error);
+      }
+    };
+
+    fetchSalesMembers();
+  }, []);
   return (
     <AdminLayout>
       <div className="row">
@@ -616,6 +637,21 @@ const Students = () => {
                 type="text"
                 value={newStudentNationalId}
                 onChange={(e) => setNewStudentNationalId(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Select Sales Member:</Form.Label>
+              <Select
+                options={salesMembers.map((member) => ({
+                  value: member._id,
+                  label: member.name,
+                }))}
+                value={selectedSalesMember}
+                onChange={(selectedOption) =>
+                  setSelectedSalesMember(selectedOption)
+                }
+                isSearchable
+                isClearable
               />
             </Form.Group>
 

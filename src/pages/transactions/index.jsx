@@ -364,54 +364,7 @@ const Transactions = () => {
         levelIncomes={levelIncomes}
         expenseOptions={expenseOptions}
       />
-      <div className="row">
-        <ClassCard
-          data={statistics.totalTransactions}
-          title="Total Transactions"
-          enableOptions={false}
-        />
-        <ClassCard
-          data={`${statistics.totalTransactionAmount} EGP`}
-          title="Total Transaction Amount"
-          enableOptions={false}
-        />
-        <ClassCard
-          data={`${statistics.averageTransactionAmount.toFixed(2)} EGP`}
-          title="Average Transaction Amount"
-          enableOptions={false}
-        />
-        <ClassCard
-          data={`${statistics.receivedAmount} EGP`}
-          title="Total Received Amount"
-          enableOptions={false}
-        />
-        <ClassCard
-          data={`${statistics.dueAmount} EGP`}
-          title="Total Due Amount"
-          enableOptions={false}
-        />
-        <ClassCard
-          data={`${statistics.expensesAmount} EGP`}
-          title="Total Expenses Amount"
-          enableOptions={false}
-        />
-        <ClassCard
-          data={`${statistics.placementTestAmount} EGP`}
-          title="Total Received From Placement Test (E2WFS)"
-          enableOptions={false}
-        />
-        {Object.keys(levelIncomes).map((levelName) => (
-          <ClassCard
-            data={`${levelIncomes[levelName]} EGP (${(
-              (levelIncomes[levelName] / statistics.receivedAmount) *
-              100
-            ).toFixed(2)}%)`}
-            title={`Income for ${levelName}`}
-            enableOptions={false}
-          />
-        ))}
-      </div>
-      
+
       <Card>
         <Card.Header>Transactions</Card.Header>
         <Card.Body>
@@ -449,15 +402,6 @@ const Transactions = () => {
                       checked={filterType === "Income"}
                       onChange={() =>
                         setFilterType(filterType === "Income" ? "" : "Income")
-                      }
-                    />
-                    <Form.Check
-                      type="checkbox"
-                      label="Due"
-                      id="type2"
-                      checked={filterType === "Due"}
-                      onChange={() =>
-                        setFilterType(filterType === "Due" ? "" : "Due")
                       }
                     />
                     <Form.Check
@@ -535,7 +479,13 @@ const Transactions = () => {
               {currentTransactions.map((transaction, index) => (
                 <tr key={transaction._id}>
                   <td>{index + 1}</td>
-                  <td>{students.find((student) => student._id === transaction.student)?.name}</td>
+                  <td>
+                    {
+                      students.find(
+                        (student) => student._id === transaction.student
+                      )?.name
+                    }
+                  </td>
                   <td>
                     {transaction.batch
                       ? batches.find((batch) => batch._id === transaction.batch)
