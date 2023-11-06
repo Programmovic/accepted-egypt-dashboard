@@ -166,14 +166,43 @@ const Rooms = () => {
       return false; // Unable to determine room availability (consider handling errors more specifically)
     }
   };
-console.log(
-  checkRoomAvailability(
-    "6540f73dd34311df120c614c",
-    new Date().toLocaleDateString(),
-    "9:00",
-    "5:00"
-  )
-)
+  const [roomAvailability, setRoomAvailability] = useState({});
+  const fetchRoomAvailability = async () => {
+    try {
+      const currentDate = new Date().toLocaleDateString();
+      const startTime = "9:00";
+      const endTime = "5:00";
+      
+      const availabilityData = await Promise.all(
+        rooms.map(async (room) => {
+          const isAvailable = await checkRoomAvailability(
+            room._id,
+            currentDate,
+            startTime,
+            endTime
+          );
+          return {
+            roomId: room._id,
+            isAvailable,
+          };
+        })
+      );
+
+      // Convert the availability data to an object for easier access
+      const availabilityObj = availabilityData.reduce((obj, item) => {
+        obj[item.roomId] = item.isAvailable;
+        return obj;
+      }, {});
+
+      setRoomAvailability(availabilityObj);
+    } catch (error) {
+      console.error("Error fetching room availability:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoomAvailability();
+  }, [checkRoomAvailability()]);
   return (
     <AdminLayout>
       <Card>
@@ -212,13 +241,6 @@ console.log(
             </thead>
             <tbody>
               {rooms.map((room, index) => {
-                const isRoomReserved = checkRoomAvailability(
-                  room._id,
-                  new Date().toLocaleDateString(),
-                  "9:00",
-                  "5:00"
-                );
-                console.log(isRoomReserved)
                 return (
                   <tr key={room._id} onClick={() => handleRowClick(room)}>
                     <td>{index + 1}</td>
@@ -226,7 +248,7 @@ console.log(
                     <td>{room.capacity}</td>
                     <td>{room.location}</td>
                     <td>{room.description}</td>
-                    {/* <td>{isRoomReserved}</td> */}
+                    <td>{roomAvailability[room._id] ? "Available" : "Not Available"}</td>
                   </tr>
                 );
               })}

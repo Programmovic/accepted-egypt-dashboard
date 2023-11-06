@@ -1,6 +1,8 @@
 import connectDB from "@lib/db";
 import Student from "../../../../models/student";
 import Attendance from "../../../../models/attendance";
+import Lecture from "../../../../models/lecture";
+
 
 export default async (req, res) => {
   try {
@@ -18,7 +20,7 @@ export default async (req, res) => {
         updateData,
         { new: true }
       );
-
+console.log(updateData)
       if (!updatedStudent) {
         return res.status(404).json({ error: "Student not found" });
       }

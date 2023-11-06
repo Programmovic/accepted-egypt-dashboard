@@ -465,7 +465,7 @@ const StudentProfile = () => {
             >
               <option value="">Select a batch</option>
               {batches.map((batch) => (
-                <option key={batch.id} value={batch.id}>
+                <option key={batch.id} value={batch._id}>
                   {batch.name}
                 </option>
               ))}
