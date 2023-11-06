@@ -6,6 +6,7 @@ import { useRouter } from "next/router";
 import FullCalendar from "@fullcalendar/react";
 import timeGridPlugin from "@fullcalendar/timegrid"; // Import the timeGrid plugin
 import bootstrap5Plugin from "@fullcalendar/bootstrap5";
+import dayGridPlugin from '@fullcalendar/daygrid'
 
 const RoomReservations = () => {
   const [roomReservations, setRoomReservations] = useState([]);
@@ -35,6 +36,8 @@ const RoomReservations = () => {
   const calendarEvents = roomReservations.map((reservation) => ({
     title: `${reservation.title} From ${reservation.startTime} to ${reservation.endTime}`,
     date: reservation.date,
+    // startTime: reservation.startTime,
+    // endTime: reservation.endTime,
     eventInfo: reservation,
   }));
 
@@ -60,16 +63,16 @@ const RoomReservations = () => {
         </Card.Header>
         <Card.Body>
           <FullCalendar
-            plugins={[timeGridPlugin, bootstrap5Plugin]}
-            initialView="timeGridWeek"
+            plugins={[dayGridPlugin, bootstrap5Plugin]}
+            initialView="dayGridMonth"
             weekends={true}
             events={calendarEvents}
             selectable={true}
             editable
             eventColor="#378006"
             eventBackgroundColor="black"
-            displayEventTime={true}
-            eventRender={eventRender} // Customize event rendering
+            displayEventTime={false}
+            eventRender={eventRender}
             eventClick={handleEventClick}
           />
         </Card.Body>

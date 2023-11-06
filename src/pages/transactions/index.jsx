@@ -632,17 +632,32 @@ const Transactions = () => {
                 required
               />
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Description</Form.Label>
-              <Form.Control
-                type="text"
-                value={
-                  newTransactionBatch ? "Course Fee" : newTransactionDescription
-                }
-                onChange={(e) => setNewTransactionDescription(e.target.value)}
-                required
-              />
-            </Form.Group>
+            {newTransactionSelectedStudent && (
+        <Form.Group className="mb-3">
+          <Form.Label>Description</Form.Label>
+          <Form.Control
+            as="select"
+            value={newTransactionDescription}
+            onChange={(e) => setNewTransactionDescription(e.target.value)}
+            required
+          >
+            <option value="Course Fee">Course Fee</option>
+            <option value="Material">Material</option>
+          </Form.Control>
+        </Form.Group>
+      )}
+      {/* Render the description as a text input if no student is selected */}
+      {!newTransactionSelectedStudent && (
+        <Form.Group className="mb-3">
+          <Form.Label>Description</Form.Label>
+          <Form.Control
+            type="text"
+            value={newTransactionDescription}
+            onChange={(e) => setNewTransactionDescription(e.target.value)}
+            required
+          />
+        </Form.Group>
+      )}
           </Form>
         </Modal.Body>
         <Modal.Footer>
