@@ -20,7 +20,7 @@ export default async (req, res) => {
         updateData,
         { new: true }
       );
-console.log(updateData)
+      console.log(updateData)
       if (!updatedStudent) {
         return res.status(404).json({ error: "Student not found" });
       }
