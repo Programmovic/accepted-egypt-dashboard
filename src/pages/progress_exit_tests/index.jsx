@@ -85,10 +85,10 @@ const Assessments = () => {
     }
   };
   const countTestsInBatch = (batchId) => {
-    return assessments.filter((assessment) => assessment.batch === batchId).length;
+    return assessments.filter((assessment) => assessment.batch === batchId)
+      .length;
   };
   const router = useRouter();
-
   return (
     <AdminLayout>
       <Card>
@@ -104,29 +104,34 @@ const Assessments = () => {
           <Table striped bordered hover>
             <thead>
               <tr>
-                <th>#</th>
                 <th>Assessment Type</th>
                 <th>Batch</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {assessments.map((assessment, index) => (
-                <tr key={assessment._id}>
-                  <td>{index + 1}</td>
-                  <td>{assessment.assessmentType}</td>
-                  <td>{batches.find((batch) => batch._id === assessment.batch)?.name}</td>
-                  <td>
-                    <Button
-                      variant="info"
-                      onClick={() => {
-                        router.push(`/progress_exit_tests/${assessment.batch}`);
-                      }}
-                    >
-                      Details
-                    </Button>
-                  </td>
-                </tr>
-              ))}
+              {batches.map((batch) => {
+
+                const assessmentForBatch = assessments.find(
+                  (assessment) => assessment.batch === batch._id
+                );
+                return assessmentForBatch ? (
+                  <tr key={batch._id}>
+                    <td>{assessmentForBatch.assessmentType}</td>
+                    <td>{batch.name}</td>
+                    <td>
+                      <Button
+                        variant="info"
+                        onClick={() => {
+                          router.push(`/progress_exit_tests/${batch._id}`);
+                        }}
+                      >
+                        Details
+                      </Button>
+                    </td>
+                  </tr>
+                ) : null;
+              })}
             </tbody>
           </Table>
         </Card.Body>
