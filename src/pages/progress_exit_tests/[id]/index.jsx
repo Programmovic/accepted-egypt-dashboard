@@ -1,208 +1,254 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Table, Button, Row, Modal, Form } from "react-bootstrap";
+import { Card, Table, Button, Modal, Form } from "react-bootstrap";
 import { AdminLayout } from "@layout";
 import { useRouter } from "next/router";
 
-const PlacementTests = () => {
-  const [students, setStudents] = useState([]);
-  const [placementTest, setPlacementTest] = useState([]);
+const BatchAssessments = () => {
+  const [assessments, setAssessments] = useState([]);
+  const [batch, setBatch] = useState({});
+  const [selectedAssessment, setSelectedAssessment] = useState(null);
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [levels, setLevels] = useState([]); // To store levels from /api/level
   const router = useRouter();
   const { id } = router.query;
-  const apiUrl = `/api/placement_test_settings/${id}`;
+  const apiUrl = `/api/assessment/batch_assessments?batchId=${id}`;
 
-  const fetchStudentData = async () => {
+  useEffect(() => {
+    // Fetch levels from /api/level when the component mounts
+    axios.get("/api/level").then((response) => {
+      if (response.status === 200) {
+        setLevels(response.data);
+      }
+    });
+  }, []);
+
+  const fetchAssessments = async () => {
     try {
       const response = await axios.get(apiUrl);
-      console.log(response);
       if (response.status === 200) {
-        setStudents(response.data.students);
-        setPlacementTest(response.data.placementTestSettings);
+        setAssessments(response.data.assessments);
+        setBatch(response.data.batch);
       }
     } catch (error) {
-      console.error("Error fetching student data:", error);
+      console.error("Error fetching assessments:", error);
     }
   };
 
   useEffect(() => {
-    fetchStudentData();
-  }, [apiUrl]);
-  const handleDeleteTest = async (testId) => {
-    try {
-      // Send a DELETE request to your API to delete the placement test
-      const response = await axios.delete(`/api/placement_tests_settings/${testId}`);
-      if (response.status === 200) {
-        // Update the students list to reflect the deleted test
-        setStudents(students.filter((student) => student._id !== testId));
-      }
-    } catch (error) {
-      console.error("Error deleting test:", error);
+    if (id) {
+      fetchAssessments();
     }
-  };
-  const [editModalVisible, setEditModalVisible] = useState(false);
-  const [editingTest, setEditingTest] = useState(null);
+  }, [id, apiUrl]);
 
-  const handleEditChange = (e, fieldName) => {
-    const updatedValue = e.target.value;
-
-    // Create a copy of the current editingTest object and update the specific field
-    const updatedTest = { ...editingTest, [fieldName]: updatedValue };
-
-    // Update the editingTest state with the new data
-    setEditingTest(updatedTest);
-  };
-
-  // Function to open the edit modal
-  const openEditModal = (test) => {
-    setEditingTest(test);
+  const handleOpenEditModal = (assessment) => {
+    setSelectedAssessment(assessment);
     setEditModalVisible(true);
   };
 
-  // Function to close the edit modal
-  const closeEditModal = () => {
-    setEditingTest(null);
+  const handleCloseEditModal = () => {
+    setSelectedAssessment(null);
     setEditModalVisible(false);
   };
+
   const handleSaveEdit = async () => {
-    if (editingTest) {
-      try {
-        // Create an object with the updated data
-        const updatedTest = {
-          cost: editingTest.cost, // Add other properties here
-          // Include other properties you want to update
-        };
-
-        // Send a PUT or PATCH request to update the placement test
-        const response = await axios.put(
-          `/api/placement_tests/${editingTest._id}`,
-          updatedTest
+    // Send the edited assessment data to the server
+    try {
+      const response = await axios.put(
+        `/api/assessment/batch_assessments?assessmentId=${selectedAssessment._id}`,
+        selectedAssessment
+      );
+      if (response.status === 200) {
+        // Update your local state with the edited assessment
+        const updatedAssessments = assessments.map((assessment) =>
+          assessment._id === selectedAssessment._id
+            ? selectedAssessment
+            : assessment
         );
-
-        if (response.status === 200) {
-          // Update the students list to reflect the edited test
-          setStudents((prevStudents) =>
-            prevStudents.map((student) =>
-              student._id === editingTest._id
-                ? { ...student, ...updatedTest }
-                : student
-            )
-          );
-
-          // Close the edit modal
-          closeEditModal();
-        }
-      } catch (error) {
-        console.error("Error saving edit:", error);
+        setAssessments(updatedAssessments);
+        handleCloseEditModal();
       }
+    } catch (error) {
+      console.error("Error saving edit:", error);
     }
   };
-  console.log(placementTest);
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+  
+    // If it's a radio input, handle the radio button logic
+    if (type === "radio") {
+      if (value === "Stay at the same") {
+        setSelectedAssessment({
+          ...selectedAssessment,
+          stayAtTheSame: true,
+          movedToHigherLevels: false,
+        });
+      } else if (value === "Moved to a higher level") {
+        setSelectedAssessment({
+          ...selectedAssessment,
+          stayAtTheSame: false,
+          movedToHigherLevels: true,
+        });
+      }
+    } else {
+      // Handle other input fields
+      const newValue = type === "checkbox" ? checked : value;
+      setSelectedAssessment({
+        ...selectedAssessment,
+        [name]: newValue,
+      });
+    }
+  };
+  
+console.log(selectedAssessment)  
   return (
     <AdminLayout>
       <Card>
-        <Card.Header>Student List</Card.Header>
+        <Card.Header>Assessments for Batch: {batch.name}</Card.Header>
         <Card.Body>
-          <Row className="m-3 justify-content-between">
-            <Button
-              variant="danger"
-              onClick={() => handleDeleteTest(id)}
-              className="w-auto"
-            >
-              Delete
-            </Button>
-            <Button
-              variant="warning"
-              onClick={() => openEditModal(placementTest)}
-              className="w-auto"
-            >
-              Edit
-            </Button>
-          </Row>
           <Table striped bordered hover>
             <thead>
               <tr>
                 <th>#</th>
+                <th>Assessment Type</th>
+                <th>Class Level</th>
+                <th>Class Code</th>
                 <th>Name</th>
                 <th>Phone Number</th>
-                <th>Email</th>
-                <th>National ID</th>
-                <th>Interested Course</th>
-                <th>Status</th>
-                <th>Paid</th>
-                <th>Level</th>
-                <th>Waiting List</th>
-                <th>Placement Test Date</th>
-                <th>Due</th>
+                <th>Attendance status</th>
+                <th>Moved to a higher Level</th>
+                <th>Feedback</th>
+                <th>Language Comment</th>
+                <th>Language Feedback</th>
               </tr>
             </thead>
             <tbody>
-              {students.map((student, index) => (
-                <tr key={student._id}>
+              {assessments.map((assessment, index) => (
+                <tr
+                  key={assessment._id}
+                  onClick={() => handleOpenEditModal(assessment)}
+                >
                   <td>{index + 1}</td>
-                  <td>{student.name}</td>
-                  <td>{student.phoneNumber}</td>
-                  <td>{student.email}</td>
-                  <td>{student.nationalId}</td>
-                  <td>{student.interestedInCourse}</td>
-                  <td>{student.status}</td>
-                  <td>{student.paid}</td>
-                  <td>{student.level}</td>
-                  <td>{student.waitingList}</td>
-                  <td>
-                    {new Date(student.placementTestDate).toLocaleDateString()}
-                  </td>
-                  <td>{student.due}</td>
+                  <td>{assessment.assessmentType}</td>
+                  <td>{assessment.classLevel}</td>
+                  <td>{assessment.classCode}</td>
+                  <td>{assessment.name}</td>
+                  <td>{assessment.phoneNumber}</td>
+                  <td>{assessment.attendanceStatus || 'Not Assigned'}</td>
+                  <td>{assessment.movedToHigherLevel ? (`Yes, Moved to ${adam}`) : ""}</td>
+                  <td>{assessment.assessmentFeedback || '-'}</td>
+                  <td>{assessment.languageComment || '-'}</td>
+                  <td>{assessment.languageFeedback || '-'}</td>
                 </tr>
               ))}
             </tbody>
           </Table>
         </Card.Body>
       </Card>
-      <Modal show={editModalVisible} onHide={closeEditModal}>
+      <Modal show={editModalVisible} onHide={handleCloseEditModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Edit Placement Test</Modal.Title>
+          <Modal.Title>Edit Assessment</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {/* Add a form here to edit the test information */}
-          {editingTest && (
-            <Form>
-              <Form.Group controlId="formCost">
-                <Form.Label>Cost</Form.Label>
-                <Form.Control
-                  type="number"
-                  placeholder="Enter cost"
-                  value={editingTest.cost}
-                  onChange={(e) => handleEditChange(e, "cost")}
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Attendance status</Form.Label>
+              <div>
+                <Form.Check
+                  type="radio"
+                  label="Show"
+                  name="attendanceStatus"
+                  value="Show"
+                  checked={selectedAssessment?.attendanceStatus === "Show"}
+                  onChange={handleInputChange}
                 />
-              </Form.Group>
-
-              <Form.Group controlId="formInstructions">
-                <Form.Label>Instructions</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder="Enter instructions"
-                  value={editingTest.instructions}
-                  onChange={(e) => handleEditChange(e, "instructions")}
+                <Form.Check
+                  type="radio"
+                  label="No Show"
+                  name="attendanceStatus"
+                  value="No Show"
+                  checked={selectedAssessment?.attendanceStatus === "No Show"}
+                  onChange={handleInputChange}
                 />
-              </Form.Group>
+              </div>
+            </Form.Group>
 
-              <Form.Group controlId="formDate">
-                <Form.Label>Date</Form.Label>
+            <Form.Group className="my-3">
+              <Form.Label>Assessment feedback</Form.Label>
+              <Form.Control
+                as="textarea"
+                name="assessmentFeedback"
+                value={selectedAssessment?.assessmentFeedback}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+
+            <Form.Group className="my-3">
+              <Form.Check
+                type="radio"
+                label="Stay at the same"
+                name="levelStatus"
+                value="Stay at the same"
+                checked={
+                  selectedAssessment?.stayAtTheSame
+                }
+                onChange={handleInputChange}
+              />
+              <Form.Check
+                type="radio"
+                label="Moved to a higher level"
+                name="levelStatus"
+                value="Moved to a higher level"
+                checked={
+                  selectedAssessment?.movedToHigherLevels
+                }
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+
+            {selectedAssessment?.movedToHigherLevels && (
+              <Form.Group className="my-3">
+                <Form.Label>Specify the level</Form.Label>
                 <Form.Control
-                  type="date"
-                  placeholder="Select date"
-                  value={editingTest.date}
-                  onChange={(e) => handleEditChange(e, "date")}
-                />
+                  as="select"
+                  name="newLevel"
+                  value={selectedAssessment?.higherLevel}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select a level</option>
+                  {levels.map((level) => (
+                    <option key={level._id} value={level.name}>
+                      {level.name}
+                    </option>
+                  ))}
+                </Form.Control>
               </Form.Group>
+            )}
 
-              {/* Add input fields for other fields like room, instructor, createdByAdmin, adminName, etc. */}
-            </Form>
-          )}
+            <Form.Group className="my-3">
+              <Form.Label>Language comment</Form.Label>
+              <Form.Control
+                type="text"
+                name="languageComment"
+                value={selectedAssessment?.languageComment}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+
+            <Form.Group className="my-3">
+              <Form.Label>Language feedback</Form.Label>
+              <Form.Control
+                type="text"
+                name="languageFeedback"
+                value={selectedAssessment?.languageFeedback}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+          </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={closeEditModal}>
+          <Button variant="secondary" onClick={handleCloseEditModal}>
             Close
           </Button>
           <Button variant="primary" onClick={handleSaveEdit}>
@@ -214,4 +260,4 @@ const PlacementTests = () => {
   );
 };
 
-export default PlacementTests;
+export default BatchAssessments;

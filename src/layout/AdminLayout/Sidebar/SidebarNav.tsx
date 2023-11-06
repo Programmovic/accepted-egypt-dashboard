@@ -172,6 +172,9 @@ export default function SidebarNav() {
       <SidebarNavItem icon={faEdit} href="/placement_tests">
         Placement Test (EWF2 Test)
       </SidebarNavItem>
+      <SidebarNavItem icon={faEdit} href="/progress_exit_tests">
+        Progress / Exit Tests
+      </SidebarNavItem>
       <SidebarNavItem icon={faSchool} href="/courses">
         Courses
       </SidebarNavItem>
