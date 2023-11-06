@@ -17,6 +17,7 @@ export default async (req, res) => {
         student.student,
         {
           status: "Waiting List",
+          waitingList: true,
           batch: null
         },
         { new: true }

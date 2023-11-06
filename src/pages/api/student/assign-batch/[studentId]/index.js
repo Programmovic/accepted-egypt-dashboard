@@ -44,6 +44,7 @@ export default async (req, res) => {
       student.status = "Joined Batch";
       student.paid += +paidAmount;
       student.due = +dueAmount;
+      student.WaitingList = false
 
       // Create a transaction for the received amount
       const receivedTransaction = new Transaction({

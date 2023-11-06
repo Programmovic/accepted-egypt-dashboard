@@ -80,7 +80,7 @@ const WaitingList = () => {
     try {
       const response = await axios.get("/api/student");
       if (response.status === 200) {
-        console.log(response)
+        console.log(response);
         setStudents(response.data.students);
       }
     } catch (error) {
@@ -97,11 +97,13 @@ const WaitingList = () => {
   useEffect(() => {
     fetchWaitingListData();
     fetchBatches();
-    fetchStudentsData()
+    fetchStudentsData();
   }, []);
-  console.log(students)
+  console.log(students);
   useEffect(() => {
-    {selectedWaitingListItem?.student && fetchStudentData();}
+    {
+      selectedWaitingListItem?.student && fetchStudentData();
+    }
   }, [selectedWaitingListItem]);
   console.log(student);
   const assignToBatch = async () => {
@@ -215,6 +217,7 @@ const WaitingList = () => {
         console.error("Error fetching levels:", error);
       });
   }, []);
+  console.log(selectedBatch);
   return (
     <AdminLayout>
       <Row>
@@ -224,14 +227,20 @@ const WaitingList = () => {
           enableOptions={false}
         />
         <ClassCard
-          data={`${students && students.filter(
-            (student) => student.batch && student.batch !== ""
-          ).length}`}
+          data={`${
+            students &&
+            students.filter((student) => student.batch && student.batch !== "")
+              .length
+          }`}
           title="Students Converted from EWFS to Batches"
           enableOptions={false}
         />
       </Row>
-      <WaitingListSummary levels={levels} filterdWaitingList={filterdWitingLists} students={students}/>
+      <WaitingListSummary
+        levels={levels}
+        filterdWaitingList={filterdWitingLists}
+        students={students}
+      />
       <Card>
         <Card.Header>Waiting List</Card.Header>
 
@@ -306,7 +315,7 @@ const WaitingList = () => {
                   <td>{waitingListItem.assignedLevel}</td>
                   <td>{waitingListItem.source}</td>
                   <td>{new Date(waitingListItem.date).toLocaleDateString()}</td>
-                  
+
                   {/* Add more table cells for other waiting list item data */}
                 </tr>
               ))}
@@ -347,6 +356,18 @@ const WaitingList = () => {
                       placeholder="Select Batch"
                       isDisabled={student.batch && true}
                     />
+                    {selectedBatch && selectedBatch.value && (
+                      <Form.Text className="text-muted">
+                        {new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "EGP",
+                        }).format(
+                          batches.find(
+                            (batch) => batch._id === selectedBatch?.value
+                          )?.cost
+                        )}
+                      </Form.Text>
+                    )}
                   </Form.Group>
                 </Col>
                 <Col xs={12} className="mt-4">
@@ -356,7 +377,22 @@ const WaitingList = () => {
                       type="number"
                       placeholder="Enter the paid amount"
                       value={paidAmount}
-                      onChange={(e) => setPaidAmount(e.target.value)}
+                      onChange={(e) => {
+                        // Parse the input value to a number
+                        const inputValue = parseFloat(e.target.value);
+
+                        // Get the selected batch's price
+                        const batchPrice = selectedBatch.value
+                          ? batches.find(
+                              (batch) => batch._id === selectedBatch.value
+                            ).cost
+                          : 0; // Default to 0 if no batch is selected
+
+                        // Update the paid amount, setting it to the batch price if it's higher
+                        setPaidAmount(
+                          inputValue > batchPrice ? batchPrice : inputValue
+                        );
+                      }}
                     />
                   </Form.Group>
                 </Col>
