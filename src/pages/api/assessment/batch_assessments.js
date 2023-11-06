@@ -3,6 +3,7 @@ import connectDB from "@lib/db";
 import Assessment from "../../../models/progress_exit_test";
 import Batch from "../../../models/batch";
 import WaitingList from "../../../models/waiting_list"; // Import the WaitingList model
+import Student from "../../../models/student";
 
 export default async (req, res) => {
   await connectDB();
@@ -41,9 +42,19 @@ export default async (req, res) => {
 
       // Check if the student moved to a higher level
       if (updatedAssessment.movedToHigherLevel) {
+        // Update the student's status to "Waiting List" and set their level to the new level
+        const updatedStudent = await Student.findByIdAndUpdate(
+          updatedAssessment.student,
+          {
+            status: "Waiting List",
+            level: updatedAssessment.newLevel,
+          },
+          { new: true }
+        );
+
         // Create a waiting list entry
         const waitingListEntry = new WaitingList({
-          student: updatedAssessment.student,
+          student: updatedStudent._id,
           studentName: updatedAssessment.name,
           studentNationalID: updatedAssessment.studentNationalID,
           studentPhoneNumber: updatedAssessment.phoneNumber,
