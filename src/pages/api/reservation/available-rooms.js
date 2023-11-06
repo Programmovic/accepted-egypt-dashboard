@@ -10,14 +10,11 @@ export default async (req, res) => {
     try {
       // Check if the 'date' parameter is provided, otherwise use the current date
       const { date } = req.query;
-      const currentDate = new Date(date) //date ? new Date(date) : new Date();
-      const offsetMinutes = currentDate.getTimezoneOffset();
-      const adjustedDate = new Date(currentDate.getTime() - offsetMinutes * 60000);
       // Find all reservations that overlap with the specified date and time range
-      const checkedDate = date ? date : adjustedDate
+      const checkedDate = date
       console.log(checkedDate)
       const overlappingReservations = await Reservation.find({
-        date: checkedDate,
+        date: new Date(convertDateFormat(checkedDate)),
       });
 
       // Find all rooms that are not reserved during the specified time range
@@ -27,7 +24,7 @@ export default async (req, res) => {
       const availableRooms = await Room.find({
         _id: { $nin: reservedRoomIds },
       });
-
+      console.log(availableRooms)
       res.json(availableRooms);
     } catch (error) {
       console.error("Error fetching available rooms:", error);
@@ -37,3 +34,16 @@ export default async (req, res) => {
     return res.status(400).json({ error: "Invalid request" });
   }
 };
+function convertDateFormat(inputDate) {
+  const parts = inputDate.split('/');
+  if (parts.length === 3) {
+    const month = parts[0].padStart(2, '0'); // Ensure 2-digit month
+    const day = parts[1].padStart(2, '0');   // Ensure 2-digit day
+    const year = parts[2];
+    const isoDate = `${year}-${month}-${day}T00:00:00.000Z`;
+    return isoDate;
+  } else {
+    // Handle invalid input
+    return null;
+  }
+}

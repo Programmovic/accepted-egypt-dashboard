@@ -164,7 +164,7 @@ const Students = () => {
           newStudentPlacementTestDate
         ).toLocaleDateString()}`,
         level: "N/A",
-        salesMember: selectedSalesMember.value
+        salesMember: selectedSalesMember.value,
       });
       if (response.status === 201) {
         // Data added successfully
@@ -198,7 +198,7 @@ const Students = () => {
       setLoadingAddStudent(false);
     }
   };
-console.log(selectedSalesMember)
+  console.log(selectedSalesMember);
   const handleSort = (criteria) => {
     if (criteria === sortBy) {
       // Toggle the sorting order if the same criteria is clicked again
@@ -337,7 +337,6 @@ console.log(selectedSalesMember)
       setCurrentPage(currentPage - 1);
     }
   };
-  
 
   useEffect(() => {
     // Fetch sales members from your API

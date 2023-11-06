@@ -8,6 +8,8 @@ import {
   Accordion,
   Button,
   Row,
+  Container,
+  Col,
 } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -28,7 +30,7 @@ const StudentProfile = () => {
   const [email, setEmail] = useState(studentData.email);
   const [nationalId, setNationalId] = useState(studentData.nationalId);
   const [status, setStatus] = useState(studentData.status);
-  
+
   // Add state variables for other fields as needed
   const handleSave = async () => {
     try {
@@ -40,7 +42,7 @@ const StudentProfile = () => {
         status,
         // Include other fields in the request body as needed
       });
-  
+
       if (response.status === 200) {
         toast.success("Student information updated successfully.", {
           position: "top-right",
@@ -49,13 +51,16 @@ const StudentProfile = () => {
       }
     } catch (error) {
       console.error("Error updating student data:", error);
-      toast.error("Failed to update student information. Please try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error(
+        "Failed to update student information. Please try again later.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+        }
+      );
     }
   };
-    
+
   // Function to fetch student data
   const fetchStudentData = async () => {
     try {
@@ -82,6 +87,25 @@ const StudentProfile = () => {
       if (response.status === 200) {
         console.log(response);
         setBatchData(response.data); // Adjust the response data structure accordingly
+      }
+    } catch (error) {
+      console.error("Error fetching batch data:", error);
+      toast.error("Failed to fetch batch data. Please try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+  const [batches, setBatches] = useState([]);
+  const fetchBatchesData = async () => {
+    try {
+      const response = await axios.get(`/api/batch`); // Replace with your actual API endpoint for batch data
+
+      if (response.status === 200) {
+        console.log(response);
+        setBatches(response.data); // Adjust the response data structure accordingly
       }
     } catch (error) {
       console.error("Error fetching batch data:", error);
@@ -139,38 +163,39 @@ const StudentProfile = () => {
         studentData._id && fetchAttendancesForStudent();
       }
       fetchPlacementTests();
+      fetchBatchesData();
     }
   }, [id, studentData.batch, studentData._id, studentData.placementTestDate]);
   function calculateTimeDuration(startTime, endTime) {
     // Split the time strings into hours and minutes
     const [startHour, startMinute] = startTime.split(":");
     const [endHour, endMinute] = endTime.split(":");
-  
+
     // Convert hours and minutes to numbers
     const startHourNum = parseInt(startHour, 10);
     const startMinuteNum = parseInt(startMinute, 10);
     const endHourNum = parseInt(endHour, 10);
     const endMinuteNum = parseInt(endMinute, 10);
-  
+
     // Calculate the duration in minutes
     const totalMinutesStart = startHourNum * 60 + startMinuteNum;
     const totalMinutesEnd = endHourNum * 60 + endMinuteNum;
     const duration = totalMinutesEnd - totalMinutesStart;
-  
+
     return duration;
   }
   const [placementTests, setPlacementTests] = useState([]);
 
   const [showPlacementTestModal, setShowPlacementTestModal] = useState(false);
-const [selectedPlacementTest, setSelectedPlacementTest] = useState(null);
-const openPlacementTestModal = (student) => {
-  setSelectedPlacementTest(null); // Clear the selected placement test
-  setShowPlacementTestModal(true);
-};
-const handlePlacementTestSelect = (event) => {
-  const testId = event.target.value;
-  setSelectedPlacementTest(testId);
-};
+  const [selectedPlacementTest, setSelectedPlacementTest] = useState(null);
+  const openPlacementTestModal = (student) => {
+    setSelectedPlacementTest(null); // Clear the selected placement test
+    setShowPlacementTestModal(true);
+  };
+  const handlePlacementTestSelect = (event) => {
+    const testId = event.target.value;
+    setSelectedPlacementTest(testId);
+  };
   const fetchPlacementTests = async () => {
     try {
       const response = await axios.get("/api/placement_test_settings");
@@ -185,48 +210,43 @@ const handlePlacementTestSelect = (event) => {
       });
     }
   };
-  const moveStudentToPlacementTest = (placementTestId) => {
-    if (placementTestId) {
-      // Send a request to move the student to the selected placement test
-      // You can use axios to make the request
-      // After moving the student, you may want to update the student list accordingly
-      // and close the modal
-    }
-    setShowPlacementTestModal(false);
+
+  const [showBatchModal, setShowBatchModal] = useState(false);
+  const [selectedBatch, setSelectedBatch] = useState(studentData.batch);
+
+  // Function to open the batch update modal
+  const openBatchModal = () => {
+    setShowBatchModal(true);
   };
-  
+
+  // Function to handle the batch update
+  const handleBatchUpdate = async () => {
+    try {
+      // Send a request to update the student's batch with selectedBatch
+      const response = await axios.put(`/api/student/${id}`, {
+        batch: selectedBatch,
+      });
+
+      if (response.status === 200) {
+        toast.success("Student's batch updated successfully.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating student's batch:", error);
+      toast.error("Failed to update student's batch. Please try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      // Close the modal and refresh data
+      setShowBatchModal(false);
+      fetchStudentData(); // You should implement fetchStudentData to update the student's batch data
+    }
+  };
   return (
     <AdminLayout>
-      <Modal show={showPlacementTestModal} onHide={() => setShowPlacementTestModal(false)}>
-  <Modal.Header>
-    <Modal.Title>Move to Placement Test</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <Form.Group controlId="placementTestSelect">
-      <Form.Label>Select a Placement Test</Form.Label>
-      <Form.Control as="select" onChange={handlePlacementTestSelect}>
-        <option value="">Select a Placement Test</option>
-        {placementTests.map((test) => (
-          <option key={test._id} value={test._id}>
-            {test.name}
-          </option>
-        ))}
-      </Form.Control>
-    </Form.Group>
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={() => setShowPlacementTestModal(false)}>
-      Cancel
-    </Button>
-    <Button
-      variant="primary"
-      onClick={() => moveStudentToPlacementTest(selectedPlacementTest)}
-    >
-      Move
-    </Button>
-  </Modal.Footer>
-</Modal>
-
       <div className="row">
         <ClassCard
           data={lectures.length}
@@ -309,142 +329,159 @@ const handlePlacementTestSelect = (event) => {
           isLoading={loading}
         />
       </div>
-      <div className="container rounded bg-white mt-5 mb-5">
-        <div className="row">
-          <div className="col-md-12 border-right">
-            <div>
-              <div className="d-flex justify-content-between align-items-center mb-3">
-                <h4 className="text-right">{studentData.name}</h4>
-              </div>
-              <div className="row mt-2">
-                <div className="col-md-12">
-                  <label className="labels">Name</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="first name"
-                    defaultValue={studentData.name}
-                  />
-                </div>
-              </div>
-              <div className="row mt-3">
-                <div className="col-md-12">
-                  <label className="labels">Mobile Number</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="enter phone number"
-                    defaultValue={studentData.phoneNumber}
-                  />
-                </div>
-
-                <div className="col-md-12">
-                  <label className="labels">Email</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="enter email id"
-                    defaultValue={studentData.email}
-                  />
-                </div>
-                <div className="col-md-12">
-                  <label className="labels">National Id</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="education"
-                    defaultValue={studentData.nationalId}
-                  />
-                </div>
-              </div>
-              <div className="row mt-3">
-                <div className="col-md-6">
-                  <label className="labels">Status</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="country"
-                    defaultValue={studentData.status}
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="labels">Paid</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    defaultValue={studentData.paid}
-                    disabled
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="labels">Due</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    defaultValue={studentData.due}
-                    disabled
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="labels">level</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    defaultValue={studentData.level}
-                    disabled
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="labels">Waiting list</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    defaultValue={studentData.waitingList}
-                    disabled
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="labels">Placement Test</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    defaultValue={new Date(
-                      studentData.placementTestDate
-                    ).toLocaleDateString()}
-                    disabled
-                  />
-                </div>
-                <div className="col-md-6">
-                  <label className="labels">Batch</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    defaultValue={batchData.name}
-                    disabled
-                  />
-                </div>
-              </div>
-              <div className="mt-5 text-end">
-                <button
-                  className="btn btn-primary profile-button"
-                  type="button"
-                >
-                  Move To Waiting list
-                </button>
-                <button
-                  className="btn btn-primary profile-button"
-                  type="button"
-                  onClick={handleSave}
-                >
-                  Update
-                </button>
-              </div>
-            </div>
-          </div>
-          
-        </div>
-      </div>
-      <Card>
+      <Container className="mt-5">
+        <Row className="mb-3">
+          <h4 className="text-right">{studentData.name}</h4>
+        </Row>
+        <Row>
+          <Col md={12}>
+            <Form.Group controlId="name">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="First name"
+                defaultValue={studentData.name}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={12}>
+            <Form.Group controlId="phoneNumber">
+              <Form.Label>Mobile Number</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter phone number"
+                defaultValue={studentData.phoneNumber}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={12}>
+            <Form.Group controlId="email">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter email id"
+                defaultValue={studentData.email}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={12}>
+            <Form.Group controlId="nationalId">
+              <Form.Label>National Id</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="National Id"
+                defaultValue={studentData.nationalId}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="status">
+              <Form.Label>Status</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Status"
+                defaultValue={studentData.status}
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="paid">
+              <Form.Label>Paid</Form.Label>
+              <Form.Control
+                type="text"
+                defaultValue={studentData.paid}
+                disabled
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="due">
+              <Form.Label>Due</Form.Label>
+              <Form.Control
+                type="text"
+                defaultValue={studentData.due}
+                disabled
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="level">
+              <Form.Label>Level</Form.Label>
+              <Form.Control
+                type="text"
+                defaultValue={studentData.level}
+                disabled
+              />
+            </Form.Group>
+          </Col>
+          <Col md={6}>
+            <Form.Group controlId="placementTest">
+              <Form.Label>Placement Test</Form.Label>
+              <Form.Control
+                type="text"
+                defaultValue={new Date(
+                  studentData.placementTestDate
+                ).toLocaleDateString()}
+                disabled
+              />
+            </Form.Group>
+          </Col>
+        </Row>
+        <Row className="mt-3 justify-content-center d-flex">
+          <Col>
+            <Button
+              variant="primary"
+              className="profile-button"
+              type="button"
+              onClick={handleSave}
+            >
+              Update
+            </Button>
+          </Col>
+          <Col>
+            <Button
+              variant="primary"
+              className="profile-button"
+              type="button"
+              onClick={openBatchModal}
+            >
+              Update Batch
+            </Button>
+          </Col>
+          {/* Button to open the batch update modal */}
+        </Row>
+      </Container>
+      <Modal show={showBatchModal} onHide={() => setShowBatchModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Student's Batch</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form.Group controlId="batchSelect">
+            <Form.Label>Select Batch</Form.Label>
+            <Form.Control
+              as="select"
+              value={selectedBatch}
+              onChange={(e) => setSelectedBatch(e.target.value)}
+            >
+              <option value="">Select a batch</option>
+              {batches.map((batch) => (
+                <option key={batch.id} value={batch.id}>
+                  {batch.name}
+                </option>
+              ))}
+            </Form.Control>
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowBatchModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleBatchUpdate}>
+            Update
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Card className="mt-5">
         <Card.Header>Lectures for {batchData.name}</Card.Header>
         <Card.Body>
           <Table striped bordered hover>
@@ -454,7 +491,7 @@ const handlePlacementTestSelect = (event) => {
                 <th>Date</th>
                 <th>Time</th>
                 <th>Duration</th>
-                <th>Attendance Status</th> {/* Add this column */}
+                <th>Attendance Status</th>
               </tr>
             </thead>
             <tbody>
@@ -472,8 +509,14 @@ const handlePlacementTestSelect = (event) => {
                     <td>{lecture.name}</td>
                     <td>{new Date(lecture.date).toLocaleDateString()}</td>
                     <td>{`${lecture.weeklyHours.day}: ${lecture.weeklyHours.from} to ${lecture.weeklyHours.to}`}</td>
-                    <td>{calculateTimeDuration(lecture.weeklyHours.from, lecture.weeklyHours.to)} Minutes</td>
-                    <td>{status}</td> {/* Display attendance status here */}
+                    <td>
+                      {calculateTimeDuration(
+                        lecture.weeklyHours.from,
+                        lecture.weeklyHours.to
+                      )}{" "}
+                      Minutes
+                    </td>
+                    <td>{status}</td>
                   </tr>
                 );
               })}

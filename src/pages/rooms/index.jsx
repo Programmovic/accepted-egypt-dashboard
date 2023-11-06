@@ -7,7 +7,6 @@ import { AdminLayout } from "@layout";
 import Link from "next/link";
 import Select from "react-select";
 
-
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -137,7 +136,7 @@ const Rooms = () => {
     toTime
   ) => {
     const apiUrl = "/api/reservation/available-rooms"; // Update the URL if needed
-console.log(date)
+    console.log(selectedRoomId);
     try {
       const params = {
         date,
@@ -160,14 +159,21 @@ console.log(date)
         (room) => room._id
       );
       console.log(availableRoomIds);
-      // Check if the selected room is among the available rooms
+      console.log(availableRoomIds.includes(selectedRoomId))
       return availableRoomIds.includes(selectedRoomId);
     } catch (error) {
       console.error("Error checking room availability:", error);
       return false; // Unable to determine room availability (consider handling errors more specifically)
     }
   };
-
+console.log(
+  checkRoomAvailability(
+    "6540f73dd34311df120c614c",
+    new Date().toLocaleDateString(),
+    "9:00",
+    "5:00"
+  )
+)
   return (
     <AdminLayout>
       <Card>
@@ -206,13 +212,13 @@ console.log(date)
             </thead>
             <tbody>
               {rooms.map((room, index) => {
-                const isRoomReserved = !checkRoomAvailability(
+                const isRoomReserved = checkRoomAvailability(
                   room._id,
                   new Date().toLocaleDateString(),
                   "9:00",
                   "5:00"
                 );
-
+                console.log(isRoomReserved)
                 return (
                   <tr key={room._id} onClick={() => handleRowClick(room)}>
                     <td>{index + 1}</td>
@@ -220,7 +226,7 @@ console.log(date)
                     <td>{room.capacity}</td>
                     <td>{room.location}</td>
                     <td>{room.description}</td>
-                    <td>{isRoomReserved ? "Reserved" : "Available"}</td>
+                    {/* <td>{isRoomReserved}</td> */}
                   </tr>
                 );
               })}
