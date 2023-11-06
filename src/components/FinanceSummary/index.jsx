@@ -9,18 +9,8 @@ const TransactionsSummary = ({
   expenseOptions,
 }) => {
   // Calculate the total amount received from all transactions
-  const totalReceivedAmount = transactions.reduce((total, transaction) => {
-    if (transaction.type === "Income") {
-      return total + transaction.amount;
-    }
-    return total;
-  }, 0);
-  const totalExpensedAmount = transactions.reduce((total, transaction) => {
-    if (transaction.type === "Expense") {
-      return total + transaction.amount;
-    }
-    return total;
-  }, 0);
+  const totalReceivedAmount = statistics.receivedAmount;
+  const totalExpensedAmount = statistics.expensesAmount;
 
   const [targetValues, setTargetValues] = useState({});
 

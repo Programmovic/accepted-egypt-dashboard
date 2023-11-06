@@ -72,10 +72,13 @@ const BatchLectures = () => {
       }
     } catch (error) {
       console.error("Error fetching batch instructors:", error);
-      toast.error("Failed to fetch batch instructors. Please try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.error(
+        "Failed to fetch batch instructors. Please try again later.",
+        {
+          position: "top-right",
+          autoClose: 3000,
+        }
+      );
     }
   };
 
@@ -118,6 +121,9 @@ const BatchLectures = () => {
   };
 
   const progressInfo = calculateProgress();
+  const handleStudentClick = (studentId) => {
+    router.push(`/students/${studentId}`);
+  };
 
   return (
     <AdminLayout>
@@ -198,7 +204,11 @@ const BatchLectures = () => {
             <tbody>
               {batchStudents.map((student) => (
                 <tr key={student._id}>
-                  <td>{student.name}</td>
+                  <td>
+                    <Link href={`/students/${student._id}`}>
+                      {student.name}
+                    </Link>
+                  </td>
                   <td>{student.email}</td>
                   <td>{student.phoneNumber}</td>
                 </tr>

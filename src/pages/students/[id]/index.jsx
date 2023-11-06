@@ -138,6 +138,7 @@ const StudentProfile = () => {
       {
         studentData._id && fetchAttendancesForStudent();
       }
+      fetchPlacementTests();
     }
   }, [id, studentData.batch, studentData._id, studentData.placementTestDate]);
   function calculateTimeDuration(startTime, endTime) {
@@ -158,10 +159,74 @@ const StudentProfile = () => {
   
     return duration;
   }
-  
+  const [placementTests, setPlacementTests] = useState([]);
+
+  const [showPlacementTestModal, setShowPlacementTestModal] = useState(false);
+const [selectedPlacementTest, setSelectedPlacementTest] = useState(null);
+const openPlacementTestModal = (student) => {
+  setSelectedPlacementTest(null); // Clear the selected placement test
+  setShowPlacementTestModal(true);
+};
+const handlePlacementTestSelect = (event) => {
+  const testId = event.target.value;
+  setSelectedPlacementTest(testId);
+};
+  const fetchPlacementTests = async () => {
+    try {
+      const response = await axios.get("/api/placement_test_settings");
+      if (response.status === 200) {
+        setPlacementTests(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching placement tests:", error);
+      toast.error("Failed to fetch placement tests. Please try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+  const moveStudentToPlacementTest = (placementTestId) => {
+    if (placementTestId) {
+      // Send a request to move the student to the selected placement test
+      // You can use axios to make the request
+      // After moving the student, you may want to update the student list accordingly
+      // and close the modal
+    }
+    setShowPlacementTestModal(false);
+  };
   
   return (
     <AdminLayout>
+      <Modal show={showPlacementTestModal} onHide={() => setShowPlacementTestModal(false)}>
+  <Modal.Header>
+    <Modal.Title>Move to Placement Test</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form.Group controlId="placementTestSelect">
+      <Form.Label>Select a Placement Test</Form.Label>
+      <Form.Control as="select" onChange={handlePlacementTestSelect}>
+        <option value="">Select a Placement Test</option>
+        {placementTests.map((test) => (
+          <option key={test._id} value={test._id}>
+            {test.name}
+          </option>
+        ))}
+      </Form.Control>
+    </Form.Group>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowPlacementTestModal(false)}>
+      Cancel
+    </Button>
+    <Button
+      variant="primary"
+      onClick={() => moveStudentToPlacementTest(selectedPlacementTest)}
+    >
+      Move
+    </Button>
+  </Modal.Footer>
+</Modal>
+
       <div className="row">
         <ClassCard
           data={lectures.length}
