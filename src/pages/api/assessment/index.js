@@ -26,6 +26,7 @@ export default async (req, res) => {
           batch: assessmentData.batch,
           classLevel: selectedBatch.levelName, // Set the level
           classCode: selectedBatch.code, // Set the code
+          student: student._id,
           name: student.name,
           phoneNumber: student.phoneNumber,
         };
