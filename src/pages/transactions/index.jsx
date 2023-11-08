@@ -20,6 +20,7 @@ const Transactions = () => {
   const [fromDate, setFromDate] = useState(null);
   const [toDate, setToDate] = useState(null);
   const [filterDescription, setFilterDescription] = useState("");
+  const [filterStudent, setFilterStudent] = useState("");
   // State for new transaction creation
   const [newTransactionSelectedStudent, setNewTransactionSelectedStudent] =
     useState("");
@@ -147,13 +148,21 @@ const Transactions = () => {
           .includes(filterDescription.toLowerCase())
       );
     }
+    if (filterStudent) {
+      filtered = filtered.filter((transaction) => {
+        const studentName = students.find(
+          (student) => student._id === transaction.student
+        )?.name;
+        return studentName?.toLowerCase() === filterStudent.toLowerCase();
+      });
+    }
     setFilteredTransactions(filtered);
   };
 
   useEffect(() => {
     // Automatically apply filters when filter inputs change
     handleFilter();
-  }, [filterType, fromDate, toDate, filterDescription]);
+  }, [filterType, fromDate, toDate, filterDescription, filterStudent]);
 
   const clearFilters = () => {
     setFilterType("");
@@ -357,14 +366,6 @@ const Transactions = () => {
 
   return (
     <AdminLayout>
-      <TransactionsSummary
-        transactions={transactions}
-        statistics={statistics}
-        batches={batches}
-        levelIncomes={levelIncomes}
-        expenseOptions={expenseOptions}
-      />
-
       <Card>
         <Card.Header>Transactions</Card.Header>
         <Card.Body>
@@ -388,6 +389,23 @@ const Transactions = () => {
                     type="date"
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={4}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Student</Form.Label>
+                  <Select
+                    value={filterStudent}
+                    options={students.map((student) => ({
+                      value: student.name,
+                      label: student.name,
+                    }))}
+                    isClearable={true}
+                    isSearchable={true}
+                    onChange={(selectedOption) =>
+                      setFilterStudent(selectedOption?.value || "")
+                    }
                   />
                 </Form.Group>
               </Col>
@@ -449,7 +467,13 @@ const Transactions = () => {
           >
             Add Transaction
           </Button>
-
+          <TransactionsSummary
+        transactions={transactions}
+        statistics={statistics}
+        batches={batches}
+        levelIncomes={levelIncomes}
+        expenseOptions={expenseOptions}
+      />
           <Table striped bordered hover>
             <thead>
               <tr>
@@ -499,16 +523,6 @@ const Transactions = () => {
                     {new Date(transaction.createdAt).toLocaleDateString()}
                   </td>
                   <td>
-                    <Button
-                      variant="warning"
-                      onClick={() => {
-                        setShowUpdateModal(true);
-                        setUpdatingTransaction(transaction);
-                      }}
-                      className="mx-2"
-                    >
-                      Update
-                    </Button>
                     <Button
                       variant="danger"
                       onClick={() => handleDeleteTransaction(transaction._id)}
@@ -633,31 +647,31 @@ const Transactions = () => {
               />
             </Form.Group>
             {newTransactionSelectedStudent && (
-        <Form.Group className="mb-3">
-          <Form.Label>Description</Form.Label>
-          <Form.Control
-            as="select"
-            value={newTransactionDescription}
-            onChange={(e) => setNewTransactionDescription(e.target.value)}
-            required
-          >
-            <option value="Course Fee">Course Fee</option>
-            <option value="Material">Material</option>
-          </Form.Control>
-        </Form.Group>
-      )}
-      {/* Render the description as a text input if no student is selected */}
-      {!newTransactionSelectedStudent && (
-        <Form.Group className="mb-3">
-          <Form.Label>Description</Form.Label>
-          <Form.Control
-            type="text"
-            value={newTransactionDescription}
-            onChange={(e) => setNewTransactionDescription(e.target.value)}
-            required
-          />
-        </Form.Group>
-      )}
+              <Form.Group className="mb-3">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={newTransactionDescription}
+                  onChange={(e) => setNewTransactionDescription(e.target.value)}
+                  required
+                >
+                  <option value="Course Fee">Course Fee</option>
+                  <option value="Material">Material</option>
+                </Form.Control>
+              </Form.Group>
+            )}
+            {/* Render the description as a text input if no student is selected */}
+            {!newTransactionSelectedStudent && (
+              <Form.Group className="mb-3">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={newTransactionDescription}
+                  onChange={(e) => setNewTransactionDescription(e.target.value)}
+                  required
+                />
+              </Form.Group>
+            )}
           </Form>
         </Modal.Body>
         <Modal.Footer>
