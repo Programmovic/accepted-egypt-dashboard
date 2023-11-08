@@ -35,9 +35,11 @@ export default async (req, res) => {
       if (!batchData) {
         return res.status(404).json({ error: "Batch not found" });
       }
-
+      
       // Calculate the due amount
-      const dueAmount = +batchData.cost - (+paidAmount);
+      const dueAmount = +(+batchData.cost -
+        (discount / 100) *
+        +batchData.cost) - (+paidAmount);
 
       // Assign the student to the batch
       student.batch = batch;

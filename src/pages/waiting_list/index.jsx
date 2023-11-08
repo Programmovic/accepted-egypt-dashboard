@@ -24,6 +24,7 @@ const WaitingList = () => {
   const [paidAmount, setPaidAmount] = useState("");
   const [student, setStudent] = useState({});
   const [students, setStudents] = useState([]);
+  const [discount, setDiscount] = useState(0); // Initialize with 0
 
   async function fetchBatches() {
     try {
@@ -115,6 +116,7 @@ const WaitingList = () => {
           {
             batch: selectedBatch.value,
             paidAmount: paidAmount,
+            discount,
           }
         );
         console.log("selectedBatch.value");
@@ -217,7 +219,7 @@ const WaitingList = () => {
         console.error("Error fetching levels:", error);
       });
   }, []);
-  console.log(selectedBatch);
+  console.log(discount);
   return (
     <AdminLayout>
       <Row>
@@ -364,10 +366,32 @@ const WaitingList = () => {
                         }).format(
                           batches.find(
                             (batch) => batch._id === selectedBatch?.value
-                          )?.cost
+                          )?.cost -
+                            (discount / 100) *
+                              batches.find(
+                                (batch) => batch._id === selectedBatch?.value
+                              )?.cost
                         )}
                       </Form.Text>
                     )}
+                  </Form.Group>
+                </Col>
+                <Col xs={12} className="mt-4">
+                  <Form.Group>
+                    <Form.Label>Discount Amount:</Form.Label>
+                    <Form.Control
+                      disabled={selectedBatch.value ? false : true}
+                      type="number"
+                      placeholder="Enter the discount amount"
+                      value={discount}
+                      onChange={(e) => {
+                        // Parse the input value to a number
+                        const inputValue = parseFloat(e.target.value);
+
+                        // Ensure that the discount amount is not negative
+                        setDiscount(Math.max(0, inputValue));
+                      }}
+                    />
                   </Form.Group>
                 </Col>
                 <Col xs={12} className="mt-4">
@@ -384,8 +408,12 @@ const WaitingList = () => {
                         // Get the selected batch's price
                         const batchPrice = selectedBatch.value
                           ? batches.find(
-                              (batch) => batch._id === selectedBatch.value
-                            ).cost
+                              (batch) => batch._id === selectedBatch?.value
+                            )?.cost -
+                            (discount / 100) *
+                              batches.find(
+                                (batch) => batch._id === selectedBatch?.value
+                              )?.cost
                           : 0; // Default to 0 if no batch is selected
 
                         // Update the paid amount, setting it to the batch price if it's higher
