@@ -52,6 +52,7 @@ const BatchAssessments = () => {
   };
 
   const handleSaveEdit = async () => {
+    console.log(selectedAssessment);
     // Send the edited assessment data to the server
     try {
       const response = await axios.put(
@@ -75,20 +76,31 @@ const BatchAssessments = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-  
+
     // If it's a radio input, handle the radio button logic
     if (type === "radio") {
       if (value === "Stay at the same") {
         setSelectedAssessment({
           ...selectedAssessment,
           stayAtTheSame: true,
-          movedToHigherLevels: false,
+          movedToHigherLevel: false,
         });
       } else if (value === "Moved to a higher level") {
         setSelectedAssessment({
           ...selectedAssessment,
           stayAtTheSame: false,
-          movedToHigherLevels: true,
+          movedToHigherLevel: true,
+        });
+      }
+      if (value === "Show") {
+        setSelectedAssessment({
+          ...selectedAssessment,
+          attendanceStatus: value,
+        });
+      } else if (value === "No Show") {
+        setSelectedAssessment({
+          ...selectedAssessment,
+          attendanceStatus: value,
         });
       }
     } else {
@@ -100,8 +112,8 @@ const BatchAssessments = () => {
       });
     }
   };
-  
-console.log(selectedAssessment)  
+
+  console.log(selectedAssessment);
   return (
     <AdminLayout>
       <Card>
@@ -135,11 +147,11 @@ console.log(selectedAssessment)
                   <td>{assessment.classCode}</td>
                   <td>{assessment.name}</td>
                   <td>{assessment.phoneNumber}</td>
-                  <td>{assessment.attendanceStatus || 'Not Assigned'}</td>
-                  <td>{assessment.movedToHigherLevel ? (`Yes, Moved to ${adam}`) : ""}</td>
-                  <td>{assessment.assessmentFeedback || '-'}</td>
-                  <td>{assessment.languageComment || '-'}</td>
-                  <td>{assessment.languageFeedback || '-'}</td>
+                  <td>{assessment.attendanceStatus || "Not Assigned"}</td>
+                  <td>{assessment.movedToHigherLevel ? `Yes` : "No"}</td>
+                  <td>{assessment.assessmentFeedback || "-"}</td>
+                  <td>{assessment.languageComment || "-"}</td>
+                  <td>{assessment.languageFeedback || "-"}</td>
                 </tr>
               ))}
             </tbody>
@@ -190,9 +202,7 @@ console.log(selectedAssessment)
                 label="Stay at the same"
                 name="levelStatus"
                 value="Stay at the same"
-                checked={
-                  selectedAssessment?.stayAtTheSame
-                }
+                checked={selectedAssessment?.stayAtTheSame}
                 onChange={handleInputChange}
               />
               <Form.Check
@@ -200,14 +210,12 @@ console.log(selectedAssessment)
                 label="Moved to a higher level"
                 name="levelStatus"
                 value="Moved to a higher level"
-                checked={
-                  selectedAssessment?.movedToHigherLevels
-                }
+                checked={selectedAssessment?.movedToHigherLevel}
                 onChange={handleInputChange}
               />
             </Form.Group>
 
-            {selectedAssessment?.movedToHigherLevels && (
+            {selectedAssessment?.movedToHigherLevel && (
               <Form.Group className="my-3">
                 <Form.Label>Specify the level</Form.Label>
                 <Form.Control

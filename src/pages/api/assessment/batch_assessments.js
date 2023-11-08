@@ -30,12 +30,13 @@ export default async (req, res) => {
     try {
       const { assessmentId } = req.query;
       const updatedAssessmentData = req.body;
+      console.log(updatedAssessmentData)
       const updatedAssessment = await Assessment.findByIdAndUpdate(
         assessmentId,
         updatedAssessmentData,
         { new: true }
       );
-
+      console.log(updatedAssessment)
       if (!updatedAssessment) {
         return res.status(404).json({ error: "Assessment not found" });
       }
@@ -51,6 +52,7 @@ export default async (req, res) => {
           },
           { new: true }
         );
+        console.log(updatedStudent)
 
         // Create a waiting list entry
         const waitingListEntry = new WaitingList({
