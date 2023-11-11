@@ -1,5 +1,5 @@
 // Import necessary libraries and components
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import {
   Badge,
@@ -81,10 +81,12 @@ const SalesMembers = () => {
       });
     }
   };
+  const memoizedSalesMembers = useMemo(() => salesMembers, [salesMembers]);
+  const memoizedFilteredSalesMembers = useMemo(() => filteredSalesMembers, [filteredSalesMembers]);
 
   // Function to apply filters
   const handleFilter = () => {
-    let filtered = [...salesMembers];
+    let filtered = [...memoizedSalesMembers];
 
     if (filterName) {
       filtered = filtered.filter((salesMember) =>
@@ -111,6 +113,7 @@ const SalesMembers = () => {
     filterName,
     filterEmail,
     filterPhoneNumber,
+    memoizedSalesMembers
   ]);
   // Function to clear filters
   const clearFilters = () => {
@@ -181,7 +184,7 @@ const SalesMembers = () => {
               </tr>
             </thead>
             <tbody>
-              {filteredSalesMembers.map((salesMember, index) => (
+              {memoizedFilteredSalesMembers.map((salesMember, index) => (
                 <tr key={salesMember._id}>
                   <td>{index + 1}</td>
                   <td>{salesMember.name}</td>

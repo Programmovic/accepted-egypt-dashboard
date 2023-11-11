@@ -403,7 +403,7 @@ const closeCreateInstructorModal = () => {
                 Joined Date:{" "}
                 {new Date(selectedInstructor.joinedDate).toLocaleDateString()}
               </p>
-              <p>Joined Date: {getBatchName(selectedInstructor.batch).name}</p>
+              <p>Batch: {getBatchName(selectedInstructor.batch).name}</p>
 
               {/* Display instructor's classes in a table */}
             </div>
@@ -424,15 +424,6 @@ const closeCreateInstructorModal = () => {
             }}
           >
             View Instructor
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setSelectedInstructor(selectedInstructor);
-              setShowAssignBatchModal(true);
-            }}
-          >
-            Assign to Batch
           </Button>
         </Modal.Footer>
       </Modal>
@@ -484,42 +475,6 @@ const closeCreateInstructorModal = () => {
 </Modal>
 
 
-      <Modal
-        show={showAssignBatchModal}
-        onHide={() => setShowAssignBatchModal(false)}
-      >
-        <Modal.Header closeButton>
-          <Modal.Title>Assign Instructor to Batch</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group className="mb-3">
-            <Form.Label>Select a Batch</Form.Label>
-            <Form.Control
-              as="select"
-              value={selectedBatch}
-              onChange={(e) => setSelectedBatch(e.target.value)}
-            >
-              <option value="">Select a Batch</option>
-              {batchesData.map((batch) => (
-                <option key={batch._id} value={batch._id}>
-                  {batch.name}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button
-            variant="secondary"
-            onClick={() => setShowAssignBatchModal(false)}
-          >
-            Close
-          </Button>
-          <Button variant="success" onClick={handleAssignToBatch}>
-            Assign
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </AdminLayout>
   );
 };

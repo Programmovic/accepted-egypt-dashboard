@@ -328,7 +328,14 @@ const LectureAttendance = () => {
         <Modal.Body>
           {selectedLecture && (
             <div>
-              <p>Trainee: {selectedLecture.trainee.name}</p>
+              <p>
+                Trainee:{" "}
+                {
+                  students.find(
+                    (student) => student._id === selectedLecture.trainee
+                  )?.name
+                }
+              </p>
               <p>Date: {new Date(selectedLecture.date).toLocaleDateString()}</p>
               <p>Status: {selectedLecture.status}</p>
               <p>Remarks: {selectedLecture.remarks || "-"}</p>

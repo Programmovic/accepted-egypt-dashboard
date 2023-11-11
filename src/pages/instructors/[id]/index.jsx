@@ -28,7 +28,9 @@ const Instructor = () => {
 
   const fetchInstructorBatches = async () => {
     try {
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(
+        `/api/batch/instructor_batches?instructorId=${id}`
+      );
       if (response.status === 200) {
         setInstructorBatches(response.data);
       }
@@ -36,7 +38,6 @@ const Instructor = () => {
       console.error("Error fetching instructor's classes:", error);
     }
   };
-
   const fetchInstructorData = async () => {
     try {
       const response = await axios.get(`/api/instructor/${id}`);
@@ -102,7 +103,67 @@ const Instructor = () => {
       }
     }
   };
+  const [selectedBatch, setSelectedBatch] = useState("");
 
+  const addBatchToInstructor = async () => {
+    try {
+      const response = await axios.post(`/api/instructor/addBatch?instructorId=${id}`, {
+        batchId: selectedBatch,
+      });
+      if (response.status === 200) {
+        toast.success("Batch added to instructor successfully", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+        });
+        fetchInstructorBatches();
+      }
+    } catch (error) {
+      console.error("Error adding batch to instructor:", error);
+      toast.error("Failed to add batch to instructor", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+      });
+    }
+  };
+  const [allBatches, setAllBatches] = useState([]);
+
+  const fetchAllBatches = async () => {
+    try {
+      const response = await axios.get("/api/batch");
+      if (response.status === 200) {
+        setAllBatches(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching batches:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchAllBatches();
+  }, []);
+  const removeBatchFromInstructor = async (batchId) => {
+    try {
+      const response = await axios.delete(`/api/instructor/removeBatch?instructorId=${id}&batchId=${batchId}`);
+      if (response.status === 200) {
+        toast.success("Batch removed from instructor successfully", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+        });
+        fetchInstructorBatches();
+      }
+    } catch (error) {
+      console.error("Error removing batch from instructor:", error);
+      toast.error("Failed to remove batch from instructor", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+      });
+    }
+  };
+  
   return (
     <AdminLayout>
       <ToastContainer />
@@ -170,6 +231,7 @@ const Instructor = () => {
                     }
                   />
                 </Form.Group>
+
                 {/* Add more form fields for other properties */}
               </Form>
               <Button variant="success" onClick={updateInstructorData}>
@@ -182,6 +244,13 @@ const Instructor = () => {
               >
                 Delete Instructor
               </Button>
+              <Button
+                variant="primary"
+                className="ms-2"
+                onClick={() => setEditMode(false)}
+              >
+                Close
+              </Button>
             </div>
           ) : (
             <div>
@@ -190,34 +259,75 @@ const Instructor = () => {
               </Button>
             </div>
           )}
-          {instructorClasses.length > 0 && (
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Title</th>
-                  <th>Cost (EGP)</th>
-                  <th>Created Date</th>
-                  <th>Code</th>
-                  <th>Description</th>
-                  <th>Hours</th>
-                </tr>
-              </thead>
-              <tbody>
-                {instructorClasses.map((cls, index) => (
-                  <tr key={cls._id}>
-                    <td>{index + 1}</td>
-                    <td>{cls.name}</td>
-                    <td>{cls.cost} EGP</td>
-                    <td>{new Date(cls.createdDate).toLocaleDateString()}</td>
-                    <td>{cls.code}</td>
-                    <td>{cls.description}</td>
-                    <td>{cls.hours}</td>
-                  </tr>
+          <Form.Group className="my-3">
+            <Form.Select
+              value={selectedBatch}
+              onChange={(e) => setSelectedBatch(e.target.value)}
+            >
+              <option value="" disabled>
+                Select a batch
+              </option>
+              {allBatches
+                .filter(
+                  (batch) =>
+                    !instructorBatches.some(
+                      (assignedBatch) => assignedBatch._id === batch._id
+                    )
+                )
+                .map((batch) => (
+                  <option key={batch._id} value={batch._id}>
+                    {batch.name}
+                  </option>
                 ))}
-              </tbody>
-            </Table>
-          )}
+            </Form.Select>
+            <Button
+              variant="primary"
+              onClick={addBatchToInstructor}
+              className="mt-2"
+            >
+              Add Batch
+            </Button>
+          </Form.Group>
+
+          {instructorBatches.length > 0 && (
+  <Table striped bordered hover className="mt-4">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Title</th>
+        <th>Cost (EGP)</th>
+        <th>Created Date</th>
+        <th>Code</th>
+        <th>Description</th>
+        <th>Hours</th>
+        <th>Action</th> {/* Add this column for the delete button */}
+      </tr>
+    </thead>
+    <tbody>
+      {instructorBatches.map((cls, index) => (
+        <tr key={cls._id} onClick={() => router.push(`/batches/${cls._id}`)}>
+          <td>{index + 1}</td>
+          <td>{cls.name}</td>
+          <td>{cls.cost} EGP</td>
+          <td>{new Date(cls.createdDate).toLocaleDateString()}</td>
+          <td>{cls.code}</td>
+          <td>{cls.description}</td>
+          <td>{cls.hours}</td>
+          <td>
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => removeBatchFromInstructor(cls._id)}
+            >
+              Remove
+            </Button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </Table>
+)}
+
         </Card.Body>
       </Card>
     </AdminLayout>

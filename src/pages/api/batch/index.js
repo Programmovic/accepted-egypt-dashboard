@@ -120,9 +120,10 @@ export default async (req, res) => {
       const lectureCount = weeks * batchData.weeklyHours.length;
       // Update the batch document
       const existingLectures = await Lecture.find({ batch: batch._id });
-      console.log(timeDifference)
+      console.log(existingLectures.length)
       await Batch.updateOne({ _id: batch._id }, batchData);
       if (existingLectures.length === 0) {
+        
 
         const lectures = [];
         let lectureCounter = 0;
@@ -131,13 +132,14 @@ export default async (req, res) => {
         for (let i = 0; i < lectureCount; i++) {
           for (let j = 0; j < batchData.weeklyHours.length; j++) {
             lectureCounter++;
+            
             // Calculate the date based on the day of the week
             const startBatchDate = new Date(startDate);
-            startBatchDate.setDate(startBatchDate.getDate() + i * 7); // Start date for this lecture set
             const dayOfWeek = daysOfWeek.indexOf(batchData.weeklyHours[j].day);
+            startBatchDate.setDate(startBatchDate.getDate() + i * 7 + dayOfWeek); // Adjust the date calculation
+            
             const lectureDate = new Date(startBatchDate);
-            lectureDate.setDate(lectureDate.getDate() + dayOfWeek); // Calculate the lecture date
-
+        
             const lectureData = {
               name: `${batch.name} Lecture ${lectureCounter}`.toUpperCase(),
               status: 'Scheduled',
@@ -170,62 +172,66 @@ export default async (req, res) => {
             lectures.push(newLecture);
           }
         }
-        // Update old lectures
-        // const updatedLectures = [];
-        // const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        // let lectureCounter = 0;
-
-        // for (let i = 0; i < lectureCount; i++) {
-        //   for (let j = 0; j < batchData.weeklyHours.length; j++) {
-        //     lectureCounter++;
-        //     const startBatchDate = new Date(startDate);
-        //     startBatchDate.setDate(startBatchDate.getDate() + i * 7);
-        //     const dayOfWeek = daysOfWeek.indexOf(batchData.weeklyHours[j].day);
-        //     const lectureDate = new Date(startBatchDate);
-        //     lectureDate.setDate(lectureDate.getDate() + dayOfWeek);
-
-        //     // Update lecture data
-        //     const lectureUpdateData = {
-        //       name: `${batchData.name} Lecture ${lectureCounter}`.toUpperCase(),
-        //       date: lectureDate,
-        //       hours: batchData.weeklyHours.length,
-        //       cost: batchData.cost,
-        //       limitTrainees: batchData.limitTrainees,
-        //       weeklyHours: batchData.weeklyHours[j],
-        //       room: batchData.room,
-        //       description: batchData.description,
-        //       level: batchData.level,
-        //       levelName: batchData.levelName,
-        //     };
-
-        //     const updatedLecture = await Lecture.findOneAndUpdate(
-        //       { batch: batch._id, date: lectureDate },
-        //       lectureUpdateData,
-        //       { new: true }
-        //     );
-
-        //     updatedLectures.push(updatedLecture);
-        //   }
-        // }
-
-        // // Update old reservations for the updated lectures
-        // for (const updatedLecture of updatedLectures) {
-        //   const reservationUpdateData = {
-        //     date: updatedLecture.date,
-        //     daysOfWeek: [updatedLecture.weeklyHours.day],
-        //     startTime: updatedLecture.weeklyHours.from,
-        //     endTime: updatedLecture.weeklyHours.to,
-        //     room: updatedLecture.room,
-        //   };
-
-        //   await Reservation.updateMany(
-        //     { title: updatedLecture.name },
-        //     reservationUpdateData
-        //   );
-        // }
-
+        
         return res.status(200).json({ message: "Batch and its dependencies updated" });
       }
+      else {
+        console.log("I am Here");
+        const updatedLectures = [];
+        const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        let lectureCounter = 0;
+      
+        for (let i = 0; i < lectureCount; i++) {
+          for (let j = 0; j < batchData.weeklyHours.length; j++) {
+            lectureCounter++;
+            const startBatchDate = new Date(startDate);
+            startBatchDate.setDate(startBatchDate.getDate() + i * 7);
+            const dayOfWeek = daysOfWeek.indexOf(batchData.weeklyHours[j].day);
+            const lectureDate = new Date(startBatchDate);
+            lectureDate.setDate(lectureDate.getDate() + dayOfWeek);
+      
+            // Update lecture data
+            const lectureUpdateData = {
+              name: `${batchData.name} Lecture ${lectureCounter}`.toUpperCase(),
+              date: lectureDate,
+              hours: batchData.weeklyHours.length,
+              cost: batchData.cost,
+              limitTrainees: batchData.limitTrainees,
+              weeklyHours: batchData.weeklyHours[j],
+              room: batchData.room,
+              description: batchData.description,
+              level: batchData.level,
+              levelName: batchData.levelName,
+            };
+      
+            const updatedLecture = await Lecture.findOneAndUpdate(
+              { batch: batch._id, date: lectureDate },
+              lectureUpdateData,
+              { new: true }
+            );
+      
+            updatedLectures.push(updatedLecture);
+          }
+        }
+      
+        // Update old reservations for the updated lectures
+        for (const updatedLecture of updatedLectures) {
+          const reservationUpdateData = {
+            date: updatedLecture.date,
+            daysOfWeek: [updatedLecture.weeklyHours.day],
+            startTime: updatedLecture.weeklyHours.from,
+            endTime: updatedLecture.weeklyHours.to,
+            room: updatedLecture.room,
+          };
+          console.log(reservationUpdateData);
+      
+          await Reservation.updateMany(
+            { title: updatedLecture.name },
+            reservationUpdateData
+          );
+        }
+      }
+      
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Could not update batch and its dependencies" });
