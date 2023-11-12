@@ -101,6 +101,7 @@ const Assessments = () => {
           >
             Add Assessment
           </Button>
+          <div style={{ overflowX: "auto" }}>
           <Table striped bordered hover>
             <thead>
               <tr>
@@ -134,6 +135,7 @@ const Assessments = () => {
               })}
             </tbody>
           </Table>
+          </div>
         </Card.Body>
       </Card>
       <ToastContainer position="top-right" autoClose={3000} />

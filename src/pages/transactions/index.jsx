@@ -34,7 +34,27 @@ const Transactions = () => {
     useState("");
   const [students, setStudents] = useState([]);
   const [batches, setBatches] = useState([]);
-
+  useEffect(() => {
+    const storedFilterType = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.FILTER_TYPE
+    );
+    const storedFromDate = localStorage.getItem(LOCAL_STORAGE_KEYS.FROM_DATE);
+    const storedToDate = localStorage.getItem(LOCAL_STORAGE_KEYS.TO_DATE);
+    const storedFilterDescription = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.FILTER_DESCRIPTION
+    );
+    const storedFilterStudent = localStorage.getItem(
+      LOCAL_STORAGE_KEYS.FILTER_STUDENT
+    );
+  
+    // Set the state with the stored values or default values
+    setFilterType(storedFilterType || "");
+    setFromDate(storedFromDate || null);
+    setToDate(storedToDate || null);
+    setFilterDescription(storedFilterDescription || "");
+    setFilterStudent(storedFilterStudent || "");
+  }, []); // Run only once when the component mounts
+  
   // State for statistics
   const [statistics, setStatistics] = useState({
     totalTransactions: 0,
@@ -156,6 +176,7 @@ const Transactions = () => {
         return studentName?.toLowerCase() === filterStudent.toLowerCase();
       });
     }
+    saveFiltersToLocalStorage();
     setFilteredTransactions(filtered);
   };
 
@@ -363,7 +384,24 @@ const Transactions = () => {
     // Show the modal for updating the transaction
     setShowUpdateModal(true);
   };
-
+  const LOCAL_STORAGE_KEYS = {
+    FILTER_TYPE: "filterType",
+    FROM_DATE: "fromDate",
+    TO_DATE: "toDate",
+    FILTER_DESCRIPTION: "filterDescription",
+    FILTER_STUDENT: "filterStudent",
+  };
+  const saveFiltersToLocalStorage = () => {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.FILTER_TYPE, filterType);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.FROM_DATE, fromDate);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.TO_DATE, toDate);
+    localStorage.setItem(
+      LOCAL_STORAGE_KEYS.FILTER_DESCRIPTION,
+      filterDescription
+    );
+    localStorage.setItem(LOCAL_STORAGE_KEYS.FILTER_STUDENT, filterStudent);
+  };
+    
   return (
     <AdminLayout>
       <Card>

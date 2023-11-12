@@ -85,7 +85,7 @@ const Batches = () => {
   };
   const fetchBatchData = async () => {
     try {
-      const response = await axios.get("/api/batch/batches_status?status=Ended");
+      const response = await axios.get("/api/batch/batches_status?status=Ongoing");
       if (response.status === 200) {
         const batchData = response.data;
         setBatchResource(batchData);
@@ -693,7 +693,7 @@ const Batches = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedBatches.filter((batch) => batch.status === "Ended").map((batch, index) => (
+                  {sortedBatches.filter((batch) => batch.status === "Ongoing").map((batch, index) => (
                     <tr
                       key={batch._id}
                       onClick={() => openBatchDetailsModal(batch)}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Table, Button, Modal, Form } from "react-bootstrap";
+import { Card, Table, Button, Modal, Form, Pagination } from "react-bootstrap";
 import { AdminLayout } from "@layout";
 import { useRouter } from "next/router";
 
@@ -114,48 +114,65 @@ const BatchAssessments = () => {
   };
 
   console.log(selectedAssessment);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 7;
+
+  const totalPageCount = Math.ceil(assessments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const displayedAssessments = assessments.slice(startIndex, endIndex);
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
   return (
     <AdminLayout>
       <Card>
         <Card.Header>Assessments for Batch: {batch.name}</Card.Header>
         <Card.Body>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Assessment Type</th>
-                <th>Class Level</th>
-                <th>Class Code</th>
-                <th>Name</th>
-                <th>Phone Number</th>
-                <th>Attendance status</th>
-                <th>Moved to a higher Level</th>
-                <th>Feedback</th>
-                <th>Language Comment</th>
-                <th>Language Feedback</th>
-              </tr>
-            </thead>
-            <tbody>
-              {assessments.map((assessment, index) => (
-                <tr
-                  key={assessment._id}
-                  onClick={() => handleOpenEditModal(assessment)}
-                >
-                  <td>{index + 1}</td>
-                  <td>{assessment.assessmentType}</td>
-                  <td>{assessment.classLevel}</td>
-                  <td>{assessment.classCode}</td>
-                  <td>{assessment.name}</td>
-                  <td>{assessment.phoneNumber}</td>
-                  <td>{assessment.attendanceStatus || "Not Assigned"}</td>
-                  <td>{assessment.movedToHigherLevel ? `Yes` : "No"}</td>
-                  <td>{assessment.assessmentFeedback || "-"}</td>
-                  <td>{assessment.languageComment || "-"}</td>
-                  <td>{assessment.languageFeedback || "-"}</td>
+          <div style={{ overflowX: "auto" }}>
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Assessment Type</th>
+                  <th>Class Level</th>
+                  <th>Class Code</th>
+                  <th>Name</th>
+                  <th>Phone Number</th>
+                  <th>Attendance status</th>
+                  <th>Moved to a higher Level</th>
+                  <th>Feedback</th>
+                  <th>Language Comment</th>
+                  <th>Language Feedback</th>
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {displayedAssessments.map((assessment, index) => (
+                  <tr
+                    key={assessment._id}
+                    onClick={() => handleOpenEditModal(assessment)}
+                  >
+                    <td>{index + 1}</td>
+                    <td>{assessment.assessmentType}</td>
+                    <td>{assessment.classLevel}</td>
+                    <td>{assessment.classCode}</td>
+                    <td>{assessment.name}</td>
+                    <td>{assessment.phoneNumber}</td>
+                    <td>{assessment.attendanceStatus || "Not Assigned"}</td>
+                    <td>{assessment.movedToHigherLevel ? `Yes` : "No"}</td>
+                    <td>{assessment.assessmentFeedback || "-"}</td>
+                    <td>
+                      {assessment?.languageComment
+                        ? `${assessment?.languageComment?.slice(0, 30)}...`
+                        : "-"}
+                    </td>
+                    <td>{assessment.languageFeedback || "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </Table>
+          </div>
         </Card.Body>
       </Card>
       <Modal show={editModalVisible} onHide={handleCloseEditModal}>
@@ -237,6 +254,7 @@ const BatchAssessments = () => {
             <Form.Group className="my-3">
               <Form.Label>Language comment</Form.Label>
               <Form.Control
+                as={"textarea"}
                 type="text"
                 name="languageComment"
                 value={selectedAssessment?.languageComment}
@@ -264,6 +282,19 @@ const BatchAssessments = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <div className="d-flex justify-content-center mt-3">
+        <Pagination>
+          {[...Array(totalPageCount).keys()].map((page) => (
+            <Pagination.Item
+              key={page + 1}
+              active={page + 1 === currentPage}
+              onClick={() => handlePageChange(page + 1)}
+            >
+              {page + 1}
+            </Pagination.Item>
+          ))}
+        </Pagination>
+      </div>
     </AdminLayout>
   );
 };

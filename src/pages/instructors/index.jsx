@@ -34,19 +34,19 @@ const Instructors = () => {
   const [instructorClasses, setInstructorClasses] = useState([]);
   const [batchesData, setBatchesData] = useState([]);
   // State for new instructor creation
-  const [showCreateInstructorModal, setShowCreateInstructorModal] = useState(false);
-const [newInstructorName, setNewInstructorName] = useState("");
-const [newInstructorEmail, setNewInstructorEmail] = useState("");
-const [newInstructorPhoneNumber, setNewInstructorPhoneNumber] = useState("");
-const [newInstructorPicture, setNewInstructorPicture] = useState("");
-const openCreateInstructorModal = () => {
-  setShowCreateInstructorModal(true);
-};
+  const [showCreateInstructorModal, setShowCreateInstructorModal] =
+    useState(false);
+  const [newInstructorName, setNewInstructorName] = useState("");
+  const [newInstructorEmail, setNewInstructorEmail] = useState("");
+  const [newInstructorPhoneNumber, setNewInstructorPhoneNumber] = useState("");
+  const [newInstructorPicture, setNewInstructorPicture] = useState("");
+  const openCreateInstructorModal = () => {
+    setShowCreateInstructorModal(true);
+  };
 
-const closeCreateInstructorModal = () => {
-  setShowCreateInstructorModal(false);
-};
-
+  const closeCreateInstructorModal = () => {
+    setShowCreateInstructorModal(false);
+  };
 
   const fetchInstructorData = async () => {
     try {
@@ -176,7 +176,7 @@ const closeCreateInstructorModal = () => {
       });
     }
   };
-  
+
   const handleSort = (criteria) => {
     if (criteria === sortBy) {
       // Toggle the sorting order if the same criteria is clicked again
@@ -212,7 +212,7 @@ const closeCreateInstructorModal = () => {
   const fetchInstructorClasses = async (instructorId) => {
     try {
       const response = await axios.get(
-        `/api/instructor/classes/${instructorId}`
+        `/api/batch/instructor_batches?instructorId=${instructorId}`
       );
       if (response.status === 200) {
         const classesData = response.data;
@@ -224,6 +224,7 @@ const closeCreateInstructorModal = () => {
       setError("Failed to fetch instructor classes. Please try again later.");
     }
   };
+  console.log(instructorClasses);
   console.log(selectedInstructor);
   const router = useRouter();
   const [selectedBatch, setSelectedBatch] = useState(null);
@@ -403,7 +404,14 @@ const closeCreateInstructorModal = () => {
                 Joined Date:{" "}
                 {new Date(selectedInstructor.joinedDate).toLocaleDateString()}
               </p>
-              <p>Batch: {getBatchName(selectedInstructor.batch).name}</p>
+              <p>
+                Batch:
+                <ul>
+                  {instructorClasses.map((batch) => (
+                    <li key={batch.id}>{batch.name}</li>
+                  ))}
+                </ul>
+              </p>
 
               {/* Display instructor's classes in a table */}
             </div>
@@ -429,52 +437,50 @@ const closeCreateInstructorModal = () => {
       </Modal>
 
       <Modal
-  show={showCreateInstructorModal}
-  onHide={closeCreateInstructorModal}
->
-  <Modal.Header closeButton>
-    <Modal.Title>Create New Instructor</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <Form>
-      <Form.Group className="mb-3">
-        <Form.Label>Name</Form.Label>
-        <Form.Control
-          type="text"
-          value={newInstructorName}
-          onChange={(e) => setNewInstructorName(e.target.value)}
-        />
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <Form.Label>Email</Form.Label>
-        <Form.Control
-          type="text"
-          value={newInstructorEmail}
-          onChange={(e) => setNewInstructorEmail(e.target.value)}
-        />
-      </Form.Group>
-      <Form.Group className="mb-3">
-        <Form.Label>Phone Number</Form.Label>
-        <Form.Control
-          type="text"
-          value={newInstructorPhoneNumber}
-          onChange={(e) => setNewInstructorPhoneNumber(e.target.value)}
-        />
-      </Form.Group>
-      {/* Add other form fields for additional properties */}
-    </Form>
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={closeCreateInstructorModal}>
-      Close
-    </Button>
-    <Button variant="primary" onClick={handleCreateInstructor}>
-      Create Instructor
-    </Button>
-  </Modal.Footer>
-</Modal>
-
-
+        show={showCreateInstructorModal}
+        onHide={closeCreateInstructorModal}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>Create New Instructor</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Name</Form.Label>
+              <Form.Control
+                type="text"
+                value={newInstructorName}
+                onChange={(e) => setNewInstructorName(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="text"
+                value={newInstructorEmail}
+                onChange={(e) => setNewInstructorEmail(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Phone Number</Form.Label>
+              <Form.Control
+                type="text"
+                value={newInstructorPhoneNumber}
+                onChange={(e) => setNewInstructorPhoneNumber(e.target.value)}
+              />
+            </Form.Group>
+            {/* Add other form fields for additional properties */}
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={closeCreateInstructorModal}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleCreateInstructor}>
+            Create Instructor
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </AdminLayout>
   );
 };
