@@ -1,7 +1,7 @@
 // WaitingList.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Button, Table, Modal, Form, Row, Col } from "react-bootstrap";
+import { Card, Button, Table, Modal, Form, Row, Col, Pagination } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@layout";
@@ -220,6 +220,18 @@ const WaitingList = () => {
       });
   }, []);
   console.log(discount);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  // Calculate indices for current page
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filterdWitingLists.slice(indexOfFirstItem, indexOfLastItem);
+
   return (
     <AdminLayout>
       <Row>
@@ -305,7 +317,7 @@ const WaitingList = () => {
               </tr>
             </thead>
             <tbody>
-              {filterdWitingLists.map((waitingListItem, index) => (
+              {currentItems.map((waitingListItem, index) => (
                 <tr
                   key={waitingListItem._id}
                   onClick={() => openWaitingListDetailsModal(waitingListItem)}
@@ -439,6 +451,19 @@ const WaitingList = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <div className="d-flex justify-content-center mt-3">
+        <Pagination>
+          <Pagination.Prev
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          />
+          <Pagination.Item active>{currentPage}</Pagination.Item>
+          <Pagination.Next
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === Math.ceil(totalItems / itemsPerPage)}
+          />
+        </Pagination>
+      </div>
     </AdminLayout>
   );
 };
