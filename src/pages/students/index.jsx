@@ -144,6 +144,18 @@ const Students = () => {
   const handleAddStudent = async () => {
     try {
       setLoadingAddStudent(true);
+      const existingStudent = students.find(
+        (student) =>
+          student.email === newStudentEmail || student.phoneNumber === newStudentPhoneNumber
+      );
+  
+      if (existingStudent) {
+        toast.error("Student with the same email or phone number already exists.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return; // Exit the function without adding the student
+      }
       if (newStudentPaid > maxPaid) {
         toast.error("Paid amount cannot be more than the test cost.", {
           position: "top-right",
