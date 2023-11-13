@@ -381,3 +381,19 @@ ol.progress-meter li.todo:before {
     transform: rotate(1turn);
   }
 }
+
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number,
+.fc-list-day-side-text,
+.fc-list-day-text {
+  text-decoration: none;
+}
+
+.fc-direction-ltr .fc-button-group>.fc-button,
+.fc-today-button {
+  text-transform: uppercase !important;
+}
+.fc-direction-ltr .fc-button-group>.fc-button{
+  margin: 0px 10px;
+  border-radius: 30px;
+}

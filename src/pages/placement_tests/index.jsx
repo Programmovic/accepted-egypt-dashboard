@@ -10,6 +10,7 @@ import { ClassCard } from "@components/Classes";
 import Select from "react-select";
 import PlacementTestsSummary from "../../components/PlacementTestsSummary";
 import { Loader } from "@components/Loader";
+import Cookies from 'js-cookie';
 
 const PlacementTests = () => {
   const [placementTestSettings, setPlacementTestSettings] = useState([]);
@@ -105,6 +106,7 @@ const PlacementTests = () => {
 
   console.log(selectedRoom);
   const handleAddPlacementTest = async () => {
+    const token = Cookies.get('client_token');
     try {
       const response = await axios.post("/api/placement_test_settings", {
         cost: newTestCost,
@@ -112,6 +114,7 @@ const PlacementTests = () => {
         room: newTestRoom,
         date: newTestDate,
         instructor: selectedInstructor.value,
+        token
       });
       if (response.status === 201) {
         // Data added successfully

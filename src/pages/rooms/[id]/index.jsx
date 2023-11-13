@@ -4,9 +4,10 @@ import { Card, Badge, Button, Modal } from "react-bootstrap";
 import { AdminLayout } from "@layout";
 import { useRouter } from "next/router";
 import FullCalendar from "@fullcalendar/react";
-import timeGridPlugin from "@fullcalendar/timegrid"; // Import the timeGrid plugin
+import timeGridPlugin from "@fullcalendar/timegrid";
 import bootstrap5Plugin from "@fullcalendar/bootstrap5";
-import dayGridPlugin from '@fullcalendar/daygrid'
+import dayGridPlugin from "@fullcalendar/daygrid";
+import listPlugin from "@fullcalendar/list";
 
 const RoomReservations = () => {
   const [roomReservations, setRoomReservations] = useState([]);
@@ -33,14 +34,66 @@ const RoomReservations = () => {
     }
   }, [id, apiUrl]);
 
-  const calendarEvents = roomReservations.map((reservation) => ({
-    title: `${reservation.title} From ${reservation.startTime} to ${reservation.endTime}`,
-    date: reservation.date,
-    // startTime: reservation.startTime,
-    // endTime: reservation.endTime,
-    eventInfo: reservation,
-  }));
+  const getRandomColor = (title) => {
+    // If the title is "Placement Test", return navy blue
+    if (title === "Placement Test") {
+      return "navy";
+    } else {
+      // Otherwise, generate a random color
+      const letters = "0123456789ABCDEF";
+      let color = `#${title.split(' - ')[2]}`;
+      
+      return color;
+    }
 
+    
+  };
+
+  function convertDateFormat(originalDateTime) {
+    const dateParts = originalDateTime.split(" ");
+    const date = new Date(dateParts[0]);
+    const time12Hour = dateParts[1] + " " + dateParts[2];
+
+    const convertedDateTime = new Date(
+      date.toISOString().split("T")[0] + "T" + convertTime12to24(time12Hour)
+    ).toISOString();
+
+    return convertedDateTime;
+  }
+
+  function convertTime12to24(time12) {
+    const [time, modifier] = time12.split(" ");
+
+    let [hours, minutes] = time.split(":");
+
+    if (hours === "12") {
+      hours = "00";
+    }
+
+    if (modifier === "PM") {
+      hours = parseInt(hours, 10) + 12;
+    }
+
+    return hours + ":" + minutes;
+  }
+  const calendarEvents = roomReservations.map((reservation, index) => {
+    const startDateTime = convertDateFormat(
+      `${reservation.date} ${reservation.startTime}`
+    );
+    const endDateTime = convertDateFormat(
+      `${reservation.date} ${reservation.endTime}`
+    );
+    console.log(reservation.startTime, startDateTime);
+    return {
+      title: `${reservation.title}`,
+      start: startDateTime,
+      end: endDateTime,
+      color: getRandomColor(reservation.title),
+      eventInfo: reservation,
+      allDay: reservation.title === "Placement Test" && true,
+    };
+  });
+  console.log(calendarEvents);
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event.extendedProps.eventInfo);
     setShowEventModal(true);
@@ -63,14 +116,23 @@ const RoomReservations = () => {
         </Card.Header>
         <Card.Body>
           <FullCalendar
-            plugins={[dayGridPlugin, bootstrap5Plugin]}
+            plugins={[
+              dayGridPlugin,
+              bootstrap5Plugin,
+              timeGridPlugin,
+              listPlugin,
+            ]}
             initialView="dayGridMonth"
+            headerToolbar={{
+              left: "prev,next today",
+              center: "title",
+              right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek,listDay", // Add list views
+            }}
             weekends={true}
             events={calendarEvents}
+            timeFormat="H(:mm)"
             selectable={true}
             editable
-            eventColor="#378006"
-            eventBackgroundColor="black"
             displayEventTime={false}
             eventRender={eventRender}
             eventClick={handleEventClick}
@@ -86,7 +148,7 @@ const RoomReservations = () => {
           {selectedEvent && (
             <div>
               <p>Title: {selectedEvent.title}</p>
-              <p>Date: {selectedEvent.date}</p>
+              <p>Date: {new Date(selectedEvent.date).toLocaleDateString()}</p>
               <p>Start Time: {selectedEvent.startTime}</p>
               <p>End Time: {selectedEvent.endTime}</p>
             </div>
