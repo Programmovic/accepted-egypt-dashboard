@@ -146,7 +146,7 @@ const Students = () => {
       setLoadingAddStudent(true);
       const existingStudent = students.find(
         (student) =>
-          student.email === newStudentEmail || student.phoneNumber === newStudentPhoneNumber
+          student.phoneNumber === newStudentPhoneNumber
       );
   
       if (existingStudent) {
