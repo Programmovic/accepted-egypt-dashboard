@@ -496,6 +496,10 @@ const Students = () => {
                   Joined Date{" "}
                   {sortBy === "joinedDate" && (sortOrder === "asc" ? "↑" : "↓")}
                 </th>
+                <th className='text-center'
+                >
+                  Action
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -506,11 +510,11 @@ const Students = () => {
                 >
                   <td>{index + 1}</td>
                   <td>{student.name}</td>
-                  <td>{student.email}</td>
+                  <td>{student.email || '-'}</td>
                   <td>{student.phoneNumber}</td>
                   <td>{new Date(student.joinedDate).toLocaleDateString()}</td>
                   {/* Inside your table row */}
-                  <td>
+                  <td className='text-center'>
                     {/* Add the delete button or icon */}
                     <Button
                       variant="danger"
