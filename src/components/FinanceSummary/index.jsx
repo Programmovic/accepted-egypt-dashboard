@@ -38,7 +38,7 @@ const TransactionsSummary = ({
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>Total Amount Received (EGP)</th>
+              <th className='bg-success text-light'>Total Amount Received (EGP)</th>
             </tr>
           </thead>
           <tbody>
@@ -125,7 +125,7 @@ const TransactionsSummary = ({
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>Total Amount Expensed (EGP)</th>
+              <th className='bg-danger text-light'>Total Amount Expensed (EGP)</th>
             </tr>
           </thead>
           <tbody>

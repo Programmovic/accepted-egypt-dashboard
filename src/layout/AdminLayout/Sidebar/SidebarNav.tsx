@@ -172,9 +172,11 @@ export default function SidebarNav() {
       <SidebarNavItem icon={faEdit} href="/placement_tests">
         Placement Test (EWF2 Test)
       </SidebarNavItem>
+      <div className="ps-2">
       <SidebarNavItem icon={faEdit} href="/progress_exit_tests">
         Progress / Exit Tests
       </SidebarNavItem>
+      </div>
       <SidebarNavItem icon={faSchool} href="/courses">
         Courses
       </SidebarNavItem>
@@ -187,12 +189,14 @@ export default function SidebarNav() {
       <SidebarNavItem icon={faPeopleGroup} href="/batches">
         Batches
       </SidebarNavItem>
+      <div className="ps-2">
       <SidebarNavItem icon={faPeopleGroup} href="/ongoing_batches">
         Ongoing Batches
       </SidebarNavItem>
       <SidebarNavItem icon={faPeopleGroup} href="/finalized_batches">
         Finalized Batches
       </SidebarNavItem>
+      </div>
       
       <SidebarNavItem icon={faPeopleGroup} href="/lectures">
         Lectures

@@ -108,6 +108,13 @@ const PlacementTests = () => {
   console.log(selectedRoom);
   const handleAddPlacementTest = async () => {
     const token = Cookies.get("client_token");
+    if (!newTestCost || !selectedInstructor || !newTestRoom || !newTestDate) {
+      toast.error("Please fill in all required fields.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
     try {
       const response = await axios.post("/api/placement_test_settings", {
         cost: newTestCost,

@@ -34,27 +34,7 @@ const Transactions = () => {
     useState("");
   const [students, setStudents] = useState([]);
   const [batches, setBatches] = useState([]);
-  useEffect(() => {
-    const storedFilterType = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.FILTER_TYPE
-    );
-    const storedFromDate = localStorage.getItem(LOCAL_STORAGE_KEYS.FROM_DATE);
-    const storedToDate = localStorage.getItem(LOCAL_STORAGE_KEYS.TO_DATE);
-    const storedFilterDescription = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.FILTER_DESCRIPTION
-    );
-    const storedFilterStudent = localStorage.getItem(
-      LOCAL_STORAGE_KEYS.FILTER_STUDENT
-    );
-  
-    // Set the state with the stored values or default values
-    setFilterType(storedFilterType || "");
-    setFromDate(storedFromDate || null);
-    setToDate(storedToDate || null);
-    setFilterDescription(storedFilterDescription || "");
-    setFilterStudent(storedFilterStudent || "");
-  }, []); // Run only once when the component mounts
-  
+
   // State for statistics
   const [statistics, setStatistics] = useState({
     totalTransactions: 0,
@@ -338,27 +318,30 @@ const Transactions = () => {
     "Salary",
   ];
   const handleDeleteTransaction = async (transactionId) => {
-    try {
-      const response = await axios.delete(
-        `/api/transaction?id=${transactionId}`
-      );
-      if (response.status === 200) {
-        // Data deleted successfully
-        fetchTransactionData();
-        toast.success("Transaction deleted successfully!", {
+    // Show confirmation dialog
+    const confirmed = window.confirm(`Are you sure you want to delete this transaction?`);
+
+    if (confirmed) {
+      try {
+        const response = await axios.delete(`/api/transaction?id=${transactionId}`);
+        if (response.status === 200) {
+          // Data deleted successfully
+          fetchTransactionData();
+          toast.success("Transaction deleted successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        } else {
+          console.error("Unexpected status code:", response.status);
+        }
+      } catch (error) {
+        console.error("Error deleting transaction:", error);
+        setError("Failed to delete the transaction. Please try again.");
+        toast.error("Failed to delete the transaction. Please try again.", {
           position: "top-right",
           autoClose: 3000,
         });
-      } else {
-        console.error("Unexpected status code:", response.status);
       }
-    } catch (error) {
-      console.error("Error deleting transaction:", error);
-      setError("Failed to delete the transaction. Please try again.");
-      toast.error("Failed to delete the transaction. Please try again.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
     }
   };
   const [currentPage, setCurrentPage] = useState(1); // Current page number
@@ -401,10 +384,14 @@ const Transactions = () => {
     );
     localStorage.setItem(LOCAL_STORAGE_KEYS.FILTER_STUDENT, filterStudent);
   };
-    
+
   return (
     <AdminLayout>
+    <p className='bg-warning text-center p-3 rounded-3'>
+      <b>Note: </b>Deleting transaction may cause some errors due to uncompleted configurations in paid and due amounts.
+      </p>
       <Card>
+      
         <Card.Header>Transactions</Card.Header>
         <Card.Body>
           <Form className="mb-3">
@@ -434,7 +421,7 @@ const Transactions = () => {
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Student</Form.Label>
                   <Select
-                    value={filterStudent}
+                    value={filterStudent.label}
                     options={students.map((student) => ({
                       value: student.name,
                       label: student.name,
@@ -493,25 +480,23 @@ const Transactions = () => {
                 </Form.Group>
               </Col>
             </Row>
-            <Button variant="secondary" onClick={clearFilters}>
-              Clear Filters
-            </Button>
+            <div className="d-flex justify-content-between">
+              <Button variant="secondary" onClick={clearFilters}>
+                Clear Filters
+              </Button>
+              <Button variant="success" onClick={() => setShowModal(true)}>
+                Add Transaction
+              </Button>
+            </div>
           </Form>
 
-          <Button
-            variant="success"
-            onClick={() => setShowModal(true)}
-            className="mb-3"
-          >
-            Add Transaction
-          </Button>
           <TransactionsSummary
-        transactions={transactions}
-        statistics={statistics}
-        batches={batches}
-        levelIncomes={levelIncomes}
-        expenseOptions={expenseOptions}
-      />
+            transactions={transactions}
+            statistics={statistics}
+            batches={batches}
+            levelIncomes={levelIncomes}
+            expenseOptions={expenseOptions}
+          />
           <Table striped bordered hover>
             <thead>
               <tr>
@@ -560,7 +545,7 @@ const Transactions = () => {
                   <td>
                     {new Date(transaction.createdAt).toLocaleDateString()}
                   </td>
-                  <td>
+                  <td className='text-center'>
                     <Button
                       variant="danger"
                       onClick={() => handleDeleteTransaction(transaction._id)}
