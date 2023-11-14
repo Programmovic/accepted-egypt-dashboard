@@ -6,7 +6,7 @@ const Help: NextPage = () => {
   return (
     <AdminLayout>
       <div>
-        <h2>How to Use the System</h2>
+        <h2>How to Use this System</h2>
 
         <ol>
           <li>
