@@ -814,7 +814,7 @@ const Batches = () => {
           )}
         </Card.Body>
       </Card>
-      <Modal show={showModal} onHide={closeModal}>
+      <Modal show={showModal} onHide={closeModal} centered size="lg">
         <Modal.Header closeButton>
           <Modal.Title>Create New Batch</Modal.Title>
         </Modal.Header>
@@ -958,7 +958,7 @@ const Batches = () => {
                     <option value="" required hidden>
                       Select a level
                     </option>
-                    {levels.map((level) => (
+                    {levels?.map((level) => (
                       <option key={level._id} value={level._id}>
                         {level.name}
                       </option>

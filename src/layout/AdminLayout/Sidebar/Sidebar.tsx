@@ -31,7 +31,7 @@ export default function Sidebar(props: { isShow: boolean; isShowMd: boolean }) {
       })}
       id="sidebar"
     >
-      <div className="p-2 sidebar-brand d-none d-md-flex align-items-center justify-content-between">
+      <div className="sidebar-brand d-none d-md-flex align-items-center justify-content-center">
         <h3>ACCEPTED</h3>
       </div>
 

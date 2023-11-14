@@ -489,7 +489,7 @@ const PlacementTests = () => {
                 Availabe Placement Tests
               </Accordion.Header>
               <Accordion.Body>
-                <Card>
+                <Card className="border-0">
                   <Table striped bordered hover>
                     <thead>
                       <tr>
@@ -548,7 +548,7 @@ const PlacementTests = () => {
                 Current Placement Tests
               </Accordion.Header>
               <Accordion.Body>
-                <Card>
+                <Card className="border-0">
                   <Form className="mb-3 p-5">
                     <Form.Group className="mb-3">
                       <Form.Label>Filter by Student Name</Form.Label>
@@ -823,7 +823,7 @@ const PlacementTests = () => {
         show={showGeneralPlacementTestDetailsModal}
         onHide={() => setShowGeneralPlacementTestDetailsModal(false)}
       >
-        <Modal.Header closeButton className="bg-primary text-white">
+        <Modal.Header closeButton className="text-white">
           <Modal.Title className="mb-0">Placement Test Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -858,7 +858,7 @@ const PlacementTests = () => {
         show={showRoomReservationsModal}
         onHide={() => setShowRoomReservationsModal(false)}
         centered
-        size="lg" // Set the size as needed, "lg" stands for large
+        size="xl" // Set the size as needed, "lg" stands for large
       >
         <Modal.Header closeButton>
           <Modal.Title>{selectedRoom?.label} Reservations</Modal.Title>

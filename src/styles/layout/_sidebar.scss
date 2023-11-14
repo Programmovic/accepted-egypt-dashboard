@@ -21,12 +21,13 @@ $sidebar-overlay-z-index: 1025;
 .sidebar {
   flex: 0 0 var(--sidebar-width);
   width: var(--sidebar-width);
-  background: $sidebar-background;
+  background: rgb(44, 82, 83);
+  background: radial-gradient(circle, rgba(44, 82, 83, 1) 0%, rgba(27, 49, 89, 1) 50%, rgba(0, 0, 0, 1) 100%);
   color: $sidebar-text-color;
   transition: margin-left 0.15s, margin-right 0.15s, box-shadow 0.075s, transform 0.15s, width 0.15s, z-index 0s ease 0.15s;
   z-index: $sidebar-z-index;
 
-  & + .wrapper {
+  &+.wrapper {
     padding-left: var(--sidebar-width);
     transition: padding 0.15s;
   }
@@ -46,11 +47,13 @@ $sidebar-overlay-z-index: 1025;
 
     .nav-link {
       color: $sidebar-link-color;
+      border-radius: 30px;
 
       &:hover {
         color: $sidebar-link-color-hover;
         text-decoration: none;
         background: $sidebar-link-background-hover;
+
       }
 
       .nav-icon {
@@ -101,7 +104,7 @@ $sidebar-overlay-z-index: 1025;
       margin-left: calc(-1 * var(--sidebar-width));
     }
 
-    & + .wrapper {
+    &+.wrapper {
       padding-left: calc(-1 * var(--sidebar-width));
     }
   }
@@ -127,11 +130,12 @@ $sidebar-overlay-z-index: 1025;
           }
         }
 
-        .nav-title, .nav-group-items {
+        .nav-title,
+        .nav-group-items {
           display: none;
         }
 
-        & + .wrapper {
+        &+.wrapper {
           --sidebar-width: 4rem;
         }
       }
@@ -140,7 +144,7 @@ $sidebar-overlay-z-index: 1025;
     &.md-hide {
       margin-left: calc(-1 * var(--sidebar-width));
 
-      & + .wrapper {
+      &+.wrapper {
         padding-left: calc(-1 * var(--sidebar-width));
       }
     }

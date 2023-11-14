@@ -393,7 +393,44 @@ ol.progress-meter li.todo:before {
 .fc-today-button {
   text-transform: uppercase !important;
 }
-.fc-direction-ltr .fc-button-group>.fc-button{
+
+.fc-direction-ltr .fc-button-group>.fc-button {
   margin: 0px 10px;
   border-radius: 30px;
+}
+
+.card-header,
+.modal-header,
+.accordion-button {
+  background: #242b55;
+  color: #fff;
+  font-weight: 700;
+}
+.accordion-button::after {
+  color: #ccc;
+}
+.card,
+.card-header,
+.modal-header, 
+.modal-content,
+.accordion-item {
+  border-radius: 16px !important;
+}
+
+.accordion-item {
+  margin: 10px 0px;
+}
+.btn-success{
+  background: #242b55;
+}
+.btn-success:hover{
+  background: #304f53;
+}
+.accordion-button:not(.collapsed) {
+  color: #fff;
+  background-color: transparent;
+  box-shadow: none;
+}
+.btn-close{
+  color: #fff !important;
 }
