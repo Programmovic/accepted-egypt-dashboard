@@ -67,7 +67,7 @@ const Register: NextPage = () => {
   };
 
   return (
-    <div className="bg-light min-vh-100 d-flex flex-row align-items-center dark-bg-transparent">
+    <div className="registration-page min-vh-100 d-flex flex-row align-items-center dark-bg-transparent">
       <Container>
         <Row className="justify-content-center">
           <Col md={6}>

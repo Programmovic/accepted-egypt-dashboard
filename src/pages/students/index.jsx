@@ -145,15 +145,17 @@ const Students = () => {
     try {
       setLoadingAddStudent(true);
       const existingStudent = students.find(
-        (student) =>
-          student.phoneNumber === newStudentPhoneNumber
+        (student) => student.phoneNumber === newStudentPhoneNumber
       );
-  
+
       if (existingStudent) {
-        toast.error("Student with the same email or phone number already exists.", {
-          position: "top-right",
-          autoClose: 3000,
-        });
+        toast.error(
+          "Student with the same email or phone number already exists.",
+          {
+            position: "top-right",
+            autoClose: 3000,
+          }
+        );
         return; // Exit the function without adding the student
       }
       if (newStudentPaid > maxPaid) {
@@ -390,7 +392,14 @@ const Students = () => {
         ))}
       </div>
       <Card>
-        <Card.Header>Students</Card.Header>
+        <Card.Header className='d-flex justify-content-between'>
+          Students{" "}
+          <p className='mb-0'>
+            Showing {indexOfFirstStudent + 1} -{" "}
+            {Math.min(indexOfLastStudent, totalStudentsCount)} of{" "}
+            {totalStudentsCount} students
+          </p>
+        </Card.Header>
         <Card.Body>
           <Form className="mb-3">
             <Row>
@@ -447,28 +456,19 @@ const Students = () => {
                 </Form.Group>
               </Col>
             </Row>
+            <div className='d-flex justify-content-between'>
             <Button variant="secondary" onClick={clearFilters}>
               Clear Filters
             </Button>
-          </Form>
-          <Row>
-            <Col xs={6}>
-              <Button
+            <Button
                 variant="success"
                 onClick={() => setShowModal(true)}
-                className="mb-3"
               >
-                Add Student
+                Add New Student
               </Button>
-            </Col>
-            <Col xs={6}>
-              <p className="mt-2">
-                Showing {indexOfFirstStudent + 1} -{" "}
-                {Math.min(indexOfLastStudent, totalStudentsCount)} of{" "}
-                {totalStudentsCount} students
-              </p>
-            </Col>
-          </Row>
+            </div>
+          </Form>
+              
 
           <Table striped bordered hover>
             <thead>
@@ -496,10 +496,7 @@ const Students = () => {
                   Joined Date{" "}
                   {sortBy === "joinedDate" && (sortOrder === "asc" ? "↑" : "↓")}
                 </th>
-                <th className='text-center'
-                >
-                  Action
-                </th>
+                <th className="text-center">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -510,11 +507,11 @@ const Students = () => {
                 >
                   <td>{index + 1}</td>
                   <td>{student.name}</td>
-                  <td>{student.email || '-'}</td>
+                  <td>{student.email || "-"}</td>
                   <td>{student.phoneNumber}</td>
                   <td>{new Date(student.joinedDate).toLocaleDateString()}</td>
                   {/* Inside your table row */}
-                  <td className='text-center'>
+                  <td className="text-center">
                     {/* Add the delete button or icon */}
                     <Button
                       variant="danger"

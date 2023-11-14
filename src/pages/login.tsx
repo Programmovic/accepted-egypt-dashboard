@@ -63,7 +63,7 @@ const Login: NextPage = () => {
   };
 
   return (
-    <div className="bg-light min-vh-100 d-flex flex-row align-items-center dark-bg-transparent">
+    <div className="min-vh-100 d-flex flex-row align-items-center dark-bg-transparent">
       <ToastContainer position="top-right" autoClose={3000} />
       <Container>
         <Row className="justify-content-center align-items-center px-3">
@@ -112,11 +112,11 @@ const Login: NextPage = () => {
                           Login
                         </Button>
                       </Col>
-                      <Col xs={12} className="text-center">
+                      {/* <Col xs={12} className="text-center">
                         <Button className="px-0" variant="link" type="submit">
                           Forgot password?
                         </Button>
-                      </Col>
+                      </Col> */}
                     </Row>
                   </form>
                 </div>
