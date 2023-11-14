@@ -187,6 +187,9 @@ export default function SidebarNav() {
       <SidebarNavItem icon={faPeopleGroup} href="/batches">
         Batches
       </SidebarNavItem>
+      <SidebarNavItem icon={faPeopleGroup} href="/ongoing_batches">
+        Ongoing Batches
+      </SidebarNavItem>
       <SidebarNavItem icon={faPeopleGroup} href="/finalized_batches">
         Finalized Batches
       </SidebarNavItem>

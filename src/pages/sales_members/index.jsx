@@ -45,9 +45,6 @@ const SalesMembers = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchSalesMemberData()
-  }, []);
   // Function to add a new Sales Member
   const handleAddSalesMember = async () => {
     try {
@@ -81,9 +78,13 @@ const SalesMembers = () => {
       });
     }
   };
+  // Use useMemo to memoize the salesMembers and filteredSalesMembers
   const memoizedSalesMembers = useMemo(() => salesMembers, [salesMembers]);
   const memoizedFilteredSalesMembers = useMemo(() => filteredSalesMembers, [filteredSalesMembers]);
 
+  useEffect(() => {
+    fetchSalesMemberData();
+  }, []);
   // Function to apply filters
   const handleFilter = () => {
     let filtered = [...memoizedSalesMembers];

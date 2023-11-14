@@ -10,7 +10,8 @@ import { ClassCard } from "@components/Classes";
 import Select from "react-select";
 import PlacementTestsSummary from "../../components/PlacementTestsSummary";
 import { Loader } from "@components/Loader";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
+import Calendar from "../../components/Calendar";
 
 const PlacementTests = () => {
   const [placementTestSettings, setPlacementTestSettings] = useState([]);
@@ -106,7 +107,7 @@ const PlacementTests = () => {
 
   console.log(selectedRoom);
   const handleAddPlacementTest = async () => {
-    const token = Cookies.get('client_token');
+    const token = Cookies.get("client_token");
     try {
       const response = await axios.post("/api/placement_test_settings", {
         cost: newTestCost,
@@ -114,7 +115,7 @@ const PlacementTests = () => {
         room: newTestRoom,
         date: newTestDate,
         instructor: selectedInstructor.value,
-        token
+        token,
       });
       if (response.status === 201) {
         // Data added successfully
@@ -168,7 +169,7 @@ const PlacementTests = () => {
           studentName: selectedPlacementTest?.studentName,
           assignedLevel: selectedPlacementTest?.assignedLevel,
           placementTestID: selectedPlacementTest?._id,
-          source: "EWFS"
+          source: "EWFS",
         });
 
         if (response.status === 201) {
@@ -313,9 +314,10 @@ const PlacementTests = () => {
       ).length;
       return levelCount * setting.cost;
     }, 0);
-    return `${amountReceived + " EGP"} (${
-      ((+amountReceived / +getTotalAmountReceived()) * 100).toFixed(2)
-    }%)`;
+    return `${amountReceived + " EGP"} (${(
+      (+amountReceived / +getTotalAmountReceived()) *
+      100
+    ).toFixed(2)}%)`;
   };
   const getPlacementTestCountByStatus = (status) => {
     return filterdPlacementTests.filter((test) => test.status === status)
@@ -387,7 +389,6 @@ const PlacementTests = () => {
       const roomsResponse = await axios.get("/api/room");
 
       if (roomsResponse.status === 200) {
-        
         setRooms(roomsResponse.data);
       }
     } catch (error) {
@@ -400,9 +401,13 @@ const PlacementTests = () => {
   };
   useEffect(() => {
     fetchInstructors();
-    fetchAllRooms()
+    fetchAllRooms();
   }, []);
   console.log(selectedPlacementTest?.assignedLevel !== "N/A");
+  // Add this line with other state declarations
+  const [showRoomReservationsModal, setShowRoomReservationsModal] =
+    useState(false);
+
   return (
     <AdminLayout>
       {/* <div className="row">
@@ -462,7 +467,11 @@ const PlacementTests = () => {
           isLoading={loading}
         />
       </div> */}
-      <PlacementTestsSummary filterdPlacementTests={filterdPlacementTests} levels={levels} getAmountReceivedForLevel={getAmountReceivedForLevel()}/>
+      <PlacementTestsSummary
+        filterdPlacementTests={filterdPlacementTests}
+        levels={levels}
+        getAmountReceivedForLevel={getAmountReceivedForLevel()}
+      />
       <Card>
         <Card.Header>Placement Tests</Card.Header>
         <Card.Body>
@@ -513,7 +522,12 @@ const PlacementTests = () => {
                             }
                           </td>
                           <td>{setting.instructions || "No Instructions"}</td>
-                          <td>{rooms.find((room) => room._id === setting.room)?.name}</td>
+                          <td>
+                            {
+                              rooms.find((room) => room._id === setting.room)
+                                ?.name
+                            }
+                          </td>
                           <td>{new Date(setting.date).toLocaleDateString()}</td>
                           <td>
                             {+totalNoOfStudentsInThisTest(setting._id) *
@@ -694,6 +708,17 @@ const PlacementTests = () => {
                     : "You Must Select a Date To Check Availability"
                 }
               />
+              {selectedRoom && selectedRoom.value && (
+                <>
+                  <Button
+                    variant="primary"
+                    onClick={() => setShowRoomReservationsModal(true)}
+                    className="mt-2"
+                  >
+                    View ({selectedRoom.label}) Reservations
+                  </Button>
+                </>
+              )}
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Date</Form.Label>
@@ -733,7 +758,6 @@ const PlacementTests = () => {
         </Modal.Header>
         <Modal.Body>
           {selectedPlacementTest && (
-            
             <div>
               <p>Student ID: {selectedPlacementTest?.student}</p>
               <p>Student Name: {selectedPlacementTest?.studentName}</p>
@@ -741,22 +765,23 @@ const PlacementTests = () => {
                 Date:{" "}
                 {new Date(selectedPlacementTest?.date).toLocaleDateString()}
               </p>
-              
-              {selectedPlacementTest && selectedPlacementTest?.assignedLevel === 'N/A' && (
-            <Form.Group>
-            <Form.Label>Set Level:</Form.Label>
-            <Form.Control as="select" onChange={handleLevelSelect}>
-              <option value="" hidden>
-                Select a level
-              </option>
-              {levels.map((level) => (
-                <option key={level._id} value={level.name}>
-                  {level.name}
-                </option>
-              ))}
-            </Form.Control>
-          </Form.Group>
-          )}
+
+              {selectedPlacementTest &&
+                selectedPlacementTest?.assignedLevel === "N/A" && (
+                  <Form.Group>
+                    <Form.Label>Set Level:</Form.Label>
+                    <Form.Control as="select" onChange={handleLevelSelect}>
+                      <option value="" hidden>
+                        Select a level
+                      </option>
+                      {levels.map((level) => (
+                        <option key={level._id} value={level.name}>
+                          {level.name}
+                        </option>
+                      ))}
+                    </Form.Control>
+                  </Form.Group>
+                )}
 
               {moveToWaitingList && (
                 <p className="text-success mt-2">
@@ -775,15 +800,16 @@ const PlacementTests = () => {
           >
             Close
           </Button>
-          {selectedPlacementTest && selectedPlacementTest?.assignedLevel === 'N/A' && (
-            <Button
-              variant="success"
-              onClick={handleAssignLevel}
-              disabled={!selectedLevel}
-            >
-              Assign Level
-            </Button>
-          )}
+          {selectedPlacementTest &&
+            selectedPlacementTest?.assignedLevel === "N/A" && (
+              <Button
+                variant="success"
+                onClick={handleAssignLevel}
+                disabled={!selectedLevel}
+              >
+                Assign Level
+              </Button>
+            )}
           <Button
             variant="success"
             onClick={handleMoveToWaitingList}
@@ -825,6 +851,27 @@ const PlacementTests = () => {
             }}
           >
             See All Details
+          </Button>
+        </Modal.Footer>
+      </Modal>
+      <Modal
+        show={showRoomReservationsModal}
+        onHide={() => setShowRoomReservationsModal(false)}
+        centered
+        size="lg" // Set the size as needed, "lg" stands for large
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>{selectedRoom?.label} Reservations</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Calendar id={selectedRoom?.value} />
+        </Modal.Body>
+        <Modal.Footer>
+          <Button
+            variant="secondary"
+            onClick={() => setShowRoomReservationsModal(false)}
+          >
+            Close
           </Button>
         </Modal.Footer>
       </Modal>
