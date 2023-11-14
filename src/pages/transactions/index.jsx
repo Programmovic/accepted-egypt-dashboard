@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { Button, Card, Col, Form, Modal, Row, Table } from "react-bootstrap";
 import { AdminLayout } from "@layout";
@@ -319,11 +319,15 @@ const Transactions = () => {
   ];
   const handleDeleteTransaction = async (transactionId) => {
     // Show confirmation dialog
-    const confirmed = window.confirm(`Are you sure you want to delete this transaction?`);
+    const confirmed = window.confirm(
+      `Are you sure you want to delete this transaction?`
+    );
 
     if (confirmed) {
       try {
-        const response = await axios.delete(`/api/transaction?id=${transactionId}`);
+        const response = await axios.delete(
+          `/api/transaction?id=${transactionId}`
+        );
         if (response.status === 200) {
           // Data deleted successfully
           fetchTransactionData();
@@ -384,14 +388,21 @@ const Transactions = () => {
     );
     localStorage.setItem(LOCAL_STORAGE_KEYS.FILTER_STUDENT, filterStudent);
   };
+  const tableRef = useRef(null);
 
+  // ... (existing code)
+
+  const scrollToTable = () => {
+    // Use the scrollIntoView method to scroll to the table
+    tableRef.current.scrollIntoView({ behavior: "smooth" });
+  };
   return (
     <AdminLayout>
-    <p className='bg-warning text-center p-3 rounded-3'>
-      <b>Note: </b>Deleting transaction may cause some errors due to uncompleted configurations in paid and due amounts.
+      <p className="bg-warning text-center p-3 rounded-3">
+        <b>Note: </b>Deleting transaction may cause some errors due to
+        uncompleted configurations in paid and due amounts.
       </p>
       <Card>
-      
         <Card.Header>Transactions</Card.Header>
         <Card.Body>
           <Form className="mb-3">
@@ -487,6 +498,9 @@ const Transactions = () => {
               <Button variant="success" onClick={() => setShowModal(true)}>
                 Add Transaction
               </Button>
+              <Button variant="primary" onClick={scrollToTable}>
+                Scroll to Transactions
+              </Button>
             </div>
           </Form>
 
@@ -497,7 +511,7 @@ const Transactions = () => {
             levelIncomes={levelIncomes}
             expenseOptions={expenseOptions}
           />
-          <Table striped bordered hover>
+          <Table striped bordered hover ref={tableRef}>
             <thead>
               <tr>
                 <th>#</th>
@@ -545,7 +559,7 @@ const Transactions = () => {
                   <td>
                     {new Date(transaction.createdAt).toLocaleDateString()}
                   </td>
-                  <td className='text-center'>
+                  <td className="text-center">
                     <Button
                       variant="danger"
                       onClick={() => handleDeleteTransaction(transaction._id)}

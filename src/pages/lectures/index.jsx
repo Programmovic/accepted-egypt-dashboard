@@ -684,7 +684,7 @@ const Lectures = () => {
               <Modal.Body>
                 <p>Name: {selectedLecture.name}</p>
                 <p>Status: {selectedLecture.status}</p>
-                <p>Hours: {selectedLecture.hours}</p>
+                <p>Duration: {calculateTimeDuration(selectedLecture?.weeklyHours.from, selectedLecture?.weeklyHours.to)} Minutes</p>
                 <p>Cost: {selectedLecture.cost} EGP</p>
                 <p>Limit Trainees: {selectedLecture.limitTrainees} Trainees</p>
                 <p>

@@ -302,7 +302,7 @@ const TransactionsSummary = ({
         <Table striped bordered hover>
           <thead>
             <tr>
-              <th>Total Revenue (EGP)</th>
+              <th className='bg-success text-light'>Total Revenue (EGP)</th>
             </tr>
           </thead>
           <tbody>
