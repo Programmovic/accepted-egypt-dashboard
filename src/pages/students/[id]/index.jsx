@@ -34,15 +34,16 @@ const StudentProfile = () => {
   // Add state variables for other fields as needed
   const handleSave = async () => {
     try {
-      const response = await axios.put(`/api/student/${id}`, {
-        name,
-        phoneNumber,
-        email,
-        nationalId,
-        status,
+      const newStudentData = {
+        name: name,
+        phoneNumber: phoneNumber,
+        email: email,
+        nationalId: nationalId,
+        status: status
         // Include other fields in the request body as needed
-      });
-
+      }
+      const response = await axios.put(`/api/student/${id}`,newStudentData);
+console.log(newStudentData)
       if (response.status === 200) {
         toast.success("Student information updated successfully.", {
           position: "top-right",
@@ -334,48 +335,52 @@ const StudentProfile = () => {
           <h4 className="text-right">{studentData.name}</h4>
         </Row>
         <Row>
-          <Col md={12}>
-            <Form.Group controlId="name">
+          <Col xs={12}>
+            <Form.Group className="mb-3" controlId="name">
               <Form.Label>Name</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="First name"
                 defaultValue={studentData.name}
+                onChange={(e) => setName(e.target.value)}
               />
             </Form.Group>
           </Col>
-          <Col md={12}>
-            <Form.Group controlId="phoneNumber">
+          <Col xs={12}>
+            <Form.Group className="my-3" controlId="phoneNumber">
               <Form.Label>Mobile Number</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Enter phone number"
                 defaultValue={studentData.phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
               />
             </Form.Group>
           </Col>
-          <Col md={12}>
-            <Form.Group controlId="email">
+          <Col xs={12}>
+            <Form.Group className="my-3" controlId="email">
               <Form.Label>Email</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="Enter email id"
                 defaultValue={studentData.email}
+                onChange={(e) => setEmail(e.target.value)}
               />
             </Form.Group>
           </Col>
-          <Col md={12}>
-            <Form.Group controlId="nationalId">
+          <Col xs={12}>
+            <Form.Group className="my-3" controlId="nationalId">
               <Form.Label>National Id</Form.Label>
               <Form.Control
                 type="text"
                 placeholder="National Id"
                 defaultValue={studentData.nationalId}
+                onChange={(e) => setNationalId(e.target.value)}
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
-            <Form.Group controlId="status">
+          <Col xs={6}>
+            <Form.Group className="my-3" controlId="status">
               <Form.Label>Status</Form.Label>
               <Form.Control
                 type="text"
@@ -384,8 +389,8 @@ const StudentProfile = () => {
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
-            <Form.Group controlId="paid">
+          <Col xs={6}>
+            <Form.Group className="my-3" controlId="paid">
               <Form.Label>Paid</Form.Label>
               <Form.Control
                 type="text"
@@ -394,8 +399,8 @@ const StudentProfile = () => {
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
-            <Form.Group controlId="due">
+          <Col xs={6}>
+            <Form.Group className="my-3" controlId="due">
               <Form.Label>Due</Form.Label>
               <Form.Control
                 type="text"
@@ -404,8 +409,8 @@ const StudentProfile = () => {
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
-            <Form.Group controlId="level">
+          <Col xs={6}>
+            <Form.Group className="my-3" controlId="level">
               <Form.Label>Level</Form.Label>
               <Form.Control
                 type="text"
@@ -414,13 +419,13 @@ const StudentProfile = () => {
               />
             </Form.Group>
           </Col>
-          <Col md={6}>
-            <Form.Group controlId="placementTest">
+          <Col xs={12}>
+            <Form.Group className="my-3" controlId="placementTest">
               <Form.Label>Placement Test</Form.Label>
               <Form.Control
                 type="text"
                 defaultValue={new Date(
-                  studentData.placementTestDate
+                  studentData?.placementTestDate
                 ).toLocaleDateString()}
                 disabled
               />
@@ -456,7 +461,7 @@ const StudentProfile = () => {
           <Modal.Title>Update Student's Batch</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form.Group controlId="batchSelect">
+          <Form.Group className="my-3" controlId="batchSelect">
             <Form.Label>Select Batch</Form.Label>
             <Form.Control
               as="select"
@@ -482,7 +487,7 @@ const StudentProfile = () => {
         </Modal.Footer>
       </Modal>
       <Card className="mt-5">
-        <Card.Header>Lectures for {batchData.name}</Card.Header>
+        <Card.Header>Lectures for {batchData?.name}</Card.Header>
         <Card.Body>
           <Table striped bordered hover>
             <thead>

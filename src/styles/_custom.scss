@@ -433,7 +433,52 @@ ol.progress-meter li.todo:before {
 }
 .btn-close{
   color: #fff !important;
+}/* Style the radio group container */
+.radio-group {
+  display: flex;
+  flex-wrap: wrap; /* Allow wrapping to the next line */
 }
-.registration-page{
-  
+
+/* Style each radio button container */
+.radio-group .form-check {
+  flex: 1 1 48%; /* Set the width of each radio button container */
+  margin-right: 2%; /* Adjust the spacing between radio button pairs */
+  margin-bottom: 10px; /* Adjust the spacing between radio buttons */
+}
+
+/* Style the radio buttons */
+.radio-group .form-check input[type="radio"] {
+  display: none; /* Hide the default radio button */
+}
+
+.radio-group .form-check label {
+  position: relative;
+  padding-left: 30px; /* Adjust the space for the custom radio button */
+  cursor: pointer;
+  font-size: 16px;
+  color: #333; /* Set text color */
+}
+
+/* Style the custom radio button */
+.radio-group .form-check label:before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 2px;
+  width: 20px; /* Adjust the width of the custom radio button */
+  height: 20px; /* Adjust the height of the custom radio button */
+  border: 2px solid #3498db; /* Set border color */
+  border-radius: 50%;
+  background-color: #fff; /* Set background color */
+  transition: background-color 0.3s;
+}
+
+/* Style the custom radio button when checked */
+.radio-group .form-check input[type="radio"]:checked + label:before {
+  background-color: #3498db; /* Set background color when checked */
+  border-color: #3498db; /* Set border color when checked */
+  content: '\2713'; /* Add checkmark when checked */
+  color: #fff; /* Set checkmark color */
+  text-align: center;
+  line-height: 20px; /* Center the checkmark */
 }

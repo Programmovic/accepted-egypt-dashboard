@@ -87,38 +87,70 @@ const Transactions = () => {
     fetchTransactionData();
   }, []);
 console.log(newTransactionDescription)
-  const handleAddTransaction = async () => {
-    try {
-      const response = await axios.post("/api/transaction", {
-        student: newTransactionStudent || null,
-        batch: newTransactionBatch?._id || null,
-        type: newTransactionType,
-        expense_type: newTransactionExpenseType,
-        amount: newTransactionAmount,
-        description: newTransactionDescription,
-      });
-      if (response.status === 201) {
-        // Data added successfully
-        fetchTransactionData();
-        toast.success("Transaction added successfully!", {
-          position: "top-right",
-          autoClose: 3000,
-        });
-        setShowModal(false);
-        // Clear the form fields
-        resetNewTransactionForm();
-      } else {
-        console.error("Unexpected status code:", response.status);
-      }
-    } catch (error) {
-      console.error("Error adding transaction:", error);
-      setError("Failed to add the transaction. Please try again.");
-      toast.error("Failed to add the transaction. Please try again.", {
+const handleAddTransaction = async () => {
+  try {
+    // Validate input fields
+    const newTransactionData = {
+      student: newTransactionStudent || null,
+      batch: newTransactionBatch?._id || null,
+      type: newTransactionType,
+      expense_type: newTransactionExpenseType,
+      amount: newTransactionAmount,
+      description: newTransactionDescription,
+    };
+
+    console.log("newTransactionData", newTransactionData);
+    if (!newTransactionType) {
+      // Display an error message for missing type
+      toast.error("Please provide a transaction type.", {
         position: "top-right",
         autoClose: 3000,
       });
+      return;
     }
-  };
+
+    if (newTransactionType === "Expense" && !newTransactionExpenseType) {
+      // Display an error message for missing expense type
+      toast.error("Please provide an expense type.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    if (!newTransactionAmount) {
+      // Display an error message for missing amount
+      toast.error("Please provide an amount.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    const response = await axios.post("/api/transaction", newTransactionData);
+    if (response.status === 201) {
+      // Data added successfully
+      fetchTransactionData();
+      toast.success("Transaction added successfully!", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      setShowModal(false);
+      // Clear the form fields
+      resetNewTransactionForm();
+    } else {
+      console.error("Unexpected status code:", response.status);
+    }
+  } catch (error) {
+    console.error("Error adding transaction:", error);
+    setError("Failed to add the transaction. Please try again.");
+    toast.error("Failed to add the transaction. Please try again.", {
+      position: "top-right",
+      autoClose: 3000,
+    });
+  }
+};
+
 
   const handleFilter = () => {
     let filtered = [...transactions];
@@ -586,31 +618,7 @@ console.log(newTransactionDescription)
         </Modal.Header>
         <Modal.Body>
           <Form>
-            <Form.Group className="mb-3">
-              <Form.Label>Student</Form.Label>
-              <Select
-                value={newTransactionSelectedStudent}
-                options={students.map((student) => ({
-                  value: student._id,
-                  label: student.name,
-                }))}
-                onChange={(e) => {
-                  setNewTransactionSelectedStudent(e);
-                  setNewTransactionStudent(e?.value);
-                }}
-                isClearable={true}
-                isSearchable={true}
-                placeholder="Student"
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Batch</Form.Label>
-              <Form.Control
-                type="text"
-                value={newTransactionBatch && newTransactionBatch?.name}
-                disabled
-              />
-            </Form.Group>
+            
             <Form.Group className="mb-3">
               <Form.Label>Type</Form.Label>
               <div className="radio-group">
@@ -665,7 +673,7 @@ console.log(newTransactionDescription)
                   onChange={(e) => setNewTransactionExpenseType(e.target.value)}
                   required
                 >
-                  <option value="">Select an Expense Type</option>
+                  <option value="" hidden>Select an Expense Type</option>
                   {expenseOptions.map((expenseType) => (
                     <option key={expenseType} value={expenseType}>
                       {expenseType}
@@ -674,6 +682,35 @@ console.log(newTransactionDescription)
                 </Form.Control>
               </Form.Group>
             )}
+            {
+              newTransactionType !== "Expense" && newTransactionType && 
+              <>
+              <Form.Group className="mb-3">
+              <Form.Label>Student</Form.Label>
+              <Select
+                value={newTransactionSelectedStudent}
+                options={students.map((student) => ({
+                  value: student._id,
+                  label: student.name,
+                }))}
+                onChange={(e) => {
+                  setNewTransactionSelectedStudent(e);
+                  setNewTransactionStudent(e?.value);
+                }}
+                isClearable={true}
+                isSearchable={true}
+                placeholder="Student"
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Batch</Form.Label>
+              <Form.Control
+                type="text"
+                value={newTransactionBatch && newTransactionBatch?.name}
+                disabled
+              />
+            </Form.Group></>
+            }
             <Form.Group className="mb-3">
               <Form.Label>Amount</Form.Label>
               <Form.Control
@@ -692,6 +729,7 @@ console.log(newTransactionDescription)
                   onChange={(e) => setNewTransactionDescription(e.target.value)}
                   required
                 >
+                  <option value="" hidden>Select The Transaction Description</option>
                   <option value="Course Fee">Course Fee</option>
                   <option value="Material">Material</option>
                 </Form.Control>

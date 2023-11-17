@@ -13,14 +13,14 @@ export default async (req, res) => {
     } else if (req.method === "PUT") {
       const { id } = req.query;
       const updateData = req.body; // Assuming your request body contains the updated data
-
+      console.log(updateData)
       // Find the student by ID and update the batch
       const updatedStudent = await Student.findOneAndUpdate(
         { _id: id },
         updateData,
         { new: true }
       );
-      console.log(updateData)
+      
       if (!updatedStudent) {
         return res.status(404).json({ error: "Student not found" });
       }
