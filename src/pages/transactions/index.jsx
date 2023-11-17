@@ -86,7 +86,7 @@ const Transactions = () => {
   useEffect(() => {
     fetchTransactionData();
   }, []);
-
+console.log(newTransactionDescription)
   const handleAddTransaction = async () => {
     try {
       const response = await axios.post("/api/transaction", {
@@ -550,7 +550,7 @@ const Transactions = () => {
                   <td>
                     {transaction.batch
                       ? batches.find((batch) => batch._id === transaction.batch)
-                          .name
+                          ?.name
                       : "No Batch"}
                   </td>
                   <td>{transaction.type}</td>
