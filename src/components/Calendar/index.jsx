@@ -21,6 +21,7 @@ const Calendar = ({ id }) => {
       const response = await axios.get(apiUrl);
       if (response.status === 200) {
         setRoomReservations(response.data);
+        console.log(response.data)
       }
     } catch (error) {
       console.error("Error fetching room's reservations:", error);
@@ -50,10 +51,9 @@ const Calendar = ({ id }) => {
     const dateParts = originalDateTime.split(" ");
     const date = new Date(dateParts[0]);
     const time12Hour = dateParts[1] + " " + dateParts[2];
-
     const convertedDateTime = new Date(
       date.toISOString().split("T")[0] + "T" + convertTime12to24(time12Hour)
-    ).toISOString();
+    );
 
     return convertedDateTime;
   }
@@ -75,10 +75,10 @@ const Calendar = ({ id }) => {
   }
   const calendarEvents = roomReservations.map((reservation, index) => {
     const startDateTime = convertDateFormat(
-      `${reservation.date} ${reservation.startTime}`
+      `${reservation?.date} ${reservation?.startTime}`
     );
     const endDateTime = convertDateFormat(
-      `${reservation.date} ${reservation.endTime}`
+      `${reservation?.date} ${reservation?.endTime}`
     );
     console.log(reservation.startTime, startDateTime);
     return {
