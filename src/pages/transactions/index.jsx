@@ -543,6 +543,7 @@ const handleAddTransaction = async () => {
             levelIncomes={levelIncomes}
             expenseOptions={expenseOptions}
           />
+          <span>* Click on any column to sort by it</span>
           <Table striped bordered hover ref={tableRef}>
             <thead>
               <tr>

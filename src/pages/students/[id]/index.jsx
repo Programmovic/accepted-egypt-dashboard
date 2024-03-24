@@ -16,6 +16,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@layout";
 import { ClassCard } from "@components/Classes";
 import { useRouter } from "next/router";
+import IdentityCard from "../../../components/StudentIDCard";
 
 const StudentProfile = () => {
   const [studentData, setStudentData] = useState({});
@@ -39,11 +40,11 @@ const StudentProfile = () => {
         phoneNumber: phoneNumber,
         email: email,
         nationalId: nationalId,
-        status: status
+        status: status,
         // Include other fields in the request body as needed
-      }
-      const response = await axios.put(`/api/student/${id}`,newStudentData);
-console.log(newStudentData)
+      };
+      const response = await axios.put(`/api/student/${id}`, newStudentData);
+      console.log(newStudentData);
       if (response.status === 200) {
         toast.success("Student information updated successfully.", {
           position: "top-right",
@@ -246,6 +247,17 @@ console.log(newStudentData)
       fetchStudentData(); // You should implement fetchStudentData to update the student's batch data
     }
   };
+  const [showIdentityModal, setShowIdentityModal] = useState(false);
+
+  // Function to open the identity card modal
+  const openIdentityModal = () => {
+    setShowIdentityModal(true);
+  };
+
+  // Function to close the identity card modal
+  const closeIdentityModal = () => {
+    setShowIdentityModal(false);
+  };
   return (
     <AdminLayout>
       <div className="row">
@@ -331,12 +343,17 @@ console.log(newStudentData)
         />
       </div>
       <Container className="mt-5">
+        <IdentityCard
+          studentData={studentData}
+          showIdentityModal={showIdentityModal}
+          setShowIdentityModal={setShowIdentityModal}
+        />
         <Row className="mb-3">
           <h4 className="text-right">{studentData.name}</h4>
         </Row>
         <Row>
-          <Col xs={12}>
-            <Form.Group className="mb-3" controlId="name">
+          <Col xs={4}>
+            <Form.Group className="my-3" controlId="name">
               <Form.Label>Name</Form.Label>
               <Form.Control
                 type="text"
@@ -346,7 +363,7 @@ console.log(newStudentData)
               />
             </Form.Group>
           </Col>
-          <Col xs={12}>
+          <Col xs={4}>
             <Form.Group className="my-3" controlId="phoneNumber">
               <Form.Label>Mobile Number</Form.Label>
               <Form.Control
@@ -357,7 +374,7 @@ console.log(newStudentData)
               />
             </Form.Group>
           </Col>
-          <Col xs={12}>
+          <Col xs={4}>
             <Form.Group className="my-3" controlId="email">
               <Form.Label>Email</Form.Label>
               <Form.Control
@@ -368,7 +385,7 @@ console.log(newStudentData)
               />
             </Form.Group>
           </Col>
-          <Col xs={12}>
+          <Col xs={4}>
             <Form.Group className="my-3" controlId="nationalId">
               <Form.Label>National Id</Form.Label>
               <Form.Control
@@ -379,7 +396,7 @@ console.log(newStudentData)
               />
             </Form.Group>
           </Col>
-          <Col xs={6}>
+          <Col xs={4}>
             <Form.Group className="my-3" controlId="status">
               <Form.Label>Status</Form.Label>
               <Form.Control
@@ -389,9 +406,9 @@ console.log(newStudentData)
               />
             </Form.Group>
           </Col>
-          <Col xs={6}>
+          <Col xs={4}>
             <Form.Group className="my-3" controlId="paid">
-              <Form.Label>Paid</Form.Label>
+              <Form.Label>Paid (EGP)</Form.Label>
               <Form.Control
                 type="text"
                 defaultValue={studentData.paid}
@@ -399,9 +416,9 @@ console.log(newStudentData)
               />
             </Form.Group>
           </Col>
-          <Col xs={6}>
+          <Col xs={4}>
             <Form.Group className="my-3" controlId="due">
-              <Form.Label>Due</Form.Label>
+              <Form.Label>Due (EGP)</Form.Label>
               <Form.Control
                 type="text"
                 defaultValue={studentData.due}
@@ -409,7 +426,7 @@ console.log(newStudentData)
               />
             </Form.Group>
           </Col>
-          <Col xs={6}>
+          <Col xs={4}>
             <Form.Group className="my-3" controlId="level">
               <Form.Label>Level</Form.Label>
               <Form.Control
@@ -419,42 +436,37 @@ console.log(newStudentData)
               />
             </Form.Group>
           </Col>
-          <Col xs={12}>
+          <Col xs={4}>
             <Form.Group className="my-3" controlId="placementTest">
               <Form.Label>Placement Test</Form.Label>
               <Form.Control
                 type="text"
-                defaultValue={new Date(
-                  studentData?.placementTestDate
-                ).toLocaleDateString()}
+                value={new Date(studentData?.placementTestDate).toLocaleString(
+                  undefined,
+                  { year: "numeric", day: "numeric", month: "long" }
+                )}
                 disabled
               />
             </Form.Group>
           </Col>
         </Row>
-        <Row className="mt-3 justify-content-center d-flex">
-          <Col>
-            <Button
-              variant="primary"
-              className="profile-button"
-              type="button"
-              onClick={handleSave}
-            >
-              Update
-            </Button>
-          </Col>
-          <Col>
-            <Button
-              variant="primary"
-              className="profile-button"
-              type="button"
-              onClick={openBatchModal}
-            >
-              Update Batch
-            </Button>
-          </Col>
+        <div className="mt-3 justify-content-between d-flex">
+          <Button variant="primary" type="button" onClick={handleSave}>
+            Update
+          </Button>
+          <Button variant="primary" type="button" onClick={openBatchModal}>
+            Update Batch
+          </Button>
+          <Button
+            variant="outline-primary"
+            type="button"
+            className="fw-bold"
+            onClick={openIdentityModal}
+          >
+            View Card
+          </Button>
           {/* Button to open the batch update modal */}
-        </Row>
+        </div>
       </Container>
       <Modal show={showBatchModal} onHide={() => setShowBatchModal(false)}>
         <Modal.Header closeButton>

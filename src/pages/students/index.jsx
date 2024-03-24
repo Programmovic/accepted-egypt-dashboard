@@ -18,6 +18,7 @@ import Link from "next/link";
 import { Pagination } from "react-bootstrap";
 import Select from "react-select";
 
+
 const Students = () => {
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
@@ -425,7 +426,7 @@ const Students = () => {
               </Col>
             </Row>
             <Row>
-              <Col xs={6}>
+              <Col xs={4}>
                 <Form.Group className="mb-3">
                   <Form.Label>Joined Date Start</Form.Label>
                   <Form.Control
@@ -435,7 +436,7 @@ const Students = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col xs={6}>
+              <Col xs={4}>
                 <Form.Group className="mb-3">
                   <Form.Label>Joined Date End</Form.Label>
                   <Form.Control
@@ -445,7 +446,7 @@ const Students = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col xs={6}>
+              <Col xs={4}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Phone Number</Form.Label>
                   <Form.Control
@@ -509,7 +510,7 @@ const Students = () => {
                   <td>{student.name}</td>
                   <td>{student.email || "-"}</td>
                   <td>{student.phoneNumber}</td>
-                  <td>{new Date(student.joinedDate).toLocaleDateString()}</td>
+                  <td>{new Date(student.joinedDate).toLocaleString(undefined, { year: 'numeric', day: 'numeric', month: 'long', hour: 'numeric', minute: 'numeric', second: 'numeric' })}</td>
                   {/* Inside your table row */}
                   <td className="text-center">
                     {/* Add the delete button or icon */}

@@ -75,7 +75,6 @@ export default async (req, res) => {
       return res.status(201).json({ newStudent });
     } else if (req.method === "GET") {
       const students = await Student.find();
-      // You can also fetch associated placement test and transaction data here if needed
       return res.status(200).json({ students });
     } else if (req.method === "DELETE") {
       // Handle student deletion
