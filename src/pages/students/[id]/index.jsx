@@ -403,6 +403,7 @@ const StudentProfile = () => {
                 type="text"
                 placeholder="Status"
                 defaultValue={studentData.status}
+                disabled
               />
             </Form.Group>
           </Col>
