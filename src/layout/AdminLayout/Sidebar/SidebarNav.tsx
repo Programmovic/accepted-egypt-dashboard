@@ -180,6 +180,9 @@ export default function SidebarNav() {
       <SidebarNavItem icon={faSchool} href="/courses">
         Courses
       </SidebarNavItem>
+      <SidebarNavItem icon={faPerson} href="/qr_code_attendance">
+        Attendance Scanner
+      </SidebarNavItem>
       <SidebarNavItem icon={faPerson} href="/students">
         Students
       </SidebarNavItem>
