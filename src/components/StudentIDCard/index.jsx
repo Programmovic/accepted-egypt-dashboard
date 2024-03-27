@@ -12,12 +12,16 @@ const IdentityCard = ({
 }) => {
   const ref = useRef();
   const { Canvas } = useQRCode();
+
+  // Background image URL
+  const backgroundImageUrl = "/assets/img/pro.jpeg";
+
   return (
     <div>
       <Modal
         show={showIdentityModal}
         onHide={() => setShowIdentityModal(false)}
-        size="lg"
+        size="md"
         centered
       >
         <Modal.Header closeButton>
@@ -26,27 +30,57 @@ const IdentityCard = ({
         <Print ref={ref} printWidth={"100%"} marginTop={48} marginLeft={64}>
           <Modal.Body>
             <Row className="justify-content-center">
-              <Canvas
-                text={studentData._id}
-                options={{
-                  errorCorrectionLevel: "M",
-                  margin: 3,
-                  scale: 10,
-                  width: 400,
-                  color: {
-                    dark: "#000",
-                    light: "#dcdcdc",
-                  },
+              <img
+                src={backgroundImageUrl}
+                alt="Background"
+                style={{
+                  position: "absolute",
+                  width: "100%",
+                  height: "100%",
+                  zIndex: 0,
                 }}
+                className="rounded-3"
               />
-              <h4 className="fw-bold text-center my-5 text-uppercase">{studentData.name}</h4>
-              <Barcode value={studentData._id} />
+              <div
+                style={{
+                  zIndex: -1,
+                  display: "flex",
+                  justifyContent: "center",
+                }}
+                className="rounded-circle"
+              >
+                <Canvas
+                  text={studentData._id}
+                  options={{
+                    errorCorrectionLevel: "M",
+                    margin: 4,
+                    scale: 10,
+                    width: 400,
+                    color: {
+                      dark: "#000",
+                      light: "#dcdcdc",
+                    },
+                  }}
+                />
+              </div>
+              <h4
+                className="fw-bold text-center my-5 text-uppercase"
+                style={{ zIndex: 2 }}
+              >
+                {studentData.name}
+              </h4>
+              <Barcode
+                value={studentData._id}
+                background="#eeeeee6b"
+                displayValue="true"
+                width={1.5}
+              />
             </Row>
             {/* Additional content for the body of the modal if needed */}
           </Modal.Body>
         </Print>
 
-        <Modal.Footer>
+        <Modal.Footer className="mt-4">
           <Button
             variant="secondary"
             onClick={() => setShowIdentityModal(false)}

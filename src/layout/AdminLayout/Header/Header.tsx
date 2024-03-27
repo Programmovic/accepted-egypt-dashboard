@@ -46,11 +46,11 @@ export default function Header(props: HeaderProps) {
         <div className="header-nav ms-auto">
           <HeaderNotificationNav />
         </div> */}
-        <div className="text-center">
+        {/* <div className="text-center">
   <p className='mb-0 bg-danger text-light p-2 px-4 rounded-3 fw-bold'>
     If any issue occurs during usage, even if it's minor, please stop using the system immediately and contact me right away to prevent further errors.
   </p>
-</div>
+</div> */}
 
 
         <div className="header-nav ms-auto">
