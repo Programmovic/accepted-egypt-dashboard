@@ -4,6 +4,8 @@ import Barcode from "react-barcode";
 import { Print } from "print-react";
 import { useRef } from "react";
 import { useQRCode } from "next-qrcode";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const IdentityCard = ({
   studentData,
@@ -15,6 +17,40 @@ const IdentityCard = ({
 
   // Background image URL
   const backgroundImageUrl = "/assets/img/pro.jpeg";
+
+  const handleDownloadPDF = async () => {
+    try {
+      const modalContent = document.getElementById("modal-content");
+
+      const canvas = await html2canvas(modalContent);
+      const imageData = canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF();
+      pdf.addImage(imageData, "PNG", 0, 0, pdf.internal.pageSize.getWidth(), pdf.internal.pageSize.getHeight());
+      pdf.save("identity_card.pdf");
+    } catch (error) {
+      console.error("Error generating PDF:", error);
+    }
+  };
+
+  const handleDownloadImage = async () => {
+    try {
+      const modalContent = document.getElementById("modal-content");
+
+      const canvas = await html2canvas(modalContent);
+      const imageData = canvas.toDataURL("image/png");
+
+      // Create a link element
+      const link = document.createElement('a');
+      link.href = imageData;
+      link.download = `${studentData.name}_ID.png`; // Specify the file name
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error generating image:", error);
+    }
+  };
 
   return (
     <div>
@@ -28,7 +64,7 @@ const IdentityCard = ({
           <Modal.Title>{studentData.name} ID</Modal.Title>
         </Modal.Header>
         <Print ref={ref} printWidth={"100%"} marginTop={48} marginLeft={64}>
-          <Modal.Body>
+          <Modal.Body id="modal-content">
             <Row className="justify-content-center">
               <img
                 src={backgroundImageUrl}
@@ -43,9 +79,10 @@ const IdentityCard = ({
               />
               <div
                 style={{
-                  zIndex: -1,
+                  zIndex: 1,
                   display: "flex",
                   justifyContent: "center",
+                  marginTop: 100
                 }}
                 className="rounded-circle"
               >
@@ -53,9 +90,9 @@ const IdentityCard = ({
                   text={studentData._id}
                   options={{
                     errorCorrectionLevel: "M",
-                    margin: 4,
+                    margin: 1,
                     scale: 10,
-                    width: 400,
+                    width: 350,
                     color: {
                       dark: "#000",
                       light: "#dcdcdc",
@@ -69,12 +106,6 @@ const IdentityCard = ({
               >
                 {studentData.name}
               </h4>
-              <Barcode
-                value={studentData._id}
-                background="#eeeeee6b"
-                displayValue="true"
-                width={1.5}
-              />
             </Row>
             {/* Additional content for the body of the modal if needed */}
           </Modal.Body>
@@ -86,6 +117,12 @@ const IdentityCard = ({
             onClick={() => setShowIdentityModal(false)}
           >
             Close
+          </Button>
+          <Button variant="secondary" onClick={handleDownloadImage}>
+            Download Image
+          </Button>
+          <Button variant="secondary" onClick={handleDownloadPDF}>
+            Download PDF
           </Button>
           <Button
             variant="secondary"

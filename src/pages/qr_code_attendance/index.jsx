@@ -70,12 +70,23 @@ const AttendancePage = () => {
             {loading && <p>Loading student data...</p>}
             {error && <p>{error}</p>}
             {studentData && (
-              <div>
-                <p>Name: {studentData.name}</p>
-                <p>Phone Number: {studentData.phoneNumber}</p>
-                <p>Email: {studentData.email}</p>
-                {/* Display other student data as needed */}
-              </div>
+              <Table striped bordered hover>
+                <tbody>
+                  <tr>
+                    <td>Name:</td>
+                    <td>{studentData.name}</td>
+                  </tr>
+                  <tr>
+                    <td>Phone Number:</td>
+                    <td>{studentData.phoneNumber}</td>
+                  </tr>
+                  <tr>
+                    <td>Email:</td>
+                    <td>{studentData.email}</td>
+                  </tr>
+                  {/* Add additional rows for other student data */}
+                </tbody>
+              </Table>
             )}
             {attendances.length > 0 && (
               <div>
