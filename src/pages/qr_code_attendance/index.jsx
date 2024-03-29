@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, Table } from "react-bootstrap";
 import { BarcodeScanner } from "@alzera/react-scanner";
 import { AdminLayout } from "@layout";
@@ -23,7 +23,9 @@ const AttendancePage = () => {
           }
         } catch (error) {
           console.error("Error fetching student data:", error);
-          setError("Failed to fetch student data. Please try again later.");
+          setError(
+            "Failed to fetch student data. Please try again later."
+          );
         } finally {
           setLoading(false);
         }
@@ -35,13 +37,14 @@ const AttendancePage = () => {
         const response = await axios.get(
           `/api/attendance/student-attendances?studentId=${studentId}`
         );
-        console.log(response)
         if (response.status === 200) {
           setAttendances(response.data);
         }
       } catch (error) {
         console.error("Error fetching attendance data:", error);
-        setError("Failed to fetch attendance data. Please try again later.");
+        setError(
+          "Failed to fetch attendance data. Please try again later."
+        );
       }
     };
 
@@ -53,43 +56,55 @@ const AttendancePage = () => {
       <Card>
         <Card.Header>Attendance Page</Card.Header>
         <Card.Body>
-          <BarcodeScanner onScan={(data) => data && setScannedData(data)} />
-          {loading && <p>Loading student data...</p>}
-          {error && <p>{error}</p>}
-          {studentData && (
-            <div>
-              <h4>Student Details:</h4>
-              <p>Name: {studentData.name}</p>
-              <p>Phone Number: {studentData.phoneNumber}</p>
-              <p>Email: {studentData.email}</p>
-              {/* Display other student data as needed */}
-            </div>
-          )}
-          {attendances.length > 0 && (
-            <div>
-              <h4>Attendances:</h4>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Remarks</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attendances.map((attendance) => (
-                    <tr key={attendance._id}>
-                      <td>{new Date(attendance.date).toLocaleDateString()}</td>
-                      <td>{attendance.status}</td>
-                      <td>{attendance.remarks || "N/A"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
-          )}
+          <BarcodeScanner
+            className="barcode-scanner"
+            aspectRatio="16/9"
+            onScan={(data) => data && setScannedData(data)}
+          />
         </Card.Body>
       </Card>
+      {studentData && (
+        <Card className="mt-4">
+          <Card.Header>Student Details</Card.Header>
+          <Card.Body>
+            {loading && <p>Loading student data...</p>}
+            {error && <p>{error}</p>}
+            {studentData && (
+              <div>
+                <p>Name: {studentData.name}</p>
+                <p>Phone Number: {studentData.phoneNumber}</p>
+                <p>Email: {studentData.email}</p>
+                {/* Display other student data as needed */}
+              </div>
+            )}
+            {attendances.length > 0 && (
+              <div>
+                <h4>Attendances:</h4>
+                <Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Status</th>
+                      <th>Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {attendances.map((attendance) => (
+                      <tr key={attendance._id}>
+                        <td>
+                          {new Date(attendance.date).toLocaleDateString()}
+                        </td>
+                        <td>{attendance.status}</td>
+                        <td>{attendance.remarks || "N/A"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              </div>
+            )}
+          </Card.Body>
+        </Card>
+      )}
     </AdminLayout>
   );
 };
