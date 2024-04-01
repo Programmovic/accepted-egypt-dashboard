@@ -11,7 +11,7 @@ const TransactionDetails = () => {
   const { id } = router.query;
   const transactionApiUrl = `/api/transaction/${id}`;
   const { toPDF, targetRef } = usePDF({
-    filename: `Transaction - ${id}.pdf`,
+    filename: `Invoice_${id}.pdf`,
     resolution: Resolution.HIGH,
     canvas: {
       mimeType: "image/png",
@@ -33,7 +33,6 @@ const TransactionDetails = () => {
   const fetchTransaction = async () => {
     try {
       const response = await axios.get(transactionApiUrl);
-      console.log(response);
       if (response.status === 200) {
         setTransaction(response.data);
       }
@@ -50,10 +49,10 @@ const TransactionDetails = () => {
 
   return (
     <AdminLayout>
-      <Card ref={targetRef}>
+      <Card>
         <Card.Header className="d-flex justify-content-between align-items-center">
           <div>
-            Transaction Details
+            Invoice Details
             {transaction && (
               <Badge pill variant="primary" className="ms-2">
                 {transaction._id}
@@ -68,32 +67,73 @@ const TransactionDetails = () => {
             Export as PDF
           </Button>
         </Card.Header>
-        <Card.Body>
+        <Card.Body ref={targetRef}>
           {transaction && (
-            <Table striped bordered hover>
+            <div>
+              <h5 className="fw-bold mb-4">Invoice Information</h5>
+              <Table>
+                <tbody>
+                  <tr>
+                    <td className="fw-bold">Invoice Number:</td>
+                    <td>{transaction._id}</td>
+                  </tr>
+                  <tr>
+                    <td className="fw-bold">Date:</td>
+                    <td>{new Date().toLocaleString()}</td>
+                  </tr>
+                  {/* Add more invoice details here */}
+                </tbody>
+              </Table>
+
+              <h5 className="fw-bold mt-4 mb-4">Billing Details</h5>
+              <Table hover>
               <tbody>
-                <tr>
-                  <td>Student</td>
-                  <td>{transaction?.student?.name}</td>
-                </tr>
-                <tr>
-                  <td>Batch</td>
-                  <td>{transaction?.batch?.name}</td>
-                </tr>
-                <tr>
-                  <td>Type</td>
-                  <td>{transaction.type}</td>
-                </tr>
-                <tr>
-                  <td>Amount (EGP)</td>
-                  <td>{transaction.amount} EGP</td>
-                </tr>
-                <tr>
-                  <td>Description</td>
-                  <td>{transaction.description}</td>
-                </tr>
-              </tbody>
-            </Table>
+  <tr>
+    <td className="fw-bold">Transaction Date:</td>
+    <td>{new Date(transaction?.createdAt).toLocaleString()}</td>
+  </tr>
+
+  {transaction?.student ? (
+    <tr>
+      <td className="fw-bold">Student Name:</td>
+      <td>{transaction.student.name}</td>
+    </tr>
+  ) : (
+    <tr>
+      <td className="fw-bold">Student Name:</td>
+      <td colSpan="2" className="text-danger">No student associated with this transaction</td>
+    </tr>
+  )}
+
+  {transaction?.batch ? (
+    <tr>
+      <td className="fw-bold">Batch:</td>
+      <td>{transaction.batch.name}</td>
+    </tr>
+  ) : (
+    <tr>
+      <td className="fw-bold">Batch:</td>
+      <td colSpan="2" className="text-danger">No batch associated with this transaction</td>
+    </tr>
+  )}
+
+  <tr>
+    <td className="fw-bold">Type:</td>
+    <td>{transaction.type}</td>
+  </tr>
+  <tr>
+    <td className="fw-bold">Amount (EGP):</td>
+    <td>{transaction.amount} EGP</td>
+  </tr>
+  <tr>
+    <td className="fw-bold">Description:</td>
+    <td>{transaction.description}</td>
+  </tr>
+  {/* Add more billing details if necessary */}
+</tbody>
+
+              </Table>
+            </div>
           )}
         </Card.Body>
       </Card>
