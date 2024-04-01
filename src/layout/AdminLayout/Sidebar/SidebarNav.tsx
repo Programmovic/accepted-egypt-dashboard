@@ -33,8 +33,7 @@ import {
   faDollar,
   faHome,
   faHandsHelping,
-  faLevelUp
-  
+  faLevelUp,
 } from "@fortawesome/free-solid-svg-icons";
 import React, {
   PropsWithChildren,
@@ -160,155 +159,78 @@ const SidebarNavGroup = (props: SidebarNavGroupProps) => {
 export default function SidebarNav() {
   return (
     <ul className="list-unstyled">
-      <SidebarNavItem icon={faUser} href="/admins">
-        Admins
-      </SidebarNavItem>
-      <SidebarNavItem icon={faLevelUp} href="/levels">
-        Levels
-      </SidebarNavItem>
-      <SidebarNavItem icon={faHome} href="/rooms">
-        Rooms
-      </SidebarNavItem>
-      <SidebarNavItem icon={faEdit} href="/placement_tests">
-        Placement Test (EWF2 Test)
-      </SidebarNavItem>
-      <div className="ps-2">
-      <SidebarNavItem icon={faEdit} href="/progress_exit_tests">
-        Progress / Exit Tests
-      </SidebarNavItem>
-      </div>
-      <SidebarNavItem icon={faSchool} href="/courses">
-        Courses
-      </SidebarNavItem>
-      <SidebarNavItem icon={faPerson} href="/qr_code_attendance">
-        Attendance Scanner
-      </SidebarNavItem>
-      <SidebarNavItem icon={faPerson} href="/students">
-        Students
-      </SidebarNavItem>
-      <SidebarNavItem icon={faClock} href="/waiting_list">
-        Waiting List
-      </SidebarNavItem>
-      <SidebarNavItem icon={faPeopleGroup} href="/batches">
-        Batches
-      </SidebarNavItem>
-      <div className="ps-2">
-      <SidebarNavItem icon={faPeopleGroup} href="/ongoing_batches">
-        Ongoing Batches
-      </SidebarNavItem>
-      <SidebarNavItem icon={faPeopleGroup} href="/finalized_batches">
-        Finalized Batches
-      </SidebarNavItem>
-      </div>
-      
-      <SidebarNavItem icon={faPeopleGroup} href="/lectures">
-        Lectures
-      </SidebarNavItem>
-      <SidebarNavItem icon={faChalkboardTeacher} href="/instructors">
-        Instructors
-      </SidebarNavItem>
-      
-      
-      
-
-      <SidebarNavTitle>Finance</SidebarNavTitle>
-      <SidebarNavItem icon={faHeartCircleExclamation} href="/sales_members">
-        Sales Members
-      </SidebarNavItem>
-      <SidebarNavItem icon={faDollar} href="/transactions">
-        Transactions
-      </SidebarNavItem>
-      <SidebarNavItem icon={faDollar} href="/students_with_due">
-        Students With Due
-      </SidebarNavItem>
-      <SidebarNavTitle>Help</SidebarNavTitle>
-      <SidebarNavItem icon={faHandsHelping} href="/">
-        How to Use?
-      </SidebarNavItem>
-      {/* <SidebarNavTitle>Components</SidebarNavTitle>
-
-      <SidebarNavGroup toggleIcon={faPuzzlePiece} toggleText="Base">
-        <SidebarNavItem href="#">Accordion</SidebarNavItem>
-        <SidebarNavItem href="#">Breadcrumb</SidebarNavItem>
-        <SidebarNavItem href="#">Cards</SidebarNavItem>
-        <SidebarNavItem href="#">Carousel</SidebarNavItem>
-        <SidebarNavItem href="#">Collapse</SidebarNavItem>
-        <SidebarNavItem href="#">List group</SidebarNavItem>
-        <SidebarNavItem href="#">Navs</SidebarNavItem>
-        <SidebarNavItem href="#">Pagination</SidebarNavItem>
-        <SidebarNavItem href="#">Popovers</SidebarNavItem>
-        <SidebarNavItem href="#">Progress</SidebarNavItem>
-        <SidebarNavItem href="#">Scrollspy</SidebarNavItem>
-        <SidebarNavItem href="#">Spinners</SidebarNavItem>
-        <SidebarNavItem href="#">Tables</SidebarNavItem>
-        <SidebarNavItem href="#">Tabs</SidebarNavItem>
-        <SidebarNavItem href="#">Tooltips</SidebarNavItem>
-      </SidebarNavGroup>
-
-      <SidebarNavGroup toggleIcon={faLocationArrow} toggleText="Buttons">
-        <SidebarNavItem href="#">Buttons</SidebarNavItem>
-        <SidebarNavItem href="#">Buttons Group</SidebarNavItem>
-        <SidebarNavItem href="#">Dropdowns</SidebarNavItem>
-      </SidebarNavGroup>
-
-      <SidebarNavItem icon={faChartPie} href="#">
-        Charts
-      </SidebarNavItem>
-
-      <SidebarNavGroup toggleIcon={faFileLines} toggleText="Forms">
-        <SidebarNavItem href="#">Form Control</SidebarNavItem>
-        <SidebarNavItem href="#">Select</SidebarNavItem>
-        <SidebarNavItem href="#">Checks and radios</SidebarNavItem>
-        <SidebarNavItem href="#">Range</SidebarNavItem>
-        <SidebarNavItem href="#">Input group</SidebarNavItem>
-        <SidebarNavItem href="#">Floating labels</SidebarNavItem>
-        <SidebarNavItem href="#">Layout</SidebarNavItem>
-        <SidebarNavItem href="#">Validation</SidebarNavItem>
-      </SidebarNavGroup>
-
-      <SidebarNavGroup toggleIcon={faStar} toggleText="Icons">
-        <SidebarNavItem href="#">CoreUI Icons</SidebarNavItem>
-        <SidebarNavItem href="#">CoreUI Icons - Brand</SidebarNavItem>
-        <SidebarNavItem href="#">CoreUI Icons - Flag</SidebarNavItem>
-      </SidebarNavGroup>
-
-      <SidebarNavGroup toggleIcon={faBell} toggleText="Notifications">
-        <SidebarNavItem href="#">Alerts</SidebarNavItem>
-        <SidebarNavItem href="#">Badge</SidebarNavItem>
-        <SidebarNavItem href="#">Modals</SidebarNavItem>
-        <SidebarNavItem href="#">Toasts</SidebarNavItem>
-      </SidebarNavGroup>
-
-      <SidebarNavItem icon={faCalculator} href="#">
-        Widgets
-        <small className="ms-auto">
-          <Badge bg="info">NEW</Badge>
-        </small>
-      </SidebarNavItem>
-
-      <SidebarNavTitle>Extras</SidebarNavTitle>
-
-      <SidebarNavGroup toggleIcon={faStar} toggleText="Pages">
-        <SidebarNavItem icon={faRightToBracket} href="login">
-          Login
+      {/* Administration Category */}
+      <SidebarNavGroup toggleIcon={faUser} toggleText="Administration">
+        <SidebarNavItem icon={faUser} href="/admins">
+          Admins
         </SidebarNavItem>
-        <SidebarNavItem icon={faAddressCard} href="register">
-          Register
+        <SidebarNavItem icon={faLevelUp} href="/levels">
+          Levels
         </SidebarNavItem>
-        <SidebarNavItem icon={faBug} href="#">
-          Error 404
+        <SidebarNavItem icon={faHome} href="/rooms">
+          Rooms
         </SidebarNavItem>
-        <SidebarNavItem icon={faBug} href="#">
-          Error 500
+        <SidebarNavItem icon={faEdit} href="/placement_tests">
+          Placement Test (EWF2 Test)
+        </SidebarNavItem>
+        <SidebarNavItem icon={faEdit} href="/progress_exit_tests">
+          Progress / Exit Tests
+        </SidebarNavItem>
+        <SidebarNavItem icon={faPerson} href="/students">
+          Students
+        </SidebarNavItem>
+        <SidebarNavItem icon={faClock} href="/waiting_list">
+          Waiting List
         </SidebarNavItem>
       </SidebarNavGroup>
 
-      <SidebarNavItem icon={faFileLines} href="#">
-        Docs
-      </SidebarNavItem>
-      <SidebarNavItem icon={faLayerGroup} href="https://coreui.io/pro/">
-        Try CoreUI PRO
-      </SidebarNavItem> */}
+      {/* Academic Category */}
+      <SidebarNavGroup toggleIcon={faSchool} toggleText="Academic">
+        <SidebarNavItem icon={faSchool} href="/courses">
+          Courses
+        </SidebarNavItem>
+        <SidebarNavItem icon={faPerson} href="/qr_code_attendance">
+          Attendance Scanner
+        </SidebarNavItem>
+        <SidebarNavItem icon={faPeopleGroup} href="/batches">
+          Batches
+          
+        </SidebarNavItem>
+        <SidebarNavItem icon={faPeopleGroup} href="/ongoing_batches">
+            Ongoing Batches
+          </SidebarNavItem>
+          <SidebarNavItem icon={faPeopleGroup} href="/finalized_batches">
+            Finalized Batches
+          </SidebarNavItem>
+        <SidebarNavItem icon={faChalkboardTeacher} href="/instructors">
+          Instructors
+        </SidebarNavItem>
+        <SidebarNavItem icon={faPeopleGroup} href="/lectures">
+          Lectures
+        </SidebarNavItem>
+      </SidebarNavGroup>
+
+      {/* Finance Category */}
+      <SidebarNavGroup toggleIcon={faDollar} toggleText="Finance">
+        <SidebarNavItem icon={faHeartCircleExclamation} href="/sales_members">
+          Sales Members
+        </SidebarNavItem>
+        <SidebarNavItem icon={faDollar} href="/transactions">
+          Transactions
+        </SidebarNavItem>
+        <SidebarNavItem icon={faDollar} href="/students_with_due">
+          Students With Due
+        </SidebarNavItem>
+      </SidebarNavGroup>
+
+      <SidebarNavGroup toggleIcon={faHandsHelping} toggleText="Help">
+        <SidebarNavItem
+          icon={faHandsHelping}
+          href="/"
+        >
+          How to Use?
+        </SidebarNavItem>
+      </SidebarNavGroup>
     </ul>
   );
 }

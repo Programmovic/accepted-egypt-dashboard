@@ -21,6 +21,8 @@ const Transactions = () => {
   const [toDate, setToDate] = useState(null);
   const [filterDescription, setFilterDescription] = useState("");
   const [filterStudent, setFilterStudent] = useState("");
+  const [filterBatch, setFilterBatch] = useState("");
+
   // State for new transaction creation
   const [newTransactionSelectedStudent, setNewTransactionSelectedStudent] =
     useState("");
@@ -188,6 +190,11 @@ const handleAddTransaction = async () => {
         return studentName?.toLowerCase() === filterStudent.toLowerCase();
       });
     }
+    if (filterBatch) {
+      filtered = filtered.filter(
+        (transaction) => transaction.batch === filterBatch
+      );
+    }
     saveFiltersToLocalStorage();
     setFilteredTransactions(filtered);
   };
@@ -195,7 +202,7 @@ const handleAddTransaction = async () => {
   useEffect(() => {
     // Automatically apply filters when filter inputs change
     handleFilter();
-  }, [filterType, fromDate, toDate, filterDescription, filterStudent]);
+  }, [filterType, fromDate, toDate, filterDescription, filterStudent, filterBatch]);
 
   const clearFilters = () => {
     setFilterType("");
@@ -477,7 +484,7 @@ const handleAddTransaction = async () => {
                   />
                 </Form.Group>
               </Col>
-              <Col xs={4}>
+              <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Type</Form.Label>
                   <div className="d-flex justify-content-between">
@@ -511,6 +518,24 @@ const handleAddTransaction = async () => {
                   </div>
                 </Form.Group>
               </Col>
+              <Col xs={6}>
+  <Form.Group className="mb-3">
+    <Form.Label>Filter by Batch</Form.Label>
+    <Select
+      value={filterBatch.label}
+      options={batches.map((batch) => ({
+        value: batch._id,
+        label: batch.name,
+      }))}
+      isClearable={true}
+      isSearchable={true}
+      onChange={(selectedOption) =>
+        setFilterBatch(selectedOption?.value || "")
+      }
+    />
+  </Form.Group>
+</Col>
+
               <Col xs={12}>
                 <Form.Group className="mb-3">
                   <Form.Label>Description</Form.Label>
