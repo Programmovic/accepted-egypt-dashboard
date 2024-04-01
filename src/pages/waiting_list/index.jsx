@@ -1,7 +1,16 @@
 // WaitingList.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Button, Table, Modal, Form, Row, Col, Pagination } from "react-bootstrap";
+import {
+  Card,
+  Button,
+  Table,
+  Modal,
+  Form,
+  Row,
+  Col,
+  Pagination,
+} from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@layout";
@@ -25,6 +34,51 @@ const WaitingList = () => {
   const [student, setStudent] = useState({});
   const [students, setStudents] = useState([]);
   const [discount, setDiscount] = useState(0); // Initialize with 0
+  const [discountType, setDiscountType] = useState("percentage");
+  // Function to handle changes in discount type
+  const handleDiscountTypeChange = (e) => {
+    setDiscountType(e.target.value);
+  };
+
+  // Function to calculate the final price to be paid based on the discount
+  const calculateFinalPrice = () => {
+    if (selectedBatch && selectedBatch.value) {
+      // Get the selected batch's price
+      const batchPrice =
+        batches.find((batch) => batch._id === selectedBatch?.value)?.cost || 0;
+
+      // Calculate the discount based on its type
+      if (discountType === "percentage") {
+        // Discount is a percentage
+        return batchPrice - (discount / 100) * batchPrice;
+      } else {
+        // Discount is an amount
+        return Math.max(0, batchPrice - discount);
+      }
+    }
+    return 0;
+  };
+
+  // Function to handle changes in the discount value
+  const handleDiscountChange = (e) => {
+    // Parse the input value to a number
+    const inputValue = parseFloat(e.target.value);
+
+    // Ensure that the discount amount is not negative
+    setDiscount(Math.max(0, inputValue));
+  };
+
+  // Function to handle changes in the paid amount
+  const handlePaidAmountChange = (e) => {
+    // Parse the input value to a number
+    const inputValue = parseFloat(e.target.value);
+
+    // Calculate the final price to be paid
+    const finalPrice = calculateFinalPrice();
+
+    // Update the paid amount, setting it to the final price if it's higher
+    setPaidAmount(Math.min(finalPrice, inputValue));
+  };
 
   async function fetchBatches() {
     try {
@@ -230,7 +284,10 @@ const WaitingList = () => {
   // Calculate indices for current page
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filterdWitingLists.slice(indexOfFirstItem, indexOfLastItem);
+  const currentItems = filterdWitingLists.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
   return (
     <AdminLayout>
@@ -371,38 +428,48 @@ const WaitingList = () => {
                       isDisabled={student.batch && true}
                     />
                     {selectedBatch && selectedBatch.value && (
-                      <Form.Text className="text-muted">
-                        {new Intl.NumberFormat("en-US", {
-                          style: "currency",
-                          currency: "EGP",
-                        }).format(
-                          batches.find(
-                            (batch) => batch._id === selectedBatch?.value
-                          )?.cost -
-                            (discount / 100) *
-                              batches.find(
-                                (batch) => batch._id === selectedBatch?.value
-                              )?.cost
-                        )}
-                      </Form.Text>
-                    )}
+  <Form.Text className="text-muted">
+    {new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "EGP",
+    }).format(calculateFinalPrice())}
+  </Form.Text>
+)}
+
                   </Form.Group>
                 </Col>
                 <Col xs={12} className="mt-4">
                   <Form.Group>
-                    <Form.Label>Discount Amount:</Form.Label>
+                    <Form.Label>Discount Type:</Form.Label>
                     <Form.Control
-                      disabled={selectedBatch.value ? false : true}
+                      as="select"
+                      value={discountType}
+                      onChange={handleDiscountTypeChange}
+                    >
+                      <option value="percentage">Percentage</option>
+                      <option value="amount">Amount</option>
+                    </Form.Control>
+                  </Form.Group>
+                  <Form.Group className="mt-4">
+                    <Form.Label>Discount:</Form.Label>
+                    <Form.Control
                       type="number"
-                      placeholder="Enter the discount amount"
+                      placeholder={`Enter the ${
+                        discountType === "percentage"
+                          ? "discount percentage"
+                          : "discount amount"
+                      }`}
                       value={discount}
-                      onChange={(e) => {
-                        // Parse the input value to a number
-                        const inputValue = parseFloat(e.target.value);
-
-                        // Ensure that the discount amount is not negative
-                        setDiscount(Math.max(0, inputValue));
-                      }}
+                      onChange={handleDiscountChange}
+                    />
+                  </Form.Group>
+                  <Form.Group className="mt-4">
+                    <Form.Label>Paid Amount:</Form.Label>
+                    <Form.Control
+                      type="number"
+                      placeholder="Enter the paid amount"
+                      value={paidAmount}
+                      onChange={handlePaidAmountChange}
                     />
                   </Form.Group>
                 </Col>
