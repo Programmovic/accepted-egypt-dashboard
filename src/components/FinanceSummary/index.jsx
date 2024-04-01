@@ -39,19 +39,22 @@ const TransactionsSummary = ({
 
   return (
     <Card className="mb-4">
-      <Card.Header>Received Amount Summary</Card.Header>
-      <Card.Body>
+      <Card.Header className="d-flex justify-content-between align-items-center">
+        <p className="mb-0">
+        Received Amount Summary
+        </p>
         <DownloadTableExcel
           filename="Received Amount Summary"
           sheet="ReceivedAmountSummary"
           currentTableRef={receivedAmountSummary.current}
         >
-          <Button variant="outline-primary" className="mb-3">
+          <Button variant="outline-light" className="fw-bold">
             <FontAwesomeIcon icon={faFile} className="me-1" />
             Export
           </Button>
         </DownloadTableExcel>
-
+      </Card.Header>
+      <Card.Body>
         <Table striped bordered hover ref={receivedAmountSummary}>
           <thead>
             <tr>

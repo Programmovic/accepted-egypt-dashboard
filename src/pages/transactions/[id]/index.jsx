@@ -50,17 +50,23 @@ const TransactionDetails = () => {
 
   return (
     <AdminLayout>
-      <Button variant="outline-primary" className="mb-2" onClick={toPDF}>
-        Export as PDF
-      </Button>
       <Card ref={targetRef}>
-        <Card.Header>
-          Transaction Details
-          {transaction && (
-            <Badge pill variant="primary" className="ms-2">
-              {transaction._id}
-            </Badge>
-          )}
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <div>
+            Transaction Details
+            {transaction && (
+              <Badge pill variant="primary" className="ms-2">
+                {transaction._id}
+              </Badge>
+            )}
+          </div>
+          <Button
+            variant="outline-light"
+            className="fw-bold pt-1"
+            onClick={toPDF}
+          >
+            Export as PDF
+          </Button>
         </Card.Header>
         <Card.Body>
           {transaction && (

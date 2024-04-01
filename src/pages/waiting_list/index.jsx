@@ -428,14 +428,13 @@ const WaitingList = () => {
                       isDisabled={student.batch && true}
                     />
                     {selectedBatch && selectedBatch.value && (
-  <Form.Text className="text-muted">
-    {new Intl.NumberFormat("en-US", {
-      style: "currency",
-      currency: "EGP",
-    }).format(calculateFinalPrice())}
-  </Form.Text>
-)}
-
+                      <Form.Text className="text-muted">
+                        {new Intl.NumberFormat("en-US", {
+                          style: "currency",
+                          currency: "EGP",
+                        }).format(calculateFinalPrice())}
+                      </Form.Text>
+                    )}
                   </Form.Group>
                 </Col>
                 <Col xs={12} className="mt-4">
