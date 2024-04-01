@@ -87,51 +87,54 @@ const TransactionDetails = () => {
 
               <h5 className="fw-bold mt-4 mb-4">Billing Details</h5>
               <Table hover>
-              <tbody>
-  <tr>
-    <td className="fw-bold">Transaction Date:</td>
-    <td>{new Date(transaction?.createdAt).toLocaleString()}</td>
-  </tr>
+                <tbody>
+                  <tr>
+                    <td className="fw-bold">Transaction Date:</td>
+                    <td>{new Date(transaction?.createdAt).toLocaleString()}</td>
+                  </tr>
 
-  {transaction?.student ? (
-    <tr>
-      <td className="fw-bold">Student Name:</td>
-      <td>{transaction.student.name}</td>
-    </tr>
-  ) : (
-    <tr>
-      <td className="fw-bold">Student Name:</td>
-      <td colSpan="2" className="text-danger">No student associated with this transaction</td>
-    </tr>
-  )}
+                  {transaction?.student ? (
+                    <tr>
+                      <td className="fw-bold">Student Name:</td>
+                      <td>{transaction.student.name}</td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td className="fw-bold">Student Name:</td>
+                      <td colSpan="2" className="text-danger">
+                        No student associated with this transaction
+                      </td>
+                    </tr>
+                  )}
 
-  {transaction?.batch ? (
-    <tr>
-      <td className="fw-bold">Batch:</td>
-      <td>{transaction.batch.name}</td>
-    </tr>
-  ) : (
-    <tr>
-      <td className="fw-bold">Batch:</td>
-      <td colSpan="2" className="text-danger">No batch associated with this transaction</td>
-    </tr>
-  )}
+                  {transaction?.batch ? (
+                    <tr>
+                      <td className="fw-bold">Batch:</td>
+                      <td>{transaction.batch.name}</td>
+                    </tr>
+                  ) : (
+                    <tr>
+                      <td className="fw-bold">Batch:</td>
+                      <td colSpan="2" className="text-danger">
+                        No batch associated with this transaction
+                      </td>
+                    </tr>
+                  )}
 
-  <tr>
-    <td className="fw-bold">Type:</td>
-    <td>{transaction.type}</td>
-  </tr>
-  <tr>
-    <td className="fw-bold">Amount (EGP):</td>
-    <td>{transaction.amount} EGP</td>
-  </tr>
-  <tr>
-    <td className="fw-bold">Description:</td>
-    <td>{transaction.description}</td>
-  </tr>
-  {/* Add more billing details if necessary */}
-</tbody>
-
+                  <tr>
+                    <td className="fw-bold">Type:</td>
+                    <td>{transaction.type}</td>
+                  </tr>
+                  <tr>
+                    <td className="fw-bold">Amount (EGP):</td>
+                    <td>{transaction.amount} EGP</td>
+                  </tr>
+                  <tr>
+                    <td className="fw-bold">Description:</td>
+                    <td>{transaction.description}</td>
+                  </tr>
+                  {/* Add more billing details if necessary */}
+                </tbody>
               </Table>
             </div>
           )}
