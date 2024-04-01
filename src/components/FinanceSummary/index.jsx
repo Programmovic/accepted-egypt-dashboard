@@ -1,5 +1,9 @@
-import React, { useState } from "react";
-import { Table, Card, Form, Accordion } from "react-bootstrap";
+import React, { useState, useRef } from "react";
+import { Table, Card, Form } from "react-bootstrap";
+import { DownloadTableExcel } from "react-export-table-to-excel";
+import { Button } from "react-bootstrap";
+import { faFile } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const TransactionsSummary = ({
   transactions,
@@ -8,37 +12,50 @@ const TransactionsSummary = ({
   statistics,
   expenseOptions,
 }) => {
-  // Calculate the total amount received from all transactions
   const totalReceivedAmount = statistics.receivedAmount;
   const totalExpensedAmount = statistics.expensesAmount;
+  const receivedAmountSummary = useRef(null);
+  const levelIncomeSummary = useRef(null);
+  const expenseSummary = useRef(null);
+  const financeSummary = useRef(null);
+  const revenueSummary = useRef(null);
 
   const [targetValues, setTargetValues] = useState({});
+  const [expenseTargetValues, setExpenseTargetValues] = useState({});
 
-  // Function to update the target for a specific level
   const handleTargetChange = (levelName, value) => {
     setTargetValues({
       ...targetValues,
       [levelName]: value,
     });
   };
-  const [expenseTargetValues, setExpenseTargetValues] = useState({});
 
-  // Function to update the target for a specific expense type
   const handleExpenseTargetChange = (expenseType, value) => {
     setExpenseTargetValues({
       ...expenseTargetValues,
       [expenseType]: value,
     });
   };
+
   return (
     <Card className="mb-4">
-      
       <Card.Header>Received Amount Summary</Card.Header>
       <Card.Body>
-        <Table striped bordered hover>
+        <DownloadTableExcel
+          filename="Received Amount Summary"
+          sheet="ReceivedAmountSummary"
+          currentTableRef={receivedAmountSummary.current}
+        >
+          <Button variant="outline-primary" className="mb-3">
+            <FontAwesomeIcon icon={faFile} className="me-1" />
+            Export
+          </Button>
+        </DownloadTableExcel>
+
+        <Table striped bordered hover ref={receivedAmountSummary}>
           <thead>
             <tr>
-              <th className='bg-success text-light'>Total Amount Received (EGP)</th>
+              <th>Total Amount Received (EGP)</th>
             </tr>
           </thead>
           <tbody>
@@ -52,42 +69,31 @@ const TransactionsSummary = ({
             </tr>
           </tbody>
         </Table>
-        <Table striped bordered hover>
+      </Card.Body>
+
+      <Card.Header>Level Income Summary</Card.Header>
+      <Card.Body>
+        <DownloadTableExcel
+          filename="Level Income Summary"
+          sheet="LevelIncomeSummary"
+          currentTableRef={levelIncomeSummary.current}
+        >
+          <Button variant="outline-primary" className="mb-3">
+            <FontAwesomeIcon icon={faFile} className="me-1" />
+            Export
+          </Button>
+        </DownloadTableExcel>
+
+        <Table striped bordered hover ref={levelIncomeSummary}>
           <thead>
             <tr>
-              <th>Item</th>
+              <th>Level</th>
               <th>Target</th>
-              <th>Achieved</th>
+              <th>Income Achieved</th>
               <th>Percentage (%)</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>EWFS</td>
-              <td>
-                <Form.Control
-                  type="number"
-                  value={targetValues["EWFS"] || 0}
-                  onChange={(e) =>
-                    handleTargetChange("EWFS", parseFloat(e.target.value))
-                  }
-                />
-              </td>
-              <td>
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "EGP",
-                }).format(statistics.placementTestAmount)}
-              </td>
-              <td>
-                {!isNaN(targetValues["EWFS"]) && targetValues["EWFS"] > 0
-                  ? (
-                      (statistics.placementTestAmount / targetValues["EWFS"]) *
-                      100
-                    ).toFixed(2) + "%"
-                  : "N/A"}
-              </td>
-            </tr>
             {Object.keys(levelIncomes).map((levelName) => (
               <tr key={levelName}>
                 <td>{levelName}</td>
@@ -113,33 +119,27 @@ const TransactionsSummary = ({
                         100
                       ).toFixed(2) + "%"
                     : "N/A"}
-                  %
                 </td>
               </tr>
             ))}
           </tbody>
         </Table>
       </Card.Body>
+
       <Card.Header>Expensed Amount Summary</Card.Header>
       <Card.Body>
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th className='bg-danger text-light'>Total Amount Expensed (EGP)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                {new Intl.NumberFormat("en-US", {
-                  style: "currency",
-                  currency: "EGP",
-                }).format(totalExpensedAmount)}
-              </td>
-            </tr>
-          </tbody>
-        </Table>
-        <Table striped bordered hover>
+        <DownloadTableExcel
+          filename="Expensed Amount Summary"
+          sheet="ExpensedAmountSummary"
+          currentTableRef={expenseSummary.current}
+        >
+          <Button variant="outline-primary" className="mb-3">
+            <FontAwesomeIcon icon={faFile} className="me-1" />
+            Export
+          </Button>
+        </DownloadTableExcel>
+
+        <Table striped bordered hover ref={expenseSummary}>
           <thead>
             <tr>
               <th>Expense Type</th>
@@ -204,16 +204,28 @@ const TransactionsSummary = ({
           </tbody>
         </Table>
       </Card.Body>
+
       <Card.Header>Finance Summary</Card.Header>
       <Card.Body>
-        <Table striped bordered hover>
+        <DownloadTableExcel
+          filename="Finance Summary"
+          sheet="FinanceSummary"
+          currentTableRef={financeSummary.current}
+        >
+          <Button variant="outline-primary" className="mb-3">
+            <FontAwesomeIcon icon={faFile} className="me-1" />
+            Export
+          </Button>
+        </DownloadTableExcel>
+
+        <Table striped bordered hover ref={financeSummary}>
           <thead>
             <tr>
               <th>Income Target</th>
-              <th>Income achieved</th>
+              <th>Income Achieved</th>
               <th>%</th>
               <th>Expenses Target</th>
-              <th>Expenses achieved</th>
+              <th>Expenses Achieved</th>
               <th>%</th>
               <th>Refund Target</th>
               <th>Refund Achieved</th>
@@ -297,12 +309,24 @@ const TransactionsSummary = ({
           </tbody>
         </Table>
       </Card.Body>
+
       <Card.Header>Revenue Summary</Card.Header>
       <Card.Body>
-        <Table striped bordered hover>
+        <DownloadTableExcel
+          filename="Revenue Summary"
+          sheet="RevenueSummary"
+          currentTableRef={revenueSummary.current}
+        >
+          <Button variant="outline-primary" className="mb-3">
+            <FontAwesomeIcon icon={faFile} className="me-1" />
+            Export
+          </Button>
+        </DownloadTableExcel>
+
+        <Table striped bordered hover ref={revenueSummary}>
           <thead>
             <tr>
-              <th className='bg-success text-light'>Total Revenue (EGP)</th>
+              <th>Total Revenue (EGP)</th>
             </tr>
           </thead>
           <tbody>

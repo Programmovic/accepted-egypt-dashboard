@@ -34,6 +34,8 @@ import {
   faHome,
   faHandsHelping,
   faLevelUp,
+  faStore,
+  faCamera,
 } from "@fortawesome/free-solid-svg-icons";
 import React, {
   PropsWithChildren,
@@ -170,7 +172,17 @@ export default function SidebarNav() {
         <SidebarNavItem icon={faHome} href="/rooms">
           Rooms
         </SidebarNavItem>
-        <SidebarNavItem icon={faEdit} href="/placement_tests">
+        <SidebarNavItem icon={faSchool} href="/courses">
+          Courses
+        </SidebarNavItem>
+        <SidebarNavItem icon={faStore} href="/sales_members">
+          Sales Members
+        </SidebarNavItem>
+      </SidebarNavGroup>
+
+      {/* Academic Category */}
+      <SidebarNavGroup toggleIcon={faSchool} toggleText="Academic">
+      <SidebarNavItem icon={faEdit} href="/placement_tests">
           Placement Test (EWF2 Test)
         </SidebarNavItem>
         <SidebarNavItem icon={faEdit} href="/progress_exit_tests">
@@ -182,26 +194,22 @@ export default function SidebarNav() {
         <SidebarNavItem icon={faClock} href="/waiting_list">
           Waiting List
         </SidebarNavItem>
-      </SidebarNavGroup>
-
-      {/* Academic Category */}
-      <SidebarNavGroup toggleIcon={faSchool} toggleText="Academic">
-        <SidebarNavItem icon={faSchool} href="/courses">
-          Courses
-        </SidebarNavItem>
-        <SidebarNavItem icon={faPerson} href="/qr_code_attendance">
+        
+        <SidebarNavItem icon={faCamera} href="/qr_code_attendance">
           Attendance Scanner
         </SidebarNavItem>
-        <SidebarNavItem icon={faPeopleGroup} href="/batches">
-          Batches
-          
-        </SidebarNavItem>
-        <SidebarNavItem icon={faPeopleGroup} href="/ongoing_batches">
+
+        <SidebarNavGroup toggleIcon={faPeopleGroup} toggleText="Batches">
+          <SidebarNavItem icon={faPeopleGroup} href="/batches">
+            All Batches
+          </SidebarNavItem>
+          <SidebarNavItem icon={faPeopleGroup} href="/ongoing_batches">
             Ongoing Batches
           </SidebarNavItem>
           <SidebarNavItem icon={faPeopleGroup} href="/finalized_batches">
             Finalized Batches
           </SidebarNavItem>
+        </SidebarNavGroup>
         <SidebarNavItem icon={faChalkboardTeacher} href="/instructors">
           Instructors
         </SidebarNavItem>
@@ -212,9 +220,6 @@ export default function SidebarNav() {
 
       {/* Finance Category */}
       <SidebarNavGroup toggleIcon={faDollar} toggleText="Finance">
-        <SidebarNavItem icon={faHeartCircleExclamation} href="/sales_members">
-          Sales Members
-        </SidebarNavItem>
         <SidebarNavItem icon={faDollar} href="/transactions">
           Transactions
         </SidebarNavItem>
@@ -224,10 +229,7 @@ export default function SidebarNav() {
       </SidebarNavGroup>
 
       <SidebarNavGroup toggleIcon={faHandsHelping} toggleText="Help">
-        <SidebarNavItem
-          icon={faHandsHelping}
-          href="/"
-        >
+        <SidebarNavItem icon={faHandsHelping} href="/">
           How to Use?
         </SidebarNavItem>
       </SidebarNavGroup>

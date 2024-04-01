@@ -7,6 +7,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { ClassCard } from "@components/Classes";
 import Select from "react-select";
 import TransactionsSummary from "../../components/FinanceSummary";
+import { DownloadTableExcel } from "react-export-table-to-excel";
+import { faFile } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -88,71 +91,70 @@ const Transactions = () => {
   useEffect(() => {
     fetchTransactionData();
   }, []);
-console.log(newTransactionDescription)
-const handleAddTransaction = async () => {
-  try {
-    // Validate input fields
-    const newTransactionData = {
-      student: newTransactionStudent || null,
-      batch: newTransactionBatch?._id || null,
-      type: newTransactionType,
-      expense_type: newTransactionExpenseType,
-      amount: newTransactionAmount,
-      description: newTransactionDescription,
-    };
+  console.log(newTransactionDescription);
+  const handleAddTransaction = async () => {
+    try {
+      // Validate input fields
+      const newTransactionData = {
+        student: newTransactionStudent || null,
+        batch: newTransactionBatch?._id || null,
+        type: newTransactionType,
+        expense_type: newTransactionExpenseType,
+        amount: newTransactionAmount,
+        description: newTransactionDescription,
+      };
 
-    console.log("newTransactionData", newTransactionData);
-    if (!newTransactionType) {
-      // Display an error message for missing type
-      toast.error("Please provide a transaction type.", {
+      console.log("newTransactionData", newTransactionData);
+      if (!newTransactionType) {
+        // Display an error message for missing type
+        toast.error("Please provide a transaction type.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return;
+      }
+
+      if (newTransactionType === "Expense" && !newTransactionExpenseType) {
+        // Display an error message for missing expense type
+        toast.error("Please provide an expense type.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return;
+      }
+
+      if (!newTransactionAmount) {
+        // Display an error message for missing amount
+        toast.error("Please provide an amount.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        return;
+      }
+
+      const response = await axios.post("/api/transaction", newTransactionData);
+      if (response.status === 201) {
+        // Data added successfully
+        fetchTransactionData();
+        toast.success("Transaction added successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        setShowModal(false);
+        // Clear the form fields
+        resetNewTransactionForm();
+      } else {
+        console.error("Unexpected status code:", response.status);
+      }
+    } catch (error) {
+      console.error("Error adding transaction:", error);
+      setError("Failed to add the transaction. Please try again.");
+      toast.error("Failed to add the transaction. Please try again.", {
         position: "top-right",
         autoClose: 3000,
       });
-      return;
     }
-
-    if (newTransactionType === "Expense" && !newTransactionExpenseType) {
-      // Display an error message for missing expense type
-      toast.error("Please provide an expense type.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      return;
-    }
-
-    if (!newTransactionAmount) {
-      // Display an error message for missing amount
-      toast.error("Please provide an amount.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      return;
-    }
-
-    const response = await axios.post("/api/transaction", newTransactionData);
-    if (response.status === 201) {
-      // Data added successfully
-      fetchTransactionData();
-      toast.success("Transaction added successfully!", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-      setShowModal(false);
-      // Clear the form fields
-      resetNewTransactionForm();
-    } else {
-      console.error("Unexpected status code:", response.status);
-    }
-  } catch (error) {
-    console.error("Error adding transaction:", error);
-    setError("Failed to add the transaction. Please try again.");
-    toast.error("Failed to add the transaction. Please try again.", {
-      position: "top-right",
-      autoClose: 3000,
-    });
-  }
-};
-
+  };
 
   const handleFilter = () => {
     let filtered = [...transactions];
@@ -202,7 +204,14 @@ const handleAddTransaction = async () => {
   useEffect(() => {
     // Automatically apply filters when filter inputs change
     handleFilter();
-  }, [filterType, fromDate, toDate, filterDescription, filterStudent, filterBatch]);
+  }, [
+    filterType,
+    fromDate,
+    toDate,
+    filterDescription,
+    filterStudent,
+    filterBatch,
+  ]);
 
   const clearFilters = () => {
     setFilterType("");
@@ -519,22 +528,22 @@ const handleAddTransaction = async () => {
                 </Form.Group>
               </Col>
               <Col xs={6}>
-  <Form.Group className="mb-3">
-    <Form.Label>Filter by Batch</Form.Label>
-    <Select
-      value={filterBatch.label}
-      options={batches.map((batch) => ({
-        value: batch._id,
-        label: batch.name,
-      }))}
-      isClearable={true}
-      isSearchable={true}
-      onChange={(selectedOption) =>
-        setFilterBatch(selectedOption?.value || "")
-      }
-    />
-  </Form.Group>
-</Col>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Batch</Form.Label>
+                  <Select
+                    value={filterBatch.label}
+                    options={batches.map((batch) => ({
+                      value: batch._id,
+                      label: batch.name,
+                    }))}
+                    isClearable={true}
+                    isSearchable={true}
+                    onChange={(selectedOption) =>
+                      setFilterBatch(selectedOption?.value || "")
+                    }
+                  />
+                </Form.Group>
+              </Col>
 
               <Col xs={12}>
                 <Form.Group className="mb-3">
@@ -568,7 +577,19 @@ const handleAddTransaction = async () => {
             levelIncomes={levelIncomes}
             expenseOptions={expenseOptions}
           />
-          <span>* Click on any column to sort by it</span>
+          <div className="d-flex justify-content-between align-items-center">
+            <span>* Click on any column to sort by it</span>
+            <DownloadTableExcel
+              filename="Received Amount Summary"
+              sheet="ReceivedAmountSummary"
+              currentTableRef={tableRef.current}
+            >
+              <Button variant="outline-primary" className="mb-3">
+                <FontAwesomeIcon icon={faFile} className="me-1" />
+                Export
+              </Button>
+            </DownloadTableExcel>
+          </div>
           <Table striped bordered hover ref={tableRef}>
             <thead>
               <tr>
@@ -644,7 +665,6 @@ const handleAddTransaction = async () => {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            
             <Form.Group className="mb-3">
               <Form.Label>Type</Form.Label>
               <div className="radio-group">
@@ -699,7 +719,9 @@ const handleAddTransaction = async () => {
                   onChange={(e) => setNewTransactionExpenseType(e.target.value)}
                   required
                 >
-                  <option value="" hidden>Select an Expense Type</option>
+                  <option value="" hidden>
+                    Select an Expense Type
+                  </option>
                   {expenseOptions.map((expenseType) => (
                     <option key={expenseType} value={expenseType}>
                       {expenseType}
@@ -708,35 +730,35 @@ const handleAddTransaction = async () => {
                 </Form.Control>
               </Form.Group>
             )}
-            {
-              newTransactionType !== "Expense" && newTransactionType && 
+            {newTransactionType !== "Expense" && newTransactionType && (
               <>
-              <Form.Group className="mb-3">
-              <Form.Label>Student</Form.Label>
-              <Select
-                value={newTransactionSelectedStudent}
-                options={students.map((student) => ({
-                  value: student._id,
-                  label: student.name,
-                }))}
-                onChange={(e) => {
-                  setNewTransactionSelectedStudent(e);
-                  setNewTransactionStudent(e?.value);
-                }}
-                isClearable={true}
-                isSearchable={true}
-                placeholder="Student"
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Batch</Form.Label>
-              <Form.Control
-                type="text"
-                value={newTransactionBatch && newTransactionBatch?.name}
-                disabled
-              />
-            </Form.Group></>
-            }
+                <Form.Group className="mb-3">
+                  <Form.Label>Student</Form.Label>
+                  <Select
+                    value={newTransactionSelectedStudent}
+                    options={students.map((student) => ({
+                      value: student._id,
+                      label: student.name,
+                    }))}
+                    onChange={(e) => {
+                      setNewTransactionSelectedStudent(e);
+                      setNewTransactionStudent(e?.value);
+                    }}
+                    isClearable={true}
+                    isSearchable={true}
+                    placeholder="Student"
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Batch</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={newTransactionBatch && newTransactionBatch?.name}
+                    disabled
+                  />
+                </Form.Group>
+              </>
+            )}
             <Form.Group className="mb-3">
               <Form.Label>Amount</Form.Label>
               <Form.Control
@@ -755,7 +777,9 @@ const handleAddTransaction = async () => {
                   onChange={(e) => setNewTransactionDescription(e.target.value)}
                   required
                 >
-                  <option value="" hidden>Select The Transaction Description</option>
+                  <option value="" hidden>
+                    Select The Transaction Description
+                  </option>
                   <option value="Course Fee">Course Fee</option>
                   <option value="Material">Material</option>
                 </Form.Control>
