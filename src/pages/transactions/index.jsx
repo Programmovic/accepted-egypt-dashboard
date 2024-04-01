@@ -99,7 +99,7 @@ const Transactions = () => {
         student: newTransactionStudent || null,
         batch: newTransactionBatch?._id || null,
         type: newTransactionType,
-        expense_type: newTransactionExpenseType,
+        expense_type: newTransactionType === 'Expense' && newTransactionExpenseType === 'Other' ? newTransactionDescription : newTransactionExpenseType,
         amount: newTransactionAmount,
         description: newTransactionDescription,
       };
@@ -132,6 +132,25 @@ const Transactions = () => {
         return;
       }
 
+      // If expense type is "Other," add it to the database
+      if (
+        newTransactionType === "Expense" &&
+        newTransactionExpenseType === "Other"
+      ) {
+        const response = await axios.post("/api/expense", {
+          type: newTransactionDescription, // Assuming the new expense type is provided in the description field
+        });
+        if (response.status === 201) {
+          fetchExpenseOptions();
+          toast.success("New expense type added successfully!", {
+            position: "top-right",
+            autoClose: 3000,
+          });
+        } else {
+          console.error("Unexpected status code:", response.status);
+        }
+      }
+
       const response = await axios.post("/api/transaction", newTransactionData);
       if (response.status === 201) {
         // Data added successfully
@@ -155,6 +174,7 @@ const Transactions = () => {
       });
     }
   };
+
 
   const handleFilter = () => {
     let filtered = [...transactions];
@@ -355,7 +375,7 @@ const Transactions = () => {
     return levelIncomes;
   };
   const levelIncomes = calculateLevelIncomes();
-  const expenseOptions = [
+  const [expenseOptions, setExpenseOptions] = useState([
     "Extras",
     "Maintenance",
     "Tools for the office",
@@ -364,7 +384,37 @@ const Transactions = () => {
     "Cleaning",
     "Stationery",
     "Salary",
-  ];
+    "Other",
+  ]);
+  const fetchExpenseOptions = async () => {
+    try {
+      const response = await axios.get("/api/expense");
+      // Assuming response.data is an array of expense objects
+      const expenseTypesFromAPI = response.data.map((expense) => expense.type);
+
+      // Filter out duplicates and ensure "Other" is at the end
+      setExpenseOptions((prevOptions) => {
+        // Remove "Other" from the previous options to avoid duplication
+        const optionsWithoutOther = prevOptions.filter(
+          (option) => option !== "Other"
+        );
+
+        // Create a new list of expense types without duplicates
+        const newExpenseTypes = expenseTypesFromAPI.filter(
+          (type) => !optionsWithoutOther.includes(type)
+        );
+
+        // Return the updated list with "Other" at the end
+        return [...optionsWithoutOther, ...newExpenseTypes, "Other"];
+      });
+    } catch (error) {
+      console.error("Failed to fetch expense types:", error);
+    }
+  };
+  useEffect(() => {
+    fetchExpenseOptions();
+  }, []); // Dependency array remains empty to ensure this effect runs once on mount
+
   const handleDeleteTransaction = async (transactionId) => {
     // Show confirmation dialog
     const confirmed = window.confirm(
@@ -444,6 +494,7 @@ const Transactions = () => {
     // Use the scrollIntoView method to scroll to the table
     tableRef.current.scrollIntoView({ behavior: "smooth" });
   };
+  console.log(newTransactionExpenseType);
   return (
     <AdminLayout>
       <p className="bg-warning text-center p-3 rounded-3">
@@ -770,7 +821,14 @@ const Transactions = () => {
             </Form.Group>
             {newTransactionSelectedStudent && (
               <Form.Group className="mb-3">
-                <Form.Label>Description</Form.Label>
+                <Form.Label>
+                  Description{" "}
+                  {newTransactionExpenseType === "Other" && (
+                    <small className="text-muted">
+                      Please mention the new expense type here.
+                    </small>
+                  )}
+                </Form.Label>
                 <Form.Control
                   as="select"
                   value={newTransactionDescription}
@@ -788,7 +846,14 @@ const Transactions = () => {
             {/* Render the description as a text input if no student is selected */}
             {!newTransactionSelectedStudent && (
               <Form.Group className="mb-3">
-                <Form.Label>Description</Form.Label>
+                <Form.Label>
+                  Description{" "}
+                  {newTransactionExpenseType === "Other" && (
+                    <small className="text-muted">
+                      Please mention the new expense type here.
+                    </small>
+                  )}
+                </Form.Label>
                 <Form.Control
                   type="text"
                   value={newTransactionDescription}
