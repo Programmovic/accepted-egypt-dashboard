@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Student = require('./student');
+const Batch = require('./batch');
 
 const transactionSchema = new mongoose.Schema({
   student: {

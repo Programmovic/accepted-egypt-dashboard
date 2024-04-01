@@ -10,6 +10,7 @@ import TransactionsSummary from "../../components/FinanceSummary";
 import { DownloadTableExcel } from "react-export-table-to-excel";
 import { faFile } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Router from "next/router";
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -668,7 +669,7 @@ const Transactions = () => {
             </thead>
             <tbody>
               {currentTransactions.map((transaction, index) => (
-                <tr key={transaction._id}>
+                <tr key={transaction._id} onClick={() => Router.push(`/transactions/${transaction._id}`)}>
                   <td>{index + 1}</td>
                   <td>
                     {
