@@ -10,6 +10,7 @@ import {
   Row,
   Col,
   Pagination,
+  InputGroup,
 } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -44,59 +45,79 @@ const WaitingList = () => {
   };
 
   // Function to calculate the final price to be paid based on the discount
-  const calculateFinalPrice = () => {
-    if (selectedBatch && selectedBatch.value) {
-      // Get the selected batch's price
-      const batchPrice =
-        batches.find((batch) => batch._id === selectedBatch?.value)?.cost || 0;
+const calculateFinalPrice = () => {
+  if (selectedBatch && selectedBatch.value) {
+    // Get the selected batch's price
+    const batchPrice =
+      batches.find((batch) => batch._id === selectedBatch?.value)?.cost || 0;
 
-      // Calculate the discount based on its type
-      if (discountType === "percentage") {
-        // Discount is a percentage
-        return batchPrice - (discount / 100) * batchPrice;
-      } else {
-        // Discount is an amount
-        return Math.max(0, batchPrice - discount);
-      }
+    // Check if discount is empty
+    if (!discount) {
+      return batchPrice; // Reset to batch cost if discount is empty
     }
-    return 0;
-  };
 
-  // Function to handle changes in the discount value
+    // Calculate the discount based on its type
+    if (discountType === "percentage") {
+      // Discount is a percentage
+      return batchPrice - (discount / 100) * batchPrice;
+    } else {
+      // Discount is an amount
+      return Math.max(0, batchPrice - discount);
+    }
+  }
+  return 0;
+};
+
+
   const handleDiscountChange = (e) => {
-    // Parse the input value to a number
     const inputValue = parseFloat(e.target.value);
-
-    // Ensure that the discount amount is not negative
-    setDiscount(Math.max(0, inputValue));
+    const batchPrice =
+    batches.find((batch) => batch._id === selectedBatch?.value)?.cost || 0;
+    if (discountType === "percentage" && inputValue > 100) {
+      // If the discount type is percentage and the input value is more than 100%
+      // Show an error toast message
+      toast.error("Discount percentage cannot exceed 100%", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+      
+    } else if (discountType === "amount" && inputValue > batchPrice) {
+      // If the discount type is percentage and the input value is more than 100%
+      // Show an error toast message
+      toast.error("Discount percentage cannot exceed The batch price.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } else {
+      setDiscount(Math.max(0, inputValue));
+    }
   };
 
   // Function to handle changes in the paid amount
   const handlePaidAmountChange = (e) => {
     // Parse the input value to a number
     const inputValue = parseFloat(e.target.value);
-  
+
     // Calculate the final price to be paid
     const finalPrice = calculateFinalPrice();
-  
+
     // Check if the paid amount exceeds the final price
     const exceedsFinalPrice = finalPrice < inputValue;
-  
+
     // Update the totalAmountExceedsBatchCost state
     setTotalAmountExceedsBatchCost(exceedsFinalPrice);
-  
+
     // Display a toast message if the paid amount exceeds the final price
     if (exceedsFinalPrice) {
-      toast.error('Paid amount exceeds the total amount', {
-        position: 'top-right',
+      toast.error("Paid amount exceeds the total amount", {
+        position: "top-right",
         autoClose: 3000,
       });
     }
-  
+
     // Update the paid amount, setting it to the final price if it's higher
     setPaidAmount(Math.min(finalPrice, inputValue));
   };
-  
 
   async function fetchBatches() {
     try {
@@ -421,12 +442,26 @@ const WaitingList = () => {
         <Modal.Body>
           {selectedWaitingListItem && (
             <div>
-              <p>Student ID: {selectedWaitingListItem.student}</p>
-              <p>Student Name: {selectedWaitingListItem.studentName}</p>
-              <p>
-                Date:{" "}
-                {new Date(selectedWaitingListItem.date).toLocaleDateString()}
-              </p>
+              <Table bordered>
+                <tbody>
+                  <tr>
+                    <td>Student ID</td>
+                    <td>{selectedWaitingListItem.student}</td>
+                  </tr>
+                  <tr>
+                    <td>Student Name</td>
+                    <td>{selectedWaitingListItem.studentName}</td>
+                  </tr>
+                  <tr>
+                    <td>Date</td>
+                    <td>
+                      {new Date(
+                        selectedWaitingListItem.date
+                      ).toLocaleDateString()}
+                    </td>
+                  </tr>
+                </tbody>
+              </Table>
               <Row>
                 <Col xs={12}>
                   <Form.Group>
@@ -446,7 +481,7 @@ const WaitingList = () => {
                       isDisabled={student.batch && true}
                     />
                     {selectedBatch && selectedBatch.value && (
-                      <Form.Text className="text-muted">
+                      <Form.Text className="text-muted fw-bold">
                         {new Intl.NumberFormat("en-US", {
                           style: "currency",
                           currency: "EGP",
@@ -469,31 +504,33 @@ const WaitingList = () => {
                   </Form.Group>
                   <Form.Group className="mt-4">
                     <Form.Label>Discount:</Form.Label>
-                    <Form.Control
-                      type="number"
-                      placeholder={`Enter the ${
-                        discountType === "percentage"
-                          ? "discount percentage"
-                          : "discount amount"
-                      }`}
-                      value={discount}
-                      onChange={handleDiscountChange}
-                    />
+                    <InputGroup>
+                      <Form.Control
+                        type="number"
+                        placeholder="Enter the discount"
+                        value={discount}
+                        onChange={handleDiscountChange}
+                      />
+                      <InputGroup.Text>
+                        {discountType === "percentage" ? "%" : "EGP"}
+                      </InputGroup.Text>
+                    </InputGroup>
                   </Form.Group>
                   <Form.Group className="mt-4">
                     <Form.Label>Paid Amount:</Form.Label>
                     <Form.Control
                       type="number"
-                      placeholder="Enter the paid amount"
+                      placeholder={`Enter the amount you recieved from ${selectedWaitingListItem.studentName.split(" ")[0]}`}
                       value={paidAmount}
                       onChange={handlePaidAmountChange}
                     />
                     {totalAmountExceedsBatchCost && (
-    <Form.Text className="text-danger">Total amount exceeds the batch cost</Form.Text>
-  )}
+                      <Form.Text className="text-danger">
+                        Total amount exceeds the batch cost
+                      </Form.Text>
+                    )}
                   </Form.Group>
                 </Col>
-                
               </Row>
 
               {/* Add other waiting list item details here */}

@@ -46,7 +46,8 @@ export default function AdminLayout({ children }: PropsWithChildren) {
 
   const router = useRouter();
   let { pathname } = router;
-  pathname = pathname.replace(/\//g, '').toUpperCase();
+  // Remove underscores from the pathname
+  pathname = pathname.replace(/\//g, '').replace(/_/g, ' ').toUpperCase();
 
   return (
     <>

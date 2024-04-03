@@ -44,7 +44,7 @@ const TransactionsSummary = ({
         Received Amount Summary
         </p>
         <DownloadTableExcel
-          filename="Received Amount Summary"
+          filename="Received Amount Summary.xsls"
           sheet="ReceivedAmountSummary"
           currentTableRef={receivedAmountSummary.current}
         >
