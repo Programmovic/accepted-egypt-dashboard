@@ -17,6 +17,7 @@ import {
   faLevelUp,
   faStore,
   faCamera,
+  faTable,
 } from "@fortawesome/free-solid-svg-icons";
 import React, {
   PropsWithChildren,
@@ -152,6 +153,9 @@ export default function SidebarNav() {
         </SidebarNavItem>
         <SidebarNavItem icon={faHome} href="/rooms">
           Rooms
+        </SidebarNavItem>
+        <SidebarNavItem icon={faTable} href="/schedule">
+          Schedule
         </SidebarNavItem>
         <SidebarNavItem icon={faSchool} href="/courses">
           Courses

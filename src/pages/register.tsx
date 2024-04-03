@@ -8,6 +8,7 @@ import {
 import { useRouter } from 'next/router';
 import { SyntheticEvent, useState } from 'react';
 import axios from 'axios';
+import Link from 'next/link'; // Import Link from Next.js
 
 const Register: NextPage = () => {
   const router = useRouter();
@@ -130,6 +131,13 @@ const Register: NextPage = () => {
                     Create Account
                   </Button>
                 </form>
+                
+                <p className="mt-3 text-center">
+                  Already have an account?{' '}
+                  <Link href="/login">
+                    <span style={{ cursor: 'pointer', color: 'blue', textDecoration: 'none', fontWeight: "bold" }}>Login</span>
+                  </Link>
+                </p>
               </Card.Body>
             </Card>
           </Col>

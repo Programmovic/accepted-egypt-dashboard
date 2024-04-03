@@ -1,48 +1,40 @@
-// Calendar.js
-
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import bootstrap5Plugin from "@fullcalendar/bootstrap5";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import { useState, useEffect } from "react";
-import axios from "axios";
 import { Card, Badge, Button, Modal } from "react-bootstrap";
+import axios from "axios";
 
 const Calendar = ({ id }) => {
   const [roomReservations, setRoomReservations] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
-  const apiUrl = `/api/reservation/${id}`;
 
-  const fetchRoomReservations = async () => {
+  const apiUrl = id ? `/api/reservation/${id}` : "/api/reservation";
+
+  const fetchReservations = async () => {
     try {
       const response = await axios.get(apiUrl);
       if (response.status === 200) {
         setRoomReservations(response.data);
-        console.log(response.data)
       }
     } catch (error) {
-      console.error("Error fetching room's reservations:", error);
+      console.error("Error fetching reservations:", error);
     }
   };
 
   useEffect(() => {
-    if (id) {
-      fetchRoomReservations();
-    }
-  }, [id, apiUrl]);
+    fetchReservations();
+  }, [id]);
 
   const getRandomColor = (title) => {
-    // If the title is "Placement Test", return navy blue
     if (title === "Placement Test") {
       return "navy";
     } else {
-      // Otherwise, generate a random color
       const letters = "0123456789ABCDEF";
       let color = `#${title.split(" - ")[2]}`;
-
       return color;
     }
   };
@@ -54,25 +46,21 @@ const Calendar = ({ id }) => {
     const convertedDateTime = new Date(
       date.toISOString().split("T")[0] + "T" + convertTime12to24(time12Hour)
     );
-
     return convertedDateTime;
   }
 
   function convertTime12to24(time12) {
     const [time, modifier] = time12.split(" ");
-
     let [hours, minutes] = time.split(":");
-
     if (hours === "12") {
       hours = "00";
     }
-
     if (modifier === "PM") {
       hours = parseInt(hours, 10) + 12;
     }
-
     return hours + ":" + minutes;
   }
+
   const calendarEvents = roomReservations.map((reservation, index) => {
     const startDateTime = convertDateFormat(
       `${reservation?.date} ${reservation?.startTime}`
@@ -80,7 +68,6 @@ const Calendar = ({ id }) => {
     const endDateTime = convertDateFormat(
       `${reservation?.date} ${reservation?.endTime}`
     );
-    console.log(reservation.startTime, startDateTime);
     return {
       title: `${reservation.title}`,
       start: startDateTime,
@@ -90,7 +77,7 @@ const Calendar = ({ id }) => {
       allDay: reservation.title === "Placement Test" && true,
     };
   });
-  console.log(calendarEvents);
+
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event.extendedProps.eventInfo);
     setShowEventModal(true);
@@ -122,7 +109,8 @@ const Calendar = ({ id }) => {
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek,listDay", // Add list views
+              right:
+                "dayGridMonth,timeGridWeek,timeGridDay,listWeek,listDay",
             }}
             weekends={true}
             events={calendarEvents}

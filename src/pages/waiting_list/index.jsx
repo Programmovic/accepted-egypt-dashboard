@@ -35,6 +35,9 @@ const WaitingList = () => {
   const [students, setStudents] = useState([]);
   const [discount, setDiscount] = useState(0); // Initialize with 0
   const [discountType, setDiscountType] = useState("percentage");
+  const [totalAmountExceedsBatchCost, setTotalAmountExceedsBatchCost] =
+    useState(false);
+
   // Function to handle changes in discount type
   const handleDiscountTypeChange = (e) => {
     setDiscountType(e.target.value);
@@ -72,13 +75,28 @@ const WaitingList = () => {
   const handlePaidAmountChange = (e) => {
     // Parse the input value to a number
     const inputValue = parseFloat(e.target.value);
-
+  
     // Calculate the final price to be paid
     const finalPrice = calculateFinalPrice();
-
+  
+    // Check if the paid amount exceeds the final price
+    const exceedsFinalPrice = finalPrice < inputValue;
+  
+    // Update the totalAmountExceedsBatchCost state
+    setTotalAmountExceedsBatchCost(exceedsFinalPrice);
+  
+    // Display a toast message if the paid amount exceeds the final price
+    if (exceedsFinalPrice) {
+      toast.error('Paid amount exceeds the total amount', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
+    }
+  
     // Update the paid amount, setting it to the final price if it's higher
     setPaidAmount(Math.min(finalPrice, inputValue));
   };
+  
 
   async function fetchBatches() {
     try {
@@ -470,38 +488,12 @@ const WaitingList = () => {
                       value={paidAmount}
                       onChange={handlePaidAmountChange}
                     />
+                    {totalAmountExceedsBatchCost && (
+    <Form.Text className="text-danger">Total amount exceeds the batch cost</Form.Text>
+  )}
                   </Form.Group>
                 </Col>
-                <Col xs={12} className="mt-4">
-                  <Form.Group>
-                    <Form.Label>Paid Amount:</Form.Label>
-                    <Form.Control
-                      type="number"
-                      placeholder="Enter the paid amount"
-                      value={paidAmount}
-                      onChange={(e) => {
-                        // Parse the input value to a number
-                        const inputValue = parseFloat(e.target.value);
-
-                        // Get the selected batch's price
-                        const batchPrice = selectedBatch.value
-                          ? batches.find(
-                              (batch) => batch._id === selectedBatch?.value
-                            )?.cost -
-                            (discount / 100) *
-                              batches.find(
-                                (batch) => batch._id === selectedBatch?.value
-                              )?.cost
-                          : 0; // Default to 0 if no batch is selected
-
-                        // Update the paid amount, setting it to the batch price if it's higher
-                        setPaidAmount(
-                          inputValue > batchPrice ? batchPrice : inputValue
-                        );
-                      }}
-                    />
-                  </Form.Group>
-                </Col>
+                
               </Row>
 
               {/* Add other waiting list item details here */}
