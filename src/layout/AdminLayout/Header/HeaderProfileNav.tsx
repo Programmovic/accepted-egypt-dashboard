@@ -1,5 +1,5 @@
-import { Button, Menu, MenuItem, Typography, Avatar } from '@mui/material';
-import { AccountCircle, ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
+import { Button, Typography, Avatar, IconButton, Paper } from '@mui/material';
+import { ExpandMore as ExpandMoreIcon } from '@mui/icons-material';
 import { PropsWithChildren, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import Cookies from 'js-cookie';
@@ -21,11 +21,11 @@ const ItemWithIcon = (props: ItemWithIconProps) => {
 }
 
 export default function HeaderProfileNav() {
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [username, setUsername] = useState('');
   const [userRole, setUserRole] = useState('');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const [showPopover, setShowPopover] = useState(false);
 
   const logout = async () => {
     try {
@@ -61,18 +61,15 @@ export default function HeaderProfileNav() {
     }
   }, []);
 
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget);
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null);
+  const handleLogout = () => {
+    logout();
+    setShowPopover(false); // Close the popover after logout
   };
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
       <Button
-        onClick={handleMenuOpen}
+        onClick={() => setShowPopover(!showPopover)}
         startIcon={<Avatar>{username && username[0].toUpperCase()}</Avatar>}
         endIcon={<ExpandMoreIcon />}
         color="inherit"
@@ -80,17 +77,21 @@ export default function HeaderProfileNav() {
       >
         {username} - {userRole}
       </Button>
-      <Menu
-        id="profile-menu"
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleMenuClose}
-        keepMounted
-      >
-        <MenuItem onClick={logout}>
-          <Typography variant="body1">Logout</Typography>
-        </MenuItem>
-      </Menu>
+      {showPopover && (
+        <Paper
+          style={{
+            position: 'absolute',
+            top: 'calc(100% + 8px)', // Adjust the distance from the button
+            right: 0,
+            zIndex: 1, // Ensure it's above other elements
+            width: '200px', // Adjust the width as needed
+          }}
+        >
+          <Typography variant="body1" style={{ padding: '8px', cursor: 'pointer' }} onClick={handleLogout}>
+            Logout
+          </Typography>
+        </Paper>
+      )}
     </div>
-  )
+  );
 }
