@@ -17,6 +17,7 @@ import {
   faCamera,
   faTable,
   faComputer,
+  faSearch,
 } from "@fortawesome/free-solid-svg-icons";
 import React, {
   PropsWithChildren,
@@ -203,6 +204,9 @@ export default function SidebarNav() {
       </SidebarNavGroup>
       {/* Inventory Category */}
       <SidebarNavGroup toggleIcon={faStore} toggleText="Inventory">
+      <SidebarNavItem icon={faSearch} href="/inventory/laptops/scan">
+          Scan
+        </SidebarNavItem>
         <SidebarNavItem icon={faComputer} href="/inventory/laptops">
           Laptops
         </SidebarNavItem>

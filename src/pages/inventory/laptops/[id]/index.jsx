@@ -145,7 +145,13 @@ const LaptopDetails = () => {
         <Modal.Body>
           <div style={{ textAlign: "center" }}>
             <Canvas
-              text={JSON.stringify(laptop)}
+              text={JSON.stringify({
+                SerialNumber: laptop?._id,
+                Brand: laptop?.brand,
+                Model: laptop?.model,
+                AssignedTo: laptop?.assignedTo.name,
+                AssignedDate: new Date(laptop?.assignedDate).toLocaleString()
+              })}
               options={{
                 errorCorrectionLevel: "M",
                 margin: 1,
