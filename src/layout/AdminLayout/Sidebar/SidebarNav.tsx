@@ -1,7 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  IconDefinition,
-} from "@fortawesome/free-regular-svg-icons";
+import { IconDefinition } from "@fortawesome/free-regular-svg-icons";
 import {
   faChevronUp,
   faUser,
@@ -18,6 +16,7 @@ import {
   faStore,
   faCamera,
   faTable,
+  faComputer,
 } from "@fortawesome/free-solid-svg-icons";
 import React, {
   PropsWithChildren,
@@ -78,16 +77,16 @@ type SidebarNavGroupToggleProps = {
 
 const SidebarNavGroupToggle = (props: SidebarNavGroupToggleProps) => {
   // https://react-bootstrap.github.io/components/accordion/#custom-toggle-with-expansion-awareness
-  const { activeEventKey } = useContext(AccordionContext);
-  const { eventKey, icon, children, setIsShow } = props;
+  const { activeEventKey } = useContext(AccordionContext)
+  const { eventKey, icon, children, setIsShow } = props
 
-  const decoratedOnClick = useAccordionButton(eventKey);
+  const decoratedOnClick = useAccordionButton(eventKey)
 
-  const isCurrentEventKey = activeEventKey === eventKey;
+  const isCurrentEventKey = activeEventKey === eventKey
 
   useEffect(() => {
     setIsShow(activeEventKey === eventKey);
-  }, [activeEventKey, eventKey, setIsShow]);
+  }, [activeEventKey, eventKey, setIsShow])
 
   return (
     <Button
@@ -167,7 +166,7 @@ export default function SidebarNav() {
 
       {/* Academic Category */}
       <SidebarNavGroup toggleIcon={faSchool} toggleText="Academic">
-      <SidebarNavItem icon={faEdit} href="/placement_tests">
+        <SidebarNavItem icon={faEdit} href="/placement_tests">
           Placement Test (EWF2 Test)
         </SidebarNavItem>
         <SidebarNavItem icon={faEdit} href="/progress_exit_tests">
@@ -179,7 +178,7 @@ export default function SidebarNav() {
         <SidebarNavItem icon={faClock} href="/waiting_list">
           Waiting List
         </SidebarNavItem>
-        
+
         <SidebarNavItem icon={faCamera} href="/qr_code_attendance">
           Attendance Scanner
         </SidebarNavItem>
@@ -202,7 +201,12 @@ export default function SidebarNav() {
           Lectures
         </SidebarNavItem>
       </SidebarNavGroup>
-
+      {/* Inventory Category */}
+      <SidebarNavGroup toggleIcon={faStore} toggleText="Inventory">
+        <SidebarNavItem icon={faComputer} href="/inventory/laptops">
+          Laptops
+        </SidebarNavItem>
+      </SidebarNavGroup>
       {/* Finance Category */}
       <SidebarNavGroup toggleIcon={faDollar} toggleText="Finance">
         <SidebarNavItem icon={faDollar} href="/transactions">

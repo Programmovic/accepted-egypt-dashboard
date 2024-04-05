@@ -1,0 +1,277 @@
+import { useState, useEffect } from "react";
+import { Card, Form, Button, Row, Col, Modal, Table } from "react-bootstrap";
+import axios from "axios";
+import { AdminLayout } from "@layout";
+import { useRouter } from "next/router"; // Import useRouter from next/router
+
+const Laptops = () => {
+  const router = useRouter(); // Initialize useRouter
+  const [laptops, setLaptops] = useState([]);
+  const [instructors, setInstructors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [brandFilter, setBrandFilter] = useState("");
+  const [modelFilter, setModelFilter] = useState("");
+  const [assignedToFilter, setAssignedToFilter] = useState("");
+  const [assignedDateFilter, setAssignedDateFilter] = useState("");
+  const [brandModal, setBrandModal] = useState("");
+  const [modelModal, setModelModal] = useState("");
+  const [assignedToModal, setAssignedToModal] = useState("");
+  const [assignedDateModal, setAssignedDateModal] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [brands, setBrands] = useState([
+    "Apple",
+    "Lenovo",
+    "Dell",
+    "HP",
+    "Asus",
+    "Acer",
+    "Microsoft",
+    "Samsung",
+    "Toshiba",
+    "Sony",
+    "MSI",
+  ]);
+
+  const fetchLaptopsData = async () => {
+    try {
+      const response = await axios.get("/api/laptops");
+      if (response.status === 200) {
+        const laptopsData = response.data;
+        setLaptops(laptopsData);
+      }
+    } catch (error) {
+      console.error("Error fetching laptop data:", error);
+      setError("Failed to fetch laptop data. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchInstructorsData = async () => {
+    try {
+      const response = await axios.get("/api/instructor");
+      if (response.status === 200) {
+        const instructorsData = response.data;
+        setInstructors(instructorsData);
+      }
+    } catch (error) {
+      console.error("Error fetching instructor data:", error);
+      setError("Failed to fetch instructor data. Please try again later.");
+    }
+  };
+
+  useEffect(() => {
+    fetchLaptopsData();
+    fetchInstructorsData();
+  }, []);
+
+  const handleAddLaptop = async () => {
+    try {
+      const response = await axios.post("/api/laptops", {
+        brand: brandModal,
+        model: modelModal,
+        assignedTo: assignedToModal,
+        assignedDate: assignedDateModal,
+      });
+      if (response.status === 201) {
+        setLaptops([...laptops, response.data]);
+        setBrandModal("");
+        setModelModal("");
+        setAssignedToModal("");
+        setAssignedDateModal("");
+        setShowModal(false);
+        fetchLaptopsData();
+        fetchInstructorsData();
+      }
+    } catch (error) {
+      console.error("Error adding laptop:", error);
+      setError("Failed to add laptop. Please try again later.");
+    }
+  };
+
+  const handleDeleteAllLaptops = async () => {
+    try {
+      const response = await axios.delete("/api/laptops");
+      if (response.status === 204) {
+        setLaptops([]);
+      }
+    } catch (error) {
+      console.error("Error deleting all laptops:", error);
+      setError("Failed to delete all laptops. Please try again later.");
+    }
+  };
+
+  const handleRowClick = (laptopId) => {
+    // Navigate to the laptop's page using router.push
+    router.push(`/inventory/laptops/${laptopId}`);
+  };
+
+  return (
+    <AdminLayout>
+      <Card>
+        <Card.Header>Laptops</Card.Header>
+        <Card.Body>
+          <Form className="mb-3">
+            <Row>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Brand</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={brandFilter}
+                    onChange={(e) => setBrandFilter(e.target.value)}
+                  >
+                    <option value="">All Brands</option>
+                    {brands.map((brand) => (
+                      <option key={brand} value={brand}>
+                        {brand}
+                      </option>
+                    ))}
+                  </Form.Control>
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Model</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={modelFilter}
+                    onChange={(e) => setModelFilter(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Assigned To</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={assignedToFilter}
+                    onChange={(e) => setAssignedToFilter(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Assigned Date</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={assignedDateFilter}
+                    onChange={(e) => setAssignedDateFilter(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Button variant="outline-primary" className="me-3" onClick={() => setShowModal(true)}>
+              Add Laptop
+            </Button>
+            <Button variant="outline-danger" onClick={handleDeleteAllLaptops}>
+              Delete All Laptops
+            </Button>
+          </Form>
+          {loading ? (
+            <p>Loading laptops data...</p>
+          ) : error ? (
+            <p>{error}</p>
+          ) : (
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Brand</th>
+                  <th>Model</th>
+                  <th>Assigned To</th>
+                  <th>Assigned Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {laptops
+                  .filter((laptop) =>
+                    (brandFilter === "" || laptop.brand.toLowerCase() === brandFilter.toLowerCase()) &&
+                    laptop.model.toLowerCase().includes(modelFilter.toLowerCase()) &&
+                    laptop?.assignedTo?.name.toLowerCase().includes(assignedToFilter.toLowerCase()) &&
+                    laptop.assignedDate.includes(assignedDateFilter)
+                  )
+                  .map((laptop) => (
+                    <tr key={laptop._id} onClick={() => handleRowClick(laptop._id)}> {/* Add onClick event */}
+                      <td>{laptop.brand}</td>
+                      <td>{laptop.model}</td>
+                      <td>{laptop.assignedTo.name}</td>
+                      <td>{new Date(laptop.assignedDate).toLocaleString()}</td>
+                    </tr>
+                  ))}
+              </tbody>
+            </Table>
+          )}
+        </Card.Body>
+      </Card>
+
+      <Modal show={showModal} onHide={() => setShowModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add New Laptop</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Brand</Form.Label>
+              <Form.Control
+                as="select"
+                value={brandModal}
+                onChange={(e) => setBrandModal(e.target.value)}
+              >
+                <option value="">Select Brand</option>
+                {brands.map((brand) => (
+                  <option key={brand} value={brand}>
+                    {brand}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Model</Form.Label>
+              <Form.Control
+                type="text"
+                value={modelModal}
+                onChange={(e) => setModelModal(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Assigned To</Form.Label>
+              <Form.Control
+                as="select"
+                value={assignedToModal}
+                onChange={(e) => setAssignedToModal(e.target.value)}
+              >
+                <option value="">Select Instructor</option>
+                {instructors.map((instructor) => (
+                  <option key={instructor._id} value={instructor._id}>
+                    {instructor.name}
+                  </option>
+                ))}
+              </Form.Control>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Assigned Date</Form.Label>
+              <Form.Control
+                type="date"
+                value={assignedDateModal}
+                onChange={(e) => setAssignedDateModal(e.target.value)}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Cancel
+          </Button>
+          <Button variant="primary" onClick={handleAddLaptop}>
+            Add
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </AdminLayout>
+  );
+};
+
+export default Laptops;
