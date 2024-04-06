@@ -1,11 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, Form, Button, Row, Col, Modal, Table } from "react-bootstrap";
 import axios from "axios";
 import { AdminLayout } from "@layout";
 import { useRouter } from "next/router"; // Import useRouter from next/router
+import { useQRCode } from "next-qrcode";
+import { DownloadTableExcel } from "react-export-table-to-excel";
+import { faFile } from "@fortawesome/free-regular-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Laptops = () => {
   const router = useRouter(); // Initialize useRouter
+  const { Canvas } = useQRCode(); // Destructure Canvas from useQRCode
+  const laptopsTable = useRef(null)
   const [laptops, setLaptops] = useState([]);
   const [instructors, setInstructors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -110,7 +116,17 @@ const Laptops = () => {
   return (
     <AdminLayout>
       <Card>
-        <Card.Header>Laptops</Card.Header>
+        <Card.Header className="d-flex justify-content-between align-items-center">Laptops{" "}
+        <DownloadTableExcel
+          filename="Laptops Summary"
+          sheet="LaptopsSummary"
+          currentTableRef={laptopsTable.current}
+        >
+          <Button variant="outline-light" className="fw-bold">
+            <FontAwesomeIcon icon={faFile} className="me-1" />
+            Export
+          </Button>
+        </DownloadTableExcel></Card.Header>
         <Card.Body>
           <Form className="mb-3">
             <Row>
@@ -164,7 +180,11 @@ const Laptops = () => {
                 </Form.Group>
               </Col>
             </Row>
-            <Button variant="outline-primary" className="me-3" onClick={() => setShowModal(true)}>
+            <Button
+              variant="outline-primary"
+              className="me-3"
+              onClick={() => setShowModal(true)}
+            >
               Add Laptop
             </Button>
             <Button variant="outline-danger" onClick={handleDeleteAllLaptops}>
@@ -176,29 +196,64 @@ const Laptops = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
-            <Table striped bordered hover>
+            <Table striped bordered hover ref={laptopsTable}>
               <thead>
                 <tr>
                   <th>Brand</th>
                   <th>Model</th>
                   <th>Assigned To</th>
                   <th>Assigned Date</th>
+                  <th>QR Code</th>
                 </tr>
               </thead>
               <tbody>
                 {laptops
-                  .filter((laptop) =>
-                    (brandFilter === "" || laptop.brand.toLowerCase() === brandFilter.toLowerCase()) &&
-                    laptop.model.toLowerCase().includes(modelFilter.toLowerCase()) &&
-                    laptop?.assignedTo?.name.toLowerCase().includes(assignedToFilter.toLowerCase()) &&
-                    laptop.assignedDate.includes(assignedDateFilter)
+                  .filter(
+                    (laptop) =>
+                      (brandFilter === "" ||
+                        laptop.brand.toLowerCase() ===
+                          brandFilter.toLowerCase()) &&
+                      laptop.model
+                        .toLowerCase()
+                        .includes(modelFilter.toLowerCase()) &&
+                      laptop?.assignedTo?.name
+                        .toLowerCase()
+                        .includes(assignedToFilter.toLowerCase()) &&
+                      laptop.assignedDate.includes(assignedDateFilter)
                   )
                   .map((laptop) => (
-                    <tr key={laptop._id} onClick={() => handleRowClick(laptop._id)}> {/* Add onClick event */}
-                      <td>{laptop.brand}</td>
-                      <td>{laptop.model}</td>
-                      <td>{laptop.assignedTo.name}</td>
-                      <td>{new Date(laptop.assignedDate).toLocaleString()}</td>
+                    <tr
+                      key={laptop._id}
+                      onClick={() => handleRowClick(laptop._id)}
+                    >
+                      {" "}
+                      {/* Add onClick event */}
+                      <td className="text-center align-middle">{laptop.brand}</td>
+<td className="text-center align-middle">{laptop.model}</td>
+<td className="text-center align-middle">{laptop.assignedTo.name}</td>
+<td className="text-center align-middle">{new Date(laptop.assignedDate).toLocaleString()}</td>
+<td className="text-center align-middle">
+  <Canvas
+    text={JSON.stringify({
+      SerialNumber: laptop?._id,
+      Brand: laptop?.brand,
+      Model: laptop?.model,
+      AssignedTo: laptop?.assignedTo.name,
+      AssignedDate: new Date(laptop?.assignedDate).toLocaleString(),
+    })}
+    options={{
+      errorCorrectionLevel: "M",
+      margin: 1,
+      scale: 10,
+      width: 150,
+      color: {
+        dark: "#000",
+        light: "#fff",
+      },
+    }}
+  />
+</td>
+
                     </tr>
                   ))}
               </tbody>
