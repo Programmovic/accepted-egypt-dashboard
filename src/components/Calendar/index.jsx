@@ -52,14 +52,20 @@ const Calendar = ({ id }) => {
   function convertTime12to24(time12) {
     const [time, modifier] = time12.split(" ");
     let [hours, minutes] = time.split(":");
-    if (hours === "12") {
-      hours = "00";
+    
+    if (modifier === "AM") {
+      if (hours === "12") {
+        hours = "00";
+      }
+    } else if (modifier === "PM") {
+      if (hours !== "12") {
+        hours = parseInt(hours, 10) + 12;
+      }
     }
-    if (modifier === "PM") {
-      hours = parseInt(hours, 10) + 12;
-    }
+    
     return hours + ":" + minutes;
   }
+  
 
   const calendarEvents = roomReservations.map((reservation, index) => {
     const startDateTime = convertDateFormat(
