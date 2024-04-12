@@ -41,10 +41,23 @@ const Branches = () => {
       setLoading(false);
     }
   };
+  const [managers, setManagers] = useState([]);
 
-  // Hook to fetch branch data when the component mounts
+  const fetchManagers = async () => {
+    try {
+      const response = await axios.get("/api/employee");
+      if (response.status === 200) {
+        setManagers(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching managers:", error);
+      toast.error("Failed to fetch managers.");
+    }
+  };
+
   useEffect(() => {
     fetchBranchData();
+    fetchManagers();
   }, []);
 
   // Function to handle opening the modal for adding a new branch
@@ -160,11 +173,16 @@ const Branches = () => {
             <Form.Group className="mb-3">
               <Form.Label>Manager</Form.Label>
               <Form.Control
-                type="text"
+                as="select"
                 name="manager"
                 value={newBranchData.manager}
                 onChange={handleInputChange}
-              />
+              >
+                <option value="">Select Manager</option>
+                {managers.map((manager) => (
+                  <option key={manager._id} value={manager._id}>{manager.name}</option>
+                ))}
+              </Form.Control>
             </Form.Group>
           </Form>
         </Modal.Body>
@@ -210,9 +228,9 @@ const Branches = () => {
             </Row>
           </Form>
           {/* Button to add a new branch */}
-      <Button variant="primary" onClick={handleShowModal} className="mb-3">
-        Add New Branch
-      </Button>
+          <Button variant="primary" onClick={handleShowModal} className="mb-3">
+            Add New Branch
+          </Button>
           {/* Table to display branch data */}
           <Table striped bordered hover>
             <thead>
@@ -236,14 +254,13 @@ const Branches = () => {
                   <td>{branch.address}</td>
                   <td>{branch.phoneNumber}</td>
                   <td>{branch.email}</td>
-                  <td>{branch.manager}</td>
+                  <td>{branch?.manager.name}</td>
                 </tr>
               ))}
             </tbody>
           </Table>
         </Card.Body>
       </Card>
-      
     </AdminLayout>
   );
 };
