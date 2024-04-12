@@ -18,6 +18,7 @@ import {
   faTable,
   faComputer,
   faSearch,
+  faInstitution,
 } from "@fortawesome/free-solid-svg-icons";
 import React, {
   PropsWithChildren,
@@ -148,6 +149,9 @@ export default function SidebarNav() {
         <SidebarNavItem icon={faUser} href="/admins">
           Admins
         </SidebarNavItem>
+        <SidebarNavItem icon={faInstitution} href="/branches">
+          Branches
+        </SidebarNavItem>
         <SidebarNavItem icon={faLevelUp} href="/levels">
           Levels
         </SidebarNavItem>
@@ -220,7 +224,11 @@ export default function SidebarNav() {
           Students With Due
         </SidebarNavItem>
       </SidebarNavGroup>
-
+      <SidebarNavGroup toggleIcon={faInstitution} toggleText="Human Resources">
+        <SidebarNavItem icon={faPerson} href="/employees">
+          Employees
+        </SidebarNavItem>
+      </SidebarNavGroup>
       <SidebarNavGroup toggleIcon={faHandsHelping} toggleText="Help">
         <SidebarNavItem icon={faHandsHelping} href="/">
           How to Use?
