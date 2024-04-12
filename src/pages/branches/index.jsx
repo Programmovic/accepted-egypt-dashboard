@@ -254,7 +254,7 @@ const Branches = () => {
                   <td>{branch.address}</td>
                   <td>{branch.phoneNumber}</td>
                   <td>{branch.email}</td>
-                  <td>{branch?.manager.name}</td>
+                  <td>{branch?.manager?.name}</td>
                 </tr>
               ))}
             </tbody>

@@ -548,7 +548,7 @@ const Transactions = () => {
               <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Type</Form.Label>
-                  <div className="d-flex justify-content-between">
+                  <div className="d-flex justify-content-between align-items-center">
                     <Form.Check
                       type="checkbox"
                       label="Received"
