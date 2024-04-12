@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Branch = require('./branch');
+
 
 const roomSchema = new mongoose.Schema({
   name: {
@@ -9,14 +11,15 @@ const roomSchema = new mongoose.Schema({
     type: Number,
   },
   location: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId, // Reference to Branch model
+    ref: 'Branch', // Referencing the Branch model
   },
   description: {
     type: String,
   },
   isReserved: {
     type: Boolean,
-    default: false, // Initialize as not reserved
+    default: false,
   },
   createdDate: {
     type: Date,
@@ -29,6 +32,8 @@ const roomSchema = new mongoose.Schema({
   adminName: {
     type: String,
   },
+}, {
+  timestamps: true, // Automatically manage createdAt and updatedAt fields
 });
 
 module.exports = mongoose.models.Room || mongoose.model('Room', roomSchema);

@@ -43,7 +43,7 @@ export default async (req, res) => {
     }
   } else if (req.method === "GET") {
     try {
-      const allRooms = await Room.find();
+      const allRooms = await Room.find().populate("location", "name");
       return res.status(200).json(allRooms);
     } catch (error) {
       console.error(error);

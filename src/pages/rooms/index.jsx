@@ -19,10 +19,26 @@ const Rooms = () => {
   const [description, setDescription] = useState("");
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
+  const [branches, setBranches] = useState([]);
+
+  // Function to fetch branches
+  const fetchBranches = async () => {
+    try {
+      const response = await axios.get("/api/branch");
+      if (response.status === 200) {
+        setBranches(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching branch data:", error);
+      setError("Failed to fetch branch data. Please try again later.");
+    }
+  };
+
   const fetchRooms = async () => {
     try {
       const response = await axios.get("/api/room");
       if (response.status === 200) {
+        console.log(response)
         setRooms(response.data);
       }
     } catch (error) {
@@ -35,10 +51,10 @@ const Rooms = () => {
   useEffect(() => {
     fetchCurrentReservations();
     fetchRooms();
+    fetchBranches();
   }, []);
   const [currentReservations, setCurrentReservations] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
-  console.log(currentReservations);
   // Function to fetch current reservations
   const fetchCurrentReservations = async () => {
     try {
@@ -135,8 +151,7 @@ const Rooms = () => {
     fromTime,
     toTime
   ) => {
-    const apiUrl = "/api/reservation/available-rooms"; // Update the URL if needed
-    console.log(selectedRoomId);
+    const apiUrl = "/api/reservation/available-rooms"; 
     try {
       const params = {
         date,
@@ -158,8 +173,6 @@ const Rooms = () => {
       const availableRoomIds = availableRoomsResponse.data.map(
         (room) => room._id
       );
-      console.log(availableRoomIds);
-      console.log(availableRoomIds.includes(selectedRoomId))
       return availableRoomIds.includes(selectedRoomId);
     } catch (error) {
       console.error("Error checking room availability:", error);
@@ -266,7 +279,7 @@ const Rooms = () => {
             <div>
               <p>Room Name: {selectedRoom.name}</p>
               <p>Capacity: {selectedRoom.capacity}</p>
-              <p>Location: {selectedRoom.location}</p>
+              <p>Location: {selectedRoom?.location?.name}</p>
               <p>Description: {selectedRoom.description}</p>
 
               <Modal.Footer>
@@ -307,10 +320,12 @@ const Rooms = () => {
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Location</Form.Label>
-              <Form.Control
-                type="text"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+              <Select
+                options={branches.map((branch) => ({
+                  value: branch._id,
+                  label: branch.location,
+                }))}
+                onChange={(selectedOption) => setLocation(selectedOption.value)}
               />
             </Form.Group>
             <Form.Group className="mb-3">

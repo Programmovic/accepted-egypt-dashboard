@@ -1,23 +1,25 @@
-// pages/api/sendSms.js
+// pages/api/sendPaymentReminder.js
 
 import https from 'https';
 
 export default function handler(req, res) {
-  // Extract the phone number from the request query parameters
-  const { to } = req.query;
+  // Extract the phone number and payment details from the request body
+  const { to, paymentAmount, dueDate } = req.body;
 
-  // Check if the 'to' parameter is provided in the request
-  if (!to) {
-    return res.status(400).json({ success: false, error: "Phone number 'to' is required" });
+  // Check if the required parameters are provided in the request
+  if (!to || !paymentAmount || !dueDate) {
+    return res.status(400).json({ success: false, error: "Phone number, payment amount, and due date are required" });
   }
 
-  // Construct the message data
+  // Construct the message data with payment reminder content
+  const message = `Hello,\n\nThis is a friendly reminder that your payment of ${paymentAmount} is due on ${dueDate}. Please ensure timely payment. Thank you.`;
+
   const postData = JSON.stringify({
     "messages": [
       {
         "destinations": [{"to": to}], // Use the provided 'to' phone number
-        "from": "Accepted EG",
-        "text": "Hello,\n\nThis is a test message from ACCEPTED. Have a nice day!"
+        "from": "ACCEPTED", // Update with your company name or identifier
+        "text": message // Use the constructed payment reminder message
       }
     ]
   });
