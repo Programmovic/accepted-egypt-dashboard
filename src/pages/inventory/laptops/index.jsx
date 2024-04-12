@@ -77,8 +77,8 @@ const Laptops = () => {
       const response = await axios.post("/api/laptops", {
         brand: brandModal,
         model: modelModal,
-        assignedTo: assignedToModal,
-        assignedDate: assignedDateModal,
+        assignedTo: assignedToModal || null,
+        assignedDate: assignedDateModal || null,
       });
       if (response.status === 201) {
         setLaptops([...laptops, response.data]);
@@ -218,60 +218,54 @@ const Laptops = () => {
                 </tr>
               </thead>
               <tbody>
-                {laptops
-                  .filter(
-                    (laptop) =>
-                      (brandFilter === "" ||
-                        laptop.brand.toLowerCase() ===
-                          brandFilter.toLowerCase()) &&
-                      laptop.model
-                        .toLowerCase()
-                        .includes(modelFilter.toLowerCase()) &&
-                      laptop?.assignedTo?.name
-                        .toLowerCase()
-                        .includes(assignedToFilter.toLowerCase()) &&
-                      laptop.assignedDate.includes(assignedDateFilter)
-                  )
-                  .map((laptop) => (
-                    <tr
-                      key={laptop._id}
-                      onClick={() => handleRowClick(laptop._id)}
-                    >
-                      <td className="align-middle">{laptop.brand}</td>
-                      <td className="align-middle">{laptop.model}</td>
-                      <td className="align-middle">{laptop.assignedTo ? laptop.assignedTo.name : 'N/A'}</td>
-                      <td className="align-middle">{new Date(laptop.assignedDate).toLocaleString()}</td>
-                      <td className="align-middle text-center">
-                        {laptop.assignedTo ? (
-                          <Badge bg="success">Assigned</Badge>
-                        ) : (
-                          <Badge bg="danger">Not Assigned</Badge>
-                        )}
-                      </td>
-                      {/* QR Code column */}
-                      <td className="text-center">
-                        <Canvas
-                          text={JSON.stringify({
-                            SerialNumber: laptop?._id,
-                            Brand: laptop?.brand,
-                            Model: laptop?.model,
-                            AssignedTo: laptop?.assignedTo?.name || 'N/A',
-                            AssignedDate: laptop?.assignedDate || 'N/A',
-                          })}
-                          options={{
-                            errorCorrectionLevel: "M",
-                            margin: 1,
-                            scale: 10,
-                            width: 150,
-                            color: {
-                              dark: "#000",
-                              light: "#fff",
-                            },
-                          }}
-                        />
-                      </td>
-                    </tr>
-                  ))}
+              {laptops
+  .filter((laptop) =>
+    (brandFilter === "" ||
+      laptop.brand.toLowerCase() === brandFilter.toLowerCase()) &&
+    laptop.model.toLowerCase().includes(modelFilter.toLowerCase()) &&
+    // Include laptops where assignedTo is empty or matches the filter
+    (!assignedToFilter || !laptop.assignedTo || laptop.assignedTo.name.toLowerCase().includes(assignedToFilter.toLowerCase())) &&
+    // Include laptops where assignedDate is empty or matches the filter
+    (!assignedDateFilter || laptop.assignedDate.includes(assignedDateFilter))
+  )
+  .map((laptop) => (
+    <tr key={laptop._id} onClick={() => handleRowClick(laptop._id)}>
+      <td className="align-middle">{laptop.brand}</td>
+      <td className="align-middle">{laptop.model}</td>
+      <td className="align-middle">{laptop.assignedTo ? laptop.assignedTo.name : 'N/A'}</td>
+      <td className="align-middle">{laptop.assignedDate ? new Date(laptop.assignedDate).toLocaleString() : 'N/A'}</td>
+      <td className="align-middle text-center">
+        {laptop.assignedTo ? (
+          <Badge bg="success">Assigned</Badge>
+        ) : (
+          <Badge bg="danger">Not Assigned</Badge>
+        )}
+      </td>
+      {/* QR Code column */}
+      <td className="text-center">
+        <Canvas
+          text={JSON.stringify({
+            SerialNumber: laptop._id,
+            Brand: laptop.brand,
+            Model: laptop.model,
+            AssignedTo: laptop.assignedTo ? laptop.assignedTo.name : 'N/A',
+            AssignedDate: laptop.assignedDate || 'N/A',
+          })}
+          options={{
+            errorCorrectionLevel: "M",
+            margin: 1,
+            scale: 10,
+            width: 150,
+            color: {
+              dark: "#000",
+              light: "#fff",
+            },
+          }}
+        />
+      </td>
+    </tr>
+  ))}
+
               </tbody>
             </Table>
           )}
