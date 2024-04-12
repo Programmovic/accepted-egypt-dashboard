@@ -21,6 +21,10 @@ const reservationSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Room',
   },
+  batch: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Batch',
+  },
   createdByAdmin: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin',

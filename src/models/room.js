@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const Branch = require('./branch');
 
-
 const roomSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -17,9 +16,24 @@ const roomSchema = new mongoose.Schema({
   description: {
     type: String,
   },
+  status: {
+    type: String,
+    enum: ['available', 'occupied', 'maintenance'], // Define possible status values
+    default: 'available', // Set default status
+  },
   isReserved: {
     type: Boolean,
     default: false,
+  },
+  disabled: {
+    type: Boolean,
+    default: false,
+  },
+  disabledAt: {
+    type: Date,
+  },
+  enabledAt: {
+    type: Date,
   },
   createdDate: {
     type: Date,
