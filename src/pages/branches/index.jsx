@@ -5,10 +5,11 @@ import { AdminLayout } from "@layout";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useRouter } from "next/router";
 
 // Create a functional component for managing branches
 const Branches = () => {
-  // Define state variables
+  const router = useRouter()
   const [branchResource, setBranchResource] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -236,7 +237,7 @@ const Branches = () => {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Name</th>
+                <th>Branch Name</th>
                 <th>Location</th>
                 <th>Address</th>
                 <th>Phone Number</th>
@@ -247,7 +248,7 @@ const Branches = () => {
             <tbody>
               {/* Map through the filtered branch data and display each branch */}
               {filteredData.map((branch, index) => (
-                <tr key={branch._id}>
+                <tr key={branch._id} onClick={() => router.push(`/branches/${branch._id}`)}>
                   <td>{index + 1}</td>
                   <td>{branch.name}</td>
                   <td>{branch.location}</td>

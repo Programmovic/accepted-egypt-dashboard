@@ -38,6 +38,10 @@ const Laptops = () => {
     "Sony",
     "MSI",
   ]);
+  const [sortByCreatedAt, setSortByCreatedAt] = useState({
+    order: "desc", // Default sorting order
+    checked: false, // Initial checkbox state
+  });
 
   const fetchLaptopsData = async () => {
     try {
@@ -115,6 +119,11 @@ const Laptops = () => {
     }
   };
   
+  const handleSortByCreatedAt = () => {
+    // Toggle the sorting order
+    const newOrder = sortByCreatedAt.order === "asc" ? "desc" : "asc";
+    setSortByCreatedAt({ order: newOrder, checked: !sortByCreatedAt.checked });
+  };
 
   const handleRowClick = (laptopId) => {
     // Navigate to the laptop's page using router.push
@@ -190,16 +199,26 @@ const Laptops = () => {
                 </Form.Group>
               </Col>
             </Row>
-            <Button
-              variant="outline-primary"
-              className="me-3"
-              onClick={() => setShowModal(true)}
-            >
-              Add Laptop
-            </Button>
-            <Button variant="outline-danger" onClick={handleDeleteAllLaptops}>
-              Delete All Laptops
-            </Button>
+            <div className="mb-3">
+            <Form.Check
+                type="checkbox"
+                id="sortCheckbox"
+                label="Sort"
+                checked={sortByCreatedAt.checked}
+                onChange={handleSortByCreatedAt}
+              />
+              <Button
+                variant="outline-primary"
+                className="me-3"
+                onClick={() => setShowModal(true)}
+              >
+                Add Laptop
+              </Button>
+              <Button variant="outline-danger" onClick={handleDeleteAllLaptops}>
+                Delete All Laptops
+              </Button>
+              
+            </div>
           </Form>
           {loading ? (
             <p>Loading laptops data...</p>
@@ -218,54 +237,66 @@ const Laptops = () => {
                 </tr>
               </thead>
               <tbody>
-              {laptops
-  .filter((laptop) =>
-    (brandFilter === "" ||
-      laptop.brand.toLowerCase() === brandFilter.toLowerCase()) &&
-    laptop.model.toLowerCase().includes(modelFilter.toLowerCase()) &&
-    // Include laptops where assignedTo is empty or matches the filter
-    (!assignedToFilter || !laptop.assignedTo || laptop.assignedTo.name.toLowerCase().includes(assignedToFilter.toLowerCase())) &&
-    // Include laptops where assignedDate is empty or matches the filter
-    (!assignedDateFilter || laptop.assignedDate.includes(assignedDateFilter))
-  )
-  .map((laptop) => (
-    <tr key={laptop._id} onClick={() => handleRowClick(laptop._id)}>
-      <td className="align-middle">{laptop.brand}</td>
-      <td className="align-middle">{laptop.model}</td>
-      <td className="align-middle">{laptop.assignedTo ? laptop.assignedTo.name : 'N/A'}</td>
-      <td className="align-middle">{laptop.assignedDate ? new Date(laptop.assignedDate).toLocaleString() : 'N/A'}</td>
-      <td className="align-middle text-center">
-        {laptop.assignedTo ? (
-          <Badge bg="success">Assigned</Badge>
-        ) : (
-          <Badge bg="danger">Not Assigned</Badge>
-        )}
-      </td>
-      {/* QR Code column */}
-      <td className="text-center">
-        <Canvas
-          text={JSON.stringify({
-            SerialNumber: laptop._id,
-            Brand: laptop.brand,
-            Model: laptop.model,
-            AssignedTo: laptop.assignedTo ? laptop.assignedTo.name : 'N/A',
-            AssignedDate: laptop.assignedDate || 'N/A',
-          })}
-          options={{
-            errorCorrectionLevel: "M",
-            margin: 1,
-            scale: 10,
-            width: 150,
-            color: {
-              dark: "#000",
-              light: "#fff",
-            },
-          }}
-        />
-      </td>
-    </tr>
-  ))}
-
+                {laptops
+                  .filter((laptop) =>
+                    (brandFilter === "" ||
+                      laptop.brand.toLowerCase() === brandFilter.toLowerCase()) &&
+                    laptop.model.toLowerCase().includes(modelFilter.toLowerCase()) &&
+                    // Include laptops where assignedTo is empty or matches the filter
+                    (!assignedToFilter || !laptop.assignedTo || laptop.assignedTo.name.toLowerCase().includes(assignedToFilter.toLowerCase())) &&
+                    // Include laptops where assignedDate is empty or matches the filter
+                    (!assignedDateFilter || laptop.assignedDate.includes(assignedDateFilter))
+                  )
+                  // Sort by createdAt if checked
+                  .sort((a, b) => {
+                    if (sortByCreatedAt.checked) {
+                      if (sortByCreatedAt.order === "asc") {
+                        return new Date(a.createdAt) - new Date(b.createdAt);
+                      } else {
+                        return new Date(b.createdAt) - new Date(a.createdAt);
+                      }
+                    } else {
+                      // If not checked, maintain the original order
+                      return 0;
+                    }
+                  })
+                  .map((laptop) => (
+                    <tr key={laptop._id} onClick={() => handleRowClick(laptop._id)}>
+                      <td className="align-middle">{laptop.brand}</td>
+                      <td className="align-middle">{laptop.model}</td>
+                      <td className="align-middle">{laptop.assignedTo ? laptop.assignedTo.name : 'N/A'}</td>
+                      <td className="align-middle">{laptop.assignedDate ? new Date(laptop.assignedDate).toLocaleString() : 'N/A'}</td>
+                      <td className="align-middle text-center">
+                        {laptop.assignedTo ? (
+                          <Badge bg="success">Assigned</Badge>
+                        ) : (
+                          <Badge bg="danger">Not Assigned</Badge>
+                        )}
+                      </td>
+                      {/* QR Code column */}
+                      <td className="text-center">
+                        <Canvas
+                          text={JSON.stringify({
+                            SerialNumber: laptop._id,
+                            Brand: laptop.brand,
+                            Model: laptop.model,
+                            AssignedTo: laptop.assignedTo ? laptop.assignedTo.name : 'N/A',
+                            AssignedDate: laptop.assignedDate || 'N/A',
+                          })}
+                          options={{
+                            errorCorrectionLevel: "M",
+                            margin: 1,
+                            scale: 10,
+                            width: 150,
+                            color: {
+                              dark: "#000",
+                              light: "#fff",
+                            },
+                          }}
+                        />
+                      </td>
+                    </tr>
+                  ))}
               </tbody>
             </Table>
           )}
