@@ -1,38 +1,31 @@
 import connectDB from "@lib/db";
-import Employee from "../../../models/employee";
+import Employee from "../../../../models/employee";
 
 export default async (req, res) => {
   await connectDB();
 
-  if (req.method === "POST") {
-    // Create a new employee
+  if (req.method === "GET") {
+    // Retrieve a single employee
+    const { id } = req.query;
+
     try {
-      const newEmployee = new Employee(req.body);
-      await newEmployee.save();
-      return res.status(201).json({ message: "Employee created successfully", employee: newEmployee });
+      const employee = await Employee.findById(id);
+
+      if (!employee) {
+        return res.status(404).json({ error: "Employee not found" });
+      }
+
+      return res.status(200).json(employee);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: "Failed to create employee" });
-    }
-  } else if (req.method === "GET") {
-    // Retrieve all employees
-    try {
-      const employees = await Employee.find();
-      return res.status(200).json(employees);
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Failed to fetch employees" });
+      return res.status(500).json({ error: "Failed to fetch employee" });
     }
   } else if (req.method === "PUT") {
-    // Update an employee
+    // Update a single employee
+    const { id } = req.query;
+
     try {
       const updatedEmployeeData = req.body;
-      const { id } = updatedEmployeeData;
-
-      // Check if the provided employee ID is valid
-      if (!id) {
-        return res.status(400).json({ error: "Employee ID is required for updating" });
-      }
 
       // Find the employee by ID
       const employee = await Employee.findById(id);
@@ -53,7 +46,7 @@ export default async (req, res) => {
       return res.status(500).json({ error: "Failed to update employee data" });
     }
   } else if (req.method === "DELETE") {
-    // Delete an employee
+    // Delete a single employee
     const { id } = req.query;
 
     try {

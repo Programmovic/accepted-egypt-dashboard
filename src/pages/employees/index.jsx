@@ -208,7 +208,7 @@ const Employees = () => {
             <tbody>
               {memoizedFilteredEmployees.map((employee, index) => (
                 <tr key={employee._id} onClick={() => {
-                  router.push(`/employee/${employee._id}`); // Push the route
+                  router.push(`/employees/${employee._id}`); // Push the route
                 }}>
                   <td>{index + 1}</td>
                   <td>{employee.name}</td>

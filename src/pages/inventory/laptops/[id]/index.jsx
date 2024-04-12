@@ -125,11 +125,11 @@ const LaptopDetails = () => {
                   </tr>
                   <tr>
                     <td className="fw-bold">Assigned To:</td>
-                    <td>{laptop.assignedTo.name}</td>
+                    <td>{laptop?.assignedTo?.name}</td>
                   </tr>
                   <tr>
                     <td className="fw-bold">Assigned Date:</td>
-                    <td>{new Date(laptop.assignedDate).toLocaleString()}</td>
+                    <td>{new Date(laptop?.assignedDate).toLocaleString()}</td>
                   </tr>
                 </tbody>
               </Table>
@@ -149,7 +149,7 @@ const LaptopDetails = () => {
                 SerialNumber: laptop?._id,
                 Brand: laptop?.brand,
                 Model: laptop?.model,
-                AssignedTo: laptop?.assignedTo.name,
+                AssignedTo: laptop?.assignedTo?.name,
                 AssignedDate: new Date(laptop?.assignedDate).toLocaleString()
               })}
               options={{
