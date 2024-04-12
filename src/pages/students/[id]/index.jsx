@@ -258,6 +258,33 @@ const StudentProfile = () => {
   const closeIdentityModal = () => {
     setShowIdentityModal(false);
   };
+
+  const [transactions, setTransactions] = useState([]);
+
+  // Function to fetch transactions related to the student
+  const fetchTransactions = async () => {
+    try {
+      const response = await axios.get(`/api/student/${id}/transactions`); // Adjust the API endpoint as per your backend implementation
+      console.log(response);
+      if (response.status === 200) {
+        setTransactions(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching transactions:", error);
+      toast.error("Failed to fetch transactions. Please try again later.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
+  };
+
+  // Fetch transactions when the component mounts or when student ID changes
+  useEffect(() => {
+    if (id) {
+      fetchTransactions();
+    }
+  }, [id]);
+
   return (
     <AdminLayout>
       <div className="row">
@@ -542,6 +569,45 @@ const StudentProfile = () => {
           </Table>
         </Card.Body>
       </Card>
+      <Card className="mt-5">
+        <Card.Header>Transactions</Card.Header>
+        <Card.Body>
+        <Table striped bordered hover>
+  <thead>
+    <tr>
+      <th>Transaction ID</th>
+      <th>Date</th>
+      <th>Batch</th>
+      <th>Type</th>
+      {transactions.some(transaction => transaction.type === "expenses") && (
+        <th>Expense Type</th>
+      )}
+      <th>Amount</th>
+      <th>Description</th>
+      {/* Add more columns as needed */}
+    </tr>
+  </thead>
+  <tbody>
+    {transactions.map((transaction) => (
+      <tr key={transaction._id}>
+        <td>{transaction._id}</td>
+        <td>{new Date(transaction.createdAt).toLocaleString()}</td>
+        <td>{transaction?.batch?.name || (<span className="text-danger fw-bold">No Batch</span>)}</td>
+        <td>{transaction.type}</td>
+        {transaction.type === "expenses" && (
+          <td>{transaction.expense_type}</td>
+        )}
+        <td>{transaction.amount}</td>
+        <td>{transaction.description}</td>
+        {/* Add more cells for additional transaction data */}
+      </tr>
+    ))}
+  </tbody>
+</Table>
+
+        </Card.Body>
+      </Card>
+
       <ToastContainer />
     </AdminLayout>
   );
