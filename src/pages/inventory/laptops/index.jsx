@@ -97,16 +97,24 @@ const Laptops = () => {
   };
 
   const handleDeleteAllLaptops = async () => {
+    // Prompt user to confirm deletion
+    const userConfirmed = window.confirm("Are you sure you want to delete all laptops?");
+  
+    if (!userConfirmed) {
+      return; // If user cancels, exit the function without deleting
+    }
+  
     try {
       const response = await axios.delete("/api/laptops");
       if (response.status === 204) {
-        setLaptops([]);
+        setLaptops([]); // Clear laptops list if deletion is successful
       }
     } catch (error) {
       console.error("Error deleting all laptops:", error);
       setError("Failed to delete all laptops. Please try again later.");
     }
   };
+  
 
   const handleRowClick = (laptopId) => {
     // Navigate to the laptop's page using router.push
