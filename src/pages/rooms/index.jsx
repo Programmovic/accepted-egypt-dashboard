@@ -259,7 +259,7 @@ const Rooms = () => {
                     <td>{index + 1}</td>
                     <td>{room.name}</td>
                     <td>{room.capacity}</td>
-                    <td>{room.location}</td>
+                    <td>{room?.location?.name}</td>
                     <td>{room.description}</td>
                     <td>{roomAvailability[room._id] ? "Available" : "Not Available"}</td>
                   </tr>
@@ -323,7 +323,7 @@ const Rooms = () => {
               <Select
                 options={branches.map((branch) => ({
                   value: branch._id,
-                  label: branch.location,
+                  label: branch.name,
                 }))}
                 onChange={(selectedOption) => setLocation(selectedOption.value)}
               />
