@@ -1,4 +1,13 @@
-import { Card, Form, Button, Row, Col, Table, Dropdown } from "react-bootstrap";
+import {
+  Card,
+  Form,
+  Button,
+  Row,
+  Col,
+  Table,
+  Dropdown,
+  Alert,
+} from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { AdminLayout } from "@layout";
 import axios from "axios";
@@ -40,6 +49,7 @@ const Batches = () => {
   const [creatingBatch, setCreatingBatch] = useState(false);
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedLevelName, setSelectedLevelName] = useState("");
+  const [roomData, setRoomData] = useState([]);
   // Function to open the modal and set the selected batch details
   const openBatchDetailsModal = (batch) => {
     setSelectedBatch(batch);
@@ -318,6 +328,7 @@ const Batches = () => {
         console.log(roomData);
         const options = mapApiDataToOptions(roomData);
         console.log(options);
+        setRoomData(roomData);
         setRoomOptions(options);
       }
     } catch (error) {
@@ -440,6 +451,26 @@ const Batches = () => {
       toast.error("Failed to update the batch");
     }
   };
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleLimitTraineesChange = (e) => {
+    const enteredValue = e.target.value;
+    const selectedRoom = roomData.find((room) => room._id === newBatchLab);
+
+    if (!selectedRoom) {
+      setErrorMessage("Please select a room first.");
+      return;
+    }
+
+    if (enteredValue > selectedRoom.capacity) {
+      setErrorMessage("Entered value exceeds room capacity.");
+      setNewBatchLimitTrainees(selectedRoom.capacity);
+    } else {
+      setErrorMessage("");
+      setNewBatchLimitTrainees(enteredValue);
+    }
+  };
+
   return (
     <AdminLayout>
       <ToastContainer />
@@ -699,10 +730,11 @@ const Batches = () => {
                         {batch.class ? getClassName(batch.class).name : "N/A"}
                       </td>
                       <td>
-                      {new Intl.NumberFormat("en-US", {
+                        {new Intl.NumberFormat("en-US", {
                           style: "currency",
                           currency: "EGP",
-                        }).format(batch.cost * batch.studentCount)}</td>
+                        }).format(batch.cost * batch.studentCount)}
+                      </td>
                       <td>
                         {new Intl.NumberFormat("en-US", {
                           style: "currency",
@@ -902,13 +934,40 @@ const Batches = () => {
               </Col>
               <Col xs={6}>
                 <Form.Group className="mb-3">
+                  <Form.Label>Room</Form.Label>
+                  <Select
+                    options={roomOptions}
+                    value={roomOptions.find(
+                      (room) => room.value === newBatchLab
+                    )}
+                    onChange={(selectedOption) => {
+                      setNewBatchLab(
+                        selectedOption ? selectedOption.value : ""
+                      );
+                      setNewBatchLimitTrainees(
+                        roomData.find(
+                          (room) => room._id === selectedOption.value
+                        ).capacity
+                      );
+                    }}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
                   <Form.Label>Limit Trainees</Form.Label>
                   <Form.Control
                     type="number"
                     required
                     value={newBatchLimitTrainees}
-                    onChange={(e) => setNewBatchLimitTrainees(e.target.value)}
+                    onChange={handleLimitTraineesChange}
+                    disabled={!newBatchLab}
                   />
+                  {errorMessage && (
+                    <Form.Text className="text-danger fw-bold">
+                      {errorMessage}
+                    </Form.Text>
+                  )}
                 </Form.Group>
               </Col>
               <Col xs={6}>
@@ -933,22 +992,7 @@ const Batches = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Room</Form.Label>
-                  <Select
-                    options={roomOptions}
-                    value={roomOptions.find(
-                      (room) => room.value === newBatchLab
-                    )}
-                    onChange={(selectedOption) => {
-                      setNewBatchLab(
-                        selectedOption ? selectedOption.value : ""
-                      );
-                    }}
-                  />
-                </Form.Group>
-              </Col>
+
               <Col xs={6}>
                 <Form.Group>
                   <Form.Label>Set Level:</Form.Label>
