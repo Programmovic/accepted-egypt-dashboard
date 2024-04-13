@@ -962,6 +962,7 @@ const Batches = () => {
                     value={newBatchLimitTrainees}
                     onChange={handleLimitTraineesChange}
                     disabled={!newBatchLab}
+                    placeholder={!newBatchLab && "You Must Select Room"}
                   />
                   {errorMessage && (
                     <Form.Text className="text-danger fw-bold">
