@@ -440,8 +440,6 @@ const Batches = () => {
       toast.error("Failed to update the batch");
     }
   };
-  console.log(newBatchLecturesTimes);
-  console.log(sortedBatches);
   return (
     <AdminLayout>
       <ToastContainer />
