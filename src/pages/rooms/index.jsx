@@ -288,7 +288,7 @@ const Rooms = () => {
                     href={`/rooms/${selectedRoom._id}`}
                     className="text-decoration-none text-light"
                   >
-                    View Room Reservations
+                    View Room
                   </Link>
                 </Button>
               </Modal.Footer>

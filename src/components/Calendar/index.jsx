@@ -97,8 +97,8 @@ const Calendar = ({ id }) => {
   return (
     <>
       <Card>
-        <Card.Header>
-          Room Reservations{" "}
+        <Card.Header as={"h5"}>
+          Room Reservations Calendar{" "}
           <Badge pill variant="primary" className="me-2">
             {roomReservations.length}
           </Badge>

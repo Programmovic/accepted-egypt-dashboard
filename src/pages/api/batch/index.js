@@ -66,6 +66,8 @@ export default async (req, res) => {
             startTime: batchData.weeklyHours[j].from,
             endTime: batchData.weeklyHours[j].to,
             room: batchData.room,
+            batch: newBatch._id,
+            level: batchData.level
           };
 
           const newReservation = new Reservation(reservationData);

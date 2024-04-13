@@ -17,14 +17,14 @@ export default function ClassCard(props) {
 
   return (
     <div className="col-sm-6 col-lg-3">
-      <Card text="white" className="mb-4 border-0 shadow-sm">
+      <Card text="white" className="mb-4 border shadow-lg">
         <Card.Body
           className="pb-0 d-flex justify-content-between align-items-start text-dark"
         >
           
           <div className="col-12">
             <div className="border-start border-4 border-info px-3 mb-3">
-              <small className="text-black-50">{title}</small>
+              <small className="text-black-100">{title}</small>
               <div className="fs-5 fw-semibold">{data}</div>
             </div>
           </div>

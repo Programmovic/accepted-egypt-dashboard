@@ -1,4 +1,6 @@
 const mongoose = require('mongoose');
+const Batch = require('./batch');
+const Level = require('./level');
 
 const reservationSchema = new mongoose.Schema({
   title: {
@@ -24,6 +26,10 @@ const reservationSchema = new mongoose.Schema({
   batch: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Batch',
+  },
+  level: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Level',
   },
   createdByAdmin: {
     type: mongoose.Schema.Types.ObjectId,
