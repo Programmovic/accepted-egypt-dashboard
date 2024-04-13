@@ -12,7 +12,6 @@ export default async (req, res) => {
       const { date } = req.query;
       // Find all reservations that overlap with the specified date and time range
       const checkedDate = date
-      console.log(checkedDate)
       const overlappingReservations = await Reservation.find({
         date: new Date(convertDateFormat(checkedDate)),
       });
@@ -24,7 +23,6 @@ export default async (req, res) => {
       const availableRooms = await Room.find({
         _id: { $nin: reservedRoomIds },
       });
-      console.log(availableRooms)
       res.json(availableRooms);
     } catch (error) {
       console.error("Error fetching available rooms:", error);
@@ -35,7 +33,7 @@ export default async (req, res) => {
   }
 };
 function convertDateFormat(inputDate) {
-  const parts = inputDate.split('/');
+  const parts = inputDate?.split('/');
   if (parts.length === 3) {
     const month = parts[0].padStart(2, '0'); // Ensure 2-digit month
     const day = parts[1].padStart(2, '0');   // Ensure 2-digit day
