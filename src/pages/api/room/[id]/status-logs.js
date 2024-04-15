@@ -16,7 +16,7 @@ export default async (req, res) => {
       res.status(200).json(logs);
     } catch (error) {
       console.error('Failed to get room status logs', error);
-      res.status(500).json({ message: 'Failed to get logs' });
+      res.status(500).json({ message: error.message });
     }
   } else {
     res.status(405).json({ message: 'Method not allowed' });

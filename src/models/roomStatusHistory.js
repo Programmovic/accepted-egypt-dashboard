@@ -1,4 +1,6 @@
 const mongoose = require("mongoose");
+const Room = require('./room');
+const Admin = require('./admin');
 
 const roomStatusHistorySchema = new mongoose.Schema(
   {
