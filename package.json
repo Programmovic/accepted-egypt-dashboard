@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@alptugidin/react-circular-progress-bar": "^1.1.2",
     "@alzera/react-scanner": "^1.0.3",
     "@emotion/react": "^11.11.4",
     "@emotion/styled": "^11.11.5",
@@ -72,6 +73,7 @@
     "react-export-table-to-excel": "^1.0.6",
     "react-paginate": "^8.2.0",
     "react-pdf": "^7.5.1",
+    "react-percentage-bar": "^1.2.3",
     "react-qr-code": "^2.0.12",
     "react-qrcode-scanner": "^1.1.7",
     "react-redux": "^8.1.2",

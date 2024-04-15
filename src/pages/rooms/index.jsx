@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Button, Card, Form, Modal, Table } from "react-bootstrap";
+import { Button, Card, Form, Modal, Table, Col, Row } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@layout";
 import Link from "next/link";
 import Select from "react-select";
+import TimePicker from "react-time-picker";
+import "react-time-picker/dist/TimePicker.css";
+import "react-clock/dist/Clock.css";
 
 const Rooms = () => {
   const [rooms, setRooms] = useState([]);
@@ -17,6 +20,7 @@ const Rooms = () => {
   const [capacity, setCapacity] = useState("");
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
+  const [actualWorkingHours, setActualWorkingHours] = useState({});
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [branches, setBranches] = useState([]);
@@ -38,7 +42,7 @@ const Rooms = () => {
     try {
       const response = await axios.get("/api/room");
       if (response.status === 200) {
-        console.log(response)
+        console.log(response);
         setRooms(response.data);
       }
     } catch (error) {
@@ -74,6 +78,7 @@ const Rooms = () => {
         capacity,
         location,
         description,
+        actualWorkingHours,
       });
       if (response.status === 201) {
         // Data added successfully
@@ -88,6 +93,7 @@ const Rooms = () => {
         setCapacity("");
         setLocation("");
         setDescription("");
+        setActualWorkingHours("");
       }
     } catch (error) {
       console.error("Error adding room:", error);
@@ -151,7 +157,7 @@ const Rooms = () => {
     fromTime,
     toTime
   ) => {
-    const apiUrl = "/api/reservation/available-rooms"; 
+    const apiUrl = "/api/reservation/available-rooms";
     try {
       const params = {
         date,
@@ -180,34 +186,48 @@ const Rooms = () => {
     }
   };
   const [roomAvailability, setRoomAvailability] = useState({});
+
   const fetchRoomAvailability = async () => {
     try {
-      const currentDate = new Date().toLocaleDateString();
-      const startTime = "9:00";
-      const endTime = "5:00";
-      
-      const availabilityData = await Promise.all(
-        rooms.map(async (room) => {
-          const isAvailable = await checkRoomAvailability(
-            room._id,
-            currentDate,
-            startTime,
-            endTime
-          );
-          return {
-            roomId: room._id,
-            isAvailable,
-          };
-        })
-      );
+      // Check if room availability data is already cached
+      const cachedAvailability = localStorage.getItem("roomAvailability");
+      if (cachedAvailability) {
+        setRoomAvailability(JSON.parse(cachedAvailability));
+      } else {
+        const currentDate = new Date().toLocaleDateString();
+        const startTime = "9:00";
+        const endTime = "5:00";
 
-      // Convert the availability data to an object for easier access
-      const availabilityObj = availabilityData.reduce((obj, item) => {
-        obj[item.roomId] = item.isAvailable;
-        return obj;
-      }, {});
+        const availabilityData = await Promise.all(
+          rooms.map(async (room) => {
+            const isAvailable = await checkRoomAvailability(
+              room._id,
+              currentDate,
+              startTime,
+              endTime
+            );
+            return {
+              roomId: room._id,
+              isAvailable,
+            };
+          })
+        );
 
-      setRoomAvailability(availabilityObj);
+        // Convert the availability data to an object for easier access
+        const availabilityObj = availabilityData.reduce((obj, item) => {
+          obj[item.roomId] = item.isAvailable;
+          return obj;
+        }, {});
+
+        // Update room availability state
+        setRoomAvailability(availabilityObj);
+
+        // Cache room availability data
+        localStorage.setItem(
+          "roomAvailability",
+          JSON.stringify(availabilityObj)
+        );
+      }
     } catch (error) {
       console.error("Error fetching room availability:", error);
     }
@@ -215,7 +235,14 @@ const Rooms = () => {
 
   useEffect(() => {
     fetchRoomAvailability();
-  }, [checkRoomAvailability()]);
+
+    // Refresh room availability every 5 minutes
+    const intervalId = setInterval(fetchRoomAvailability, 5 * 60 * 1000);
+
+    // Clean up interval
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <AdminLayout>
       <Card>
@@ -249,6 +276,7 @@ const Rooms = () => {
                 <th>Capacity</th>
                 <th>Location</th>
                 <th>Description</th>
+                <th>Actual Working Hours</th>
                 <th>Availability</th>
               </tr>
             </thead>
@@ -261,7 +289,15 @@ const Rooms = () => {
                     <td>{room.capacity}</td>
                     <td>{room?.location?.name}</td>
                     <td>{room.description}</td>
-                    <td>{roomAvailability[room._id] ? "Available" : "Not Available"}</td>
+                    <td>
+                      {room?.actualWorkingHours?.from} to{" "}
+                      {room?.actualWorkingHours?.to}
+                    </td>
+                    <td>
+                      {roomAvailability[room._id]
+                        ? "Available"
+                        : "Not Available"}
+                    </td>
                   </tr>
                 );
               })}
@@ -318,6 +354,36 @@ const Rooms = () => {
                 onChange={(e) => setCapacity(e.target.value)}
               />
             </Form.Group>
+            <Row>
+              <Form.Group as={Col} sm={6}>
+                <Form.Label>Actual Working Hours (From)</Form.Label>
+                <Form.Control
+                  type="time"
+                  value={actualWorkingHours.from || ""} // Add a fallback value to prevent null/undefined
+                  onChange={(event) =>
+                    setActualWorkingHours((prev) => ({
+                      ...prev,
+                      from: event.target.value,
+                    }))
+                  }
+                />
+              </Form.Group>
+
+              <Form.Group as={Col} sm={6}>
+                <Form.Label>Actual Working Hours (To)</Form.Label>
+                <Form.Control
+                  type="time"
+                  value={actualWorkingHours.to || ""} // Add a fallback value to prevent null/undefined
+                  onChange={(event) =>
+                    setActualWorkingHours((prev) => ({
+                      ...prev,
+                      to: event.target.value,
+                    }))
+                  }
+                />
+              </Form.Group>
+            </Row>
+
             <Form.Group className="mb-3">
               <Form.Label>Location</Form.Label>
               <Select

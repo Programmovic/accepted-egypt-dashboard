@@ -1,29 +1,53 @@
 import connectDB from "@lib/db";
-import Group from "../../../../models/group";
+import Room from "../../../../models/room";
 
 export default async (req, res) => {
   await connectDB();
 
-  if (req.method === "DELETE") {
-    try {
-      const groupId = req.query.id; // Access the group ID from the route parameter
+  const { method, query } = req;
+  const { id } = query;
 
-      // Check if the group with the given ID exists
-      const group = await Group.findById(groupId);
-
-      if (!group) {
-        return res.status(404).json({ error: "Group not found" });
+  switch (method) {
+    case "GET":
+      try {
+        // Fetch room data by ID
+        const room = await Room.findById(id);
+        if (!room) {
+          return res.status(404).json({ error: "Room not found" });
+        }
+        return res.status(200).json(room);
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Internal server error" });
       }
-
-      // Delete the group from the database
-      await group.deleteOne();
-
-      return res.status(204).send(); // Respond with a 204 status for successful deletion
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: error.message });
-    }
+    case "PUT":
+      try {
+        // Update room data by ID
+        const updatedRoom = await Room.findByIdAndUpdate(id, req.body, {
+          new: true, // Return the updated document
+          runValidators: true, // Run validators on update
+        });
+        if (!updatedRoom) {
+          return res.status(404).json({ error: "Room not found" });
+        }
+        return res.status(200).json(updatedRoom);
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+    case "DELETE":
+      try {
+        // Delete room by ID
+        const deletedRoom = await Room.findByIdAndDelete(id);
+        if (!deletedRoom) {
+          return res.status(404).json({ error: "Room not found" });
+        }
+        return res.status(204).send();
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Internal server error" });
+      }
+    default:
+      return res.status(405).json({ error: "Method not allowed" });
   }
-
-  return res.status(400).json({ error: "Invalid request" });
 };

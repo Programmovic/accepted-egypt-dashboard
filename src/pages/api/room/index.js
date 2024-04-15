@@ -25,6 +25,7 @@ export default async (req, res) => {
         capacity,
         location,
         description,
+        actualWorkingHours
       } = req.body;
 
       const newRoom = new Room({
@@ -32,6 +33,7 @@ export default async (req, res) => {
         capacity,
         location,
         description,
+        actualWorkingHours
       });
 
       await newRoom.save();

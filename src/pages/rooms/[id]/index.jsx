@@ -2,11 +2,20 @@ import React, { useEffect, useState } from "react";
 import { AdminLayout } from "@layout";
 import { useRouter } from "next/router";
 import axios from "axios";
-import { Table, Card, Pagination, ProgressBar } from "react-bootstrap";
-import { Line } from 'react-chartjs-2';
+import {
+  Table,
+  Card,
+  Pagination,
+  ProgressBar,
+  Form,
+  Button,
+  Row,
+  Col,
+} from "react-bootstrap";
+import { Line } from "react-chartjs-2";
 import Calendar from "../../../components/Calendar";
 import { ClassCard } from "@components/Classes";
-import Chart from 'chart.js/auto';
+import Chart from "chart.js/auto";
 
 const RoomReservations = () => {
   const router = useRouter();
@@ -14,18 +23,31 @@ const RoomReservations = () => {
   const [reservations, setReservations] = useState([]);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
-  const [roomUtilization, setRoomUtilization] = useState({ utilizationPerDay: {}, utilizationPerMonth: {} });
-
+  const [roomUtilization, setRoomUtilization] = useState({
+    utilizationPerDay: {},
+    utilizationPerMonth: {},
+  });
+  const [freeTimeSlots, setFreeTimeSlots] = useState([]);
+  const [room, setRoom] = useState({});
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
   useEffect(() => {
     if (id) {
       fetchReservations(id);
+      fetchRoomData(id);
     }
   }, [id]);
 
   useEffect(() => {
     calculateRoomUtilization();
-  }, [reservations]);
-
+  }, [reservations, dateRange]); // Include selectedDate in dependencies
+  const fetchRoomData = async (roomId) => {
+    try {
+      const response = await axios.get(`/api/room/${roomId}`);
+      setRoom(response.data);
+    } catch (error) {
+      console.error("Error fetching room data:", error);
+    }
+  };
   const fetchReservations = async (roomId) => {
     try {
       const response = await axios.get(`/api/reservation/${roomId}`);
@@ -39,59 +61,233 @@ const RoomReservations = () => {
     setPage(newPage);
   };
 
+  const handleStartDateChange = (event) => {
+    setDateRange({ ...dateRange, start: event.target.value });
+  };
+
+  const handleEndDateChange = (event) => {
+    setDateRange({ ...dateRange, end: event.target.value });
+  };
+
   const calculateRoomUtilization = () => {
     const utilizationPerDay = {};
     const utilizationPerMonth = {};
+    const freeTimeSlots = [];
 
-    reservations.forEach((reservation) => {
-      const date = new Date(reservation.date);
-      const month = date.getMonth() + 1;
-      const day = date.getDate();
-      const studentCount = reservation?.batch?.studentCount || 0;
-      const capacity = reservation?.room?.capacity || 1; // Ensure no division by zero
-      const usagePercentage = (studentCount / capacity) * 100;
+    const startDate = new Date(dateRange.start);
+    const endDate = new Date(dateRange.end);
 
-      if (!utilizationPerDay.hasOwnProperty(day)) {
-        utilizationPerDay[day] = [];
+    let currentDate = new Date(startDate);
+
+    while (currentDate <= endDate) {
+      const day = currentDate.toISOString().slice(0, 10);
+      const month = currentDate.getMonth() + 1;
+
+      // Initialize utilization arrays for each day and month
+      utilizationPerDay[day] = [];
+      utilizationPerMonth[month] = [];
+
+      // Calculate utilization for each day
+      if (reservations.length > 0) {
+        const filteredReservations = reservations.filter((reservation) => {
+          const reservationDate = new Date(reservation.date);
+          return reservationDate.toISOString().slice(0, 10) === day;
+        });
+
+        filteredReservations.forEach((reservation) => {
+          const reservationDate = new Date(reservation.date);
+          const workingHours = room?.actualWorkingHours;
+          const utilizationPercentage = calculateRoomUtilizationPercentage(
+            reservationDate,
+            reservation.startTime,
+            reservation.endTime,
+            workingHours
+          );
+          utilizationPerDay[day].push(utilizationPercentage);
+          utilizationPerMonth[month].push(utilizationPercentage);
+        });
       }
-      utilizationPerDay[day].push(usagePercentage);
 
-      if (!utilizationPerMonth.hasOwnProperty(month)) {
-        utilizationPerMonth[month] = [];
+      // Calculate average utilization per day
+      if (utilizationPerDay[day].length > 0) {
+        const averageUtilization =
+          utilizationPerDay[day].reduce((acc, curr) => acc + curr, 0) /
+          utilizationPerDay[day].length;
+        utilizationPerDay[day] = averageUtilization.toFixed(2);
+      } else {
+        utilizationPerDay[day] = 0; // Set utilization to 0 if there are no reservations
       }
-      utilizationPerMonth[month].push(usagePercentage);
-    });
 
-    // Calculate average utilization per day and per month
-    Object.keys(utilizationPerDay).forEach(day => {
-      utilizationPerDay[day] = utilizationPerDay[day].reduce((a, b) => a + b, 0) / utilizationPerDay[day].length;
-    });
-    Object.keys(utilizationPerMonth).forEach(month => {
-      utilizationPerMonth[month] = utilizationPerMonth[month].reduce((a, b) => a + b, 0) / utilizationPerMonth[month].length;
-    });
+      // Calculate average utilization per month
+      if (utilizationPerMonth[month].length > 0) {
+        const averageUtilization =
+          utilizationPerMonth[month].reduce((acc, curr) => acc + curr, 0) /
+          utilizationPerMonth[month].length;
+        utilizationPerMonth[month] = averageUtilization.toFixed(2);
+      } else {
+        utilizationPerMonth[month] = 0; // Set utilization to 0 if there are no reservations
+      }
+
+      // Calculate free time slots for each day
+      const workingHours = room?.actualWorkingHours;
+      const dayFreeTimeSlots = calculateFreeTimeSlots(day, workingHours);
+      freeTimeSlots.push({ date: day, slots: dayFreeTimeSlots });
+
+      // Move to the next day
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
 
     setRoomUtilization({ utilizationPerDay, utilizationPerMonth });
+    setFreeTimeSlots(freeTimeSlots);
+  };
+
+  const calculateRoomUtilizationPercentage = (
+    reservationDate,
+    startTime,
+    endTime,
+    workingHours
+  ) => {
+    if (!workingHours) {
+      // If workingHours is undefined, return 0 as the utilization percentage
+      return 0;
+    }
+
+    // Extract start and end times from the working hours
+    const { from, to } = workingHours;
+    const [startHour, startMinute] = from.split(":").map(Number);
+    const [endHour, endMinute] = to.split(":").map(Number);
+
+    // Convert reservation start and end times to milliseconds since midnight
+    const [reservationStartHour, reservationStartMinute] = startTime
+      .split(":")
+      .map(Number);
+    const [reservationEndHour, reservationEndMinute] = endTime
+      .split(":")
+      .map(Number);
+    const reservationStartMs =
+      reservationStartHour * 60 * 60 * 1000 +
+      reservationStartMinute * 60 * 1000;
+    const reservationEndMs =
+      reservationEndHour * 60 * 60 * 1000 + reservationEndMinute * 60 * 1000;
+
+    // Convert working hours to milliseconds
+    const workingHoursStartMs =
+      startHour * 60 * 60 * 1000 + startMinute * 60 * 1000;
+    const workingHoursEndMs = endHour * 60 * 60 * 1000 + endMinute * 60 * 1000;
+
+    // Calculate the total duration of working hours in milliseconds
+    const workingHoursDurationMs = workingHoursEndMs - workingHoursStartMs;
+
+    // Calculate overlap duration between working hours and reservation
+    const overlapStart = Math.max(workingHoursStartMs, reservationStartMs);
+    const overlapEnd = Math.min(workingHoursEndMs, reservationEndMs);
+    const overlapDurationMs = Math.max(0, overlapEnd - overlapStart);
+
+    // Calculate room utilization percentage within working hours
+    const roomUtilizationPercentage = (
+      (overlapDurationMs / workingHoursDurationMs) *
+      100
+    ).toFixed(2);
+
+    return parseFloat(roomUtilizationPercentage); // Convert back to float
+  };
+
+  const calculateFreeTimeSlots = (date, workingHours) => {
+    const freeTimeSlots = [];
+
+    if (!workingHours) {
+      return { date, slots: freeTimeSlots }; // Return an object with date and empty slots array if working hours are not defined
+    }
+
+    const { from, to } = workingHours;
+    const [startHour, startMinute] = from.split(":").map(Number);
+    const [endHour, endMinute] = to.split(":").map(Number);
+
+    const existingReservations = reservations.filter((reservation) => {
+      const reservationDate = new Date(reservation.date)
+        .toISOString()
+        .slice(0, 10);
+      return reservationDate === date;
+    });
+
+    let currentHour = startHour;
+    let currentMinute = startMinute;
+
+    existingReservations.forEach((reservation) => {
+      const [reservationStartHour, reservationStartMinute] =
+        reservation.startTime.split(":").map(Number);
+      const [reservationEndHour, reservationEndMinute] = reservation.endTime
+        .split(":")
+        .map(Number);
+
+      if (
+        reservationStartHour > currentHour ||
+        (reservationStartHour === currentHour &&
+          reservationStartMinute > currentMinute)
+      ) {
+        // Add time slot from current time to the start of the reservation
+        const endTime = `${reservationStartHour
+          .toString()
+          .padStart(2, "0")}:${reservationStartMinute
+          .toString()
+          .padStart(2, "0")}`;
+        freeTimeSlots.push({
+          date: date,
+          start: `${currentHour.toString().padStart(2, "0")}:${currentMinute
+            .toString()
+            .padStart(2, "0")}`,
+          end: endTime,
+        });
+      }
+
+      // Update current time to end of the reservation
+      currentHour = reservationEndHour;
+      currentMinute = reservationEndMinute;
+    });
+
+    // Add the remaining time slot after the last reservation
+    if (
+      currentHour < endHour ||
+      (currentHour === endHour && currentMinute < endMinute)
+    ) {
+      const endTime = `${endHour.toString().padStart(2, "0")}:${endMinute
+        .toString()
+        .padStart(2, "0")}`;
+      freeTimeSlots.push({
+        date: date,
+        start: `${currentHour.toString().padStart(2, "0")}:${currentMinute
+          .toString()
+          .padStart(2, "0")}`,
+        end: endTime,
+      });
+    }
+    console.log(freeTimeSlots);
+    return freeTimeSlots;
   };
 
   const dataPerDay = {
-    labels: Object.keys(roomUtilization.utilizationPerDay).map(day => `Day ${day}`),
+    labels: Object.keys(roomUtilization.utilizationPerDay).map(
+      (day) => `Day ${day}`
+    ),
     datasets: [
       {
-        label: 'Room Utilization Per Day (%)',
+        label: "Room Utilization Per Day (%)",
         data: Object.values(roomUtilization.utilizationPerDay),
-        borderColor: 'rgba(255, 99, 132, 0.5)',
+        borderColor: "rgba(255, 99, 132, 0.5)",
         fill: false,
       },
     ],
   };
 
   const dataPerMonth = {
-    labels: Object.keys(roomUtilization.utilizationPerMonth).map(month => `Month ${month}`),
+    labels: Object.keys(roomUtilization.utilizationPerMonth).map(
+      (month) => `Month ${month}`
+    ),
     datasets: [
       {
-        label: 'Room Utilization Per Month (%)',
+        label: "Room Utilization Per Month (%)",
         data: Object.values(roomUtilization.utilizationPerMonth),
-        borderColor: 'rgba(53, 162, 235, 0.5)',
+        borderColor: "rgba(53, 162, 235, 0.5)",
         fill: false,
       },
     ],
@@ -109,14 +305,24 @@ const RoomReservations = () => {
   );
 
   const totalPages = Math.ceil(sortedReservations.length / rowsPerPage);
+  console.log(roomUtilization.utilizationPerDay);
 
   return (
     <AdminLayout>
-      <ClassCard
-        data={`${reservations[0]?.room?.capacity || 0} Students`}
-        title="Capacity"
-        enableOptions={false}
-      />
+      <Row>
+        <ClassCard
+          data={`${room?.capacity || 0} Students`}
+          title="Capacity"
+          enableOptions={false}
+        />
+        <ClassCard
+          data={`${room?.actualWorkingHours?.from || "00:00"} To ${
+            room?.actualWorkingHours?.to || "23:59"
+          }`}
+          title="Working Hours"
+          enableOptions={false}
+        />
+      </Row>
       <Card style={{ marginBottom: 20 }}>
         <Card.Header as="h5">Room Reservations</Card.Header>
         <Card.Body>
@@ -188,7 +394,108 @@ const RoomReservations = () => {
           </div>
         </Card.Body>
       </Card>
+      <Card style={{ marginBottom: 20 }}>
+        <Card.Header as="h5">Available Time Slots</Card.Header>
+        <Card.Body>
+          <Form.Group className="mb-3">
+            <Row>
+              <Col>
+                <Form.Label>Start Date:</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={dateRange.start}
+                  onChange={handleStartDateChange}
+                />
+              </Col>
+              <Col>
+                <Form.Label>End Date:</Form.Label>
+                <Form.Control
+                  type="date"
+                  value={dateRange.end}
+                  onChange={handleEndDateChange}
+                />
+              </Col>
+            </Row>
+          </Form.Group>
+          {Object.keys(roomUtilization.utilizationPerDay).map((day) => (
+            <Card key={day} style={{ marginBottom: 20 }}>
+              <Card.Header>{day}</Card.Header>
+              <Card.Body>
+                <ProgressBar
+                  now={roomUtilization.utilizationPerDay[day]}
+                  label={`${roomUtilization.utilizationPerDay[day]}%`}
+                  variant="success"
+                  striped
+                  style={{ width: "100%", fontSize: "1.75rem", height: "80px" }}
+                />
+                {freeTimeSlots.length === 0 ? (
+                  <p>No Free Slots</p>
+                ) : (
+                  <Row xs={1} md={2} lg={4} className="mt-3">
+                    {freeTimeSlots
+                      .filter((slot) => slot.slots.some((s) => s.date === day))
+                      .map((slot, index) => (
+                        <>
+                          {slot.slots.map((s, idx) => (
+                            <ClassCard
+                              key={idx}
+                              data={`${s.start} - ${s.end}`}
+                              title="Free Slot"
+                              enableOptions={false}
+                            />
+                          ))}
+                        </>
+                      ))}
+                  </Row>
+                )}
+              </Card.Body>
+            </Card>
+          ))}
+        </Card.Body>
+      </Card>
 
+      {/* <Card style={{ marginBottom: 20 }}>
+        <Card.Header as="h5">Available Time Slots for Selected Day</Card.Header>
+        <Card.Body>
+          <Form.Group className="mb-3">
+            <Form.Label>Select a Date:</Form.Label>
+            <Form.Control
+              type="date"
+              value={selectedDate}
+              onChange={handleDateChange}
+            />
+          </Form.Group>
+          <ProgressBar
+            now={calculateRoomUtilizationPercentage(reservations, selectedDate, room?.actualWorkingHours)}
+            label={`${calculateRoomUtilizationPercentage(
+              reservations,
+              selectedDate,
+              room?.actualWorkingHours
+            )}%`}
+            variant="success"
+            striped
+            style={{ width: "100%", fontSize: "1.75rem", height: "80px" }}
+          />
+          {freeTimeSlots.length === 0 ? (
+            <p>No Free Slots</p>
+          ) : (
+            <Row xs={1} md={2} lg={4} className="mt-3">
+              {freeTimeSlots.map((slot, index) => (
+                <Col key={index}>
+                  <Card className="mb-3">
+                    <Card.Body>
+                      <Card.Title>Free Slot</Card.Title>
+                      <Card.Text>
+                        {slot.start} - {slot.end}
+                      </Card.Text>
+                    </Card.Body>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          )}
+        </Card.Body>
+      </Card> */}
       {/* Chart for Room Utilization Per Day */}
       <Card style={{ marginBottom: 20 }}>
         <Card.Header as="h5">Room Utilization Per Day (%)</Card.Header>
