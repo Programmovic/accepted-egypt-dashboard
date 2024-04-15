@@ -17,6 +17,8 @@ import Calendar from "../../../components/Calendar";
 import { ClassCard } from "@components/Classes";
 import Chart from "chart.js/auto";
 import { RoomPreferencesRounded } from "@mui/icons-material";
+import Cookies from "js-cookie";
+import Link from "next/link"; // Import Link from Next.js
 
 const RoomReservations = () => {
   const router = useRouter();
@@ -329,9 +331,14 @@ const RoomReservations = () => {
       alert("Room name entered does not match. Disabling cancelled.");
       return;
     }
+    const token = Cookies.get("client_token");
 
+    const decodedToken = JSON.parse(atob(token.split(".")[1]));
+    console.log(decodedToken);
     try {
-      await axios.put(`/api/room/${id}/disable-room`);
+      await axios.put(`/api/room/${id}/disable-room`, {
+        userId: decodedToken.adminId,
+      });
       // Handle success scenario (e.g., show a success message, redirect to a different page)
       router.push("/rooms"); // Example redirection to rooms page
     } catch (error) {
@@ -352,16 +359,25 @@ const RoomReservations = () => {
           className="alert alert-warning d-flex justify-content-between align-items-center fw-bold"
           role="alert"
         >
-          This room is disabled at {new Date(room?.disabledAt).toLocaleString()}.
-          <Button
-            variant="outline-success"
-            className="me-2 fw-bold"
-            onClick={handleDisableRoom}
-          >
-            Enable
-          </Button>
+          This room is disabled at {new Date(room?.disabledAt).toLocaleString()}
+          .
+          <div>
+            <Button
+              variant="outline-success"
+              className="me-2 fw-bold"
+              onClick={handleDisableRoom}
+            >
+              Enable
+            </Button>
+            <Link href={`/rooms/${room._id}/status-logs`} passHref>
+              <Button variant="outline-info" className="fw-bold">
+                View Logs
+              </Button>
+            </Link>
+          </div>
         </div>
       )}
+
       <Row>
         <ClassCard
           data={`${room?.capacity || 0} Students`}
@@ -391,13 +407,20 @@ const RoomReservations = () => {
               Edit
             </Button>
             {room?.disabled || (
-              <Button
-                variant="warning"
-                className="me-2 fw-bold"
-                onClick={handleDisableRoom}
-              >
-                {"Disable"}
-              </Button>
+              <>
+                <Button
+                  variant="warning"
+                  className="me-2 fw-bold"
+                  onClick={handleDisableRoom}
+                >
+                  {"Disable"}
+                </Button>
+                <Link href={`/rooms/${room._id}/status-logs`} className="me-2" passHref>
+                  <Button variant="info" className="fw-bold">
+                    View Logs
+                  </Button>
+                </Link>
+              </>
             )}
             <Button
               variant="danger"

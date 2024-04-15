@@ -54,10 +54,6 @@ const RoomEdit = () => {
     }
   };
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   return (
     <AdminLayout>
       <Card>

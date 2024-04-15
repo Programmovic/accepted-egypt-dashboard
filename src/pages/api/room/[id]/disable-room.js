@@ -1,5 +1,6 @@
 import connectDB from "@lib/db";
 import Room from "../../../../models/room";
+import RoomStatusHistory from "../../../../models/roomStatusHistory"; // Ensure this import path is correct
 
 export default async (req, res) => {
   await connectDB();
@@ -26,6 +27,13 @@ export default async (req, res) => {
             { disabled: false, enabledAt: new Date() },
             { new: true }
           );
+          // Create and save the history record
+          const historyEntry = new RoomStatusHistory({
+            room: id,
+            status: "enabled",
+            changedByAdmin: req.body.userId, // Assumes user ID is in the request, adjust accordingly
+          });
+          await historyEntry.save();
           return res.status(200).json(updatedRoom);
         } else {
           // If room is enabled, disable it
@@ -34,6 +42,13 @@ export default async (req, res) => {
             { disabled: true, disabledAt: new Date() },
             { new: true }
           );
+          // Create and save the history record
+          const historyEntry = new RoomStatusHistory({
+            room: id,
+            status: "disabled",
+            changedByAdmin: req.body.userId, // Assumes user ID is in the request, adjust accordingly
+          });
+          await historyEntry.save();
           return res.status(200).json(updatedRoom);
         }
       } catch (error) {
