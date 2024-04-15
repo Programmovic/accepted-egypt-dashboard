@@ -17,7 +17,11 @@ cron.schedule('* * * * *', async () => {
 
 export default async (req, res) => {
   await connectDB();
-  if (req.method === "POST") {
+
+  const { method, query } = req;
+  const { getDisabled } = query;
+
+  if (method === "POST") {
     // Handle creating a new room
     try {
       const {
@@ -43,9 +47,21 @@ export default async (req, res) => {
       console.error(error);
       return res.status(500).json({ error: "Could not create a new room" });
     }
-  } else if (req.method === "GET") {
+  } else if (method === "GET") {
     try {
-      const allRooms = await Room.find().populate("location", "name");
+      let roomsQuery = Room.find();
+
+      // Check if getDisabled parameter is provided and true
+      if (getDisabled && getDisabled.toLowerCase() === 'true') {
+      } else {
+        // Exclude disabled rooms
+        roomsQuery = roomsQuery.where('disabled').ne(true);
+      }
+
+      // Populate the location field with only the name
+      roomsQuery = roomsQuery.populate("location", "name");
+
+      const allRooms = await roomsQuery.exec();
       return res.status(200).json(allRooms);
     } catch (error) {
       console.error(error);

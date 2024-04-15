@@ -40,7 +40,7 @@ const Rooms = () => {
 
   const fetchRooms = async () => {
     try {
-      const response = await axios.get("/api/room");
+      const response = await axios.get("/api/room?getDisabled=true");
       if (response.status === 200) {
         console.log(response);
         setRooms(response.data);
@@ -275,6 +275,7 @@ const Rooms = () => {
                 </th>
                 <th>Capacity</th>
                 <th>Location</th>
+                <th>Disabled</th>
                 <th>Description</th>
                 <th>Actual Working Hours</th>
                 <th>Availability</th>
@@ -288,6 +289,13 @@ const Rooms = () => {
                     <td>{room.name}</td>
                     <td>{room.capacity}</td>
                     <td>{room?.location?.name}</td>
+                    <td>
+                      {room?.disabled
+                        ? `Yes at ${new Date(
+                            room?.disabledAt
+                          ).toLocaleString()}`
+                        : `No`}
+                    </td>
                     <td>{room.description}</td>
                     <td>
                       {room?.actualWorkingHours?.from} to{" "}

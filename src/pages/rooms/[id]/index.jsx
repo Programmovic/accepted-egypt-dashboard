@@ -16,6 +16,7 @@ import { Line } from "react-chartjs-2";
 import Calendar from "../../../components/Calendar";
 import { ClassCard } from "@components/Classes";
 import Chart from "chart.js/auto";
+import { RoomPreferencesRounded } from "@mui/icons-material";
 
 const RoomReservations = () => {
   const router = useRouter();
@@ -306,9 +307,61 @@ const RoomReservations = () => {
 
   const totalPages = Math.ceil(sortedReservations.length / rowsPerPage);
   console.log(roomUtilization.utilizationPerDay);
+  const handleDeleteRoom = async () => {
+    const roomName = prompt("Please enter the room name to confirm deletion:");
+    if (!roomName || roomName !== room?.name) {
+      alert("Room name entered does not match. Deletion cancelled.");
+      return;
+    }
+
+    try {
+      await axios.delete(`/api/room/${id}`);
+      // Handle success scenario (e.g., show a success message, redirect to a different page)
+      router.push("/rooms"); // Example redirection to rooms page
+    } catch (error) {
+      console.error("Error deleting room:", error);
+      // Handle error scenario (e.g., show an error message)
+    }
+  };
+  const handleDisableRoom = async () => {
+    const roomName = prompt("Please enter the room name to confirm Disable:");
+    if (!roomName || roomName !== room?.name) {
+      alert("Room name entered does not match. Disabling cancelled.");
+      return;
+    }
+
+    try {
+      await axios.put(`/api/room/${id}/disable-room`);
+      // Handle success scenario (e.g., show a success message, redirect to a different page)
+      router.push("/rooms"); // Example redirection to rooms page
+    } catch (error) {
+      console.error("Error disabling room:", error);
+      // Handle error scenario (e.g., show an error message)
+    }
+  };
+
+  const handleEditRoom = () => {
+    // Redirect to edit room page with room ID
+    router.push(`/rooms/${id}/edit`);
+  };
 
   return (
     <AdminLayout>
+      {room.disabled && (
+        <div
+          className="alert alert-warning d-flex justify-content-between align-items-center fw-bold"
+          role="alert"
+        >
+          This room is disabled at {new Date(room?.disabledAt).toLocaleString()}.
+          <Button
+            variant="outline-success"
+            className="me-2 fw-bold"
+            onClick={handleDisableRoom}
+          >
+            Enable
+          </Button>
+        </div>
+      )}
       <Row>
         <ClassCard
           data={`${room?.capacity || 0} Students`}
@@ -324,7 +377,37 @@ const RoomReservations = () => {
         />
       </Row>
       <Card style={{ marginBottom: 20 }}>
-        <Card.Header as="h5">Room Reservations</Card.Header>
+        <Card.Header
+          as="h5"
+          className="d-flex justify-content-between align-items-center"
+        >
+          Room Reservations{""}{" "}
+          <div>
+            <Button
+              variant="primary"
+              className="me-2 fw-bold"
+              onClick={handleEditRoom}
+            >
+              Edit
+            </Button>
+            {room?.disabled || (
+              <Button
+                variant="warning"
+                className="me-2 fw-bold"
+                onClick={handleDisableRoom}
+              >
+                {"Disable"}
+              </Button>
+            )}
+            <Button
+              variant="danger"
+              className="fw-bold"
+              onClick={handleDeleteRoom}
+            >
+              Delete
+            </Button>
+          </div>
+        </Card.Header>
         <Card.Body>
           <Table striped bordered hover>
             <thead>
@@ -497,20 +580,24 @@ const RoomReservations = () => {
         </Card.Body>
       </Card> */}
       {/* Chart for Room Utilization Per Day */}
-      <Card style={{ marginBottom: 20 }}>
-        <Card.Header as="h5">Room Utilization Per Day (%)</Card.Header>
-        <Card.Body>
-          <Line data={dataPerDay} />
-        </Card.Body>
-      </Card>
+      {dateRange && (
+        <>
+          <Card style={{ marginBottom: 20 }}>
+            <Card.Header as="h5">Room Utilization Per Day (%)</Card.Header>
+            <Card.Body>
+              <Line data={dataPerDay} />
+            </Card.Body>
+          </Card>
 
-      {/* Chart for Room Utilization Per Month */}
-      <Card style={{ marginBottom: 20 }}>
-        <Card.Header as="h5">Room Utilization Per Month (%)</Card.Header>
-        <Card.Body>
-          <Line data={dataPerMonth} />
-        </Card.Body>
-      </Card>
+          {/* Chart for Room Utilization Per Month */}
+          <Card style={{ marginBottom: 20 }}>
+            <Card.Header as="h5">Room Utilization Per Month (%)</Card.Header>
+            <Card.Body>
+              <Line data={dataPerMonth} />
+            </Card.Body>
+          </Card>
+        </>
+      )}
 
       <Calendar id={id} />
     </AdminLayout>
