@@ -339,6 +339,8 @@ const RoomReservations = () => {
       await axios.put(`/api/room/${id}/disable-room`, {
         userId: decodedToken.adminId,
       });
+      fetchReservations(id);
+      fetchRoomData(id);
     } catch (error) {
       console.error("Error disabling room:", error);
       // Handle error scenario (e.g., show an error message)
