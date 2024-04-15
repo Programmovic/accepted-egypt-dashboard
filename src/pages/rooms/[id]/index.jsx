@@ -339,8 +339,6 @@ const RoomReservations = () => {
       await axios.put(`/api/room/${id}/disable-room`, {
         userId: decodedToken.adminId,
       });
-      // Handle success scenario (e.g., show a success message, redirect to a different page)
-      router.push("/rooms"); // Example redirection to rooms page
     } catch (error) {
       console.error("Error disabling room:", error);
       // Handle error scenario (e.g., show an error message)
