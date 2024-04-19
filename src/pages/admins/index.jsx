@@ -1,10 +1,9 @@
-import { NextPage } from "next";
-import { Card, Form, Button, Row, Col } from "react-bootstrap"; // Import Row and Col
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import { Card, Form, Button, Row, Col } from "react-bootstrap";
+import axios from "axios";
 import { AdminLayout } from "@layout";
 import { UserList } from "@components/Users";
 import { ClassCard } from "@components/Classes";
-import axios from "axios";
 
 const Users = () => {
   const [userResource, setUserResource] = useState([]);
@@ -19,9 +18,8 @@ const Users = () => {
       try {
         const response = await axios.get("/api/user");
         if (response.status === 200) {
-          const userData = response.data;
-          setUserResource(userData);
-          setFilteredData(userData); // Initialize filteredData with all data
+          setUserResource(response.data);
+          setFilteredData(response.data);
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
@@ -35,7 +33,6 @@ const Users = () => {
   }, []);
 
   const handleFilter = () => {
-    // Perform client-side filtering
     if (startDate && endDate) {
       const filteredUsers = userResource.filter((user) => {
         const userDate = new Date(user.dateOfJoin);
@@ -43,25 +40,54 @@ const Users = () => {
       });
       setFilteredData(filteredUsers);
     } else if (startDate) {
-      // If only the start date is specified, filter from the start date to the end of time
       const filteredUsers = userResource.filter((user) => {
         const userDate = new Date(user.dateOfJoin);
         return userDate >= new Date(startDate);
       });
       setFilteredData(filteredUsers);
     } else {
-      // If no date range is specified, use the original data
       setFilteredData(userResource);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    // Ask for confirmation before deleting
+    const confirmDelete = window.confirm("Are you sure you want to delete this user?");
+  
+    if (confirmDelete) {
+      try {
+        await axios.delete(`/api/user/specific_user/${id}`);
+        const updatedUsers = userResource.filter((user) => user._id !== id);
+        setUserResource(updatedUsers);
+        setFilteredData(updatedUsers);
+      } catch (error) {
+        console.error("Error deleting user:", error);
+        setError("Failed to delete user. Please try again later.");
+      }
+    }
+  };
+  
+  const handleUpdate = async (id, newData) => {
+    try {
+      await axios.put(`/api/user?id=${id}`, newData);
+      const updatedUsers = userResource.map((user) => {
+        if (user._id === id) {
+          return { ...user, ...newData };
+        }
+        return user;
+      });
+      setUserResource(updatedUsers);
+      setFilteredData(updatedUsers);
+    } catch (error) {
+      console.error("Error updating user:", error);
+      setError("Failed to update user. Please try again later.");
     }
   };
 
   return (
     <AdminLayout>
       <div className="row">
-        <ClassCard data={filteredData.length} title={'Admins'} enableOptions={false}/>
-        
-
-        
+        <ClassCard data={filteredData.length} title={"Admins"} enableOptions={false} />
       </div>
       <Card>
         <Card.Header>Users</Card.Header>
@@ -98,7 +124,11 @@ const Users = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
-            <UserList users={filteredData} />
+            <UserList
+              users={filteredData}
+              onDelete={handleDelete}
+              onUpdate={handleUpdate}
+            />
           )}
         </Card.Body>
       </Card>

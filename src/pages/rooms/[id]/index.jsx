@@ -415,7 +415,11 @@ const RoomReservations = () => {
                 >
                   {"Disable"}
                 </Button>
-                <Link href={`/rooms/${room._id}/status-logs`} className="me-2" passHref>
+                <Link
+                  href={`/rooms/${room._id}/status-logs`}
+                  className="me-2"
+                  passHref
+                >
                   <Button variant="info" className="fw-bold">
                     View Logs
                   </Button>
@@ -523,40 +527,56 @@ const RoomReservations = () => {
               </Col>
             </Row>
           </Form.Group>
-          {Object.keys(roomUtilization.utilizationPerDay).map((day) => (
-            <Card key={day} style={{ marginBottom: 20 }}>
-              <Card.Header>{day}</Card.Header>
-              <Card.Body>
-                <ProgressBar
-                  now={roomUtilization.utilizationPerDay[day]}
-                  label={`${roomUtilization.utilizationPerDay[day]}%`}
-                  variant="success"
-                  striped
-                  style={{ width: "100%", fontSize: "1.75rem", height: "80px" }}
-                />
-                {freeTimeSlots.length === 0 ? (
-                  <p>No Free Slots</p>
-                ) : (
-                  <Row xs={1} md={2} lg={4} className="mt-3">
-                    {freeTimeSlots
-                      .filter((slot) => slot.slots.some((s) => s.date === day))
-                      .map((slot, index) => (
-                        <>
-                          {slot.slots.map((s, idx) => (
-                            <ClassCard
-                              key={idx}
-                              data={`${s.start} - ${s.end}`}
-                              title="Free Slot"
-                              enableOptions={false}
-                            />
-                          ))}
-                        </>
-                      ))}
-                  </Row>
-                )}
-              </Card.Body>
-            </Card>
-          ))}
+          <Table bordered hover>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Utilization</th>
+                <th>Free Time Slots</th>
+              </tr>
+            </thead>
+            <tbody>
+              {Object.keys(roomUtilization.utilizationPerDay).map((day) => (
+                <tr key={day}>
+                  <td>{day}</td>
+                  <td>
+                    <ProgressBar
+                      now={roomUtilization.utilizationPerDay[day]}
+                      label={`${roomUtilization.utilizationPerDay[day]}%`}
+                      variant="success"
+                      striped
+                      style={{ width: "100%", height: "50px" }}
+                    />
+                  </td>
+                  <td>
+                    {freeTimeSlots.length === 0 ? (
+                      <p>No Free Slots</p>
+                    ) : (
+                      <Table bordered>
+                        <tbody>
+                          {freeTimeSlots
+                            .filter((slot) =>
+                              slot.slots.some((s) => s.date === day)
+                            )
+                            .map((slot, index) => (
+                              <tr key={index}>
+                                {slot.slots
+                                  .filter((s) => s.date === day)
+                                  .map((s, idx) => (
+                                    <td key={idx}>
+                                      {s.start} - {s.end}
+                                    </td>
+                                  ))}
+                              </tr>
+                            ))}
+                        </tbody>
+                      </Table>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
         </Card.Body>
       </Card>
 
