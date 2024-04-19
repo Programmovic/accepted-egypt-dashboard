@@ -375,9 +375,22 @@ const StudentProfile = () => {
           showIdentityModal={showIdentityModal}
           setShowIdentityModal={setShowIdentityModal}
         />
-        <Row className="mb-3">
-          <h4 className="text-right">{studentData.name}</h4>
-        </Row>
+        <div>
+      <Row className="mb-3">
+        <Table striped bordered hover>
+          <thead>
+            <tr>
+              <th>ID</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{studentData._id}</td>
+            </tr>
+          </tbody>
+        </Table>
+      </Row>
+    </div>
         <Row>
           <Col xs={4}>
             <Form.Group className="my-3" controlId="name">
