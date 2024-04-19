@@ -217,6 +217,9 @@ export default function SidebarNav() {
       </SidebarNavGroup>
       {/* Finance Category */}
       <SidebarNavGroup toggleIcon={faDollar} toggleText="Finance">
+      <SidebarNavItem icon={faDollar} href="/payment_method">
+          Payment Methods
+        </SidebarNavItem>
         <SidebarNavItem icon={faDollar} href="/transactions">
           Transactions
         </SidebarNavItem>
