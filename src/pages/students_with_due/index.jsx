@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { AdminLayout } from "@layout";
 import { Table, Card, Form } from "react-bootstrap";
+import { useRouter } from "next/router";
 
 const StudentsWithDue = () => {
   const [studentsWithDue, setStudentsWithDue] = useState([]);
@@ -14,6 +15,7 @@ const StudentsWithDue = () => {
   const [levelOptions, setLevelOptions] = useState([]);
   const [batchOptions, setBatchOptions] = useState([]);
   const [allBatches, setAllBatches] = useState([]);  // Stores all batches
+  const router = useRouter()
 
   const fetchStudentsWithDue = async () => {
     try {
@@ -165,7 +167,7 @@ const StudentsWithDue = () => {
                 </thead>
                 <tbody>
                   {filteredStudents.map((student, index) => (
-                    <tr key={student._id}>
+                    <tr key={student._id} onClick={() => router.push(`/students/${student._id}`)}>
                       <td>{index + 1}</td>
                       <td>{student.name}</td>
                       <td>{student.phoneNumber}</td>
