@@ -328,10 +328,10 @@ const Instructor = () => {
                 {instructorBatches.map((cls, index) => (
                   <tr
                     key={cls._id}
-                    onClick={() => router.push(`/batches/${cls._id}`)}
+                    
                   >
                     <td>{index + 1}</td>
-                    <td>{cls.name}</td>
+                    <td onClick={() => router.push(`/batches/${cls._id}`)}>{cls.name}</td>
                     <td>{cls.cost} EGP</td>
                     <td>{new Date(cls.createdDate).toLocaleDateString()}</td>
                     <td>{cls.code}</td>
@@ -341,7 +341,7 @@ const Instructor = () => {
                       <Button
                         variant="danger"
                         size="sm"
-                        onClick={() => removeBatchFromInstructor(cls._id)}
+                        onClick={() => removeBatchFromInstructor(cls._id, id)}
                       >
                         Remove
                       </Button>
