@@ -65,17 +65,16 @@ const StudentsWithDue = () => {
   useEffect(() => {
     if (selectedLevel) {
       console.log(selectedLevel);
-      setBatchOptions(allBatches.filter(batch => batch.level === selectedLevel).map(batch => batch.name));
+      setBatchOptions(allBatches.filter(batch => batch.levelName === selectedLevel).map(batch => batch.name));
     } else {
       setBatchOptions(allBatches.map(batch => batch.name)); // Show all batches if no level is selected
     }
-  }, [selectedLevel, allBatches]);
+  }, [selectedLevel]);
 
   useEffect(() => {
     let filtered = studentsWithDue;
 
     if (selectedLevel) {
-      console.log(selectedLevel);
       filtered = filtered.filter(student => student.level === selectedLevel);
     }
 
