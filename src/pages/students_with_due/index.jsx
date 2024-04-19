@@ -13,6 +13,7 @@ const StudentsWithDue = () => {
   const [selectedBatch, setSelectedBatch] = useState("");
   const [levelOptions, setLevelOptions] = useState([]);
   const [batchOptions, setBatchOptions] = useState([]);
+  const [allBatches, setAllBatches] = useState([]);  // Stores all batches
 
   const fetchStudentsWithDue = async () => {
     try {
@@ -21,7 +22,7 @@ const StudentsWithDue = () => {
         const studentsData = response.data.students;
         const studentsWithDue = studentsData.filter((student) => student.due > 0);
         setStudentsWithDue(studentsWithDue);
-        setFilteredStudents(studentsWithDue); // Initialize filtered students with all students with due
+        setFilteredStudents(studentsWithDue);
       }
     } catch (error) {
       console.error("Error fetching students with due amounts:", error);
@@ -36,49 +37,59 @@ const StudentsWithDue = () => {
       const response = await axios.get("/api/level");
       if (response.status === 200) {
         const levelsData = response.data;
-        setLevelOptions(levelsData.map((level) => level.name)); // Extract level names
+        setLevelOptions(levelsData.map((level) => level.name));
       }
     } catch (error) {
       console.error("Error fetching levels:", error);
     }
   };
+
   const fetchBatches = async () => {
     try {
       const response = await axios.get("/api/batch");
       if (response.status === 200) {
-        const batchesData = response.data;
-        setBatchOptions(batchesData.map((batch) => batch.name)); // Extract batch names
+        setAllBatches(response.data);
+        setBatchOptions(response.data.map(batch => batch.name)); // Initialize with all batches
       }
     } catch (error) {
       console.error("Error fetching batches:", error);
     }
   };
+
   useEffect(() => {
     fetchStudentsWithDue();
     fetchLevels();
     fetchBatches();
   }, []);
 
-  // Filter students based on the filter value, level, and batch
+  useEffect(() => {
+    if (selectedLevel) {
+      console.log(selectedLevel);
+      setBatchOptions(allBatches.filter(batch => batch.level === selectedLevel).map(batch => batch.name));
+    } else {
+      setBatchOptions(allBatches.map(batch => batch.name)); // Show all batches if no level is selected
+    }
+  }, [selectedLevel, allBatches]);
+
   useEffect(() => {
     let filtered = studentsWithDue;
 
     if (selectedLevel) {
-      filtered = filtered.filter((student) => student.level === selectedLevel);
+      console.log(selectedLevel);
+      filtered = filtered.filter(student => student.level === selectedLevel);
     }
 
     if (selectedBatch) {
-      filtered = filtered.filter((student) => student.batch === selectedBatch);
+      filtered = filtered.filter(student => student.batch === selectedBatch);
     }
 
     if (filterValue) {
-      filtered = filtered.filter((student) => {
-        // Filter based on student's name or email containing the filter value
-        return (
-          student.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-          (student.email && student.email.toLowerCase().includes(filterValue.toLowerCase()))
-        );
-      });
+      filtered = filtered.filter(student => 
+        student.name.toLowerCase().includes(filterValue.toLowerCase()) ||
+        (student.email && student.email.toLowerCase().includes(filterValue.toLowerCase())) ||
+        (student.phoneNumber && student.phoneNumber.includes(filterValue)) ||
+        (student.nationalId && student.nationalId.includes(filterValue))
+      );
     }
 
     setFilteredStudents(filtered);
@@ -90,6 +101,7 @@ const StudentsWithDue = () => {
 
   const handleLevelChange = (e) => {
     setSelectedLevel(e.target.value);
+    console.log(selectedLevel)
   };
 
   const handleBatchChange = (e) => {
@@ -101,37 +113,36 @@ const StudentsWithDue = () => {
       <Card>
         <Card.Header>Students With Due Amount</Card.Header>
         <Card.Body>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-  <div className="mb-3" style={{ width: '33%' }}>
-    <Form.Control
-      type="text"
-      placeholder="Search by name or email"
-      value={filterValue}
-      onChange={handleFilterChange}
-    />
-  </div>
-  <div className="mb-3" style={{ width: '33%' }}>
-    <Form.Select onChange={handleLevelChange} value={selectedLevel}>
-      <option value="">Select Level</option>
-      {levelOptions.map((level, index) => (
-        <option key={index} value={level}>
-          {level}
-        </option>
-      ))}
-    </Form.Select>
-  </div>
-  <div className="mb-3" style={{ width: '33%' }}>
-    <Form.Select onChange={handleBatchChange} value={selectedBatch}>
-      <option value="">Select Batch</option>
-      {batchOptions.map((batch, index) => (
-        <option key={index} value={batch}>
-          {batch}
-        </option>
-      ))}
-    </Form.Select>
-  </div>
-</div>
-
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div className="mb-3" style={{ width: '33%' }}>
+              <Form.Control
+                type="text"
+                placeholder="Search by name, email, phone number, or national ID"
+                value={filterValue}
+                onChange={handleFilterChange}
+              />
+            </div>
+            <div className="mb-3" style={{ width: '33%' }}>
+              <Form.Select onChange={handleLevelChange} value={selectedLevel}>
+                <option value="">Select Level</option>
+                {levelOptions.map((level, index) => (
+                  <option key={index} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </Form.Select>
+            </div>
+            <div className="mb-3" style={{ width: '33%' }}>
+              <Form.Select onChange={handleBatchChange} value={selectedBatch}>
+                <option value="">Select Batch</option>
+                {batchOptions.map((batch, index) => (
+                  <option key={index} value={batch}>
+                    {batch}
+                  </option>
+                ))}
+              </Form.Select>
+            </div>
+          </div>
           {loading ? (
             <p>Loading students...</p>
           ) : error ? (
@@ -139,7 +150,6 @@ const StudentsWithDue = () => {
           ) : (
             <div style={{ overflowX: "auto" }}>
               <Table striped bordered hover>
-                {/* Table headers */}
                 <thead>
                   <tr>
                     <th>#</th>
@@ -154,7 +164,6 @@ const StudentsWithDue = () => {
                     <th>Due</th>
                   </tr>
                 </thead>
-                {/* Table body */}
                 <tbody>
                   {filteredStudents.map((student, index) => (
                     <tr key={student._id}>
