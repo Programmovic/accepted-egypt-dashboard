@@ -8,7 +8,7 @@ export default async (req, res) => {
       const transactionId = req.query.id; // Access the transaction ID from the route parameter
 
       // Check if the transaction with the given ID exists
-      const transaction = await Transaction.findById(transactionId)
+      const transaction = await Transaction.findById(transactionId).populate('paymentMethod')
         .populate("student") // Populate the 'student' field
         .populate("batch"); // Populate the 'batch' field
 

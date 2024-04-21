@@ -36,6 +36,7 @@ import {
 } from "react-bootstrap";
 import classNames from "classnames";
 import Link from "next/link";
+import Cookies from "js-cookie";
 
 type SidebarNavItemProps = {
   href: string;
@@ -79,16 +80,16 @@ type SidebarNavGroupToggleProps = {
 
 const SidebarNavGroupToggle = (props: SidebarNavGroupToggleProps) => {
   // https://react-bootstrap.github.io/components/accordion/#custom-toggle-with-expansion-awareness
-  const { activeEventKey } = useContext(AccordionContext)
-  const { eventKey, icon, children, setIsShow } = props
+  const { activeEventKey } = useContext(AccordionContext);
+  const { eventKey, icon, children, setIsShow } = props;
 
-  const decoratedOnClick = useAccordionButton(eventKey)
+  const decoratedOnClick = useAccordionButton(eventKey);
 
-  const isCurrentEventKey = activeEventKey === eventKey
+  const isCurrentEventKey = activeEventKey === eventKey;
 
   useEffect(() => {
     setIsShow(activeEventKey === eventKey);
-  }, [activeEventKey, eventKey, setIsShow])
+  }, [activeEventKey, eventKey, setIsShow]);
 
   return (
     <Button
@@ -142,32 +143,49 @@ const SidebarNavGroup = (props: SidebarNavGroupProps) => {
 };
 
 export default function SidebarNav() {
+  const [username, setUsername] = useState("");
+  const [userRole, setUserRole] = useState("");
+  useEffect(() => {
+    // Retrieve the token from cookies
+    const token = Cookies.get("client_token");
+
+    try {
+      // Decode the token to access the username and user role
+      const decodedToken = JSON.parse(atob(token.split(".")[1]));
+      setUsername(decodedToken.username);
+      setUserRole(decodedToken.role);
+    } catch (error) {
+      console.error("Error decoding token:", error);
+    }
+  }, []);
   return (
     <ul className="list-unstyled">
       {/* Administration Category */}
-      <SidebarNavGroup toggleIcon={faUser} toggleText="Administration">
-        <SidebarNavItem icon={faUser} href="/admins">
-          Admins
-        </SidebarNavItem>
-        <SidebarNavItem icon={faInstitution} href="/branches">
-          Branches
-        </SidebarNavItem>
-        <SidebarNavItem icon={faLevelUp} href="/levels">
-          Levels
-        </SidebarNavItem>
-        <SidebarNavItem icon={faHome} href="/rooms">
-          Rooms
-        </SidebarNavItem>
-        <SidebarNavItem icon={faTable} href="/schedule">
-          Schedule
-        </SidebarNavItem>
-        <SidebarNavItem icon={faSchool} href="/courses">
-          Courses
-        </SidebarNavItem>
-        <SidebarNavItem icon={faStore} href="/sales_members">
-          Sales Members
-        </SidebarNavItem>
-      </SidebarNavGroup>
+      {userRole === "admin" && (
+        <SidebarNavGroup toggleIcon={faUser} toggleText="Administration">
+          <SidebarNavItem icon={faUser} href="/admins">
+            Admins
+          </SidebarNavItem>
+          <SidebarNavItem icon={faInstitution} href="/branches">
+            Branches
+          </SidebarNavItem>
+          <SidebarNavItem icon={faLevelUp} href="/levels">
+            Levels
+          </SidebarNavItem>
+          <SidebarNavItem icon={faHome} href="/rooms">
+            Rooms
+          </SidebarNavItem>
+          <SidebarNavItem icon={faTable} href="/schedule">
+            Schedule
+          </SidebarNavItem>
+          <SidebarNavItem icon={faSchool} href="/courses">
+            Courses
+          </SidebarNavItem>
+          <SidebarNavItem icon={faStore} href="/sales_members">
+            Sales Members
+          </SidebarNavItem>
+        </SidebarNavGroup>
+      )}
 
       {/* Academic Category */}
       <SidebarNavGroup toggleIcon={faSchool} toggleText="Academic">
@@ -208,7 +226,7 @@ export default function SidebarNav() {
       </SidebarNavGroup>
       {/* Inventory Category */}
       <SidebarNavGroup toggleIcon={faStore} toggleText="Inventory">
-      <SidebarNavItem icon={faSearch} href="/inventory/laptops/scan">
+        <SidebarNavItem icon={faSearch} href="/inventory/laptops/scan">
           Scan
         </SidebarNavItem>
         <SidebarNavItem icon={faComputer} href="/inventory/laptops">
@@ -217,7 +235,7 @@ export default function SidebarNav() {
       </SidebarNavGroup>
       {/* Finance Category */}
       <SidebarNavGroup toggleIcon={faDollar} toggleText="Finance">
-      <SidebarNavItem icon={faDollar} href="/payment_method">
+        <SidebarNavItem icon={faDollar} href="/payment_method">
           Payment Methods
         </SidebarNavItem>
         <SidebarNavItem icon={faDollar} href="/transactions">

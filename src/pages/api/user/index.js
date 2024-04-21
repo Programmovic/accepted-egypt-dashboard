@@ -39,11 +39,11 @@ export default async (req, res) => {
     // Update an admin
     try {
       const { id } = req.query;
-      const { username, password, role } = req.body;
+      const { username, role } = req.body;
       const hashedPassword = await bcrypt.hash(password, 10);
       const updatedAdmin = await Admin.findByIdAndUpdate(
         id,
-        { username, password: hashedPassword, role },
+        { username, role },
         { new: true }
       );
       if (!updatedAdmin) {

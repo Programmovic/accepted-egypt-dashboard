@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Student = require('./student');
 const Batch = require('./batch');
+const PaymentMethod = require('./paymentMethod'); // Import the PaymentMethod model
 
 const transactionSchema = new mongoose.Schema({
   student: {
@@ -37,6 +38,11 @@ const transactionSchema = new mongoose.Schema({
   },
   adminName: {
     type: String,
+  },
+  paymentMethod: { // Reference to PaymentMethod model
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PaymentMethod',
+    description: 'The payment method used for the transaction',
   },
 }, {
   timestamps: true, // Automatically manage createdAt and updatedAt fields

@@ -100,9 +100,14 @@ const Transactions = () => {
         student: newTransactionStudent || null,
         batch: newTransactionBatch?._id || null,
         type: newTransactionType,
-        expense_type: newTransactionType === 'Expense' && newTransactionExpenseType === 'Other' ? newTransactionDescription : newTransactionExpenseType,
+        expense_type:
+          newTransactionType === "Expense" &&
+          newTransactionExpenseType === "Other"
+            ? newTransactionDescription
+            : newTransactionExpenseType,
         amount: newTransactionAmount,
         description: newTransactionDescription,
+        paymentMethod: newTransactionPaymentMethods,
       };
 
       console.log("newTransactionData", newTransactionData);
@@ -175,7 +180,6 @@ const Transactions = () => {
       });
     }
   };
-
 
   const handleFilter = () => {
     let filtered = [...transactions];
@@ -412,8 +416,26 @@ const Transactions = () => {
       console.error("Failed to fetch expense types:", error);
     }
   };
+  const [paymentMethods, setPaymentMethods] = useState([]);
+  const [newTransactionPaymentMethods, setNewTransactionPaymentMethods] =
+    useState("");
+  const fetchPaymentMethods = async () => {
+    try {
+      const response = await axios.get("/api/payment-method");
+      if (response.status === 200) {
+        console.log(response);
+        setPaymentMethods(response.data);
+      } else {
+        throw new Error("Failed to fetch payment methods");
+      }
+    } catch (error) {
+      console.error("Failed to fetch payment methods:", error);
+      throw error; // Rethrow the error to be handled by the caller
+    }
+  };
   useEffect(() => {
     fetchExpenseOptions();
+    fetchPaymentMethods();
   }, []); // Dependency array remains empty to ensure this effect runs once on mount
 
   const handleDeleteTransaction = async (transactionId) => {
@@ -658,6 +680,9 @@ const Transactions = () => {
                 <th onClick={() => sortTable("amount")}>
                   Amount {sortBy === "amount" && `(${sortOrder})`}
                 </th>
+                <th onClick={() => sortTable("paymentMethod")}>
+                  Payment Method {sortBy === "paymentMethod" && `(${sortOrder})`}
+                </th>
                 <th onClick={() => sortTable("description")}>
                   Description {sortBy === "description" && `(${sortOrder})`}
                 </th>
@@ -669,7 +694,12 @@ const Transactions = () => {
             </thead>
             <tbody>
               {currentTransactions.map((transaction, index) => (
-                <tr key={transaction._id} onClick={() => Router.push(`/transactions/${transaction._id}`)}>
+                <tr
+                  key={transaction._id}
+                  onClick={() =>
+                    Router.push(`/transactions/${transaction._id}`)
+                  }
+                >
                   <td>{index + 1}</td>
                   <td>
                     {
@@ -686,6 +716,7 @@ const Transactions = () => {
                   </td>
                   <td>{transaction.type}</td>
                   <td>{transaction.amount} EGP</td>
+                  <td>{transaction?.paymentMethod?.type}</td>
                   <td>{transaction.description}</td>
                   <td>
                     {new Date(transaction.createdAt).toLocaleDateString()}
@@ -863,6 +894,32 @@ const Transactions = () => {
                 />
               </Form.Group>
             )}
+            <Form.Group className="mb-3">
+              <Form.Label>Payment Method</Form.Label>
+              <Form.Control
+                as="select"
+                value={newTransactionPaymentMethods}
+                onChange={(e) =>
+                  setNewTransactionPaymentMethods(e.target.value)
+                }
+                required
+              >
+                <option value="" hidden>
+                  Select a Payment Method
+                </option>
+                {loading ? (
+                  <option disabled>Loading...</option>
+                ) : error ? (
+                  <option disabled>{error}</option>
+                ) : (
+                  paymentMethods.map((paymentMethod) => (
+                    <option key={paymentMethod._id} value={paymentMethod._id}>
+                      {paymentMethod.type}
+                    </option>
+                  ))
+                )}
+              </Form.Control>
+            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>

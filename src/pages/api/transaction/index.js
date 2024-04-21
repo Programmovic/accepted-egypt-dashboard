@@ -11,7 +11,8 @@ export default async (req, res) => {
         type,
         expense_type,
         amount,
-        description
+        description,
+        paymentMethod
       } = req.body;
 
       const newTransaction = new Transaction({
@@ -20,7 +21,8 @@ export default async (req, res) => {
         type,
         expense_type,
         amount,
-        description
+        description,
+        paymentMethod
       });
 
       // Save the new transaction
@@ -50,7 +52,7 @@ export default async (req, res) => {
   else if (req.method === "GET") {
     // Handle fetching all transactions
     try {
-      const allTransactions = await Transaction.find();
+      const allTransactions = await Transaction.find().populate('paymentMethod');
       return res.status(200).json(allTransactions);
     } catch (error) {
       console.error(error);

@@ -35,6 +35,7 @@ const TransactionDetails = () => {
       const response = await axios.get(transactionApiUrl);
       if (response.status === 200) {
         setTransaction(response.data);
+        console.log(response.data)
       }
     } catch (error) {
       console.error("Error fetching transaction:", error);
@@ -128,6 +129,10 @@ const TransactionDetails = () => {
                   <tr>
                     <td className="fw-bold">Amount (EGP):</td>
                     <td>{transaction.amount} EGP</td>
+                  </tr>
+                  <tr>
+                    <td className="fw-bold">Payment Method</td>
+                    <td>{transaction?.paymentMethod?.type}</td>
                   </tr>
                   <tr>
                     <td className="fw-bold">Description:</td>
