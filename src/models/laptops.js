@@ -10,6 +10,10 @@ const laptopSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    description: {
+      type: String,
+      required: true,
+    },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Instructor",

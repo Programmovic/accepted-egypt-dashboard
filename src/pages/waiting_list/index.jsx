@@ -34,7 +34,7 @@ const WaitingList = () => {
   const [paidAmount, setPaidAmount] = useState("");
   const [student, setStudent] = useState({});
   const [students, setStudents] = useState([]);
-  const [discount, setDiscount] = useState(0); // Initialize with 0
+  const [discount, setDiscount] = useState(null); // Initialize with 0
   const [discountType, setDiscountType] = useState("percentage");
   const [totalAmountExceedsBatchCost, setTotalAmountExceedsBatchCost] =
     useState(false);

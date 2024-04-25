@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Batch = require("./batch");
 const Level = require("./level");
+const Room = require("./Room");
 
 const reservationSchema = new mongoose.Schema(
   {

@@ -178,6 +178,9 @@ export default function SidebarNav() {
           <SidebarNavItem icon={faTable} href="/schedule">
             Schedule
           </SidebarNavItem>
+          <SidebarNavItem icon={faTable} href="/rooms_utilization">
+            Rooms Utilization
+          </SidebarNavItem>
           <SidebarNavItem icon={faSchool} href="/courses">
             Courses
           </SidebarNavItem>

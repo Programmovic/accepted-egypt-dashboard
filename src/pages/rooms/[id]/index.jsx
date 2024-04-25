@@ -22,7 +22,9 @@ import Link from "next/link"; // Import Link from Next.js
 
 const RoomReservations = () => {
   const router = useRouter();
+
   const { id } = router.query;
+
   const [reservations, setReservations] = useState([]);
   const [page, setPage] = useState(1);
   const [rowsPerPage] = useState(10);
@@ -32,13 +34,21 @@ const RoomReservations = () => {
   });
   const [freeTimeSlots, setFreeTimeSlots] = useState([]);
   const [room, setRoom] = useState({});
-  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [dateRange, setDateRange] = useState({
+    start: "",
+    end: "",
+  });
+  console.log(dateRange);
   useEffect(() => {
     if (id) {
       fetchReservations(id);
       fetchRoomData(id);
+      setDateRange({
+        start: router.query.startDate,
+        end: router.query.endDate,
+      });
     }
-  }, [id]);
+  }, [id, router.query]);
 
   useEffect(() => {
     calculateRoomUtilization();
@@ -555,9 +565,11 @@ const RoomReservations = () => {
                       <Table bordered>
                         <tbody>
                           {freeTimeSlots
+                            .filter((slot) => Array.isArray(slot.slots)) // Check if slot.slots is an array
                             .filter((slot) =>
                               slot.slots.some((s) => s.date === day)
                             )
+
                             .map((slot, index) => (
                               <tr key={index}>
                                 {slot.slots
@@ -580,49 +592,6 @@ const RoomReservations = () => {
         </Card.Body>
       </Card>
 
-      {/* <Card style={{ marginBottom: 20 }}>
-        <Card.Header as="h5">Available Time Slots for Selected Day</Card.Header>
-        <Card.Body>
-          <Form.Group className="mb-3">
-            <Form.Label>Select a Date:</Form.Label>
-            <Form.Control
-              type="date"
-              value={selectedDate}
-              onChange={handleDateChange}
-            />
-          </Form.Group>
-          <ProgressBar
-            now={calculateRoomUtilizationPercentage(reservations, selectedDate, room?.actualWorkingHours)}
-            label={`${calculateRoomUtilizationPercentage(
-              reservations,
-              selectedDate,
-              room?.actualWorkingHours
-            )}%`}
-            variant="success"
-            striped
-            style={{ width: "100%", fontSize: "1.75rem", height: "80px" }}
-          />
-          {freeTimeSlots.length === 0 ? (
-            <p>No Free Slots</p>
-          ) : (
-            <Row xs={1} md={2} lg={4} className="mt-3">
-              {freeTimeSlots.map((slot, index) => (
-                <Col key={index}>
-                  <Card className="mb-3">
-                    <Card.Body>
-                      <Card.Title>Free Slot</Card.Title>
-                      <Card.Text>
-                        {slot.start} - {slot.end}
-                      </Card.Text>
-                    </Card.Body>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          )}
-        </Card.Body>
-      </Card> */}
-      {/* Chart for Room Utilization Per Day */}
       {dateRange && (
         <>
           <Card style={{ marginBottom: 20 }}>

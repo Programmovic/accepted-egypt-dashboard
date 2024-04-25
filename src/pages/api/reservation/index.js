@@ -10,7 +10,7 @@ export default async (req, res) => {
   } else if (req.method === "GET") {
     // Handle fetching all reservations
     try {
-      const allReservations = await Reservation.find().populate('batch'); // Populate batch data
+      const allReservations = await Reservation.find().populate('batch').populate('room'); // Populate batch data
       return res.status(200).json(allReservations);
     } catch (error) {
       console.error(error);
