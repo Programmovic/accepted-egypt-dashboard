@@ -148,16 +148,23 @@ export default function SidebarNav() {
   useEffect(() => {
     // Retrieve the token from cookies
     const token = Cookies.get("client_token");
-
-    try {
-      // Decode the token to access the username and user role
-      const decodedToken = JSON.parse(atob(token.split(".")[1]));
-      setUsername(decodedToken.username);
-      setUserRole(decodedToken.role);
-    } catch (error) {
-      console.error("Error decoding token:", error);
+  
+    if (token) {
+      try {
+        // Decode the token to access the username and user role
+        const decodedToken = JSON.parse(atob(token.split(".")[1]));
+        setUsername(decodedToken.username);
+        setUserRole(decodedToken.role);
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    } else {
+      console.log("No token found, using default values for username and user role.");
+      setUsername("Guest");
+      setUserRole("guest");
     }
   }, []);
+  
   return (
     <ul className="list-unstyled">
       {/* Administration Category */}
