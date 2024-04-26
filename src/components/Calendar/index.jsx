@@ -172,14 +172,15 @@ const Calendar = ({ id }) => {
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formDate">
-                <Form.Label>Date</Form.Label>
-                <Form.Control
-                  type="date"
-                  name="date"
-                  value={editedEvent.date}
-                  onChange={handleInputChange}
-                />
-              </Form.Group>
+  <Form.Label>Date</Form.Label>
+  <Form.Control
+    type="date"
+    name="date"
+    value={editedEvent.date ? editedEvent.date.split("T")[0] : ""}
+    onChange={handleInputChange}
+  />
+</Form.Group>
+
               <Form.Group className="mb-3" controlId="formStartTime">
                 <Form.Label>Start Time</Form.Label>
                 <Form.Control
