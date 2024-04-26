@@ -6,6 +6,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
 import { Card, Badge, Button, Modal, Form } from "react-bootstrap";
 import axios from "axios";
+import EditEventModal from "../EditEvent";
 
 const Calendar = ({ id }) => {
   const [roomReservations, setRoomReservations] = useState([]);
@@ -53,7 +54,7 @@ const Calendar = ({ id }) => {
   function convertTime12to24(time12) {
     const [time, modifier] = time12.split(" ");
     let [hours, minutes] = time.split(":");
-    
+
     if (modifier === "AM") {
       if (hours === "12") {
         hours = "00";
@@ -63,7 +64,7 @@ const Calendar = ({ id }) => {
         hours = parseInt(hours, 10) + 12;
       }
     }
-    
+
     return hours + ":" + minutes;
   }
 
@@ -128,8 +129,7 @@ const Calendar = ({ id }) => {
             headerToolbar={{
               left: "prev,next today",
               center: "title",
-              right:
-                "dayGridMonth,timeGridWeek,timeGridDay,listWeek,listDay",
+              right: "dayGridMonth,timeGridWeek,timeGridDay,listWeek,listDay",
             }}
             weekends={true}
             events={calendarEvents}
@@ -142,75 +142,15 @@ const Calendar = ({ id }) => {
           />
         </Card.Body>
       </Card>
-
-      <Modal show={showEventModal} onHide={() => setShowEventModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Event Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {editedEvent && (
-            <Form>
-              <Form.Group className="mb-3" controlId="formTitle">
-                <Form.Label>Title</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter title"
-                  name="title"
-                  value={editedEvent.title}
-                  onChange={handleInputChange}
-                  disabled
-                />
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="formLocation">
-                <Form.Label>Location</Form.Label>
-                <Form.Control
-                  type="text"
-                  placeholder="Enter location"
-                  name="location"
-                  value={editedEvent?.room.name}
-                  onChange={handleInputChange}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="formDate">
-  <Form.Label>Date</Form.Label>
-  <Form.Control
-    type="date"
-    name="date"
-    value={editedEvent.date ? editedEvent.date.split("T")[0] : ""}
-    onChange={handleInputChange}
+      {editedEvent && (
+  <EditEventModal
+    show={showEventModal}
+    onHide={() => setShowEventModal(false)}
+    event={editedEvent}
+    onUpdate={handleUpdateEvent}
   />
-</Form.Group>
+)}
 
-              <Form.Group className="mb-3" controlId="formStartTime">
-                <Form.Label>Start Time</Form.Label>
-                <Form.Control
-                  type="time"
-                  name="startTime"
-                  value={editedEvent.startTime}
-                  onChange={handleInputChange}
-                />
-              </Form.Group>
-              <Form.Group className="mb-3" controlId="formEndTime">
-                <Form.Label>End Time</Form.Label>
-                <Form.Control
-                  type="time"
-                  name="endTime"
-                  value={editedEvent.endTime}
-                  onChange={handleInputChange}
-                />
-              </Form.Group>
-            </Form>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowEventModal(false)}>
-            Close
-          </Button>
-          <Button variant="primary" onClick={handleUpdateEvent}>
-            Save Changes
-          </Button>
-        </Modal.Footer>
-      </Modal>
     </>
   );
 };
