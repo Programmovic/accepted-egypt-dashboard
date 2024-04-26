@@ -175,13 +175,13 @@ const RoomUtilizations = () => {
               style={{ cursor: "pointer", borderRadius: "15px" }}
             >
               <Card.Header
-                as="h5"
+                as="h6"
                 style={{
                   borderTopLeftRadius: "15px",
                   borderTopRightRadius: "15px",
                 }}
               >
-                {roomUtilization[roomId].roomName} Utilization Summary
+                {roomUtilization[roomId].roomName}
               </Card.Header>
               <Card.Body>
                 <div className="d-flex justify-content-between align-items-center mb-3">
@@ -195,7 +195,7 @@ const RoomUtilizations = () => {
                   />
                 </div>
                 <div className="text-center">
-                <span className="badge fs-5 bg-secondary">
+                <span className="badge fs-6 bg-secondary">
                   Reservation Count: {roomUtilization[roomId].reservationCount}
                 </span>
                 </div>

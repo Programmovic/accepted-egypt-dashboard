@@ -4,13 +4,14 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import bootstrap5Plugin from "@fullcalendar/bootstrap5";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import { Card, Badge, Button, Modal } from "react-bootstrap";
+import { Card, Badge, Button, Modal, Form } from "react-bootstrap";
 import axios from "axios";
 
 const Calendar = ({ id }) => {
   const [roomReservations, setRoomReservations] = useState([]);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
+  const [editedEvent, setEditedEvent] = useState(null);
 
   const apiUrl = id ? `/api/reservation/${id}` : "/api/reservation";
 
@@ -65,7 +66,18 @@ const Calendar = ({ id }) => {
     
     return hours + ":" + minutes;
   }
-  
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditedEvent({ ...editedEvent, [name]: value });
+  };
+
+  const handleUpdateEvent = () => {
+    // Make API call to update event details
+    console.log("Updated Event:", editedEvent);
+    // Close the modal
+    setShowEventModal(false);
+  };
 
   const calendarEvents = roomReservations.map((reservation, index) => {
     const startDateTime = convertDateFormat(
@@ -86,6 +98,7 @@ const Calendar = ({ id }) => {
 
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event.extendedProps.eventInfo);
+    setEditedEvent(clickInfo.event.extendedProps.eventInfo); // Initialize edited event with selected event data
     setShowEventModal(true);
   };
 
@@ -135,18 +148,65 @@ const Calendar = ({ id }) => {
           <Modal.Title>Event Details</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {selectedEvent && (
-            <div>
-              <p>Title: {selectedEvent.title}</p>
-              <p>Date: {new Date(selectedEvent.date).toLocaleDateString()}</p>
-              <p>Start Time: {selectedEvent.startTime}</p>
-              <p>End Time: {selectedEvent.endTime}</p>
-            </div>
+          {editedEvent && (
+            <Form>
+              <Form.Group className="mb-3" controlId="formTitle">
+                <Form.Label>Title</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter title"
+                  name="title"
+                  value={editedEvent.title}
+                  onChange={handleInputChange}
+                  disabled
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formLocation">
+                <Form.Label>Location</Form.Label>
+                <Form.Control
+                  type="text"
+                  placeholder="Enter location"
+                  name="location"
+                  value={editedEvent?.room.name}
+                  onChange={handleInputChange}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formDate">
+                <Form.Label>Date</Form.Label>
+                <Form.Control
+                  type="date"
+                  name="date"
+                  value={editedEvent.date}
+                  onChange={handleInputChange}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formStartTime">
+                <Form.Label>Start Time</Form.Label>
+                <Form.Control
+                  type="time"
+                  name="startTime"
+                  value={editedEvent.startTime}
+                  onChange={handleInputChange}
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formEndTime">
+                <Form.Label>End Time</Form.Label>
+                <Form.Control
+                  type="time"
+                  name="endTime"
+                  value={editedEvent.endTime}
+                  onChange={handleInputChange}
+                />
+              </Form.Group>
+            </Form>
           )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowEventModal(false)}>
             Close
+          </Button>
+          <Button variant="primary" onClick={handleUpdateEvent}>
+            Save Changes
           </Button>
         </Modal.Footer>
       </Modal>
