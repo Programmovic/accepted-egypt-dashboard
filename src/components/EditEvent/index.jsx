@@ -72,10 +72,12 @@ const EditEventModal = ({ show, onHide, event, onUpdate }) => {
                 onChange={handleInputChange}
               />
             </Form.Group>
-            <Table striped bordered hover size="sm">
+            {conflictReservations.length > 0 && (
+              <Table striped bordered hover size="sm">
               <thead>
                 <tr>
                   <th>Title</th>
+                  <th>Location</th>
                   <th>Start Time</th>
                   <th>End Time</th>
                 </tr>
@@ -84,12 +86,14 @@ const EditEventModal = ({ show, onHide, event, onUpdate }) => {
                 {conflictReservations.map((res, index) => (
                   <tr key={index}>
                     <td>{res.title}</td>
+                    <td>{res.room.name}</td>
                     <td>{res.startTime}</td>
                     <td>{res.endTime}</td>
                   </tr>
                 ))}
               </tbody>
             </Table>
+            )}
           </Form>
         )}
       </Modal.Body>
