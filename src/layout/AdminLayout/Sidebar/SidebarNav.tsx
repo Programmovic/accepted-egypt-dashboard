@@ -36,6 +36,7 @@ import {
 } from "react-bootstrap";
 import classNames from "classnames";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 
 type SidebarNavItemProps = {
@@ -45,11 +46,18 @@ type SidebarNavItemProps = {
 
 const SidebarNavItem = (props: SidebarNavItemProps) => {
   const { icon, children, href } = props;
+  const router = useRouter();
+
+  const isActive = router.pathname === href;
 
   return (
     <Nav.Item>
       <Link href={href} passHref legacyBehavior>
-        <Nav.Link className="px-3 py-2 d-flex align-items-center">
+        <Nav.Link
+          className={classNames("px-3 py-2 d-flex align-items-center", {
+            active: isActive,
+          })}
+        >
           {icon ? (
             <FontAwesomeIcon className="nav-icon ms-n3" icon={icon} />
           ) : (
@@ -79,7 +87,6 @@ type SidebarNavGroupToggleProps = {
 } & PropsWithChildren;
 
 const SidebarNavGroupToggle = (props: SidebarNavGroupToggleProps) => {
-  // https://react-bootstrap.github.io/components/accordion/#custom-toggle-with-expansion-awareness
   const { activeEventKey } = useContext(AccordionContext);
   const { eventKey, icon, children, setIsShow } = props;
 
@@ -88,8 +95,8 @@ const SidebarNavGroupToggle = (props: SidebarNavGroupToggleProps) => {
   const isCurrentEventKey = activeEventKey === eventKey;
 
   useEffect(() => {
-    setIsShow(activeEventKey === eventKey);
-  }, [activeEventKey, eventKey, setIsShow]);
+    setIsShow(isCurrentEventKey);
+  }, [isCurrentEventKey, setIsShow]);
 
   return (
     <Button
@@ -145,13 +152,14 @@ const SidebarNavGroup = (props: SidebarNavGroupProps) => {
 export default function SidebarNav() {
   const [username, setUsername] = useState("");
   const [userRole, setUserRole] = useState("");
+  const router = useRouter();
+  const currentPath = router.pathname;
+
   useEffect(() => {
-    // Retrieve the token from cookies
     const token = Cookies.get("client_token");
-  
+
     if (token) {
       try {
-        // Decode the token to access the username and user role
         const decodedToken = JSON.parse(atob(token.split(".")[1]));
         setUsername(decodedToken.username);
         setUserRole(decodedToken.role);
@@ -164,10 +172,9 @@ export default function SidebarNav() {
       setUserRole("guest");
     }
   }, []);
-  
+
   return (
     <ul className="list-unstyled">
-      {/* Administration Category */}
       {userRole === "admin" && (
         <SidebarNavGroup toggleIcon={faUser} toggleText="Administration">
           <SidebarNavItem icon={faUser} href="/admins">
@@ -197,7 +204,6 @@ export default function SidebarNav() {
         </SidebarNavGroup>
       )}
 
-      {/* Academic Category */}
       <SidebarNavGroup toggleIcon={faSchool} toggleText="Academic">
         <SidebarNavItem icon={faEdit} href="/placement_tests">
           Placement Test (EWF2 Test)
@@ -211,7 +217,6 @@ export default function SidebarNav() {
         <SidebarNavItem icon={faClock} href="/waiting_list">
           Waiting List
         </SidebarNavItem>
-
         <SidebarNavItem icon={faCamera} href="/qr_code_attendance">
           Attendance Scanner
         </SidebarNavItem>
@@ -234,7 +239,7 @@ export default function SidebarNav() {
           Lectures
         </SidebarNavItem>
       </SidebarNavGroup>
-      {/* Inventory Category */}
+
       <SidebarNavGroup toggleIcon={faStore} toggleText="Inventory">
         <SidebarNavItem icon={faSearch} href="/inventory/laptops/scan">
           Scan
@@ -243,7 +248,7 @@ export default function SidebarNav() {
           Laptops
         </SidebarNavItem>
       </SidebarNavGroup>
-      {/* Finance Category */}
+
       <SidebarNavGroup toggleIcon={faDollar} toggleText="Finance">
         <SidebarNavItem icon={faDollar} href="/payment_method">
           Payment Methods
@@ -255,11 +260,13 @@ export default function SidebarNav() {
           Students With Due
         </SidebarNavItem>
       </SidebarNavGroup>
+
       <SidebarNavGroup toggleIcon={faInstitution} toggleText="Human Resources">
         <SidebarNavItem icon={faPerson} href="/employees">
           Employees
         </SidebarNavItem>
       </SidebarNavGroup>
+
       <SidebarNavGroup toggleIcon={faHandsHelping} toggleText="Help">
         <SidebarNavItem icon={faHandsHelping} href="/">
           How to Use?
