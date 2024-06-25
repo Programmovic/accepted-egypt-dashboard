@@ -221,13 +221,19 @@ const MarketingData = () => {
               />
             </Form.Group> */}
             <Form.Group className="mb-3">
-              <Form.Label>Source</Form.Label>
-              <Form.Control
-                type="text"
-                value={newSource}
-                onChange={(e) => setNewSource(e.target.value)}
-              />
-            </Form.Group>
+                  <Form.Label>Source</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={newSource}
+                    onChange={(e) => setNewSource(e.target.value)}
+                  >
+                    <option value="" hidden>Select a source</option>
+                    <option value="Facebook">Facebook</option>
+                    <option value="Linkedin">Linkedin</option>
+                    <option value="Instagram">Instagram</option>
+                    <option value="Other">Other</option>
+                  </Form.Control>
+                </Form.Group>
             {/* <Form.Group className="mb-3">
               <Form.Label>Language Issues</Form.Label>
               <Form.Control
