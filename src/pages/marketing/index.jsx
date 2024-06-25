@@ -202,10 +202,14 @@ const MarketingData = () => {
             <Form.Group className="mb-3">
               <Form.Label>Assign to</Form.Label>
               <Form.Control
-                type="text"
+                as="select"
                 value={newAssignTo}
                 onChange={(e) => setNewAssignTo(e.target.value)}
-              />
+              >
+                <option value="" hidden>Select an option</option>
+                <option value="EWFS">EWFS</option>
+                <option value="Autobus El Shoughl">Autobus El Shoughl</option>
+              </Form.Control>
             </Form.Group>
             {/* 
             <Form.Group className="mb-3">
