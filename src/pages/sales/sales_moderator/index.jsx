@@ -1,8 +1,7 @@
-import { Card, Form, Button, Row, Col, Table, Badge } from "react-bootstrap";
+import { Card, Form, Button, Row, Col, Table, Badge, Pagination } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { AdminLayout } from "@layout";
 import axios from "axios";
-import { Modal } from "react-bootstrap";
 import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -17,12 +16,18 @@ const SalesModeratorData = () => {
   const [filterName, setFilterName] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
-  const [chatSummary, setChatSummary] = useState("");
   const [Source, setSource] = useState("");
   const [languageIssues, setLanguageIssues] = useState("");
   const [assignedToModeration, setAssignedToModeration] = useState("");
   const [assignationDate, setAssignationDate] = useState("");
   const [assignedToSales, setAssignedToSales] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [paginationEnabled, setPaginationEnabled] = useState(true);
+  const [rangeStart, setRangeStart] = useState("");
+  const [rangeEnd, setRangeEnd] = useState("");
+  const [selectedSalesMember, setSelectedSalesMember] = useState("");
+
   const fetchMarketingData = async () => {
     try {
       const response = await axios.get("/api/marketing");
@@ -46,7 +51,6 @@ const SalesModeratorData = () => {
   }, []);
 
   useEffect(() => {
-    // Apply filters when filter inputs change
     handleFilter();
   }, [filterName, filterDate, assignedTo, Source, languageIssues, assignedToModeration, assignationDate, assignedToSales, marketingData]);
 
@@ -102,6 +106,7 @@ const SalesModeratorData = () => {
     }
 
     setFilteredData(filteredMarketingData);
+    setCurrentPage(1); // Reset to the first page when filters change
   };
 
   const clearFilters = () => {
@@ -114,11 +119,19 @@ const SalesModeratorData = () => {
     setAssignationDate("");
     setAssignedToSales("");
     setFilteredData(marketingData);
+    setCurrentPage(1); // Reset to the first page when filters are cleared
   };
+
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
   const handleUpdateMarketingData = async (id, updatedData) => {
     try {
       await axios.put(`/api/marketing?id=${id}`, updatedData);
-      fetchMarketingData(); // Assuming fetchMarketingData is a function to refetch the updated data
+      fetchMarketingData();
       toast.success("Marketing data updated successfully!");
     } catch (error) {
       console.error("Error updating marketing data:", error.message);
@@ -126,6 +139,34 @@ const SalesModeratorData = () => {
       toast.error(error.message);
     }
   };
+
+  const handleRangeAssign = async () => {
+    if (!rangeStart || !rangeEnd || !selectedSalesMember) {
+      toast.error("Please fill in all range fields and select a sales member.");
+      return;
+    }
+
+    const start = parseInt(rangeStart) - 1;
+    const end = parseInt(rangeEnd);
+
+    if (start >= 0 && end <= filteredData.length && start < end) {
+      const updates = filteredData.slice(start, end).map((item) =>
+        handleUpdateMarketingData(item._id, {
+          assignedToSales: selectedSalesMember,
+          salesMemberAssignationDate: new Date(),
+        })
+      );
+      await Promise.all(updates);
+      toast.success("Assigned sales member to specified range successfully!");
+      setPaginationEnabled(!paginationEnabled)
+      setRangeStart(0)
+      setRangeEnd(0)
+      setSelectedSalesMember(null)
+    } else {
+      toast.error("Invalid range.");
+    }
+  };
+
   return (
     <AdminLayout>
       <ToastContainer />
@@ -221,7 +262,64 @@ const SalesModeratorData = () => {
                   Clear Filters
                 </Button>
               </Col>
+              {paginationEnabled && (
+                <Col xs={6}>
+                <Button variant="secondary" onClick={() => setPaginationEnabled(!paginationEnabled)}>
+                  Assign In Range
+                </Button>
+              </Col>
+              )}
             </Row>
+            {paginationEnabled || (
+              <>
+                <Row className="mt-3">
+                  <Col xs={4}>
+                    <Form.Group>
+                      <Form.Label>Range Start</Form.Label>
+                      <Form.Control
+                        type="number"
+                        value={rangeStart}
+                        onChange={(e) => setRangeStart(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={4}>
+                    <Form.Group>
+                      <Form.Label>Range End</Form.Label>
+                      <Form.Control
+                        type="number"
+                        value={rangeEnd}
+                        onChange={(e) => setRangeEnd(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={4}>
+                    <Form.Group>
+                      <Form.Label>Select Sales Member</Form.Label>
+                      <Form.Control
+                        as="select"
+                        value={selectedSalesMember}
+                        onChange={(e) => setSelectedSalesMember(e.target.value)}
+                      >
+                        <option value="" hidden>Select a sales member</option>
+                        {salesMembers.map((member) => (
+                          <option key={member._id} value={member.name}>
+                            {member.name}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="mt-3">
+                  <Col>
+                    <Button variant="primary" onClick={handleRangeAssign}>
+                      Assign Sales Member to Range
+                    </Button>
+                  </Col>
+                </Row>
+              </>
+            )}
           </Form>
 
           {loading ? (
@@ -229,59 +327,94 @@ const SalesModeratorData = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Phone no1</th>
-                  <th>Phone no2</th>
-                  <th>Assign to</th>
-                  <th>Chat Summary</th>
-                  <th>Source</th>
-                  <th>Language Issues</th>
-                  <th>Assigned to Member</th>
-                  <th>Assignation Date</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((item, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{item.name}</td>
-                    <td>{item.phoneNo1}</td>
-                    <td>{item.phoneNo2}</td>
-                    <td>{item.assignTo}</td>
-                    <td>{item.chatSummary}</td>
-                    <td>{item.Source}</td>
-                    <td>{item.languageIssues}</td>
-                    <td>
-                      <Form.Control
-                        as="select"
-                        value={item.assignedToSales}
-                        onChange={(e) => {
-                          handleUpdateMarketingData(item._id, {
-                            assignedToSales: e.target.value,
-                            salesMemberAssignationDate: new Date(),
-                          })
-                        }
-
-                        }
-                        disabled = {item.assignedToSales ? true : false}
-                      >
-                        <option value="" hidden>Select a sales member</option>
-                        {salesMembers.map((moderator) => (
-                          <option key={moderator._id} value={moderator.name}>
-                            {moderator.name}
-                          </option>
-                        ))}
-                      </Form.Control>
-                    </td>
-                    <td>{item.salesMemberAssignationDate && new Date(item.salesMemberAssignationDate).toLocaleDateString()}</td>
+            <>
+              <Table striped bordered hover>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Phone no1</th>
+                    <th>Phone no2</th>
+                    <th>Assign to</th>
+                    <th>Chat Summary</th>
+                    <th>Source</th>
+                    <th>Language Issues</th>
+                    <th>Assigned to Member</th>
+                    <th>Assignation Date</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
+                </thead>
+                <tbody>
+                  {(paginationEnabled ? currentItems : filteredData).map((item, index) => (
+                    <tr key={index}>
+                      <td className={(index + 1 >= rangeStart && index + 1 <= rangeEnd) && "bg-success text-light"}>{index + 1}</td>
+                      <td>{item.name}</td>
+                      <td>{item.phoneNo1}</td>
+                      <td>{item.phoneNo2}</td>
+                      <td>{item.assignTo}</td>
+                      <td>{item.chatSummary}</td>
+                      <td>{item.Source}</td>
+                      <td>{item.languageIssues}</td>
+                      <td>
+                        <Form.Control
+                          as="select"
+                          value={item.assignedToSales}
+                          onChange={(e) => {
+                            handleUpdateMarketingData(item._id, {
+                              assignedToSales: e.target.value,
+                              salesMemberAssignationDate: new Date(),
+                            })
+                          }}
+                          disabled={item.assignedToSales ? true : false}
+                        >
+                          <option value="" hidden>Select a sales member</option>
+                          {salesMembers.map((moderator) => (
+                            <option key={moderator._id} value={moderator.name}>
+                              {moderator.name}
+                            </option>
+                          ))}
+                        </Form.Control>
+                      </td>
+                      <td>{item.salesMemberAssignationDate && new Date(item.salesMemberAssignationDate).toLocaleDateString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+              {paginationEnabled && (
+                <Pagination className="d-flex justify-content-center">
+                  <Pagination.Prev
+                    onClick={() => paginate(currentPage - 1)}
+                    disabled={currentPage === 1}
+                  />
+                  {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }, (_, index) => {
+                    const page = index + 1;
+                    if (page === currentPage ||                       // Show current page
+                      page === 1 ||                               // Show first page
+                      page === Math.ceil(filteredData.length / itemsPerPage) ||  // Show last page
+                      Math.abs(page - currentPage) <= 1 ||        // Show neighboring pages
+                      (currentPage < 4 && page < 5) ||            // Show early pages
+                      (Math.ceil(filteredData.length / itemsPerPage) - currentPage < 3 && Math.ceil(filteredData.length / itemsPerPage) - page < 3) // Show final pages
+                    ) {
+                      return (
+                        <Pagination.Item
+                          key={index}
+                          active={page === currentPage}
+                          onClick={() => paginate(page)}
+                        >
+                          {page}
+                        </Pagination.Item>
+                      );
+                    } else if (page === 2 || page === Math.ceil(filteredData.length / itemsPerPage) - 1) { // Show secondary pages
+                      return <Pagination.Ellipsis key={index} />;
+                    }
+                    return null;
+                  })}
+                  <Pagination.Next
+                    onClick={() => paginate(currentPage + 1)}
+                    disabled={currentPage === Math.ceil(filteredData.length / itemsPerPage)}
+                  />
+                </Pagination>
+              )}
+            </>
           )}
         </Card.Body>
       </Card>
