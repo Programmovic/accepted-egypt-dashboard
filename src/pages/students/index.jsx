@@ -458,10 +458,10 @@ const Students = () => {
               </Col>
             </Row>
             <div className='d-flex justify-content-between'>
-            <Button variant="secondary" onClick={clearFilters}>
-              Clear Filters
-            </Button>
-            <Button
+              <Button variant="secondary" onClick={clearFilters}>
+                Clear Filters
+              </Button>
+              <Button
                 variant="success"
                 onClick={() => setShowModal(true)}
               >
@@ -469,7 +469,7 @@ const Students = () => {
               </Button>
             </div>
           </Form>
-              
+
 
           <Table striped bordered hover>
             <thead>
@@ -554,38 +554,35 @@ const Students = () => {
                   <ol className="progress-meter">
                     <li className="progress-point done">Joined</li>
                     <li
-                      className={`progress-point ${
-                        selectedStudent.status === "Under Placement Test" ||
-                        selectedStudent.status === "Waiting List" ||
-                        selectedStudent.status === "Joined Batch"
+                      className={`progress-point ${selectedStudent.status === "Under Placement Test" ||
+                          selectedStudent.status === "Waiting List" ||
+                          selectedStudent.status === "Joined Batch"
                           ? "done"
                           : "todo"
-                      }`}
+                        }`}
                     >
                       Placement Test
                     </li>
                     <li
-                      className={`progress-point ${
-                        (selectedStudent.status === "Waiting List" ||
+                      className={`progress-point ${(selectedStudent.status === "Waiting List" ||
                           selectedStudent.status === "Joined Batch") &&
-                        selectedStudent.status !== "Under Placement Test" &&
-                        selectedStudent.status !==
+                          selectedStudent.status !== "Under Placement Test" &&
+                          selectedStudent.status !==
                           "Under Placement Test at " +
-                            new Date(
-                              selectedStudent.placementTestDate
-                            ).toLocaleDateString()
+                          new Date(
+                            selectedStudent.placementTestDate
+                          ).toLocaleDateString()
                           ? "done"
                           : "todo"
-                      }`}
+                        }`}
                     >
                       Waiting List
                     </li>
                     <li
-                      className={`progress-point ${
-                        selectedStudent.status === "Joined Batch"
+                      className={`progress-point ${selectedStudent.status === "Joined Batch"
                           ? "done"
                           : "todo"
-                      }`}
+                        }`}
                     >
                       Joined Batch
                     </li>

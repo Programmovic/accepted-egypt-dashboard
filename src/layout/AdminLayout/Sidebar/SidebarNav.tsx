@@ -167,7 +167,9 @@ export default function SidebarNav() {
         console.error("Error decoding token:", error);
       }
     } else {
-      console.log("No token found, using default values for username and user role.");
+      console.log(
+        "No token found, using default values for username and user role."
+      );
       setUsername("Guest");
       setUserRole("guest");
     }
@@ -203,7 +205,19 @@ export default function SidebarNav() {
           </SidebarNavItem>
         </SidebarNavGroup>
       )}
-
+      <SidebarNavGroup toggleIcon={faUser} toggleText="Marketing">
+        <SidebarNavItem icon={faUser} href="/marketing">
+          Marketing
+        </SidebarNavItem>
+      </SidebarNavGroup>
+      <SidebarNavGroup toggleIcon={faUser} toggleText="Sales">
+        <SidebarNavItem icon={faUser} href="/sales/sales_moderator">
+          Sales Moderator
+        </SidebarNavItem>
+        <SidebarNavItem icon={faUser} href="/sales/sales_member">
+          Sales Member
+        </SidebarNavItem>
+      </SidebarNavGroup>
       <SidebarNavGroup toggleIcon={faSchool} toggleText="Academic">
         <SidebarNavItem icon={faEdit} href="/placement_tests">
           Placement Test (EWF2 Test)
