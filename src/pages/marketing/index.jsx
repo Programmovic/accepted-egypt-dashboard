@@ -199,7 +199,7 @@ const MarketingData = () => {
                 onChange={(e) => setNewPhoneNo2(e.target.value)}
               />
             </Form.Group>
-            <Form.Group className="mb-3">
+            {/* <Form.Group className="mb-3">
               <Form.Label>Assign to</Form.Label>
               <Form.Control
                 type="text"
@@ -214,7 +214,7 @@ const MarketingData = () => {
                 value={newChatSummary}
                 onChange={(e) => setNewChatSummary(e.target.value)}
               />
-            </Form.Group>
+            </Form.Group> */}
             <Form.Group className="mb-3">
               <Form.Label>Source</Form.Label>
               <Form.Control
@@ -223,7 +223,7 @@ const MarketingData = () => {
                 onChange={(e) => setNewSource(e.target.value)}
               />
             </Form.Group>
-            <Form.Group className="mb-3">
+            {/* <Form.Group className="mb-3">
               <Form.Label>Language Issues</Form.Label>
               <Form.Control
                 type="text"
@@ -254,7 +254,7 @@ const MarketingData = () => {
                 value={newAssignedToSales}
                 onChange={(e) => setNewAssignedToSales(e.target.value)}
               />
-            </Form.Group>
+            </Form.Group> */}
           </Form>
         </Modal.Body>
         <Modal.Footer>
