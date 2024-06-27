@@ -54,7 +54,7 @@ const MarketingDataDetail = () => {
         <Card.Header className="d-flex justify-content-between align-items-center">
           <span>Marketing Data Details</span>{" "}
           <span>
-            Last Updated: {new Date(marketingData.updatedAt).toLocaleString()}
+            Last Updated: {new Date(marketingData?.updatedAt).toLocaleString()}
           </span>
           <Button variant="primary" onClick={handleSave} disabled={!unsavedChanges}>
             Save
