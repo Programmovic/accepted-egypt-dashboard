@@ -212,7 +212,7 @@ export default function SidebarNav() {
       </SidebarNavGroup>
       <SidebarNavGroup toggleIcon={faUser} toggleText="Sales">
         <SidebarNavItem icon={faUser} href="/sales/sales_moderator">
-          Sales Moderator
+          Sales Supervisor
         </SidebarNavItem>
         <SidebarNavItem icon={faUser} href="/sales/sales_member">
           Sales Member

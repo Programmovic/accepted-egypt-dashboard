@@ -229,7 +229,7 @@ const MarketingData = () => {
               >
                 <option value="" hidden>Select a source</option>
                 <option value="Facebook">Facebook</option>
-                <option value="Linkedin">Linkedin</option>
+                <option value="Linkedin">LinkedIn</option>
                 <option value="Instagram">Instagram</option>
                 <option value="Other">Other</option>
               </Form.Control>
