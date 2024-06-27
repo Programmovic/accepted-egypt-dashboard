@@ -48,10 +48,6 @@ const MarketingDataDetail = () => {
     }
   };
 
-  if (!marketingData) {
-    return <p>Loading...</p>;
-  }
-
   return (
     <AdminLayout>
       <Card>
@@ -65,54 +61,55 @@ const MarketingDataDetail = () => {
           </Button>
         </Card.Header>
         <Card.Body>
-          <Table striped bordered hover>
-            <tbody>
-              <tr>
-                <td>Name</td>
-                <td>
-                  {editing ? (
-                    <Form.Control
-                      type="text"
-                      name="name"
-                      value={marketingData.name}
-                      onChange={handleChange}
-                    />
-                  ) : (
-                    marketingData.name
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td>Phone no1</td>
-                <td>
-                  {editing ? (
-                    <Form.Control
-                      type="text"
-                      name="phoneNo1"
-                      value={marketingData.phoneNo1}
-                      onChange={handleChange}
-                    />
-                  ) : (
-                    marketingData.phoneNo1
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td>Phone no2</td>
-                <td>
-                  {editing ? (
-                    <Form.Control
-                      type="text"
-                      name="phoneNo2"
-                      value={marketingData.phoneNo2}
-                      onChange={handleChange}
-                    />
-                  ) : (
-                    marketingData.phoneNo2
-                  )}
-                </td>
-              </tr>
-              {/* <tr>
+          {marketingData ? (
+            <Table striped bordered hover>
+              <tbody>
+                <tr>
+                  <td>Name</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="text"
+                        name="name"
+                        value={marketingData.name}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      marketingData.name
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Phone no1</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="text"
+                        name="phoneNo1"
+                        value={marketingData.phoneNo1}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      marketingData.phoneNo1
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Phone no2</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="text"
+                        name="phoneNo2"
+                        value={marketingData.phoneNo2}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      marketingData.phoneNo2
+                    )}
+                  </td>
+                </tr>
+                {/* <tr>
                 <td>Assign to</td>
                 <td>
                   {editing ? (
@@ -127,54 +124,57 @@ const MarketingDataDetail = () => {
                   )}
                 </td>
               </tr> */}
-              <tr>
-                <td>Chat Summary</td>
-                <td>
-                  {editing ? (
-                    <Form.Control
-                      as="textarea"
-                      name="chatSummary"
-                      value={marketingData.chatSummary}
-                      onChange={handleChange}
-                    />
-                  ) : (
-                    marketingData.chatSummary
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td>Language Issues</td>
-                <td>
-                  {editing ? (
-                    <Form.Control
-                      as="textarea"
-                      name="languageIssues"
-                      value={marketingData.languageIssues}
-                      onChange={handleChange}
-                    />
-                  ) : (
-                    marketingData.languageIssues
-                  )}
-                </td>
-              </tr>
-              <tr>
-                <td>Assigned to Sales Moderator</td>
-                <td>
-                  {marketingData.assignedToModeration} at{" "}
-                  {new Date(marketingData.assignationDate).toLocaleString()}
-                </td>
-              </tr>
-              <tr>
-                <td>Assigned to Sales Member</td>
-                <td>
-                  {marketingData.assignedToSales} at{" "}
-                  {new Date(
-                    marketingData.salesMemberAssignationDate
-                  ).toLocaleString()}
-                </td>
-              </tr>
-            </tbody>
-          </Table>
+                <tr>
+                  <td>Chat Summary</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        as="textarea"
+                        name="chatSummary"
+                        value={marketingData.chatSummary}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      marketingData.chatSummary
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Language Issues</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        as="textarea"
+                        name="languageIssues"
+                        value={marketingData.languageIssues}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      marketingData.languageIssues
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Assigned to Sales Moderator</td>
+                  <td>
+                    {marketingData.assignedToModeration} at{" "}
+                    {new Date(marketingData.assignationDate).toLocaleString()}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Assigned to Sales Member</td>
+                  <td>
+                    {marketingData.assignedToSales} at{" "}
+                    {new Date(
+                      marketingData.salesMemberAssignationDate
+                    ).toLocaleString()}
+                  </td>
+                </tr>
+              </tbody>
+            </Table>
+          ) : (
+            <p>Loading...</p>
+          )}
         </Card.Body>
       </Card>
     </AdminLayout>
