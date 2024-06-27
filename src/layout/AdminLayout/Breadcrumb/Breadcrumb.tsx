@@ -25,7 +25,7 @@ export default function Breadcrumb() {
           href={'/' + pathSegments.slice(0, index + 1).join('/')}
           active={index === pathSegments.length - 1}
         >
-          {capitalizeWord(segment)}
+          {capitalizeWord(segment).replace('_', ' ')}
         </BSBreadcrumb.Item>
       ))}
     </BSBreadcrumb>

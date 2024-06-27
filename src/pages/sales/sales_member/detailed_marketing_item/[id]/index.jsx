@@ -112,7 +112,7 @@ const MarketingDataDetail = () => {
                   )}
                 </td>
               </tr>
-              <tr>
+              {/* <tr>
                 <td>Assign to</td>
                 <td>
                   {editing ? (
@@ -126,7 +126,7 @@ const MarketingDataDetail = () => {
                     marketingData.assignTo
                   )}
                 </td>
-              </tr>
+              </tr> */}
               <tr>
                 <td>Chat Summary</td>
                 <td>

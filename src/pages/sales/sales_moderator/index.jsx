@@ -30,7 +30,7 @@ const SalesModeratorData = () => {
 
   const fetchMarketingData = async () => {
     try {
-      const response = await axios.get("/api/marketing");
+      const response = await axios.get("/api/marketing?assignedToModerator=true");
       if (response.status === 200) {
         const data = response.data;
         setMarketingData(data.marketingData);
@@ -158,7 +158,6 @@ const SalesModeratorData = () => {
       );
       await Promise.all(updates);
       toast.success("Assigned sales member to specified range successfully!");
-      setPaginationEnabled(!paginationEnabled)
       setRangeStart(0)
       setRangeEnd(0)
       setSelectedSalesMember(null)
@@ -264,10 +263,10 @@ const SalesModeratorData = () => {
               </Col>
               {paginationEnabled && (
                 <Col xs={6}>
-                <Button variant="secondary" onClick={() => setPaginationEnabled(!paginationEnabled)}>
-                  Assign In Range
-                </Button>
-              </Col>
+                  <Button variant="secondary" onClick={() => setPaginationEnabled(!paginationEnabled)}>
+                    Assign In Range
+                  </Button>
+                </Col>
               )}
             </Row>
             {paginationEnabled || (
@@ -312,9 +311,12 @@ const SalesModeratorData = () => {
                   </Col>
                 </Row>
                 <Row className="mt-3">
-                  <Col>
+                  <Col className="d-flex justify-content-between">
                     <Button variant="primary" onClick={handleRangeAssign}>
                       Assign Sales Member to Range
+                    </Button>
+                    <Button variant="secondary" onClick={() => setPaginationEnabled(!paginationEnabled)}>
+                      Close
                     </Button>
                   </Col>
                 </Row>

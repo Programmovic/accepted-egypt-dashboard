@@ -32,7 +32,7 @@ export default async (req, res) => {
     }
   } else if (req.method === "GET") {
     try {
-      const { id } = req.query;
+      const { id, assignedToModerator, assignedToMember } = req.query;
 
       if (id) {
         // Fetch specific MarketingData record by ID
@@ -44,8 +44,20 @@ export default async (req, res) => {
 
         return res.status(200).json(marketingData.toJSON());
       } else {
-        // Fetch all MarketingData records
-        const allMarketingData = await MarketingData.find();
+        let allMarketingData = [];
+        if (assignedToModerator) {
+          // Fetch all MarketingData records
+          allMarketingData = await MarketingData.find({
+            assignedToModeration: { $exists: true, $ne: null, $ne: "" },
+          });
+        } else if (assignedToMember) {
+          // Fetch all MarketingData records
+          allMarketingData = await MarketingData.find({
+            assignedToSales: { $exists: true, $ne: null, $ne: "" },
+          });
+        } else {
+          allMarketingData = await MarketingData.find();
+        }
 
         // Fetch employees in sales department with position matching 'member' or 'moderator' (case-insensitive)
         const salesModerators = await Employee.find({

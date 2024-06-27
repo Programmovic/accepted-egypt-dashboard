@@ -26,7 +26,7 @@ const SalesMemberAssignedData = () => {
   const [assignedToSales, setAssignedToSales] = useState("");
   const fetchMarketingData = async () => {
     try {
-      const response = await axios.get("/api/marketing");
+      const response = await axios.get("/api/marketing?assignedToMember=true");
       if (response.status === 200) {
         const data = response.data;
         setMarketingData(data.marketingData);
@@ -115,17 +115,6 @@ const SalesMemberAssignedData = () => {
     setAssignationDate("");
     setAssignedToSales("");
     setFilteredData(marketingData);
-  };
-  const handleUpdateMarketingData = async (id, updatedData) => {
-    try {
-      await axios.put(`/api/marketing?id=${id}`, updatedData);
-      fetchMarketingData(); // Assuming fetchMarketingData is a function to refetch the updated data
-      toast.success("Marketing data updated successfully!");
-    } catch (error) {
-      console.error("Error updating marketing data:", error.message);
-      setError("Failed to update marketing data. Please try again.");
-      toast.error(error.message);
-    }
   };
   return (
     <AdminLayout>
@@ -241,7 +230,6 @@ const SalesMemberAssignedData = () => {
                   <th>Chat Summary</th>
                   <th>Source</th>
                   <th>Language Issues</th>
-                  <th>Assigned to Member</th>
                   <th>Assignation Date</th>
                 </tr>
               </thead>
@@ -260,28 +248,6 @@ const SalesMemberAssignedData = () => {
                     <td>{item.chatSummary}</td>
                     <td>{item.Source}</td>
                     <td>{item.languageIssues}</td>
-                    <td>
-                      <Form.Control
-                        as="select"
-                        value={item.assignedToSales}
-                        onChange={(e) => {
-                          handleUpdateMarketingData(item._id, {
-                            assignedToSales: e.target.value,
-                            salesMemberAssignationDate: new Date(),
-                          })
-                        }
-
-                        }
-                        disabled={item.assignedToSales ? true : false}
-                      >
-                        <option value="" hidden>Select a sales member</option>
-                        {salesMembers.map((moderator) => (
-                          <option key={moderator._id} value={moderator.name}>
-                            {moderator.name}
-                          </option>
-                        ))}
-                      </Form.Control>
-                    </td>
                     <td>{item.salesMemberAssignationDate && new Date(item.salesMemberAssignationDate).toLocaleDateString()}</td>
                   </tr>
                 ))}
