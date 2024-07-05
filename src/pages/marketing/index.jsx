@@ -104,7 +104,7 @@ const MarketingData = () => {
 
     if (assignationDate) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.assignationDate.includes(assignationDate)
+        item?.assignationDate?.includes(assignationDate)
       );
     }
 
