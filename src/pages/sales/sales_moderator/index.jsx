@@ -95,13 +95,13 @@ const SalesModeratorData = () => {
 
     if (assignationDate) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.assignationDate.includes(assignationDate)
+        item?.salesMemberAssignationDate?.includes(assignationDate)
       );
     }
 
     if (assignedToSales) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.assignedToSales.toLowerCase().includes(assignedToSales.toLowerCase())
+        item?.assignedToSales?.toLowerCase().includes(assignedToSales.toLowerCase())
       );
     }
 
