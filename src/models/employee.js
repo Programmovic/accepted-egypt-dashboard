@@ -20,7 +20,7 @@ const employeeSchema = new mongoose.Schema({
   },
   department: {
     type: String,
-    required: true,
+    ref: "Department", // Example reference to a moderation entity
   },
   address: {
     street: String,

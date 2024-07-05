@@ -1,13 +1,13 @@
 const mongoose = require("mongoose");
 
-const salesStatusSchema = new mongoose.Schema(
+const candidateSignUpForSchema = new mongoose.Schema(
   {
     order: { type: Number },
     status: {
       type: String,
       required: true,
       description:
-        "Status of the sale (e.g., Pending, Completed, Cancelled, Refunded)",
+        "",
     },
   },
   {
@@ -16,5 +16,5 @@ const salesStatusSchema = new mongoose.Schema(
 );
 
 module.exports =
-  mongoose.models.SalesStatus ||
-  mongoose.model("SalesStatus", salesStatusSchema);
+  mongoose.models.CandidateSignUpFor ||
+  mongoose.model("CandidateSignUpFor", candidateSignUpForSchema);
