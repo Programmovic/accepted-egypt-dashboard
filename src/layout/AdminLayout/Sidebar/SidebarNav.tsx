@@ -203,6 +203,9 @@ export default function SidebarNav() {
           <SidebarNavItem icon={faStore} href="/sales_members">
             Sales Members
           </SidebarNavItem>
+          <SidebarNavItem icon={faHome} href="/sales_status">
+            Sales Statuses
+          </SidebarNavItem>
         </SidebarNavGroup>
       )}
       <SidebarNavGroup toggleIcon={faUser} toggleText="Marketing">

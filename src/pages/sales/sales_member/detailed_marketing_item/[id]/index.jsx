@@ -8,10 +8,12 @@ import "react-toastify/dist/ReactToastify.css";
 
 const MarketingDataDetail = () => {
   const [marketingData, setMarketingData] = useState(null);
+  const [salesStatuses, setSalesStatuses] = useState([]);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const router = useRouter();
   const { id } = router.query;
   const apiUrl = `/api/marketing?id=${id}`; // Define the API route to fetch marketing data by ID
+  const salesStatusApiUrl = `/api/sales-status`; // Define the API route to fetch sales statuses
   const editing = true;
 
   useEffect(() => {
@@ -26,10 +28,22 @@ const MarketingDataDetail = () => {
       }
     };
 
+    const fetchSalesStatuses = async () => {
+      try {
+        const response = await axios.get(salesStatusApiUrl);
+        if (response.status === 200) {
+          setSalesStatuses(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching sales statuses:", error);
+      }
+    };
+
     if (id) {
       fetchMarketingData();
+      fetchSalesStatuses();
     }
-  }, [id, apiUrl]);
+  }, [id, apiUrl, salesStatusApiUrl, unsavedChanges]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -109,21 +123,28 @@ const MarketingDataDetail = () => {
                     )}
                   </td>
                 </tr>
-                {/* <tr>
-                <td>Assign to</td>
-                <td>
-                  {editing ? (
-                    <Form.Control
-                      type="text"
-                      name="assignTo"
-                      value={marketingData.assignTo}
-                      onChange={handleChange}
-                    />
-                  ) : (
-                    marketingData.assignTo
-                  )}
-                </td>
-              </tr> */}
+                <tr>
+                  <td>Status</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        as="select"
+                        name="assignTo"
+                        value={marketingData.assignTo}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Sales Status</option>
+                        {salesStatuses.map((status) => (
+                          <option key={status._id} value={status.status}>
+                            {status.status}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    ) : (
+                      marketingData.assignTo
+                    )}
+                  </td>
+                </tr>
                 <tr>
                   <td>Chat Summary</td>
                   <td>
