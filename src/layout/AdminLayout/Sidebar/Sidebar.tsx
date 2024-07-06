@@ -34,7 +34,7 @@ export default function Sidebar(props: { isShow: boolean; isShowMd: boolean }) {
       id="sidebar"
     >
       <div className="bg-transparent sidebar-brand d-none d-md-flex">
-        <div className="d-flex justify-content-center align-items-center w-100">
+        <div className="d-flex justify-content-center align-items-center w-100 py-1">
           {!isNarrow ? (
             <img
               src={logo}
@@ -46,7 +46,7 @@ export default function Sidebar(props: { isShow: boolean; isShowMd: boolean }) {
             <img
               src="/assets/img/Accepted (2).png"
               alt="Logo"
-              className="img-fluid rounded-circle"
+              className="img-fluid rounded-circle shadow-lg"
               style={{ maxHeight: "100px" }}
             />
           )}
