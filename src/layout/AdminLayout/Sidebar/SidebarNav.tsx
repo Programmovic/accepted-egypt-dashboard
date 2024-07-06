@@ -19,6 +19,7 @@ import {
   faComputer,
   faSearch,
   faInstitution,
+  faCog
 } from "@fortawesome/free-solid-svg-icons";
 import React, {
   PropsWithChildren,
@@ -178,7 +179,7 @@ export default function SidebarNav() {
   return (
     <ul className="list-unstyled accepted_navs">
       {userRole === "admin" && (
-        <SidebarNavGroup toggleIcon={faUser} toggleText="Administration">
+        <SidebarNavGroup toggleIcon={faCog} toggleText="Administration">
           <SidebarNavItem icon={faUser} href="/admins">
             Admins
           </SidebarNavItem>
