@@ -25,21 +25,22 @@ $sidebar-overlay-z-index: 1025;
   transition: margin-left 0.15s, margin-right 0.15s, box-shadow 0.075s,
     transform 0.15s, width 0.15s, z-index 0s ease 0.15s;
   z-index: $sidebar-z-index;
+  /* Scrollbar styles */
   &::-webkit-scrollbar {
-    width: 8px; /* Width of the scrollbar */
-    background-color: rgba(0, 0, 0, 0.1); /* Background color of the scrollbar track */
+    width: 8px !important; /* Width of the scrollbar */
+    background-color: rgba(0, 0, 0, 0.1) !important; /* Background color of the scrollbar track */
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1); /* Scrollbar track color */
+    background: rgba(0, 0, 0, 0.1) !important; /* Scrollbar track color */
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.5); /* Scrollbar handle color */
-    border-radius: 4px; /* Scrollbar handle border radius */
+    background: rgba(255, 255, 255, 0.5) !important; /* Scrollbar handle color */
+    border-radius: 4px !important; /* Scrollbar handle border radius */
 
     &:hover {
-      background: rgba(255, 255, 255, 0.6); /* Scrollbar handle color on hover */
+      background: rgba(255, 255, 255, 0.6) !important; /* Scrollbar handle color on hover */
     }
   }
   & + .wrapper {
