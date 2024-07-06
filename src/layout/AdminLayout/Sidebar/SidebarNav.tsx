@@ -176,7 +176,7 @@ export default function SidebarNav() {
   }, []);
 
   return (
-    <ul className="list-unstyled">
+    <ul className="list-unstyled accepted_navs">
       {userRole === "admin" && (
         <SidebarNavGroup toggleIcon={faUser} toggleText="Administration">
           <SidebarNavItem icon={faUser} href="/admins">

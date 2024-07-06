@@ -2,10 +2,10 @@ $sidebar-background: #3c4b64;
 $sidebar-text-color: rgba(255, 255, 255, 0.6);
 $sidebar-brand-height: 4rem;
 $sidebar-brand-background: rgba(0, 0, 21, 0.2);
-$sidebar-nav-group-background: rgba(0, 0, 0, 0.2);
-$sidebar-link-color: rgba(255, 255, 255, 0.6);
+$sidebar-nav-group-background: rgb(44 61 56);
+$sidebar-link-color: rgb(58, 58, 58);
 $sidebar-link-color-hover: rgba(255, 255, 255, 0.87);
-$sidebar-link-background-hover: rgba(255, 255, 255, 0.05);
+$sidebar-link-background-hover: rgb(44 61 56);
 $sidebar-toggler-height: 3rem;
 $sidebar-toggler-background: rgba(0, 0, 21, 0.2);
 $sidebar-toggler-background-hover: rgba(0, 0, 0, 0.3);
@@ -15,43 +15,37 @@ $sidebar-z-index: $zindex-fixed; // Default 1030
 $sidebar-overlay-z-index: 1025;
 
 :root {
-  --sidebar-width: 20rem;
+  --sidebar-width: 25rem;
 }
 
 .sidebar {
   flex: 0 0 var(--sidebar-width);
   width: var(--sidebar-width);
-  background: rgb(44, 82, 83);
-  background: radial-gradient(
-    circle,
-    rgba(44, 82, 83, 1) 0%,
-    rgba(27, 49, 89, 1) 50%,
-    rgba(0, 0, 0, 1) 100%
-  );
   color: $sidebar-text-color;
   transition: margin-left 0.15s, margin-right 0.15s, box-shadow 0.075s,
     transform 0.15s, width 0.15s, z-index 0s ease 0.15s;
   z-index: $sidebar-z-index;
-  // Scrollbar styles
   &::-webkit-scrollbar {
-    width: 8px; // Scrollbar width
+    width: 8px; /* Width of the scrollbar */
+    background-color: rgba(0, 0, 0, 0.1); /* Background color of the scrollbar track */
   }
 
   &::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1); // Scrollbar track color
+    background: rgba(0, 0, 0, 0.1); /* Scrollbar track color */
   }
 
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.5); // Scrollbar handle color
-    border-radius: 4px; // Scrollbar handle border radius
+    background: rgba(255, 255, 255, 0.5); /* Scrollbar handle color */
+    border-radius: 4px; /* Scrollbar handle border radius */
 
     &:hover {
-      background: rgba(255, 255, 255, 0.6); // Scrollbar handle color on hover
+      background: rgba(255, 255, 255, 0.6); /* Scrollbar handle color on hover */
     }
   }
   & + .wrapper {
-    padding-left: var(--sidebar-width);
+    padding: 30px 30px 30px var(--sidebar-width);
     transition: padding 0.15s;
+    max-height: 100%;
   }
 
   .sidebar-brand {
@@ -70,12 +64,7 @@ $sidebar-overlay-z-index: 1025;
     .nav-link {
       color: $sidebar-link-color;
       border-radius: 30px;
-
-      &:hover {
-        color: $sidebar-link-color-hover;
-        text-decoration: none;
-        background: $sidebar-link-background-hover;
-      }
+      font-weight: bold;
 
       .nav-icon {
         flex: 0 0 4rem;
@@ -85,11 +74,15 @@ $sidebar-overlay-z-index: 1025;
     .nav-group {
       &.show {
         background: $sidebar-nav-group-background;
+        .nav-link {
+          color: $sidebar-link-color-hover;
+        }
       }
 
       .nav-link {
         &:focus {
           box-shadow: none;
+          color: $sidebar-link-color-hover;
         }
 
         .nav-chevron {
@@ -174,4 +167,19 @@ $sidebar-overlay-z-index: 1025;
 
 .sidebar-overlay {
   z-index: $sidebar-overlay-z-index;
+}
+.accepted_navs .nav-group {
+  margin-right: 50px;
+  padding: 20px 20px;
+  border-bottom-right-radius: 30px;
+  border-top-right-radius: 30px;
+  &:hover {
+    color: $sidebar-link-color-hover;
+    text-decoration: none;
+    background: $sidebar-link-background-hover;
+    button {
+      color: $sidebar-link-color-hover;
+      text-decoration: none;
+    }
+  }
 }
