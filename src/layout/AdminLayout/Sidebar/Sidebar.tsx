@@ -34,7 +34,7 @@ export default function Sidebar(props: { isShow: boolean; isShowMd: boolean }) {
       id="sidebar"
     >
       <div className="bg-transparent sidebar-brand d-none d-md-flex">
-        <div className="d-flex justify-content-center align-items-center w-100 py-1">
+        <div className="d-flex justify-content-center align-items-center w-100 py-2">
           {!isNarrow ? (
             <img
               src={logo}
