@@ -12,6 +12,7 @@ const MarketingDataDetail = () => {
   const [paymentScreenshotStatus, setPaymentScreenshotStatus] = useState([]);
   const [candidateSignUpFor, setCandidateSignUpFor] = useState([]);
   const [candidateStatusForSalesPerson, setCandidateStatusForSalesPerson] = useState([]);
+  const [salesRejectionReason, setSalesRejectionReason] = useState([]);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const router = useRouter();
   const { id } = router.query;
@@ -72,12 +73,24 @@ const MarketingDataDetail = () => {
         console.error("Error fetching sales statuses:", error);
       }
     };
+    const fetchSalesRejectionReason = async () => {
+      try {
+        const response = await axios.get('/api/sales-rejection-reason');
+        if (response.status === 200) {
+          setSalesRejectionReason(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching sales statuses:", error);
+      }
+    };
+    
     if (id) {
       fetchMarketingData();
       fetchSalesStatuses();
       fetchPaymentScreenshotStatus()
       fetchCandidateSignUpForStatus()
       fetchCandidateStatusForSalesPersonStatus()
+      fetchSalesRejectionReason()
     }
   }, [id, apiUrl, salesStatusApiUrl, unsavedChanges]);
 
@@ -222,6 +235,28 @@ const MarketingDataDetail = () => {
                       </Form.Control>
                     ) : (
                       marketingData.candidateStatusForSalesPerson
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Sales Rejection Reason</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        as="select"
+                        name="salesRejectionReason"
+                        value={marketingData.salesRejectionReason}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Sales Rejection Reason</option>
+                        {salesRejectionReason.map((status) => (
+                          <option key={status._id} value={status.reason}>
+                            {status.reason}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    ) : (
+                      marketingData.salesRejectionReason
                     )}
                   </td>
                 </tr>
