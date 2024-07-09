@@ -92,7 +92,7 @@ const AdminManagement = () => {
   return (
     <AdminLayout>
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
-        <Tab eventKey="sales-status" title="Sales Statuses">
+        <Tab eventKey="sales-status" title="Initial Call Status">
           <Card>
             <Card.Header>Sales Statuses</Card.Header>
             <Card.Body>
@@ -165,7 +165,7 @@ const AdminManagement = () => {
             </Card.Body>
           </Card>
         </Tab>
-        <Tab eventKey="candidate-status-for-sales-person" title="Candidate Statuses For Sales Person">
+        <Tab eventKey="candidate-status-for-sales-person" title="Candidate Status For Sales Person">
           <Card>
             <Card.Header>Candidate Statuses For Sales Person</Card.Header>
             <Card.Body>
@@ -204,7 +204,7 @@ const AdminManagement = () => {
             </Card.Body>
           </Card>
         </Tab>
-        <Tab eventKey="payment-screenshot-status" title="Payment Screenshot Statuses">
+        <Tab eventKey="payment-screenshot-status" title="Payment Screenshot Status">
           <Card>
             <Card.Header>Payment Screenshot Statuses</Card.Header>
             <Card.Body>
