@@ -206,7 +206,7 @@ export default function SidebarNav() {
             Sales Members
           </SidebarNavItem> */}
           <SidebarNavItem icon={faHome} href="/sales_status">
-            Sales Drop Down
+            Sales Dropdown
           </SidebarNavItem>
           <SidebarNavItem icon={faHome} href="/departments">
             Departments
