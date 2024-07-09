@@ -84,7 +84,7 @@ const AdminManagement = () => {
 
   useEffect(() => {
     fetchData("/api/sales-status", setSalesStatuses);
-    fetchData("/api/candidate-sign-up-for", setCandidateSignUpFors);
+    fetchData("/api/candidate_signup_for", setCandidateSignUpFors);
     fetchData("/api/candidate-status-for-sales-person", setCandidateStatusesForSalesPerson);
     fetchData("/api/payment-screenshot-status", setPaymentScreenshotStatuses);
   }, []);
@@ -127,7 +127,7 @@ const AdminManagement = () => {
             </Card.Body>
           </Card>
         </Tab>
-        <Tab eventKey="candidateSignUpFors" title="Candidate Sign Up For">
+        <Tab eventKey="candidate_signup_for" title="Candidate Sign Up For">
           <Card>
             <Card.Header>Candidate Sign Up For</Card.Header>
             <Card.Body>
@@ -165,7 +165,7 @@ const AdminManagement = () => {
             </Card.Body>
           </Card>
         </Tab>
-        <Tab eventKey="candidateStatusesForSalesPerson" title="Candidate Statuses For Sales Person">
+        <Tab eventKey="candidate-status-for-sales-person" title="Candidate Statuses For Sales Person">
           <Card>
             <Card.Header>Candidate Statuses For Sales Person</Card.Header>
             <Card.Body>
