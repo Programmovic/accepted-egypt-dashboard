@@ -111,9 +111,21 @@ const Employees = () => {
       console.error("Error fetching Departments:", error);
     }
   };
+  const [positions, setPositions] = useState([]);
+  const fetchPositions = async () => {
+    try {
+      const response = await axios.get('/api/position');
+      if (response.status === 200) {
+        setPositions(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching Departments:", error);
+    }
+  };
   useEffect(() => {
     fetchEmployeeData();
     fetchDepartments()
+    fetchPositions();
   }, []);
   // Function to apply filters
   const handleFilter = () => {
@@ -323,7 +335,8 @@ const Employees = () => {
             <Form.Group className="mb-3">
               <Form.Label>Position</Form.Label>
               <Form.Control
-                type="text"
+                as="select"
+                name="position"
                 value={newEmployeeData.position}
                 onChange={(e) =>
                   setNewEmployeeData({
@@ -331,7 +344,14 @@ const Employees = () => {
                     position: e.target.value,
                   })
                 }
-              />
+              >
+                <option value="">Select Position</option>
+                {positions.map((position) => (
+                  <option key={position._id} value={position._id}>
+                    {position.name}
+                  </option>
+                ))}
+              </Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Salary</Form.Label>
