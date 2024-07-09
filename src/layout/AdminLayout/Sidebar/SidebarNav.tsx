@@ -254,9 +254,9 @@ export default function SidebarNav() {
             Finalized Batches
           </SidebarNavItem>
         </SidebarNavGroup>
-        <SidebarNavItem icon={faChalkboardTeacher} href="/instructors">
+        {/* <SidebarNavItem icon={faChalkboardTeacher} href="/instructors">
           Instructors
-        </SidebarNavItem>
+        </SidebarNavItem> */}
         <SidebarNavItem icon={faPeopleGroup} href="/lectures">
           Lectures
         </SidebarNavItem>

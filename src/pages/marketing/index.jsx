@@ -98,7 +98,7 @@ const MarketingData = () => {
 
     if (assignedToModeration) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.assignedToModeration.toLowerCase().includes(assignedToModeration.toLowerCase())
+        item?.assignedToModeration?.toLowerCase().includes(assignedToModeration.toLowerCase())
       );
     }
 
@@ -110,7 +110,7 @@ const MarketingData = () => {
 
     if (assignedToSales) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.assignedToSales.toLowerCase().includes(assignedToSales.toLowerCase())
+        item?.assignedToSales?.toLowerCase().includes(assignedToSales.toLowerCase())
       );
     }
 
@@ -324,7 +324,7 @@ const MarketingData = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col xs={6}>
+              {/* <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Language Issues</Form.Label>
                   <Form.Control
@@ -333,15 +333,24 @@ const MarketingData = () => {
                     onChange={(e) => setLanguageIssues(e.target.value)}
                   />
                 </Form.Group>
-              </Col>
+              </Col> */}
               <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assigned to Moderation</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={assignedToModeration}
-                    onChange={(e) => setAssignedToModeration(e.target.value)}
-                  />
+              <Form.Group className="mb-3">
+              <Form.Label>Filter by Assigned to Moderation</Form.Label>
+                <Form.Control
+                  as="select"
+                  value={assignedToModeration}
+                  onChange={(e) => setAssignedToModeration(e.target.value)}
+
+
+                >
+                  <option value="" hidden>Select a sales moderator</option>
+                  {salesModerators.map((moderator) => (
+                    <option key={moderator._id} value={moderator.name}>
+                      {moderator.name}
+                    </option>
+                  ))}
+                </Form.Control>
                 </Form.Group>
               </Col>
               <Col xs={6}>
@@ -354,7 +363,7 @@ const MarketingData = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col xs={6}>
+              {/* <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Assigned to Sales</Form.Label>
                   <Form.Control
@@ -363,7 +372,7 @@ const MarketingData = () => {
                     onChange={(e) => setAssignedToSales(e.target.value)}
                   />
                 </Form.Group>
-              </Col>
+              </Col> */}
             </Row>
             <Row>
               <Col xs={6}>
