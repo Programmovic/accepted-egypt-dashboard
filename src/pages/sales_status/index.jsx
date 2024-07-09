@@ -1,4 +1,3 @@
-// Import necessary libraries and components
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -18,6 +17,7 @@ const AdminManagement = () => {
   const [salesStatuses, setSalesStatuses] = useState([]);
   const [candidateSignUpFors, setCandidateSignUpFors] = useState([]);
   const [candidateStatusesForSalesPerson, setCandidateStatusesForSalesPerson] = useState([]);
+  const [paymentScreenshotStatuses, setPaymentScreenshotStatuses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -42,42 +42,42 @@ const AdminManagement = () => {
   const handleSave = async () => {
     const method = isEdit ? 'put' : 'post';
     const url = isEdit
-      ? `api/${activeTab === "salesStatuses" ? "sales-status" : activeTab === "candidateSignUpFors" ? "candidate-sign-up-for" : "candidate-status-for-sales-person"}?id=${currentItem._id}`
-      : `api/${activeTab === "salesStatuses" ? "sales-status" : activeTab === "candidateSignUpFors" ? "candidate-sign-up-for" : "candidate-status-for-sales-person"}`;
+      ? `api/${activeTab}?id=${currentItem._id}`
+      : `api/${activeTab}`;
 
-    const data = activeTab === "salesStatuses"
-      ? { status: currentItem.status }
-      : activeTab === "candidateSignUpFors"
-        ? { order: currentItem.order, status: currentItem.status }
-        : { status: currentItem.status, description: currentItem.description };
+    const data = { status: currentItem.status, description: currentItem.description };
+
+    if (activeTab === "candidateSignUpFors") {
+      data.order = currentItem.order;
+    }
 
     try {
       const response = await axios[method](url, data);
       if (response.status === 201 || response.status === 200) {
-        toast.success(`${activeTab === "salesStatuses" ? 'Sales Status' : activeTab === "candidateSignUpFors" ? 'Candidate Sign Up For' : 'Candidate Status For Sales Person'} ${isEdit ? 'updated' : 'added'} successfully!`);
-        fetchData(`/api/${activeTab === "salesStatuses" ? "sales-status" : activeTab === "candidateSignUpFors" ? "candidate-sign-up-for" : "candidate-status-for-sales-person"}`, activeTab === "salesStatuses" ? setSalesStatuses : activeTab === "candidateSignUpFors" ? setCandidateSignUpFors : setCandidateStatusesForSalesPerson);
+        toast.success(`${activeTab === "salesStatuses" ? 'Sales Status' : activeTab === "candidateSignUpFors" ? 'Candidate Sign Up For' : activeTab === "candidateStatusesForSalesPerson" ? 'Candidate Status For Sales Person' : 'Payment Screenshot Status'} ${isEdit ? 'updated' : 'added'} successfully!`);
+        fetchData(`/api/${activeTab}`, activeTab === "salesStatuses" ? setSalesStatuses : activeTab === "candidateSignUpFors" ? setCandidateSignUpFors : activeTab === "candidateStatusesForSalesPerson" ? setCandidateStatusesForSalesPerson : setPaymentScreenshotStatuses);
         setShowModal(false);
         setCurrentItem({ id: null, status: "", order: null, description: "" });
       }
     } catch (error) {
-      toast.error(`Failed to ${isEdit ? 'update' : 'add'} the ${activeTab === "salesStatuses" ? 'sales status' : activeTab === "candidateSignUpFors" ? 'candidate sign up for' : 'candidate status for sales person'}. Please try again.`);
-      console.error(`Error saving ${activeTab === "salesStatuses" ? 'sales status' : activeTab === "candidateSignUpFors" ? 'candidate sign up for' : 'candidate status for sales person'}:`, error);
+      toast.error(`Failed to ${isEdit ? 'update' : 'add'} the ${activeTab}. Please try again.`);
+      console.error(`Error saving ${activeTab}:`, error);
     }
   };
 
   const handleDelete = async (id) => {
-    const userConfirmed = window.confirm(`Are you sure you want to delete this ${activeTab === "salesStatuses" ? 'sales status' : activeTab === "candidateSignUpFors" ? 'candidate sign up for' : 'candidate status for sales person'}?`);
+    const userConfirmed = window.confirm(`Are you sure you want to delete this ${activeTab}?`);
 
     if (userConfirmed) {
       try {
-        const response = await axios.delete(`/api/${activeTab === "salesStatuses" ? "sales-status" : activeTab === "candidateSignUpFors" ? "candidate-sign-up-for" : "candidate-status-for-sales-person"}?id=${id}`);
+        const response = await axios.delete(`/api/${activeTab}?id=${id}`);
         if (response.status === 200) {
-          toast.success(`${activeTab === "salesStatuses" ? 'Sales Status' : activeTab === "candidateSignUpFors" ? 'Candidate Sign Up For' : 'Candidate Status For Sales Person'} deleted successfully!`);
-          fetchData(`/api/${activeTab === "salesStatuses" ? "sales-status" : activeTab === "candidateSignUpFors" ? "candidate-sign-up-for" : "candidate-status-for-sales-person"}`, activeTab === "salesStatuses" ? setSalesStatuses : activeTab === "candidateSignUpFors" ? setCandidateSignUpFors : setCandidateStatusesForSalesPerson);
+          toast.success(`${activeTab} deleted successfully!`);
+          fetchData(`/api/${activeTab}`, activeTab === "salesStatuses" ? setSalesStatuses : activeTab === "candidateSignUpFors" ? setCandidateSignUpFors : activeTab === "candidateStatusesForSalesPerson" ? setCandidateStatusesForSalesPerson : setPaymentScreenshotStatuses);
         }
       } catch (error) {
-        toast.error(`Failed to delete the ${activeTab === "salesStatuses" ? 'sales status' : activeTab === "candidateSignUpFors" ? 'candidate sign up for' : 'candidate status for sales person'}. Please try again.`);
-        console.error(`Error deleting ${activeTab === "salesStatuses" ? 'sales status' : activeTab === "candidateSignUpFors" ? 'candidate sign up for' : 'candidate status for sales person'}:`, error);
+        toast.error(`Failed to delete the ${activeTab}. Please try again.`);
+        console.error(`Error deleting ${activeTab}:`, error);
       }
     }
   };
@@ -86,6 +86,7 @@ const AdminManagement = () => {
     fetchData("/api/sales-status", setSalesStatuses);
     fetchData("/api/candidate-sign-up-for", setCandidateSignUpFors);
     fetchData("/api/candidate-status-for-sales-person", setCandidateStatusesForSalesPerson);
+    fetchData("/api/payment-screenshot-status", setPaymentScreenshotStatuses);
   }, []);
 
   return (
@@ -202,12 +203,50 @@ const AdminManagement = () => {
             </Card.Body>
           </Card>
         </Tab>
+        <Tab eventKey="payment-screenshot-status" title="Payment Screenshot Statuses">
+          <Card>
+            <Card.Header>Payment Screenshot Statuses</Card.Header>
+            <Card.Body>
+              <Button variant="success" onClick={() => { setShowModal(true); setIsEdit(false); }}>
+                Add Payment Screenshot Status
+              </Button>
+
+              <Table striped bordered hover className="mt-3">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paymentScreenshotStatuses.map((status, index) => (
+                    <tr key={status.id}>
+                      <td>{index + 1}</td>
+                      <td>{status.status}</td>
+                      <td>{status.description}</td>
+                      <td>
+                        <Button variant="primary" onClick={() => { setShowModal(true); setIsEdit(true); setCurrentItem(status); }}>
+                          Edit
+                        </Button>
+                        <Button variant="danger" onClick={() => handleDelete(status._id)} className="ms-2">
+                          Delete
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Card.Body>
+          </Card>
+        </Tab>
       </Tabs>
       <ToastContainer position="top-right" autoClose={3000} />
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>{isEdit ? 'Edit' : 'Add'} {activeTab === "salesStatuses" ? 'Sales Status' : activeTab === "candidateSignUpFors" ? 'Candidate Sign Up For' : 'Candidate Status For Sales Person'}</Modal.Title>
+          <Modal.Title>{isEdit ? 'Edit' : 'Add'} {activeTab}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -229,7 +268,7 @@ const AdminManagement = () => {
                 onChange={(e) => setCurrentItem({ ...currentItem, status: e.target.value })}
               />
             </Form.Group>
-            {activeTab === "candidateStatusesForSalesPerson" && (
+            {(activeTab === "candidateStatusesForSalesPerson" || activeTab === "paymentScreenshotStatuses") && (
               <Form.Group className="mb-3">
                 <Form.Label>Description</Form.Label>
                 <Form.Control

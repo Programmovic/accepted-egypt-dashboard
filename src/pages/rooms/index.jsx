@@ -274,7 +274,7 @@ const Rooms = () => {
                   Room Name {sortOrder === "asc" ? "▲" : "▼"}
                 </th>
                 <th>Capacity</th>
-                <th>Location</th>
+                <th>Branch</th>
                 <th>Disabled</th>
                 <th>Description</th>
                 <th>Actual Working Hours</th>
@@ -285,23 +285,23 @@ const Rooms = () => {
               {rooms.map((room, index) => {
                 return (
                   <tr key={room._id} onClick={() => handleRowClick(room)}>
-                    <td>{index + 1}</td>
-                    <td>{room.name}</td>
-                    <td>{room.capacity}</td>
-                    <td>{room?.location?.name}</td>
-                    <td>
+                    <td className={room?.disabled && "bg-danger text-white"}>{index + 1}</td>
+                    <td className={room?.disabled && "bg-danger text-white"}>{room.name}</td>
+                    <td className={room?.disabled && "bg-danger text-white"}>{room.capacity}</td>
+                    <td className={room?.disabled && "bg-danger text-white"}>{room?.location?.name}</td>
+                    <td className={room?.disabled && "bg-danger text-white"}>
                       {room?.disabled
                         ? `Yes at ${new Date(
-                            room?.disabledAt
-                          ).toLocaleString()}`
+                          room?.disabledAt
+                        ).toLocaleString()}`
                         : `No`}
                     </td>
-                    <td>{room.description}</td>
-                    <td>
+                    <td className={room?.disabled && "bg-danger text-white"}>{room.description}</td>
+                    <td className={room?.disabled && "bg-danger text-white"}>
                       {room?.actualWorkingHours?.from} to{" "}
                       {room?.actualWorkingHours?.to}
                     </td>
-                    <td>
+                    <td className={room?.disabled && "bg-danger text-white"}>
                       {roomAvailability[room._id]
                         ? "Available"
                         : "Not Available"}
@@ -393,7 +393,7 @@ const Rooms = () => {
             </Row>
 
             <Form.Group className="mb-3">
-              <Form.Label>Location</Form.Label>
+              <Form.Label>Branch</Form.Label>
               <Select
                 options={branches.map((branch) => ({
                   value: branch._id,

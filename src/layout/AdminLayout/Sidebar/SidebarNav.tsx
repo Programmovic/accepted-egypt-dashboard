@@ -19,7 +19,8 @@ import {
   faComputer,
   faSearch,
   faInstitution,
-  faCog
+  faCog,
+  faBullhorn
 } from "@fortawesome/free-solid-svg-icons";
 import React, {
   PropsWithChildren,
@@ -201,9 +202,9 @@ export default function SidebarNav() {
           <SidebarNavItem icon={faSchool} href="/courses">
             Courses
           </SidebarNavItem>
-          <SidebarNavItem icon={faStore} href="/sales_members">
+          {/* <SidebarNavItem icon={faStore} href="/sales_members">
             Sales Members
-          </SidebarNavItem>
+          </SidebarNavItem> */}
           <SidebarNavItem icon={faHome} href="/sales_status">
             Sales Statuses
           </SidebarNavItem>
@@ -212,7 +213,7 @@ export default function SidebarNav() {
           </SidebarNavItem>
         </SidebarNavGroup>
       )}
-      <SidebarNavGroup toggleIcon={faUser} toggleText="Marketing">
+      <SidebarNavGroup toggleIcon={faBullhorn} toggleText="Marketing">
         <SidebarNavItem icon={faUser} href="/marketing">
           Marketing
         </SidebarNavItem>

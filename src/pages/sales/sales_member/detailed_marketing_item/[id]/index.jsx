@@ -9,6 +9,9 @@ import "react-toastify/dist/ReactToastify.css";
 const MarketingDataDetail = () => {
   const [marketingData, setMarketingData] = useState(null);
   const [salesStatuses, setSalesStatuses] = useState([]);
+  const [paymentScreenshotStatus, setPaymentScreenshotStatus] = useState([]);
+  const [candidateSignUpFor, setCandidateSignUpFor] = useState([]);
+  const [candidateStatusForSalesPerson, setCandidateStatusForSalesPerson] = useState([]);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const router = useRouter();
   const { id } = router.query;
@@ -38,10 +41,42 @@ const MarketingDataDetail = () => {
         console.error("Error fetching sales statuses:", error);
       }
     };
-
+    const fetchPaymentScreenshotStatus = async () => {
+      try {
+        const response = await axios.get('/api/payment-screenshot-status');
+        if (response.status === 200) {
+          setPaymentScreenshotStatus(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching sales statuses:", error);
+      }
+    };
+    const fetchCandidateSignUpForStatus = async () => {
+      try {
+        const response = await axios.get('/api/candidate_signup_for');
+        if (response.status === 200) {
+          setCandidateSignUpFor(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching sales statuses:", error);
+      }
+    };
+    const fetchCandidateStatusForSalesPersonStatus = async () => {
+      try {
+        const response = await axios.get('/api/candidate-status-for-sales-person');
+        if (response.status === 200) {
+          setCandidateStatusForSalesPerson(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching sales statuses:", error);
+      }
+    };
     if (id) {
       fetchMarketingData();
       fetchSalesStatuses();
+      fetchPaymentScreenshotStatus()
+      fetchCandidateSignUpForStatus()
+      fetchCandidateStatusForSalesPersonStatus()
     }
   }, [id, apiUrl, salesStatusApiUrl, unsavedChanges]);
 
@@ -129,8 +164,8 @@ const MarketingDataDetail = () => {
                     {editing ? (
                       <Form.Control
                         as="select"
-                        name="assignTo"
-                        value={marketingData.assignTo}
+                        name="salesStatus"
+                        value={marketingData.salesStatus}
                         onChange={handleChange}
                       >
                         <option value="">Select Sales Status</option>
@@ -141,7 +176,73 @@ const MarketingDataDetail = () => {
                         ))}
                       </Form.Control>
                     ) : (
-                      marketingData.assignTo
+                      marketingData.salesStatus
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Candidate Sign Up For</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        as="select"
+                        name="candidateSignUpFor"
+                        value={marketingData.candidateSignUpFor}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Candidate Sign Up For</option>
+                        {candidateSignUpFor.map((status) => (
+                          <option key={status._id} value={status.status}>
+                            {status.status}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    ) : (
+                      marketingData.candidateSignUpFor
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Candidate Status For Sales Person</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        as="select"
+                        name="candidateStatusForSalesPerson"
+                        value={marketingData.candidateStatusForSalesPerson}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Candidate Status For Sales Person</option>
+                        {candidateStatusForSalesPerson.map((status) => (
+                          <option key={status._id} value={status.status}>
+                            {status.status}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    ) : (
+                      marketingData.candidateStatusForSalesPerson
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Payment Screenshot Status</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        as="select"
+                        name="paymentScreenshotStatus"
+                        value={marketingData.paymentScreenshotStatus}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Sales Status</option>
+                        {paymentScreenshotStatus.map((status) => (
+                          <option key={status._id} value={status.status}>
+                            {status.status}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    ) : (
+                      marketingData.paymentScreenshotStatus
                     )}
                   </td>
                 </tr>

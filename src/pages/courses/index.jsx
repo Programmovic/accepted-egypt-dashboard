@@ -330,7 +330,7 @@ console.log(filteredData)
             <Row>
               <Col xs={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Filter by Title</Form.Label>
+                  <Form.Label>Filter by Course Name</Form.Label>
                   <Form.Control
                     type="text"
                     value={filterTitle}
@@ -348,7 +348,7 @@ console.log(filteredData)
                   />
                 </Form.Group>
               </Col>
-              <Col xs={6}>
+              {/* <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by End Date</Form.Label>
                   <Form.Control
@@ -357,8 +357,8 @@ console.log(filteredData)
                     onChange={(e) => setEndDate(e.target.value)}
                   />
                 </Form.Group>
-              </Col>
-              <Col xs={6}>
+              </Col> */}
+              {/* <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Code</Form.Label>
                   <Form.Control
@@ -367,7 +367,7 @@ console.log(filteredData)
                     onChange={(e) => setFilterCode(e.target.value)}
                   />
                 </Form.Group>
-              </Col>
+              </Col> */}
             </Row>
             <Row>
               <Col xs={6}>
@@ -381,7 +381,7 @@ console.log(filteredData)
                 </Form.Group>
               </Col>
               
-              <Col xs={6}>
+              {/* <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Description</Form.Label>
                   <Form.Control
@@ -390,7 +390,7 @@ console.log(filteredData)
                     onChange={(e) => setFilterDescription(e.target.value)}
                   />
                 </Form.Group>
-              </Col>
+              </Col> */}
             </Row>
             <Row>
               <Col xs={6}>
@@ -416,7 +416,7 @@ console.log(filteredData)
               <thead>
                 <tr>
                   <th>#</th>
-                  <th onClick={() => handleSort("name")}>Title</th>
+                  <th onClick={() => handleSort("name")}>Course Name</th>
                   <th>Cost (EGP)</th>
                   <th>Created Date</th>
                   <th>Code</th> {/* Add new column for "Code" */}

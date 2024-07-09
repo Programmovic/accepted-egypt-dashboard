@@ -66,7 +66,7 @@ const Login: NextPage = () => {
         <Container>
           <Grid container justifyContent="center" alignItems="center">
             <Grid item lg={5}>
-              <div className="text-center bg-white border p-5">
+              <div className="text-center bg-white border p-5 radius-large">
                 <Typography variant="h4" gutterBottom>
                   Login
                 </Typography>
