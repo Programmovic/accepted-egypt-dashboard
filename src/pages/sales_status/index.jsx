@@ -199,6 +199,7 @@ const AdminManagement = () => {
                     </tr>
                   ))}
                 </tbody>
+                
               </Table>
             </Card.Body>
           </Card>
