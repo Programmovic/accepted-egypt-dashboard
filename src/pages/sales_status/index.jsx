@@ -18,6 +18,7 @@ const AdminManagement = () => {
   const [candidateSignUpFors, setCandidateSignUpFors] = useState([]);
   const [candidateStatusesForSalesPerson, setCandidateStatusesForSalesPerson] = useState([]);
   const [paymentScreenshotStatuses, setPaymentScreenshotStatuses] = useState([]);
+  const [salesRejectionReasons, setSalesRejectionReasons] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -45,7 +46,7 @@ const AdminManagement = () => {
       ? `api/${activeTab}?id=${currentItem._id}`
       : `api/${activeTab}`;
 
-    const data = { status: currentItem.status, description: currentItem.description };
+    const data = { status: currentItem.status, description: currentItem.description, reason: currentItem.reason };
 
     if (activeTab === "candidate_signup_for") {
       data.order = currentItem.order;
@@ -54,8 +55,8 @@ const AdminManagement = () => {
     try {
       const response = await axios[method](url, data);
       if (response.status === 201 || response.status === 200) {
-        toast.success(`${activeTab === "sales-status" ? 'Sales Status' : activeTab === "candidate_signup_for" ? 'Candidate Sign Up For' : activeTab === "candidate-status-for-sales-person" ? 'Candidate Status For Sales Person' : 'Payment Screenshot Status'} ${isEdit ? 'updated' : 'added'} successfully!`);
-        fetchData(`/api/${activeTab}`, activeTab === "sales-status" ? setSalesStatuses : activeTab === "candidate_signup_for" ? setCandidateSignUpFors : activeTab === "candidate-status-for-sales-person" ? setCandidateStatusesForSalesPerson : setPaymentScreenshotStatuses);
+        toast.success(`${activeTab === "sales-status" ? 'Sales Status' : activeTab === "candidate_signup_for" ? 'Candidate Sign Up For' : activeTab === "candidate-status-for-sales-person" ? 'Candidate Status For Sales Person' : activeTab === "payment-screenshot-status" ? 'Payment Screenshot Status' : 'Sales Rejection Reason'} ${isEdit ? 'updated' : 'added'} successfully!`);
+        fetchData(`/api/${activeTab}`, activeTab === "sales-status" ? setSalesStatuses : activeTab === "candidate_signup_for" ? setCandidateSignUpFors : activeTab === "candidate-status-for-sales-person" ? setCandidateStatusesForSalesPerson : activeTab === "payment-screenshot-status" ? setPaymentScreenshotStatuses : setSalesRejectionReasons);
         setShowModal(false);
         setCurrentItem({ id: null, status: "", order: null, description: "" });
       }
@@ -73,7 +74,7 @@ const AdminManagement = () => {
         const response = await axios.delete(`/api/${activeTab}?id=${id}`);
         if (response.status === 200) {
           toast.success(`${activeTab} deleted successfully!`);
-          fetchData(`/api/${activeTab}`, activeTab === "sales-status" ? setSalesStatuses : activeTab === "candidate_signup_for" ? setCandidateSignUpFors : activeTab === "candidate-status-for-sales-person" ? setCandidateStatusesForSalesPerson : setPaymentScreenshotStatuses);
+          fetchData(`/api/${activeTab}`, activeTab === "sales-status" ? setSalesStatuses : activeTab === "candidate_signup_for" ? setCandidateSignUpFors : activeTab === "candidate-status-for-sales-person" ? setCandidateStatusesForSalesPerson : activeTab === "payment-screenshot-status" ? setPaymentScreenshotStatuses : setSalesRejectionReasons);
         }
       } catch (error) {
         toast.error(`Failed to delete the ${activeTab}. Please try again.`);
@@ -87,12 +88,13 @@ const AdminManagement = () => {
     fetchData("/api/candidate_signup_for", setCandidateSignUpFors);
     fetchData("/api/candidate-status-for-sales-person", setCandidateStatusesForSalesPerson);
     fetchData("/api/payment-screenshot-status", setPaymentScreenshotStatuses);
+    fetchData("/api/sales-rejection-reason", setSalesRejectionReasons);
   }, []);
 
   return (
     <AdminLayout>
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
-        <Tab eventKey="sales-status" title="Initial Call Status">
+        <Tab eventKey="sales-status" title="Sales Status">
           <Card>
             <Card.Header>Sales Statuses</Card.Header>
             <Card.Body>
@@ -199,7 +201,6 @@ const AdminManagement = () => {
                     </tr>
                   ))}
                 </tbody>
-
               </Table>
             </Card.Body>
           </Card>
@@ -242,6 +243,42 @@ const AdminManagement = () => {
             </Card.Body>
           </Card>
         </Tab>
+        <Tab eventKey="sales-rejection-reason" title="Sales Rejection Reason">
+          <Card>
+            <Card.Header>Sales Rejection Reasons</Card.Header>
+            <Card.Body>
+              <Button variant="success" onClick={() => { setShowModal(true); setIsEdit(false); }}>
+                Add Sales Rejection Reason
+              </Button>
+
+              <Table striped bordered hover className="mt-3">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Reason</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {salesRejectionReasons.map((reason, index) => (
+                    <tr key={reason.id}>
+                      <td>{index + 1}</td>
+                      <td>{reason.reason}</td>
+                      <td>
+                        <Button variant="primary" onClick={() => { setShowModal(true); setIsEdit(true); setCurrentItem(reason); }}>
+                          Edit
+                        </Button>
+                        <Button variant="danger" onClick={() => handleDelete(reason._id)} className="ms-2">
+                          Delete
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Card.Body>
+          </Card>
+        </Tab>
       </Tabs>
       <ToastContainer position="top-right" autoClose={3000} />
 
@@ -251,7 +288,7 @@ const AdminManagement = () => {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            {activeTab === "candidateSignUpFors" && (
+            {activeTab === "candidate_signup_for" && (
               <Form.Group className="mb-3">
                 <Form.Label>Order</Form.Label>
                 <Form.Control
@@ -261,14 +298,25 @@ const AdminManagement = () => {
                 />
               </Form.Group>
             )}
-            <Form.Group className="mb-3">
-              <Form.Label>Status</Form.Label>
-              <Form.Control
-                type="text"
-                value={currentItem.status}
-                onChange={(e) => setCurrentItem({ ...currentItem, status: e.target.value })}
-              />
-            </Form.Group>
+            {(activeTab === "sales-status" || activeTab === "candidate_signup_for" || activeTab === "candidate-status-for-sales-person" || activeTab === "payment-screenshot-status") ? (
+              <Form.Group className="mb-3">
+                <Form.Label>Status</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={currentItem.status}
+                  onChange={(e) => setCurrentItem({ ...currentItem, status: e.target.value })}
+                />
+              </Form.Group>
+            ) : (
+              <Form.Group className="mb-3">
+                <Form.Label>Reason</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={currentItem.reason}
+                  onChange={(e) => setCurrentItem({ ...currentItem, reason: e.target.value })}
+                />
+              </Form.Group>
+            )}
             {(activeTab === "candidateStatusesForSalesPerson" || activeTab === "paymentScreenshotStatuses") && (
               <Form.Group className="mb-3">
                 <Form.Label>Description</Form.Label>
