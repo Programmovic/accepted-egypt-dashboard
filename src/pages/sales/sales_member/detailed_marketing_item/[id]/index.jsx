@@ -25,6 +25,7 @@ const MarketingDataDetail = () => {
         const response = await axios.get(apiUrl);
         if (response.status === 200) {
           setMarketingData(response.data);
+          console.log(response.data)
         }
       } catch (error) {
         console.error("Error fetching marketing data:", error);
