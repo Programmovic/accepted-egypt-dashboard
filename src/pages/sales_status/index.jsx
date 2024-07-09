@@ -47,15 +47,15 @@ const AdminManagement = () => {
 
     const data = { status: currentItem.status, description: currentItem.description };
 
-    if (activeTab === "candidateSignUpFors") {
+    if (activeTab === "candidate_signup_for") {
       data.order = currentItem.order;
     }
 
     try {
       const response = await axios[method](url, data);
       if (response.status === 201 || response.status === 200) {
-        toast.success(`${activeTab === "salesStatuses" ? 'Sales Status' : activeTab === "candidateSignUpFors" ? 'Candidate Sign Up For' : activeTab === "candidateStatusesForSalesPerson" ? 'Candidate Status For Sales Person' : 'Payment Screenshot Status'} ${isEdit ? 'updated' : 'added'} successfully!`);
-        fetchData(`/api/${activeTab}`, activeTab === "salesStatuses" ? setSalesStatuses : activeTab === "candidateSignUpFors" ? setCandidateSignUpFors : activeTab === "candidateStatusesForSalesPerson" ? setCandidateStatusesForSalesPerson : setPaymentScreenshotStatuses);
+        toast.success(`${activeTab === "sales-status" ? 'Sales Status' : activeTab === "candidate_signup_for" ? 'Candidate Sign Up For' : activeTab === "candidate-status-for-sales-person" ? 'Candidate Status For Sales Person' : 'Payment Screenshot Status'} ${isEdit ? 'updated' : 'added'} successfully!`);
+        fetchData(`/api/${activeTab}`, activeTab === "sales-status" ? setSalesStatuses : activeTab === "candidate_signup_for" ? setCandidateSignUpFors : activeTab === "candidate-status-for-sales-person" ? setCandidateStatusesForSalesPerson : setPaymentScreenshotStatuses);
         setShowModal(false);
         setCurrentItem({ id: null, status: "", order: null, description: "" });
       }
@@ -92,7 +92,7 @@ const AdminManagement = () => {
   return (
     <AdminLayout>
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
-        <Tab eventKey="salesStatuses" title="Sales Statuses">
+        <Tab eventKey="sales-status" title="Sales Statuses">
           <Card>
             <Card.Header>Sales Statuses</Card.Header>
             <Card.Body>
@@ -199,7 +199,7 @@ const AdminManagement = () => {
                     </tr>
                   ))}
                 </tbody>
-                
+
               </Table>
             </Card.Body>
           </Card>
