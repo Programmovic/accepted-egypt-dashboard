@@ -231,6 +231,8 @@ const MarketingData = () => {
                 <option value="Facebook">Facebook</option>
                 <option value="Linkedin">LinkedIn</option>
                 <option value="Instagram">Instagram</option>
+                <option value="TikTok">TikTok</option>
+                <option value="Organic">Organic</option>
                 <option value="Other">Other</option>
               </Form.Control>
             </Form.Group>
