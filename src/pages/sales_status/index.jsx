@@ -73,7 +73,7 @@ const AdminManagement = () => {
         const response = await axios.delete(`/api/${activeTab}?id=${id}`);
         if (response.status === 200) {
           toast.success(`${activeTab} deleted successfully!`);
-          fetchData(`/api/${activeTab}`, activeTab === "salesStatuses" ? setSalesStatuses : activeTab === "candidateSignUpFors" ? setCandidateSignUpFors : activeTab === "candidateStatusesForSalesPerson" ? setCandidateStatusesForSalesPerson : setPaymentScreenshotStatuses);
+          fetchData(`/api/${activeTab}`, activeTab === "sales-status" ? setSalesStatuses : activeTab === "candidate_signup_for" ? setCandidateSignUpFors : activeTab === "candidate-status-for-sales-person" ? setCandidateStatusesForSalesPerson : setPaymentScreenshotStatuses);
         }
       } catch (error) {
         toast.error(`Failed to delete the ${activeTab}. Please try again.`);
