@@ -336,7 +336,7 @@ const MarketingData = () => {
               </Col> */}
               <Col xs={6}>
               <Form.Group className="mb-3">
-              <Form.Label>Filter by Assigned to Moderation</Form.Label>
+              <Form.Label>Filter by Assigned to Sales Supervisor</Form.Label>
                 <Form.Control
                   as="select"
                   value={assignedToModeration}
@@ -344,7 +344,7 @@ const MarketingData = () => {
 
 
                 >
-                  <option value="" hidden>Select a sales moderator</option>
+                  <option value="" hidden>Select a sales Supervisor</option>
                   {salesModerators.map((moderator) => (
                     <option key={moderator._id} value={moderator.name}>
                       {moderator.name}
@@ -404,7 +404,7 @@ const MarketingData = () => {
                   <th>Chat Summary</th>
                   <th>Source</th>
                   <th>Language Issues</th>
-                  <th>Assigned to Moderation</th>
+                  <th>Assigned to Sales Supervisor</th>
                   <th>Assignation Date</th>
                 </tr>
               </thead>
