@@ -234,7 +234,7 @@ const MarketingDataDetail = () => {
                         value={marketingData.paymentScreenshotStatus}
                         onChange={handleChange}
                       >
-                        <option value="">Select Sales Status</option>
+                        <option value="">Select Payment Screenshot Status</option>
                         {paymentScreenshotStatus.map((status) => (
                           <option key={status._id} value={status.status}>
                             {status.status}
