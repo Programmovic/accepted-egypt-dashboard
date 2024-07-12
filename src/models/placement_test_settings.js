@@ -10,6 +10,14 @@ const placementTestSettingsSchema = new mongoose.Schema({
   date: {
     type: Date, // Date of the placement test settings
   },
+  startTime: {
+    type: String, // Store time as a string, e.g., "09:00 AM"
+    required: true,
+  },
+  endTime: {
+    type: String, // Store time as a string, e.g., "11:00 AM"
+    required: true,
+  },
   createdAt: {
     type: Date, // Timestamp of when the placement test settings document was created
     default: Date.now, // Set the default value to the current date and time

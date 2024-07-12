@@ -1,7 +1,7 @@
 // PlacementTests.js
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { Card, Button, Table, Form, Modal, Accordion } from "react-bootstrap";
+import { Card, Button, Table, Form, Modal, Accordion, Row, Col } from "react-bootstrap";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@layout";
@@ -63,8 +63,8 @@ const PlacementTests = () => {
     }
   };
   const date = newTestDate; // Use your desired date
-  const fromTime = "09:00 AM"; // Use your desired from time
-  const toTime = "05:00 AM"; // Use your desired to time
+  const [newTestStartTime, setNewTestStartTime] = useState("");
+  const [newTestEndTime, setNewTestEndTime] = useState("");
 
   // Define the URL of your API endpoint
   const apiUrl = "/api/reservation/available-rooms"; // Update the URL if needed
@@ -116,11 +116,13 @@ const PlacementTests = () => {
       return;
     }
     try {
-      const response = await axios.post("/api/placement_test_settings", {
+      const response = await axios.post("/api/placemet_test_settings", {
         cost: newTestCost,
         instructions: newTestInstructions,
         room: newTestRoom,
         date: newTestDate,
+        startTime: newTestStartTime,
+        endTime: newTestEndTime,
         instructor: selectedInstructor.value,
         token,
       });
@@ -706,8 +708,30 @@ const PlacementTests = () => {
                 onChange={(e) => setNewTestDate(e.target.value)}
               />
             </Form.Group>
+            <Row className="my-4">
+              <Col xs={6}>
+                <Form.Label>From:</Form.Label>
+                <Form.Control
+                  type="time"
+                  value={newTestStartTime}
+                  onChange={(e) =>
+                    setNewTestStartTime(e.target.value)
+                  }
+                />
+              </Col>
+              <Col xs={6}>
+                <Form.Label>To:</Form.Label>
+                <Form.Control
+                  type="time"
+                  value={newTestEndTime}
+                  onChange={(e) =>
+                    setNewTestEndTime(e.target.value)
+                  }
+                />
+              </Col>
+            </Row>
             <Form.Group className="mb-3">
-              <Form.Label>Available Rooms</Form.Label>
+              <Form.Label>Available Rooms <span className="fw-bold">(Just if On-site)</span></Form.Label>
               {/* Render the React-Select component for selecting a room */}
               <Select
                 value={selectedRoom}
@@ -735,7 +759,7 @@ const PlacementTests = () => {
                 </>
               )}
             </Form.Group>
-            
+
           </Form>
         </Modal.Body>
         <Modal.Footer>
