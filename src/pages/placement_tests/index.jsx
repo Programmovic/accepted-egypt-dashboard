@@ -699,6 +699,14 @@ const PlacementTests = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
+              <Form.Label>Date</Form.Label>
+              <Form.Control
+                type="date"
+                value={newTestDate}
+                onChange={(e) => setNewTestDate(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
               <Form.Label>Available Rooms</Form.Label>
               {/* Render the React-Select component for selecting a room */}
               <Select
@@ -727,14 +735,7 @@ const PlacementTests = () => {
                 </>
               )}
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Date</Form.Label>
-              <Form.Control
-                type="date"
-                value={newTestDate}
-                onChange={(e) => setNewTestDate(e.target.value)}
-              />
-            </Form.Group>
+            
           </Form>
         </Modal.Body>
         <Modal.Footer>
