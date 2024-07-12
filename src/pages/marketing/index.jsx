@@ -400,10 +400,8 @@ const MarketingData = () => {
                   <th>Name</th>
                   <th>Phone no1</th>
                   <th>Phone no2</th>
-                  <th>Assign to</th>
-                  <th>Chat Summary</th>
+                  <th>Candidate Signed Up For</th>
                   <th>Source</th>
-                  <th>Language Issues</th>
                   <th>Assigned to Sales Supervisor</th>
                   <th>Assignation Date</th>
                 </tr>
@@ -416,9 +414,7 @@ const MarketingData = () => {
                     <td>{item.phoneNo1}</td>
                     <td>{item.phoneNo2}</td>
                     <td>{item.assignTo}</td>
-                    <td>{item.chatSummary}</td>
                     <td>{item.Source}</td>
-                    <td>{item.languageIssues}</td>
                     <td>
                       <Form.Control
                         as="select"
