@@ -200,7 +200,7 @@ const MarketingData = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Assign to</Form.Label>
+              <Form.Label>Candidate Signed Up For</Form.Label>
               <Form.Control
                 as="select"
                 value={newAssignTo}
