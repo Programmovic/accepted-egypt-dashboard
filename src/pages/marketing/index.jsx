@@ -132,8 +132,21 @@ const MarketingData = () => {
   };
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
+  useEffect(() => {
+    const keyPressEvent = (e) => {
+      if (e.keyCode === 13 && showModal) {
+        handleAddMarketingData()
+      }
+    };
+    document.addEventListener('keydown', keyPressEvent, true);
 
+    return () => {
+      document.removeEventListener('keydown', keyPressEvent);
+    };
+
+  }, []);
   const handleAddMarketingData = async () => {
+
     try {
       await axios.post("/api/marketing", {
         name: newName,
@@ -222,7 +235,7 @@ const MarketingData = () => {
           <Modal.Title>Add New Marketing Data</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form style={{ maxHeight: "500px", overflowY: 'auto', padding: "5px 5px" }}>
+          <Form onSubmit={handleAddMarketingData} style={{ maxHeight: "500px", overflowY: 'auto', padding: "5px 5px" }}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control

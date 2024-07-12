@@ -416,7 +416,12 @@ const PlacementTests = () => {
   // Add this line with other state declarations
   const [showRoomReservationsModal, setShowRoomReservationsModal] =
     useState(false);
-
+  const handleKeyPress = (target) => {
+    console.log('Enter clicked!!!');
+    if (target.charCode == 13) {
+      alert('Enter clicked!!!');
+    }
+  }
   return (
     <AdminLayout>
       {/* <div className="row">
@@ -776,7 +781,7 @@ const PlacementTests = () => {
           >
             Close
           </Button>
-          <Button variant="success" onClick={handleAddPlacementTest}>
+          <Button variant="success" onClick={handleAddPlacementTest} onKeyDown={() => {console.log("stuff is happening")}}>
             Add Placement Test
           </Button>
         </Modal.Footer>
