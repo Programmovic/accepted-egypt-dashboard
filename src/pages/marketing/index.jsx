@@ -6,6 +6,8 @@ import { Modal } from "react-bootstrap";
 import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const MarketingData = () => {
   const [marketingData, setMarketingData] = useState([]);
@@ -166,6 +168,52 @@ const MarketingData = () => {
       toast.error(error.message);
     }
   };
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const data = new Uint8Array(e.target.result);
+      const workbook = XLSX.read(data, { type: "array" });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      // Assuming the jsonData is an array of objects matching your marketing data structure
+      jsonData.forEach(async (dataItem) => {
+        try {
+          await axios.post("/api/marketing", dataItem);
+          fetchMarketingData();
+          toast.success(`${dataItem.name} has been added successfully!`);
+        } catch (error) {
+          console.error("Error adding marketing data from file:", error.message);
+          toast.error(`Error adding data for ${dataItem.name}`);
+        }
+      });
+
+
+      toast.success("Marketing data uploaded successfully!");
+    };
+
+    reader.readAsArrayBuffer(file);
+  };
+  const downloadTemplate = () => {
+    const templateData = [
+      {
+        name: "",
+        phoneNo1: "",
+        phoneNo2: "",
+        assignTo: "",
+        source: "",
+      },
+    ];
+
+    const worksheet = XLSX.utils.json_to_sheet(templateData);
+    const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(data, "MarketingDataTemplate.xlsx");
+  };
   return (
     <AdminLayout>
       <ToastContainer />
@@ -280,7 +328,15 @@ const MarketingData = () => {
         </Modal.Footer>
       </Modal>
       <Card>
-        <Card.Header>Marketing Data</Card.Header>
+        <Card.Header className="d-flex align-items-center">
+          <div className="w-50">Marketing Data</div>
+          <div className="w-50 d-flex justify-content-between align-items-center">
+            <input type="file" onChange={handleFileUpload} accept=".xlsx, .xls" />
+            <Button variant="outline-primary" onClick={downloadTemplate}>
+              Download Template
+            </Button>
+          </div>
+        </Card.Header>
         <Card.Body>
           <Form className="mb-3">
             <Row>
@@ -335,22 +391,22 @@ const MarketingData = () => {
                 </Form.Group>
               </Col> */}
               <Col xs={6}>
-              <Form.Group className="mb-3">
-              <Form.Label>Filter by Assigned to Sales Supervisor</Form.Label>
-                <Form.Control
-                  as="select"
-                  value={assignedToModeration}
-                  onChange={(e) => setAssignedToModeration(e.target.value)}
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Assigned to Sales Supervisor</Form.Label>
+                  <Form.Control
+                    as="select"
+                    value={assignedToModeration}
+                    onChange={(e) => setAssignedToModeration(e.target.value)}
 
 
-                >
-                  <option value="" hidden>Select a sales Supervisor</option>
-                  {salesModerators.map((moderator) => (
-                    <option key={moderator._id} value={moderator.name}>
-                      {moderator.name}
-                    </option>
-                  ))}
-                </Form.Control>
+                  >
+                    <option value="" hidden>Select a sales Supervisor</option>
+                    {salesModerators.map((moderator) => (
+                      <option key={moderator._id} value={moderator.name}>
+                        {moderator.name}
+                      </option>
+                    ))}
+                  </Form.Control>
                 </Form.Group>
               </Col>
               <Col xs={6}>

@@ -1,5 +1,3 @@
-// marketing.js
-
 import connectDB from "@lib/db";
 import MarketingData from "../../../models/marketing";
 import Employee from "../../../models/employee"; // Import Employee model
@@ -46,17 +44,18 @@ export default async (req, res) => {
       } else {
         let allMarketingData = [];
         if (assignedToModerator) {
-          // Fetch all MarketingData records
+          // Fetch all MarketingData records assigned to moderators and sort by creation date (newest first)
           allMarketingData = await MarketingData.find({
             assignedToModeration: { $exists: true, $ne: null, $ne: "" },
-          });
+          }).sort({ createdAt: -1 });
         } else if (assignedToMember) {
-          // Fetch all MarketingData records
+          // Fetch all MarketingData records assigned to members and sort by creation date (newest first)
           allMarketingData = await MarketingData.find({
             assignedToSales: { $exists: true, $ne: null, $ne: "" },
-          });
+          }).sort({ createdAt: -1 });
         } else {
-          allMarketingData = await MarketingData.find();
+          // Fetch all MarketingData records and sort by creation date (newest first)
+          allMarketingData = await MarketingData.find().sort({ createdAt: -1 });
         }
 
         // Fetch employees in sales department with position matching 'member' or 'moderator' (case-insensitive)
