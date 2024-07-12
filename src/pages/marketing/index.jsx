@@ -429,7 +429,7 @@ const MarketingData = () => {
 
                         }
                       >
-                        <option value="" hidden>Select a sales moderator</option>
+                        <option value="" hidden>Select a sales supervisor</option>
                         {salesModerators.map((moderator) => (
                           <option key={moderator._id} value={moderator.name}>
                             {moderator.name}
