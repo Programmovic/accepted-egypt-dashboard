@@ -148,6 +148,14 @@ const MarketingData = () => {
   const handleAddMarketingData = async () => {
 
     try {
+      if (!newName || !newPhoneNo1) {
+        toast.error("Please fill all required fields.");
+        return;
+      }
+      if (newPhoneNo1.length > 11 || newPhoneNo1.length < 11) {
+        toast.error("Phone must be at least 11 digits.");
+        return;
+      }
       await axios.post("/api/marketing", {
         name: newName,
         phoneNo1: newPhoneNo1,
@@ -192,8 +200,26 @@ const MarketingData = () => {
       const worksheet = workbook.Sheets[firstSheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      // Assuming the jsonData is an array of objects matching your marketing data structure
-      jsonData.forEach(async (dataItem) => {
+      // Filter out invalid data items
+      const validDataItems = jsonData.filter(dataItem => {
+        if (!dataItem.name || !dataItem.phoneNo1) {
+          toast.error("Please fill all required fields.");
+          return false;
+        }
+        if (dataItem.phoneNo1.length !== 11) {
+          toast.error("Phone must be exactly 11 digits.");
+          return false;
+        }
+        return true;
+      });
+
+      if (validDataItems.length === 0) {
+        toast.error("No valid data to upload.");
+        return;
+      }
+
+      // Process valid data items
+      validDataItems.forEach(async (dataItem) => {
         try {
           await axios.post("/api/marketing", dataItem);
           fetchMarketingData();
@@ -204,12 +230,12 @@ const MarketingData = () => {
         }
       });
 
-
       toast.success("Marketing data uploaded successfully!");
     };
 
     reader.readAsArrayBuffer(file);
   };
+
   const downloadTemplate = () => {
     const templateData = [
       {
@@ -226,6 +252,35 @@ const MarketingData = () => {
     const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(data, "MarketingDataTemplate.xlsx");
+  };
+  const [paginationEnabled, setPaginationEnabled] = useState(true);
+  const [rangeStart, setRangeStart] = useState("");
+  const [rangeEnd, setRangeEnd] = useState("");
+  const [selectedSalesMember, setSelectedSalesMember] = useState("");
+  const handleRangeAssign = async () => {
+    if (!rangeStart || !rangeEnd || !selectedSalesMember) {
+      toast.error("Please fill in all range fields and select a sales member.");
+      return;
+    }
+
+    const start = parseInt(rangeStart) - 1;
+    const end = parseInt(rangeEnd);
+
+    if (start >= 0 && end <= filteredData.length && start < end) {
+      const updates = filteredData.slice(start, end).map((item) =>
+        handleUpdateMarketingData(item._id, {
+          assignedToModeration: selectedSalesMember,
+          assignationDate: new Date(),
+        })
+      );
+      await Promise.all(updates);
+      toast.success("Assigned sales member to specified range successfully!");
+      setRangeStart(0)
+      setRangeEnd(0)
+      setSelectedSalesMember(null)
+    } else {
+      toast.error("Invalid range.");
+    }
   };
   return (
     <AdminLayout>
@@ -249,7 +304,9 @@ const MarketingData = () => {
               <Form.Control
                 type="text"
                 value={newPhoneNo1}
-                onChange={(e) => setNewPhoneNo1(e.target.value)}
+                onChange={(e) => {
+                  setNewPhoneNo1(e.target.value)
+                }}
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -329,6 +386,7 @@ const MarketingData = () => {
                 onChange={(e) => setNewAssignedToSales(e.target.value)}
               />
             </Form.Group> */}
+
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -338,6 +396,7 @@ const MarketingData = () => {
           <Button variant="success" onClick={handleAddMarketingData}>
             Add Marketing Data
           </Button>
+
         </Modal.Footer>
       </Modal>
       <Card>
@@ -443,18 +502,72 @@ const MarketingData = () => {
                 </Form.Group>
               </Col> */}
             </Row>
-            <Row>
-              <Col xs={6}>
-                <Button variant="secondary" onClick={clearFilters}>
-                  Clear Filters
+            <div className="d-flex justify-content-between">
+              <Button variant="secondary" onClick={clearFilters}>
+                Clear Filters
+              </Button>
+              <Button variant="primary" onClick={openModal}>
+                Add New Data
+              </Button>
+              {paginationEnabled && (
+                <Button variant="secondary" onClick={() => setPaginationEnabled(!paginationEnabled)}>
+                  Assign In Range
                 </Button>
-              </Col>
-              <Col xs={6} className="text-end">
-                <Button variant="primary" onClick={openModal}>
-                  Add New Data
-                </Button>
-              </Col>
-            </Row>
+              )}
+            </div>
+            {paginationEnabled || (
+              <>
+                <Row className="mt-3">
+                  <Col xs={4}>
+                    <Form.Group>
+                      <Form.Label>Range Start</Form.Label>
+                      <Form.Control
+                        type="number"
+                        value={rangeStart}
+                        onChange={(e) => setRangeStart(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={4}>
+                    <Form.Group>
+                      <Form.Label>Range End</Form.Label>
+                      <Form.Control
+                        type="number"
+                        value={rangeEnd}
+                        onChange={(e) => setRangeEnd(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={4}>
+                    <Form.Group>
+                      <Form.Label>Select Sales Member</Form.Label>
+                      <Form.Control
+                        as="select"
+                        value={selectedSalesMember}
+                        onChange={(e) => setSelectedSalesMember(e.target.value)}
+                      >
+                        <option value="" hidden>Select a sales member</option>
+                        {salesModerators.map((member) => (
+                          <option key={member._id} value={member.name}>
+                            {member.name}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="mt-3">
+                  <Col className="d-flex justify-content-between">
+                    <Button variant="primary" onClick={handleRangeAssign}>
+                      Assign Sales Member to Range
+                    </Button>
+                    <Button variant="secondary" onClick={() => setPaginationEnabled(!paginationEnabled)}>
+                      Close
+                    </Button>
+                  </Col>
+                </Row>
+              </>
+            )}
           </Form>
 
           {loading ? (
@@ -478,7 +591,7 @@ const MarketingData = () => {
               <tbody>
                 {filteredData.map((item, index) => (
                   <tr key={index}>
-                    <td>{index + 1}</td>
+                    <td className={(index + 1 >= rangeStart && index + 1 <= rangeEnd) && "bg-success text-light"}>{index + 1}</td>
                     <td>{item.name}</td>
                     <td>{item.phoneNo1}</td>
                     <td>{item.phoneNo2}</td>
