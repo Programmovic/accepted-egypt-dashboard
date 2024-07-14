@@ -20,8 +20,8 @@ export default async (req, res) => {
 
 const createPaymentMethod = async (req, res) => {
   try {
-    const { type } = req.body;
-    const paymentMethod = new PaymentMethod({ type });
+    const { type, configuration } = req.body;
+    const paymentMethod = new PaymentMethod({ type, configuration });
     await paymentMethod.save();
     res.status(201).json(paymentMethod);
   } catch (error) {
