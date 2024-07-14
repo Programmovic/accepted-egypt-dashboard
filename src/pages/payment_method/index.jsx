@@ -113,7 +113,7 @@ const PaymentMethods = () => {
     });
   };
   const handleBankAccountNumberChange = (index, value) => {
-    const newBankAccountNumbers = [...currentPaymentMethod.configuration.walletNumber];
+    const newBankAccountNumbers = [...currentPaymentMethod.configuration.bankAccountNumber];
     newBankAccountNumbers[index] = value;
     setCurrentPaymentMethod({
       ...currentPaymentMethod,
