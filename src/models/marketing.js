@@ -52,7 +52,12 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
       ref: "PaymentMethod", // Example reference to a senior sales entity
     },
-    
+    recieverNumber: {
+      type: String, // Example reference to a senior sales entity
+    },
+    referenceNumber:{
+      type: String, // Example reference to a senior sales entity
+    },
     paymentScreenshotStatus: {
       type: String,
       ref: "PaymentScreenshotStatus", // Example reference to a senior sales entity

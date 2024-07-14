@@ -18,7 +18,7 @@ const PaymentMethods = () => {
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
-  const [currentPaymentMethod, setCurrentPaymentMethod] = useState({ id: null, type: "", configuration: { bankAccountNumber: "", walletNumber: [""] } });
+  const [currentPaymentMethod, setCurrentPaymentMethod] = useState({ id: null, type: "", configuration: { bankAccountNumber: [""], walletNumber: [""] } });
 
   const possiblePaymentMethods = [
     "Credit Card",
@@ -163,6 +163,12 @@ const PaymentMethods = () => {
                     <ul>
                       {["Vodafone Cash", "Orange Money", "Etisalat Cash"].includes(method.type) &&
                         method.configuration.walletNumber.map((number) => (
+                          <li key={number}>
+                            {number}
+                          </li>
+                        ))}
+                      {["Bank Transfer"].includes(method.type) &&
+                        method.configuration.bankAccountNumber.map((number) => (
                           <li key={number}>
                             {number}
                           </li>

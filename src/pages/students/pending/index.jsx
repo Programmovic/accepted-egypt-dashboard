@@ -13,6 +13,7 @@ import { ClassCard } from "@components/Classes";
 
 const MarketingData = () => {
   const [marketingData, setMarketingData] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState([]);
   const [salesModerators, setSalesModerators] = useState([]);
   const [salesMembers, setSalesMembers] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -27,19 +28,6 @@ const MarketingData = () => {
   const [assignedToModeration, setAssignedToModeration] = useState("");
   const [assignationDate, setAssignationDate] = useState("");
   const [assignedToSales, setAssignedToSales] = useState("");
-
-  // State for the modal form
-  const [showModal, setShowModal] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [newPhoneNo1, setNewPhoneNo1] = useState("");
-  const [newPhoneNo2, setNewPhoneNo2] = useState("");
-  const [newAssignTo, setNewAssignTo] = useState("");
-  const [newChatSummary, setNewChatSummary] = useState("");
-  const [newSource, setNewSource] = useState("");
-  const [newLanguageIssues, setNewLanguageIssues] = useState("");
-  const [newAssignedToModeration, setNewAssignedToModeration] = useState("");
-  const [newAssignationDate, setNewAssignationDate] = useState("");
-  const [newAssignedToSales, setNewAssignedToSales] = useState("");
   const fetchMarketingData = async () => {
     try {
       const response = await axios.get("/api/marketing");
@@ -58,9 +46,25 @@ const MarketingData = () => {
       setLoading(false);
     }
   };
+  const fetchPaymentMethods = async () => {
+    try {
+      const response = await axios.get("/api/payment-method");
+      if (response.status === 200) {
+        const data = response.data;
+        setPaymentMethods(data);
+        console.log(data)
+      }
+    } catch (error) {
+      console.error("Error fetching marketing data:", error);
+      setError("Failed to fetch marketing data. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchMarketingData();
+    fetchPaymentMethods()
   }, []);
 
   useEffect(() => {
@@ -135,55 +139,9 @@ const MarketingData = () => {
   };
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
-  useEffect(() => {
-    const keyPressEvent = (e) => {
-      if (e.keyCode === 13 && showModal) {
-        handleAddMarketingData()
-      }
-    };
-    document.addEventListener('keydown', keyPressEvent, true);
-
-    return () => {
-      document.removeEventListener('keydown', keyPressEvent);
-    };
-
-  }, []);
-  const handleAddMarketingData = async () => {
-
-    try {
-      if (!newName || !newPhoneNo1) {
-        toast.error("Please fill all required fields.");
-        return;
-      }
-      if (newPhoneNo1.length > 11 || newPhoneNo1.length < 11) {
-        toast.error("Phone must be at least 11 digits.");
-        return;
-      }
-      await axios.post("/api/marketing", {
-        name: newName,
-        phoneNo1: newPhoneNo1,
-        phoneNo2: newPhoneNo2,
-        assignTo: newAssignTo,
-        chatSummary: newChatSummary,
-        source: newSource,
-        languageIssues: newLanguageIssues,
-        assignedToModeration: newAssignedToModeration,
-        assignationDate: newAssignationDate,
-        assignedToSales: newAssignedToSales,
-      });
-      closeModal();
-      fetchMarketingData();
-      toast.success("Marketing data added successfully!");
-    } catch (error) {
-      console.error("Error adding marketing data:", error.message);
-      setError("Failed to add marketing data. Please try again.");
-      toast.error(error.message);
-    }
-  };
   const handleUpdateMarketingData = async (id, updatedData) => {
     try {
-      await axios.put(`/api/marketing?id=${id}`, updatedData); // Assuming you pass the ID in the URL params
-      closeModal();
+      await axios.put(`/api/marketing?id=${id}`, updatedData);
       fetchMarketingData(); // Assuming fetchMarketingData is a function to refetch the updated data
       toast.success("Marketing data updated successfully!");
     } catch (error) {
@@ -196,11 +154,11 @@ const MarketingData = () => {
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
   const [selectedSalesMember, setSelectedSalesMember] = useState("");
-  
+  console.log(paymentMethods.filter(method => method.type === "Vodafone Cash").configuration)
   return (
     <AdminLayout>
       <ToastContainer />
-      <Row>
+      {/* <Row>
         <ClassCard
           data={marketingData.length}
           title="Total Leads"
@@ -225,121 +183,7 @@ const MarketingData = () => {
           enableOptions={false}
           isLoading={loading}
         />
-      </Row>
-      <Modal show={showModal} onHide={closeModal} size="xl">
-        <Modal.Header closeButton>
-          <Modal.Title>Add New Marketing Data</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form onSubmit={handleAddMarketingData} style={{ maxHeight: "500px", overflowY: 'auto', padding: "5px 5px" }}>
-            <Form.Group className="mb-3">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Phone no1</Form.Label>
-              <Form.Control
-                type="text"
-                value={newPhoneNo1}
-                onChange={(e) => {
-                  setNewPhoneNo1(e.target.value)
-                }}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Phone no2</Form.Label>
-              <Form.Control
-                type="text"
-                value={newPhoneNo2}
-                onChange={(e) => setNewPhoneNo2(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Candidate Signed Up For</Form.Label>
-              <Form.Control
-                as="select"
-                value={newAssignTo}
-                onChange={(e) => setNewAssignTo(e.target.value)}
-              >
-                <option value="" hidden>Select an option</option>
-                <option value="EWFS">EWFS</option>
-                <option value="Autobus El Shoughl">Autobus El Shoughl</option>
-              </Form.Control>
-            </Form.Group>
-            {/* 
-            <Form.Group className="mb-3">
-              <Form.Label>Chat Summary</Form.Label>
-              <Form.Control
-                as="textarea"
-                value={newChatSummary}
-                onChange={(e) => setNewChatSummary(e.target.value)}
-              />
-            </Form.Group> */}
-            <Form.Group className="mb-3">
-              <Form.Label>Source</Form.Label>
-              <Form.Control
-                as="select"
-                value={newSource}
-                onChange={(e) => setNewSource(e.target.value)}
-              >
-                <option value="" hidden>Select a source</option>
-                <option value="Facebook">Facebook</option>
-                <option value="Linkedin">LinkedIn</option>
-                <option value="Instagram">Instagram</option>
-                <option value="TikTok">TikTok</option>
-                <option value="Organic">Organic</option>
-                <option value="Other">Other</option>
-              </Form.Control>
-            </Form.Group>
-            {/* <Form.Group className="mb-3">
-              <Form.Label>Language Issues</Form.Label>
-              <Form.Control
-                type="text"
-                value={newLanguageIssues}
-                onChange={(e) => setNewLanguageIssues(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Assigned to Moderation</Form.Label>
-              <Form.Control
-                type="text"
-                value={newAssignedToModeration}
-                onChange={(e) => setNewAssignedToModeration(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Assignation Date</Form.Label>
-              <Form.Control
-                type="date"
-                value={newAssignationDate}
-                onChange={(e) => setNewAssignationDate(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Assigned to Sales</Form.Label>
-              <Form.Control
-                type="text"
-                value={newAssignedToSales}
-                onChange={(e) => setNewAssignedToSales(e.target.value)}
-              />
-            </Form.Group> */}
-
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={closeModal}>
-            Close
-          </Button>
-          <Button variant="success" onClick={handleAddMarketingData}>
-            Add Marketing Data
-          </Button>
-
-        </Modal.Footer>
-      </Modal>
+      </Row> */}
       <Card>
         <Card.Header className="d-flex align-items-center">
           <div className="w-50">Pending Students</div>
@@ -426,21 +270,11 @@ const MarketingData = () => {
                   />
                 </Form.Group>
               </Col>
-              {/* <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assigned to Sales</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={assignedToSales}
-                    onChange={(e) => setAssignedToSales(e.target.value)}
-                  />
-                </Form.Group>
-              </Col> */}
 
             </Row>
             <Button variant="secondary" onClick={clearFilters}>
-                Clear Filters
-              </Button>
+              Clear Filters
+            </Button>
           </Form>
 
           {loading ? (
@@ -455,12 +289,13 @@ const MarketingData = () => {
                   <th>Name</th>
                   <th>Phone no1</th>
                   <th>Phone no2</th>
-                  <th>Candidate Signed Up For</th>
-                  <th>Source</th>
-                  <th>Assigned to Sales Supervisor</th>
-                  <th>Assignation Date</th>
-                  <th>Created At</th>
-                  <th>Last Updated</th>
+                  <th>Payment Method</th>
+                  <th>
+                    Reciever
+                  </th>
+                  <th>
+                    Reference Number
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -470,33 +305,50 @@ const MarketingData = () => {
                     <td>{item.name}</td>
                     <td>{item.phoneNo1}</td>
                     <td>{item.phoneNo2}</td>
-                    <td>{item.assignTo}</td>
-                    <td>{item.source}</td>
+                    <td>{item.paymentMethod}</td>
                     <td>
-                      <Form.Control
-                        as="select"
-                        value={item.assignedToModeration}
-                        onChange={(e) => {
-                          setNewAssignedToModeration(e.target.value)
-                          handleUpdateMarketingData(item._id, {
-                            assignedToModeration: e.target.value,
-                            assignationDate: new Date(),
-                          })
-                        }
-
-                        }
-                      >
-                        <option value="" hidden>Select a sales supervisor</option>
-                        {salesModerators.map((moderator) => (
-                          <option key={moderator._id} value={moderator.name}>
-                            {moderator.name}
-                          </option>
-                        ))}
-                      </Form.Control>
+                      {(
+                        <Form.Control
+                          as="select"
+                          name="recieverNumber"
+                          value={item.recieverNumber}
+                          onChange={(e) => {
+                            handleUpdateMarketingData(item._id, {
+                              recieverNumber: e.target.value,
+                            })
+                          }}
+                        >
+                          <option value="">Select {item.paymentMethod} number</option>
+                          {["Vodafone Cash", "Orange Money", "Etisalat Cash"].includes(item.paymentMethod) &&
+                            paymentMethods.filter(method => method.type === item.paymentMethod)[0]?.configuration?.walletNumber.map((number) => (
+                              <option key={number} value={number}>
+                                {number}
+                              </option>
+                            ))}
+                          {["Bank Transfer"].includes(item.paymentMethod) &&
+                            paymentMethods.filter(method => method.type === item.paymentMethod)[0]?.configuration?.bankAccountNumber.map((number) => (
+                              <option key={number} value={number}>
+                                {number}
+                              </option>
+                            ))}
+                        </Form.Control>
+                      )}
                     </td>
-                    <td>{item.assignationDate && new Date(item.assignationDate).toLocaleDateString()}</td>
-                    <td>{item.createdAt && new Date(item.createdAt).toLocaleString()}</td>
-                    <td>{item.updatedAt && new Date(item.updatedAt).toLocaleString()}</td>
+                    <td>
+                      {(
+                        <Form.Control
+                          name="referenceNumber"
+                          value={item.referenceNumber}
+                          disabled={!item.recieverNumber ? true : false}
+                          onBlur={(e) => {
+                            handleUpdateMarketingData(item._id, {
+                              referenceNumber: e.target.value,
+                            });
+                          }}
+                        />
+
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
