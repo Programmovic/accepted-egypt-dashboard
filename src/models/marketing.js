@@ -62,6 +62,9 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
       ref: "PaymentScreenshotStatus", // Example reference to a senior sales entity
     },
+    paymentScreenshotDate: {
+      type: String,
+    },
     salesRejectionReason: {
       type: String,
       ref: "SalesRejectionReason", // Example reference to a senior sales entity

@@ -30,7 +30,7 @@ export default async (req, res) => {
     }
   } else if (req.method === "GET") {
     try {
-      const { id, assignedToModerator, assignedToMember } = req.query;
+      const { id, assignedToModerator, assignedToMember, pending } = req.query;
 
       if (id) {
         // Fetch specific MarketingData record by ID
@@ -52,6 +52,10 @@ export default async (req, res) => {
           // Fetch all MarketingData records assigned to members and sort by creation date (newest first)
           allMarketingData = await MarketingData.find({
             assignedToSales: { $exists: true, $ne: null, $ne: "" },
+          }).sort({ createdAt: -1 });
+        } else if (pending) {
+          allMarketingData = await MarketingData.find({
+            paymentMethod: { $ne: null },
           }).sort({ createdAt: -1 });
         } else {
           // Fetch all MarketingData records and sort by creation date (newest first)

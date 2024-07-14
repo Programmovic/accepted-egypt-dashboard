@@ -30,10 +30,10 @@ const MarketingData = () => {
   const [assignedToSales, setAssignedToSales] = useState("");
   const fetchMarketingData = async () => {
     try {
-      const response = await axios.get("/api/marketing");
+      const response = await axios.get("/api/marketing?pending=true");
       if (response.status === 200) {
         const data = response.data;
-        setMarketingData(data.marketingData.filter(item => item.paymentMethod));
+        setMarketingData(data.marketingData);
         console.log(data.marketingData)
         setSalesModerators(data.salesModerators);
         setSalesMembers(data.salesMembers);
@@ -293,6 +293,7 @@ const MarketingData = () => {
                   <th>
                     Reciever
                   </th>
+                  <th>Sent the screenshot</th>
                   <th>
                     Reference Number
                   </th>
@@ -334,12 +335,27 @@ const MarketingData = () => {
                         </Form.Control>
                       )}
                     </td>
+                    <td className="text-center">
+                      {
+                        <Form.Check
+                          type="switch"
+                          id="custom-switch"
+                          className="fs-3"
+                          checked={item.paymentScreenshotStatus === "true"}
+                          onChange={(e) => {
+                            handleUpdateMarketingData(item._id, {
+                              paymentScreenshotStatus: e.target.checked,
+                            });
+                          }}
+                        />
+                      }
+                    </td>
                     <td>
                       {(
                         <Form.Control
                           name="referenceNumber"
                           value={item.referenceNumber}
-                          disabled={!item.recieverNumber ? true : false}
+                          disabled={item.paymentScreenshotStatus === "false" ? true : false}
                           onBlur={(e) => {
                             handleUpdateMarketingData(item._id, {
                               referenceNumber: e.target.value,
