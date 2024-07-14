@@ -14,6 +14,7 @@ import { ClassCard } from "@components/Classes";
 const MarketingData = () => {
   const [marketingData, setMarketingData] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
+  const [placementTests, setPlacementTests] = useState([]);
   const [salesModerators, setSalesModerators] = useState([]);
   const [salesMembers, setSalesMembers] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -61,10 +62,25 @@ const MarketingData = () => {
       setLoading(false);
     }
   };
-
+  const fetchPlacementsTests = async () => {
+    try {
+      const response = await axios.get("/api/placement_test_settings/for_placer");
+      if (response.status === 200) {
+        const data = response.data;
+        setPlacementTests(data);
+        console.log(data)
+      }
+    } catch (error) {
+      console.error("Error fetching marketing data:", error);
+      setError("Failed to fetch marketing data. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     fetchMarketingData();
     fetchPaymentMethods()
+    fetchPlacementsTests()
   }, []);
 
   useEffect(() => {
@@ -282,7 +298,7 @@ const MarketingData = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
-            <Table striped bordered hover>
+            <Table striped bordered hover style={{ overflowX: "auto" }}>
               <thead>
                 <tr>
                   <th>#</th>
@@ -296,6 +312,9 @@ const MarketingData = () => {
                   <th>Sent the screenshot</th>
                   <th>
                     Reference Number
+                  </th>
+                  <th>
+                    Placement Test
                   </th>
                 </tr>
               </thead>
@@ -363,6 +382,29 @@ const MarketingData = () => {
                           }}
                         />
 
+                      )}
+                    </td>
+                    <td>
+                      {(
+                        <Form.Control
+                          as="select"
+                          name="placementTest"
+                          value={item?.placementTest?._id}
+                          onChange={(e) => {
+                            handleUpdateMarketingData(item._id, {
+                              placementTest: e.target.value,
+                            })
+                          }}
+                        >
+                          <option value="">Select {item.paymentMethod} number</option>
+
+                          {placementTests.map((test) => (
+                            <option key={test._id} value={test._id} title={`From ${test.startTime} to ${test.endTime} at ${new Date(test.date).toLocaleDateString()}, Limit Trainees ${test.limitTrainees}, Remaining ${test.limitTrainees - test.studentCount}`}>
+                              From {test.startTime} to {test.endTime} at {new Date(test.date).toLocaleDateString()}
+                            </option>
+                          ))}
+
+                        </Form.Control>
                       )}
                     </td>
                   </tr>

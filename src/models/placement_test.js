@@ -1,14 +1,15 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
+const PlacementTestSettings = require("./placement_test_settings");
 
 const placementTestSchema = new mongoose.Schema({
   student: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Student', // Reference to the Student model
+    ref: "Student", // Reference to the Student model
     required: true,
   },
   generalPlacementTest: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'PlacementTest', // Reference to the Student model
+    ref: "PlacementTest", // Reference to the Student model
     required: true,
   },
   studentName: {
@@ -23,10 +24,10 @@ const placementTestSchema = new mongoose.Schema({
     required: true,
   },
   studentNationalID: {
-    type: String, 
+    type: String,
   },
   studentPhoneNumber: {
-    type: String, 
+    type: String,
   },
   cost: {
     type: Number, // Cost associated with taking the placement test
@@ -38,7 +39,7 @@ const placementTestSchema = new mongoose.Schema({
   },
   createdByAdmin: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Admin',
+    ref: "Admin",
   },
   adminName: {
     type: String,
@@ -46,5 +47,11 @@ const placementTestSchema = new mongoose.Schema({
   // Add other placement test fields here
   // Example: testScore, examiner, etc.
 });
-
-module.exports = mongoose.models.PlacementTest || mongoose.model('PlacementTest', placementTestSchema);
+placementTestSchema.post("save", async function (doc) {
+  await PlacementTestSettings.findByIdAndUpdate(doc.generalPlacementTest, {
+    $inc: { studentCount: 1 },
+  });
+});
+module.exports =
+  mongoose.models.PlacementTest ||
+  mongoose.model("PlacementTest", placementTestSchema);

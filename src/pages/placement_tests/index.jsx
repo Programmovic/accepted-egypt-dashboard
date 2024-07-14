@@ -27,6 +27,7 @@ const PlacementTests = () => {
     setShowGeneralPlacementTestDetailsModal,
   ] = useState(false);
   const [newTestCost, setNewTestCost] = useState("");
+  const [newTestLimit, setNewTestLimit] = useState("");
   const [newTestInstructions, setNewTestInstructions] = useState("");
   const [newTestRoom, setNewTestRoom] = useState("");
   const [newTestDate, setNewTestDate] = useState("");
@@ -74,8 +75,8 @@ const PlacementTests = () => {
       // Fetch all rooms
       const params = {
         date,
-        fromTime,
-        toTime,
+        newTestStartTime,
+        newTestEndTime,
       };
       const roomsResponse = await axios.get(apiUrl, { params });
       if (roomsResponse.status !== 200) {
@@ -108,7 +109,7 @@ const PlacementTests = () => {
   console.log(selectedRoom);
   const handleAddPlacementTest = async () => {
     const token = Cookies.get("client_token");
-    if (!newTestCost || !selectedInstructor || !newTestRoom || !newTestDate) {
+    if (!newTestCost || !selectedInstructor || !newTestDate) {
       toast.error("Please fill in all required fields.", {
         position: "top-right",
         autoClose: 3000,
@@ -116,13 +117,14 @@ const PlacementTests = () => {
       return;
     }
     try {
-      const response = await axios.post("/api/placemet_test_settings", {
+      const response = await axios.post("/api/placement_test_settings", {
         cost: newTestCost,
         instructions: newTestInstructions,
-        room: newTestRoom,
+        room: newTestRoom || null,
         date: newTestDate,
         startTime: newTestStartTime,
         endTime: newTestEndTime,
+        limitTrainees: newTestLimit,
         instructor: selectedInstructor.value,
         token,
       });
@@ -735,6 +737,14 @@ const PlacementTests = () => {
                 />
               </Col>
             </Row>
+            <Form.Group className="mb-3">
+              <Form.Label>Limit:</Form.Label>
+              <Form.Control
+                type="number"
+                value={newTestLimit}
+                onChange={(e) => setNewTestLimit(e.target.value)}
+              />
+            </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Available Rooms <span className="fw-bold">(Just if On-site)</span></Form.Label>
               {/* Render the React-Select component for selecting a room */}

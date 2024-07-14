@@ -56,7 +56,7 @@ export default async (req, res) => {
         } else if (pending) {
           allMarketingData = await MarketingData.find({
             paymentMethod: { $ne: null },
-          }).sort({ createdAt: -1 });
+          }).sort({ createdAt: -1 }).populate([{ path: "placementTest", strictPopulate: false }]);
         } else {
           // Fetch all MarketingData records and sort by creation date (newest first)
           allMarketingData = await MarketingData.find().sort({ createdAt: -1 });

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const PlacementTestSettings =  require("./placement_test_settings")
 const marketingDataSchema = new mongoose.Schema(
   {
     name: {
@@ -64,6 +64,10 @@ const marketingDataSchema = new mongoose.Schema(
     },
     paymentScreenshotDate: {
       type: String,
+    },
+    placementTest: {
+      type: String,
+      ref: "PlacementTestSettings", // Example reference to a senior sales entity
     },
     salesRejectionReason: {
       type: String,
