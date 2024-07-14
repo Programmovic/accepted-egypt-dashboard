@@ -45,7 +45,7 @@ const MarketingData = () => {
       const response = await axios.get("/api/marketing");
       if (response.status === 200) {
         const data = response.data;
-        setMarketingData(data.marketingData);
+        setMarketingData(data.marketingData.filter(item => item.paymentMethod));
         console.log(data.marketingData)
         setSalesModerators(data.salesModerators);
         setSalesMembers(data.salesMembers);
@@ -192,99 +192,11 @@ const MarketingData = () => {
       toast.error(error.message);
     }
   };
-  const handleFileUpload = (event) => {
-    const file = event.target.files[0];
-    const reader = new FileReader();
 
-    reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
-      // Filter out invalid data items
-      const validDataItems = jsonData.filter(dataItem => {
-        if (!dataItem.name || !dataItem.phoneNo1) {
-          toast.error("Please fill all required fields.");
-          return false;
-        }
-        if (dataItem.phoneNo1.length !== 11) {
-          toast.error("Phone must be exactly 11 digits.");
-          return false;
-        }
-        return true;
-      });
-
-      if (validDataItems.length === 0) {
-        toast.error("No valid data to upload.");
-        return;
-      }
-
-      // Process valid data items
-      validDataItems.forEach(async (dataItem) => {
-        try {
-          await axios.post("/api/marketing", dataItem);
-          fetchMarketingData();
-          toast.success(`${dataItem.name} has been added successfully!`);
-        } catch (error) {
-          console.error("Error adding marketing data from file:", error.message);
-          toast.error(`Error adding data for ${dataItem.name}`);
-        }
-      });
-
-      toast.success("Marketing data uploaded successfully!");
-    };
-
-    reader.readAsArrayBuffer(file);
-  };
-
-  const downloadTemplate = () => {
-    const templateData = [
-      {
-        name: "",
-        phoneNo1: "",
-        phoneNo2: "",
-        assignTo: "",
-        source: "",
-      },
-    ];
-
-    const worksheet = XLSX.utils.json_to_sheet(templateData);
-    const workbook = { Sheets: { data: worksheet }, SheetNames: ["data"] };
-    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
-    const data = new Blob([excelBuffer], { type: "application/octet-stream" });
-    saveAs(data, "MarketingDataTemplate.xlsx");
-  };
-  const [paginationEnabled, setPaginationEnabled] = useState(true);
   const [rangeStart, setRangeStart] = useState("");
   const [rangeEnd, setRangeEnd] = useState("");
   const [selectedSalesMember, setSelectedSalesMember] = useState("");
-  const handleRangeAssign = async () => {
-    if (!rangeStart || !rangeEnd || !selectedSalesMember) {
-      toast.error("Please fill in all range fields and select a sales member.");
-      return;
-    }
-
-    const start = parseInt(rangeStart) - 1;
-    const end = parseInt(rangeEnd);
-
-    if (start >= 0 && end <= filteredData.length && start < end) {
-      const updates = filteredData.slice(start, end).map((item) =>
-        handleUpdateMarketingData(item._id, {
-          assignedToModeration: selectedSalesMember,
-          assignationDate: new Date(),
-        })
-      );
-      await Promise.all(updates);
-      toast.success("Assigned sales member to specified range successfully!");
-      setRangeStart(0)
-      setRangeEnd(0)
-      setSelectedSalesMember(null)
-    } else {
-      toast.error("Invalid range.");
-    }
-  };
+  
   return (
     <AdminLayout>
       <ToastContainer />
@@ -430,13 +342,7 @@ const MarketingData = () => {
       </Modal>
       <Card>
         <Card.Header className="d-flex align-items-center">
-          <div className="w-50">Marketing Data</div>
-          <div className="w-50 d-flex justify-content-between align-items-center">
-            <input type="file" onChange={handleFileUpload} accept=".xlsx, .xls" />
-            <Button variant="outline-primary" onClick={downloadTemplate}>
-              Download Template
-            </Button>
-          </div>
+          <div className="w-50">Pending Students</div>
         </Card.Header>
         <Card.Body>
           <Form className="mb-3">
@@ -530,73 +436,11 @@ const MarketingData = () => {
                   />
                 </Form.Group>
               </Col> */}
+
             </Row>
-            <div className="d-flex justify-content-between">
-              <Button variant="secondary" onClick={clearFilters}>
+            <Button variant="secondary" onClick={clearFilters}>
                 Clear Filters
               </Button>
-              <Button variant="primary" onClick={openModal}>
-                Add New Data
-              </Button>
-              {paginationEnabled && (
-                <Button variant="secondary" onClick={() => setPaginationEnabled(!paginationEnabled)}>
-                  Assign In Range
-                </Button>
-              )}
-            </div>
-            {paginationEnabled || (
-              <>
-                <Row className="mt-3">
-                  <Col xs={4}>
-                    <Form.Group>
-                      <Form.Label>Range Start</Form.Label>
-                      <Form.Control
-                        type="number"
-                        value={rangeStart}
-                        onChange={(e) => setRangeStart(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={4}>
-                    <Form.Group>
-                      <Form.Label>Range End</Form.Label>
-                      <Form.Control
-                        type="number"
-                        value={rangeEnd}
-                        onChange={(e) => setRangeEnd(e.target.value)}
-                      />
-                    </Form.Group>
-                  </Col>
-                  <Col xs={4}>
-                    <Form.Group>
-                      <Form.Label>Select Sales Member</Form.Label>
-                      <Form.Control
-                        as="select"
-                        value={selectedSalesMember}
-                        onChange={(e) => setSelectedSalesMember(e.target.value)}
-                      >
-                        <option value="" hidden>Select a sales member</option>
-                        {salesModerators.map((member) => (
-                          <option key={member._id} value={member.name}>
-                            {member.name}
-                          </option>
-                        ))}
-                      </Form.Control>
-                    </Form.Group>
-                  </Col>
-                </Row>
-                <Row className="mt-3">
-                  <Col className="d-flex justify-content-between">
-                    <Button variant="primary" onClick={handleRangeAssign}>
-                      Assign Sales Member to Range
-                    </Button>
-                    <Button variant="secondary" onClick={() => setPaginationEnabled(!paginationEnabled)}>
-                      Close
-                    </Button>
-                  </Col>
-                </Row>
-              </>
-            )}
           </Form>
 
           {loading ? (

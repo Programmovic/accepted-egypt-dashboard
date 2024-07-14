@@ -9,7 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 const MarketingDataDetail = () => {
   const [marketingData, setMarketingData] = useState(null);
   const [salesStatuses, setSalesStatuses] = useState([]);
-  const [paymentScreenshotStatus, setPaymentScreenshotStatus] = useState([]);
+  const [paymentMethods, setPaymentMethods] = useState([]);
   const [candidateSignUpFor, setCandidateSignUpFor] = useState([]);
   const [candidateStatusForSalesPerson, setCandidateStatusForSalesPerson] = useState([]);
   const [salesRejectionReason, setSalesRejectionReason] = useState([]);
@@ -43,11 +43,11 @@ const MarketingDataDetail = () => {
         console.error("Error fetching sales statuses:", error);
       }
     };
-    const fetchPaymentScreenshotStatus = async () => {
+    const fetchPaymentMethods = async () => {
       try {
-        const response = await axios.get('/api/payment-screenshot-status');
+        const response = await axios.get('/api/payment-method');
         if (response.status === 200) {
-          setPaymentScreenshotStatus(response.data);
+          setPaymentMethods(response.data);
         }
       } catch (error) {
         console.error("Error fetching sales statuses:", error);
@@ -87,7 +87,7 @@ const MarketingDataDetail = () => {
     if (id) {
       fetchMarketingData();
       fetchSalesStatuses();
-      fetchPaymentScreenshotStatus()
+      fetchPaymentMethods()
       fetchCandidateSignUpForStatus()
       fetchCandidateStatusForSalesPersonStatus()
       fetchSalesRejectionReason()
@@ -261,24 +261,24 @@ const MarketingDataDetail = () => {
                   </td>
                 </tr>
                 <tr>
-                  <td>Payment Screenshot Status</td>
+                  <td>Payment Method</td>
                   <td>
                     {editing ? (
                       <Form.Control
                         as="select"
-                        name="paymentScreenshotStatus"
-                        value={marketingData.paymentScreenshotStatus}
+                        name="paymentMethod"
+                        value={marketingData.paymentMethod}
                         onChange={handleChange}
                       >
-                        <option value="">Select Payment Screenshot Status</option>
-                        {paymentScreenshotStatus.map((status) => (
-                          <option key={status._id} value={status.status}>
-                            {status.status}
+                        <option value="">Select Payment Method</option>
+                        {paymentMethods.map((status) => (
+                          <option key={status._id} value={status.type}>
+                            {status.type}
                           </option>
                         ))}
                       </Form.Control>
                     ) : (
-                      marketingData.paymentScreenshotStatus
+                      marketingData.paymentMethod
                     )}
                   </td>
                 </tr>

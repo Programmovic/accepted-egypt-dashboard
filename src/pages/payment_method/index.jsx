@@ -19,7 +19,19 @@ const PaymentMethods = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentPaymentMethod, setCurrentPaymentMethod] = useState({ id: null, type: "" });
+  const possiblePaymentMethods = [
+    "Credit Card",
+    "Debit Card",
+    "Bank Transfer",
+    "Vodafone Cash",
+    "Orange Money",
+    "Etisalat Cash",
+    "Fawry",
+    "Meeza",
+    "Cash",
+    "ValU",
 
+  ];
   const fetchPaymentMethods = async () => {
     try {
       const response = await axios.get("/api/payment-method");
@@ -37,7 +49,7 @@ const PaymentMethods = () => {
   const handleSave = async () => {
     const method = isEdit ? 'put' : 'post';
     const url = isEdit ? `/api/payment-method?id=${currentPaymentMethod._id}` : "/api/payment-method";
-    
+
     try {
       const response = await axios[method](url, { type: currentPaymentMethod.type });
       if (response.status === 201 || response.status === 200) {
@@ -55,7 +67,7 @@ const PaymentMethods = () => {
   const handleDelete = async (id) => {
     // Ask user to confirm the deletion
     const userConfirmed = window.confirm("Are you sure you want to delete this payment method?");
-    
+
     if (userConfirmed) {
       try {
         const response = await axios.delete(`/api/payment-method?id=${id}`);
@@ -69,7 +81,7 @@ const PaymentMethods = () => {
       }
     }
   };
-  
+
 
   useEffect(() => {
     fetchPaymentMethods();
@@ -122,10 +134,17 @@ const PaymentMethods = () => {
             <Form.Group className="mb-3">
               <Form.Label>Type</Form.Label>
               <Form.Control
-                type="text"
+                as="select"
                 value={currentPaymentMethod.type}
                 onChange={(e) => setCurrentPaymentMethod({ ...currentPaymentMethod, type: e.target.value })}
-              />
+              >
+                <option value="">Select Payment Method</option>
+                {possiblePaymentMethods.map((method) => (
+                  <option key={method} value={method}>
+                    {method}
+                  </option>
+                ))}
+              </Form.Control>
             </Form.Group>
           </Form>
         </Modal.Body>

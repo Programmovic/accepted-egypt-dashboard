@@ -48,6 +48,11 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
       ref: "CandidateStatusForSalesPerson", // Example reference to a senior sales entity
     },
+    paymentMethod: {
+      type: String,
+      ref: "PaymentMethod", // Example reference to a senior sales entity
+    },
+    
     paymentScreenshotStatus: {
       type: String,
       ref: "PaymentScreenshotStatus", // Example reference to a senior sales entity
@@ -59,6 +64,7 @@ const marketingDataSchema = new mongoose.Schema(
     salesMemberAssignationDate: {
       type: Date,
     },
+
   },
   {
     timestamps: true,
