@@ -7,7 +7,26 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const MarketingDataDetail = () => {
-  const [marketingData, setMarketingData] = useState(null);
+  const [marketingData, setMarketingData] = useState({
+    name: "",
+    phoneNo1: "",
+    phoneNo2: "",
+    assignTo: "",
+    chatSummary: "",
+    source: "",
+    languageIssues: "",
+    assignedToModeration: "",
+    assignationDate: null,
+    assignedToSales: "",
+    salesStatus: "",
+    candidateSignUpFor: "",
+    candidateStatusForSalesPerson: "",
+    paymentMethod: "",
+    paymentScreenshotStatus: "",
+    salesRejectionReason: "",
+    salesMemberAssignationDate: null,
+  });
+
   const [salesStatuses, setSalesStatuses] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [candidateSignUpFor, setCandidateSignUpFor] = useState([]);
@@ -25,14 +44,17 @@ const MarketingDataDetail = () => {
       try {
         const response = await axios.get(apiUrl);
         if (response.status === 200) {
-          setMarketingData(response.data);
-          console.log(response.data)
+          setMarketingData((prevData) => ({
+            ...prevData,
+            ...response.data,
+          }));
+          
         }
       } catch (error) {
         console.error("Error fetching marketing data:", error);
       }
     };
-
+    console.log(marketingData);
     const fetchSalesStatuses = async () => {
       try {
         const response = await axios.get(salesStatusApiUrl);
@@ -83,7 +105,7 @@ const MarketingDataDetail = () => {
         console.error("Error fetching sales statuses:", error);
       }
     };
-    
+
     if (id) {
       fetchMarketingData();
       fetchSalesStatuses();
@@ -97,14 +119,17 @@ const MarketingDataDetail = () => {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setMarketingData({ ...marketingData, [name]: value });
+    console.log(marketingData)
     setUnsavedChanges(true);
   };
 
   const handleSave = async () => {
+
     try {
       await axios.put(`/api/marketing?id=${id}`, marketingData);
       setUnsavedChanges(false);
       toast.success("Marketing data saved successfully!");
+      console.log(marketingData)
     } catch (error) {
       console.error("Error saving marketing data:", error.message);
       toast.error(error.message);
