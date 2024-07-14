@@ -159,7 +159,17 @@ const PaymentMethods = () => {
                 <tr key={method._id}>
                   <td>{index + 1}</td>
                   <td>{method.type}</td>
-                  <td>{["Vodafone Cash", "Orange Money", "Etisalat Cash"].includes(currentPaymentMethod.type) && method.configuration.walletNumber.join(',')}</td>
+                  <td>
+                    <ul>
+                      {["Vodafone Cash", "Orange Money", "Etisalat Cash"].includes(method.type) &&
+                        method.configuration.walletNumber.map((number) => (
+                          <li key={number}>
+                            {number}
+                          </li>
+                        ))}
+                    </ul>
+                  </td>
+
                   <td>
                     <Button variant="primary" onClick={() => { setShowModal(true); setIsEdit(true); setCurrentPaymentMethod(method); }}>
                       Edit
@@ -199,7 +209,7 @@ const PaymentMethods = () => {
             </Form.Group>
             {currentPaymentMethod.type === "Bank Transfer" && (
               <>
-                {currentPaymentMethod.configuration.walletNumber.map((number, index) => (
+                {currentPaymentMethod?.configuration?.bankAccountNumber.map((number, index) => (
                   <Form.Group key={index} className="mb-3">
                     <Form.Label>{currentPaymentMethod.type} Number {index + 1}</Form.Label>
                     <div className="d-flex">
