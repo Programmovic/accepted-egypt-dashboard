@@ -7,6 +7,8 @@ import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 const SalesMemberAssignedData = () => {
   const [marketingData, setMarketingData] = useState([]);
@@ -116,6 +118,22 @@ const SalesMemberAssignedData = () => {
     setAssignedToSales("");
     setFilteredData(marketingData);
   };
+  const exportToExcel = () => {
+    const headers = [
+      "Name", "Phone No. 1", "Phone No. 2", "Assign To", "Chat Summary", "Source", "Language Issues", "Assigned To Moderation", "Assignation Date", "Assigned To Sales"
+    ];
+    const data = filteredData.map(item => [
+      item.name, item.phoneNo1, item.phoneNo2, item.assignTo, item.chatSummary, item.source, item.languageIssues, item.assignedToModeration, item.assignationDate, item.assignedToSales
+    ]);
+
+    const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Marketing Data");
+
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+    const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
+    saveAs(dataBlob, "marketing_data.xlsx");
+  };
   return (
     <AdminLayout>
       <ToastContainer />
@@ -209,6 +227,11 @@ const SalesMemberAssignedData = () => {
               <Col xs={6}>
                 <Button variant="secondary" onClick={clearFilters}>
                   Clear Filters
+                </Button>
+              </Col>
+              <Col xs={6}>
+                <Button onClick={exportToExcel} variant="primary" className="ms-2">
+                  Export to Excel
                 </Button>
               </Col>
             </Row>
