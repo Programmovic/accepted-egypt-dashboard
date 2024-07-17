@@ -1,4 +1,4 @@
-import { Card, Form, Button, Row, Col, Table, Badge } from "react-bootstrap";
+import { Card, Form, Button, Row, Col, Table, Collapse } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { AdminLayout } from "@layout";
 import axios from "axios";
@@ -9,6 +9,10 @@ import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import {
+  faFilter,
+} from "@fortawesome/free-solid-svg-icons";
+
 
 const SalesMemberAssignedData = () => {
   const [marketingData, setMarketingData] = useState([]);
@@ -26,6 +30,7 @@ const SalesMemberAssignedData = () => {
   const [assignedToModeration, setAssignedToModeration] = useState("");
   const [assignationDate, setAssignationDate] = useState("");
   const [assignedToSales, setAssignedToSales] = useState("");
+  const [open, setOpen] = useState(false);
   const fetchMarketingData = async () => {
     try {
       const response = await axios.get("/api/marketing?assignedToMember=true");
@@ -138,104 +143,106 @@ const SalesMemberAssignedData = () => {
     <AdminLayout>
       <ToastContainer />
       <Card>
-        <Card.Header>Marketing Data</Card.Header>
+        <Card.Header onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} className="d-flex justify-content-between cursor-pointer">Marketing Data <span>Hover to {open ? "close" : "open"} Filters</span></Card.Header>
         <Card.Body>
-          <Form className="mb-3">
-            <Row>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={filterName}
-                    onChange={(e) => setFilterName(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Date</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={filterDate}
-                    onChange={(e) => setFilterDate(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assigned To</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={assignedTo}
-                    onChange={(e) => setAssignedTo(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Source</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={Source}
-                    onChange={(e) => setSource(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Language Issues</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={languageIssues}
-                    onChange={(e) => setLanguageIssues(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assigned to Moderation</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={assignedToModeration}
-                    onChange={(e) => setAssignedToModeration(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assignation Date</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={assignationDate}
-                    onChange={(e) => setAssignationDate(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assigned to Sales</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={assignedToSales}
-                    onChange={(e) => setAssignedToSales(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={6}>
-                <Button variant="secondary" onClick={clearFilters}>
-                  Clear Filters
-                </Button>
-              </Col>
-              <Col xs={6}>
-                <Button onClick={exportToExcel} variant="primary" className="ms-2">
-                  Export to Excel
-                </Button>
-              </Col>
-            </Row>
-          </Form>
+          <Collapse in={open}>
+            <Form className="mb-3">
+              <Row>
+                <Col xs={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Filter by Name</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={filterName}
+                      onChange={(e) => setFilterName(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col xs={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Filter by Date</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={filterDate}
+                      onChange={(e) => setFilterDate(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col xs={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Filter by Assigned To</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={assignedTo}
+                      onChange={(e) => setAssignedTo(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col xs={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Filter by Source</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={Source}
+                      onChange={(e) => setSource(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col xs={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Filter by Language Issues</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={languageIssues}
+                      onChange={(e) => setLanguageIssues(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col xs={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Filter by Assigned to Moderation</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={assignedToModeration}
+                      onChange={(e) => setAssignedToModeration(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col xs={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Filter by Assignation Date</Form.Label>
+                    <Form.Control
+                      type="date"
+                      value={assignationDate}
+                      onChange={(e) => setAssignationDate(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                <Col xs={6}>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Filter by Assigned to Sales</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={assignedToSales}
+                      onChange={(e) => setAssignedToSales(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+              </Row>
+              <Row>
+                <Col xs={6}>
+                  <Button variant="secondary" onClick={clearFilters}>
+                    Clear Filters
+                  </Button>
+                </Col>
+                <Col xs={6}>
+                  <Button onClick={exportToExcel} variant="primary" className="ms-2">
+                    Export to Excel
+                  </Button>
+                </Col>
+              </Row>
+            </Form>
+          </Collapse>
 
           {loading ? (
             <p>Loading marketing data...</p>
