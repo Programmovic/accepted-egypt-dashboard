@@ -143,7 +143,7 @@ const SalesMemberAssignedData = () => {
     <AdminLayout>
       <ToastContainer />
       <Card>
-        <Card.Header onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)} className="d-flex justify-content-between cursor-pointer">Marketing Data <span>Hover to {open ? "close" : "open"} Filters</span></Card.Header>
+        <Card.Header onClick={() => setOpen(!open)} className="d-flex justify-content-between cursor-pointer">Marketing Data <span>Click to {open ? "close" : "open"} Filters</span></Card.Header>
         <Card.Body>
           <Collapse in={open}>
             <Form className="mb-3">
