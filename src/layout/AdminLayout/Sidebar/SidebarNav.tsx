@@ -207,6 +207,9 @@ export default function SidebarNav() {
           <SidebarNavItem icon={faHome} href="/sales_status">
             Sales Dropdown
           </SidebarNavItem>
+          <SidebarNavItem icon={faHome} href="/recruitment_status">
+            Recruitment Dropdown
+          </SidebarNavItem>
           <SidebarNavItem icon={faHome} href="/departments">
             Departments
           </SidebarNavItem>
@@ -222,7 +225,7 @@ export default function SidebarNav() {
         
       </SidebarNavGroup>
       <SidebarNavGroup toggleIcon={faBullhorn} toggleText="Recruitment & Placer">
-        <SidebarNavItem icon={faUser} href="/marketing">
+        <SidebarNavItem icon={faUser} href="/recruitment">
         Recruitment
         </SidebarNavItem>
         <SidebarNavItem icon={faUser} href="/marketing">

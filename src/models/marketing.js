@@ -77,6 +77,9 @@ const marketingDataSchema = new mongoose.Schema(
     salesMemberAssignationDate: {
       type: Date,
     },
+    candidateStatusForRecruiter: {
+      type: String,
+    },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // Assuming you have a User model
