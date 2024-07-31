@@ -13,6 +13,7 @@ import { ClassCard } from "@components/Classes";
 
 const MarketingData = () => {
   const [marketingData, setMarketingData] = useState([]);
+  const [candidateSignUpForData, setCandidateSignUpForData] = useState([]);
   const [salesModerators, setSalesModerators] = useState([]);
   const [salesMembers, setSalesMembers] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -58,9 +59,20 @@ const MarketingData = () => {
       setLoading(false);
     }
   };
+  const fetchCandidateSignUpForStatus = async () => {
+    try {
+      const response = await axios.get('/api/candidate_signup_for');
+      if (response.status === 200) {
+        setCandidateSignUpForData(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching sales statuses:", error);
+    }
+  };
 
   useEffect(() => {
     fetchMarketingData();
+    fetchCandidateSignUpForStatus()
   }, []);
 
   useEffect(() => {
@@ -370,8 +382,11 @@ const MarketingData = () => {
                 onChange={(e) => setNewAssignTo(e.target.value)}
               >
                 <option value="" hidden>Select an option</option>
-                <option value="EWFS">EWFS</option>
-                <option value="Autobus El Shoughl">Autobus El Shoughl</option>
+                {candidateSignUpForData.map((status) => (
+                  <option key={status._id} value={status.status}>
+                    {status.status}
+                  </option>
+                ))}
               </Form.Control>
             </Form.Group>
             {/* 
@@ -560,8 +575,8 @@ const MarketingData = () => {
                 </Button>
               )}
               <Button onClick={exportToExcel} variant="primary" className="ms-2">
-            Export to Excel
-          </Button>
+                Export to Excel
+              </Button>
             </div>
             {paginationEnabled || (
               <>
