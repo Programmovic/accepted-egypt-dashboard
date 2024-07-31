@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 const Level = require('./level');
+const Room = require('./Room');
+const Class = require('./Class');
 
 const batchSchema = new mongoose.Schema({
   name: {
