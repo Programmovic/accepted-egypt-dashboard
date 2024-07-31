@@ -7,7 +7,6 @@ import {
   faPeopleGroup,
   faClock,
   faEdit,
-  faChalkboardTeacher,
   faPerson,
   faDollar,
   faHome,
@@ -219,6 +218,14 @@ export default function SidebarNav() {
       <SidebarNavGroup toggleIcon={faBullhorn} toggleText="Marketing">
         <SidebarNavItem icon={faUser} href="/marketing">
           Leads
+        </SidebarNavItem>
+      </SidebarNavGroup>
+      <SidebarNavGroup toggleIcon={faBullhorn} toggleText="Recruitment & Placer">
+        <SidebarNavItem icon={faUser} href="/marketing">
+        Recruitment
+        </SidebarNavItem>
+        <SidebarNavItem icon={faUser} href="/marketing">
+        Placer
         </SidebarNavItem>
       </SidebarNavGroup>
       <SidebarNavGroup toggleIcon={faUser} toggleText="Sales">

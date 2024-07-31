@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-const PlacementTestSettings =  require("./placement_test_settings")
+const MarketingDataHistory = require("./marketingHistory");
+
 const marketingDataSchema = new mongoose.Schema(
   {
     name: {
@@ -27,61 +28,88 @@ const marketingDataSchema = new mongoose.Schema(
     },
     assignedToModeration: {
       type: String,
-      ref: "Employee", // Example reference to a moderation entity
+      ref: "Employee",
     },
     assignationDate: {
       type: Date,
     },
     assignedToSales: {
       type: String,
-      ref: "Employee", // Example reference to a senior sales entity
+      ref: "Employee",
     },
     salesStatus: {
       type: String,
-      ref: "SalesStatus", // Example reference to a senior sales entity
+      ref: "SalesStatus",
     },
     candidateSignUpFor: {
       type: String,
-      ref: "CandidateSignUpFor", // Example reference to a senior sales entity
+      ref: "CandidateSignUpFor",
     },
     candidateStatusForSalesPerson: {
       type: String,
-      ref: "CandidateStatusForSalesPerson", // Example reference to a senior sales entity
+      ref: "CandidateStatusForSalesPerson",
     },
     paymentMethod: {
       type: String,
-      ref: "PaymentMethod", // Example reference to a senior sales entity
+      ref: "PaymentMethod",
     },
     recieverNumber: {
-      type: String, // Example reference to a senior sales entity
+      type: String,
     },
-    referenceNumber:{
-      type: String, // Example reference to a senior sales entity
+    referenceNumber: {
+      type: String,
     },
     paymentScreenshotStatus: {
       type: String,
-      ref: "PaymentScreenshotStatus", // Example reference to a senior sales entity
+      ref: "PaymentScreenshotStatus",
     },
     paymentScreenshotDate: {
       type: String,
     },
     placementTest: {
       type: String,
-      ref: "PlacementTestSettings", // Example reference to a senior sales entity
+      ref: "PlacementTestSettings",
     },
     salesRejectionReason: {
       type: String,
-      ref: "SalesRejectionReason", // Example reference to a senior sales entity
+      ref: "SalesRejectionReason",
     },
     salesMemberAssignationDate: {
       type: Date,
     },
-
+    updatedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User", // Assuming you have a User model
+    },
   },
   {
     timestamps: true,
   }
 );
+
+// Pre hook to capture the original document before update
+marketingDataSchema.pre("findOneAndUpdate", async function (next) {
+  try {
+    const docToUpdate = await this.model.findOne(this.getQuery());
+    this._original = docToUpdate ? docToUpdate.toObject() : null;
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
+// Post hook to create a history record after update
+marketingDataSchema.post("findOneAndUpdate", async function (doc) {
+  if (this._original) {
+    const history = new MarketingDataHistory({
+      marketingDataId: doc._id,
+      oldData: this._original,
+      newData: doc.toObject(),
+      editedBy: doc.updatedBy, // Assuming you set updatedBy when updating the document
+    });
+    await history.save();
+  }
+});
 
 module.exports =
   mongoose.models.MarketingData ||
