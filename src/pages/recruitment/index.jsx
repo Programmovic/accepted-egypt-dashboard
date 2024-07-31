@@ -316,32 +316,6 @@ const MarketingData = () => {
   return (
     <AdminLayout>
       <ToastContainer />
-      <Row>
-        <ClassCard
-          data={marketingData.length}
-          title="Total Leads"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={marketingData.filter(lead => lead.assignedToModeration).length}
-          title="Total Assigned Leads"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={marketingData.filter(lead => lead.assignTo === "EWFS").length}
-          title="Total Leads For EWFS"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={marketingData.filter(lead => lead.assignTo === "Autobus El Shoughl").length}
-          title="Total Leads For Autobus El Shoughl"
-          enableOptions={false}
-          isLoading={loading}
-        />
-      </Row>
       <Modal show={showModal} onHide={closeModal} size="xl">
         <Modal.Header closeButton>
           <Modal.Title>Add New Marketing Data</Modal.Title>
