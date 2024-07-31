@@ -10,6 +10,7 @@ const AdminManagement = () => {
   const [phoneInterviewStatuses, setPhoneInterviewStatuses] = useState([]);
   const [faceToFaceStatuses, setFaceToFaceStatuses] = useState([]);
   const [feedbackSessionStatuses, setFeedbackSessionStatuses] = useState([]);
+  const [recruitmentTestResultStatuses, setRecruitmentTestResultStatuses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -80,6 +81,8 @@ const AdminManagement = () => {
         return "Face To Face Status";
       case "feedbackSessionStatuses":
         return "Feedback Session Status";
+      case "recruitmentTestResultStatuses":
+        return "Recruitment Test Result Status";
       default:
         return "";
     }
@@ -99,6 +102,9 @@ const AdminManagement = () => {
       case "feedbackSessionStatuses":
         fetchData("/api/feedback-session-status", setFeedbackSessionStatuses);
         break;
+      case "recruitmentTestResultStatuses":
+        fetchData("/api/recruitment-test-result-status", setRecruitmentTestResultStatuses);
+        break;
       default:
         break;
     }
@@ -109,6 +115,7 @@ const AdminManagement = () => {
     fetchData("/api/phone-interview-status", setPhoneInterviewStatuses);
     fetchData("/api/face-to-face-status", setFaceToFaceStatuses);
     fetchData("/api/feedback-session-status", setFeedbackSessionStatuses);
+    fetchData("/api/recruitment-test-result-status", setRecruitmentTestResultStatuses);
   }, []);
 
   return (
@@ -132,7 +139,7 @@ const AdminManagement = () => {
                 </thead>
                 <tbody>
                   {candidateStatusesForRecruiter.map((status, index) => (
-                    <tr key={status.id}>
+                    <tr key={status._id}>
                       <td>{index + 1}</td>
                       <td>{status.status}</td>
                       <td>{status.description}</td>
@@ -169,7 +176,7 @@ const AdminManagement = () => {
                 </thead>
                 <tbody>
                   {phoneInterviewStatuses.map((status, index) => (
-                    <tr key={status.id}>
+                    <tr key={status._id}>
                       <td>{index + 1}</td>
                       <td>{status.status}</td>
                       <td>{status.description}</td>
@@ -206,7 +213,7 @@ const AdminManagement = () => {
                 </thead>
                 <tbody>
                   {faceToFaceStatuses.map((status, index) => (
-                    <tr key={status.id}>
+                    <tr key={status._id}>
                       <td>{index + 1}</td>
                       <td>{status.status}</td>
                       <td>{status.description}</td>
@@ -243,7 +250,44 @@ const AdminManagement = () => {
                 </thead>
                 <tbody>
                   {feedbackSessionStatuses.map((status, index) => (
-                    <tr key={status.id}>
+                    <tr key={status._id}>
+                      <td>{index + 1}</td>
+                      <td>{status.status}</td>
+                      <td>{status.description}</td>
+                      <td>
+                        <Button variant="primary" onClick={() => { setShowModal(true); setIsEdit(true); setCurrentItem(status); }}>
+                          Edit
+                        </Button>
+                        <Button variant="danger" onClick={() => handleDelete(status._id)} className="ms-2">
+                          Delete
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Card.Body>
+          </Card>
+        </Tab>
+        <Tab eventKey="recruitmentTestResultStatuses" title="Recruitment Test Result Status">
+          <Card>
+            <Card.Header>Recruitment Test Result Statuses</Card.Header>
+            <Card.Body>
+              <Button variant="success" onClick={() => { setShowModal(true); setIsEdit(false); }}>
+                Add Recruitment Test Result Status
+              </Button>
+              <Table striped bordered hover className="mt-3">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Status</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recruitmentTestResultStatuses.map((status, index) => (
+                    <tr key={status._id}>
                       <td>{index + 1}</td>
                       <td>{status.status}</td>
                       <td>{status.description}</td>

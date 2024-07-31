@@ -80,6 +80,40 @@ const marketingDataSchema = new mongoose.Schema(
     candidateStatusForRecruiter: {
       type: String,
     },
+    phoneInterviewStatus: {
+      type: String,
+      ref: "PhoneInterviewStatus",
+    },
+    phoneInterviewDate: {
+      type: String,
+    },
+    faceToFaceStatus: {
+      type: String,
+      ref: "FaceToFaceStatus",
+    },
+    faceToFaceDate: {
+      type: String,
+    },
+    feedbackSessionStatus: {
+      type: String,
+      ref: "FeedbackSessionStatus",
+    },
+    feedbackSessionDate: {
+      type: String,
+    },
+    
+    onBoardingName: {
+      type: String,
+      ref: "Employee",
+    },
+    recruiterName: {
+      type: String,
+      ref: "Employee",
+    },
+    placerName: {
+      type: String,
+      ref: "Employee",
+    },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User", // Assuming you have a User model
