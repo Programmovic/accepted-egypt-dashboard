@@ -43,10 +43,10 @@ const MarketingData = () => {
   const [newAssignedToSales, setNewAssignedToSales] = useState("");
   const fetchMarketingData = async () => {
     try {
-      const response = await axios.get("/api/marketing");
+      const response = await axios.get("/api/marketing?recruitment=true");
       if (response.status === 200) {
         const data = response.data;
-        setMarketingData(data.marketingData.filter(item => item.assignTo === "Recruitment"));
+        setMarketingData(data.marketingData);
         console.log(data.marketingData)
         setSalesModerators(data.salesModerators);
         setSalesMembers(data.salesMembers);

@@ -30,7 +30,13 @@ export default async (req, res) => {
     }
   } else if (req.method === "GET") {
     try {
-      const { id, assignedToModerator, assignedToMember, pending } = req.query;
+      const {
+        id,
+        assignedToModerator,
+        assignedToMember,
+        pending,
+        recruitment,
+      } = req.query;
 
       if (id) {
         // Fetch specific MarketingData record by ID
@@ -56,7 +62,13 @@ export default async (req, res) => {
         } else if (pending) {
           allMarketingData = await MarketingData.find({
             paymentMethod: { $ne: null },
-          }).sort({ createdAt: -1 }).populate([{ path: "placementTest", strictPopulate: false }]);
+          })
+            .sort({ createdAt: -1 })
+            .populate([{ path: "placementTest", strictPopulate: false }]);
+        } else if (recruitment) {
+          allMarketingData = await MarketingData.find({
+            assignTo: "Recruitment",
+          }).sort({ createdAt: -1 });
         } else {
           // Fetch all MarketingData records and sort by creation date (newest first)
           allMarketingData = await MarketingData.find().sort({ createdAt: -1 });
