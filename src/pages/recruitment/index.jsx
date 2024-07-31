@@ -389,15 +389,6 @@ const MarketingData = () => {
                 ))}
               </Form.Control>
             </Form.Group>
-            {/* 
-            <Form.Group className="mb-3">
-              <Form.Label>Chat Summary</Form.Label>
-              <Form.Control
-                as="textarea"
-                value={newChatSummary}
-                onChange={(e) => setNewChatSummary(e.target.value)}
-              />
-            </Form.Group> */}
             <Form.Group className="mb-3">
               <Form.Label>Source</Form.Label>
               <Form.Control
@@ -414,38 +405,7 @@ const MarketingData = () => {
                 <option value="Other">Other</option>
               </Form.Control>
             </Form.Group>
-            {/* <Form.Group className="mb-3">
-              <Form.Label>Language Issues</Form.Label>
-              <Form.Control
-                type="text"
-                value={newLanguageIssues}
-                onChange={(e) => setNewLanguageIssues(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Assigned to Moderation</Form.Label>
-              <Form.Control
-                type="text"
-                value={newAssignedToModeration}
-                onChange={(e) => setNewAssignedToModeration(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Assignation Date</Form.Label>
-              <Form.Control
-                type="date"
-                value={newAssignationDate}
-                onChange={(e) => setNewAssignationDate(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Assigned to Sales</Form.Label>
-              <Form.Control
-                type="text"
-                value={newAssignedToSales}
-                onChange={(e) => setNewAssignedToSales(e.target.value)}
-              />
-            </Form.Group> */}
+
 
           </Form>
         </Modal.Body>
@@ -512,16 +472,6 @@ const MarketingData = () => {
                   />
                 </Form.Group>
               </Col>
-              {/* <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Language Issues</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={languageIssues}
-                    onChange={(e) => setLanguageIssues(e.target.value)}
-                  />
-                </Form.Group>
-              </Col> */}
               <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Assigned to Sales Supervisor</Form.Label>
@@ -551,16 +501,6 @@ const MarketingData = () => {
                   />
                 </Form.Group>
               </Col>
-              {/* <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assigned to Sales</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={assignedToSales}
-                    onChange={(e) => setAssignedToSales(e.target.value)}
-                  />
-                </Form.Group>
-              </Col> */}
             </Row>
             <div className="d-flex justify-content-between">
               <Button variant="secondary" onClick={clearFilters}>
@@ -638,57 +578,69 @@ const MarketingData = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Phone no1</th>
-                  <th>Phone no2</th>
-                  <th>Source</th>
-                  <th>Assigned to Sales Supervisor</th>
-                  <th>Assignation Date</th>
-                  <th>Created At</th>
-                  <th>Last Updated</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((item, index) => (
-                  <tr key={index}>
-                    <td className={(index + 1 >= rangeStart && index + 1 <= rangeEnd) && "bg-success text-light"}>{index + 1}</td>
-                    <td>{item.name}</td>
-                    <td>{item.phoneNo1}</td>
-                    <td>{item.phoneNo2}</td>
-                    <td>{item.source}</td>
-                    <td>
-                      <Form.Control
-                        as="select"
-                        value={item.assignedToModeration}
-                        onChange={(e) => {
-                          setNewAssignedToModeration(e.target.value)
-                          handleUpdateMarketingData(item._id, {
-                            assignedToModeration: e.target.value,
-                            assignationDate: new Date(),
-                          })
-                        }
-
-                        }
-                      >
-                        <option value="" hidden>Select a sales supervisor</option>
-                        {salesModerators.map((moderator) => (
-                          <option key={moderator._id} value={moderator.name}>
-                            {moderator.name}
-                          </option>
-                        ))}
-                      </Form.Control>
-                    </td>
-                    <td>{item.assignationDate && new Date(item.assignationDate).toLocaleDateString()}</td>
-                    <td>{item.createdAt && new Date(item.createdAt).toLocaleString()}</td>
-                    <td>{item.updatedAt && new Date(item.updatedAt).toLocaleString()}</td>
+            <div style={{ maxWidth: "100%", overflowX: "auto" }}>
+              <Table striped bordered hover >
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Phone no1</th>
+                    <th>Phone no2</th>
+                    <th>Source</th>
+                    <th>Phone Interview Status</th>
+                    <th>Phone Interview Date</th>
+                    <th>Face To Face Status</th>
+                    <th>Face To Face Date</th>
+                    <th>Feedback Session Status</th>
+                    <th>Feedback Session Date</th>
+                    <th>Created At</th>
+                    <th>Last Updated</th>
                   </tr>
-                ))}
-              </tbody>
-            </Table>
+                </thead>
+                <tbody>
+                  {filteredData.map((item, index) => (
+                    <tr key={index}>
+                      <td className={(index + 1 >= rangeStart && index + 1 <= rangeEnd) && "bg-success text-light"}>{index + 1}</td>
+                      <td>{item.name}</td>
+                      <td>{item.phoneNo1}</td>
+                      <td>{item.phoneNo2}</td>
+                      <td>{item.source}</td>
+                      {/* <td>
+                        <Form.Control
+                          as="select"
+                          value={item.assignedToModeration}
+                          onChange={(e) => {
+                            setNewAssignedToModeration(e.target.value)
+                            handleUpdateMarketingData(item._id, {
+                              assignedToModeration: e.target.value,
+                              assignationDate: new Date(),
+                            })
+                          }}
+                        >
+                          <option value="" hidden>Select a sales supervisor</option>
+                          {salesModerators.map((moderator) => (
+                            <option key={moderator._id} value={moderator.name}>
+                              {moderator.name}
+                            </option>
+                          ))}
+                        </Form.Control>
+                      </td>
+                       */}
+                      <td>{item.phoneInterviewStatus}</td>
+                      <td>{item.phoneInterviewDate}</td>
+                      <td>{item.faceToFaceStatus}</td>
+                      <td>{item.faceToFaceDate}</td>
+                      <td>{item.feedbackSessionStatus}</td>
+                      <td>{item.feedbackSessionDate}</td>
+                      <td>{item.createdAt && new Date(item.createdAt).toLocaleString()}</td>
+                      <td>{item.updatedAt && new Date(item.updatedAt).toLocaleString()}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </div>
+
+
           )}
         </Card.Body>
       </Card>
