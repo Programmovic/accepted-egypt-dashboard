@@ -217,8 +217,9 @@ export default function SidebarNav() {
       )}
       <SidebarNavGroup toggleIcon={faBullhorn} toggleText="Marketing">
         <SidebarNavItem icon={faUser} href="/marketing">
-          Leads
+          Leads.
         </SidebarNavItem>
+        
       </SidebarNavGroup>
       <SidebarNavGroup toggleIcon={faBullhorn} toggleText="Recruitment & Placer">
         <SidebarNavItem icon={faUser} href="/marketing">
