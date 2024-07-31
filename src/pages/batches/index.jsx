@@ -98,6 +98,7 @@ const Batches = () => {
       const response = await axios.get("/api/batch");
       if (response.status === 200) {
         const batchData = response.data;
+        console.log(batchData)
         setBatchResource(batchData);
         setFilteredData(batchData);
       }
@@ -137,8 +138,7 @@ const Batches = () => {
         (cls) => cls.level === selectedLevel
       ).length;
       setNewBatchCode(
-        `${
-          +levels.find((lvl) => lvl._id === selectedLevel).code + classCount + 1
+        `${+levels.find((lvl) => lvl._id === selectedLevel).code + classCount + 1
         }`
       );
     }
@@ -215,7 +215,6 @@ const Batches = () => {
   useEffect(() => {
     handleSelectedLectureTimes();
   }, [selectedWeekdays, lectureTimes]);
-  console.log("newBatchLecturesTimes", newBatchLecturesTimes);
   const handleAddBatch = async () => {
     try {
       setCreatingBatch(true);
@@ -240,7 +239,6 @@ const Batches = () => {
       fetchBatchData();
       toast.success("Batch added successfully!"); // Success toast
     } catch (error) {
-      console.log("Error adding batch:", error.message);
       setError("Failed to add the batch. Please try again.");
       toast.error(error.message); // Error toast
     } finally {
@@ -255,14 +253,11 @@ const Batches = () => {
     setFilteredData(batchResource);
   };
   const handleGenerateName = () => {
-    const generatedName = `${
-      levels.find((lvl) => lvl?._id === selectedLevel)?.name
-    } - ${
-      roomOptions.find((room) => newBatchLab === room.value)?.label
-    } - ${newBatchCode} - ${newBatchCost} - ${newBatchShouldStartAt} to ${newBatchShouldEndAt} Batch`;
+    const generatedName = `${levels.find((lvl) => lvl?._id === selectedLevel)?.name
+      } - ${roomOptions.find((room) => newBatchLab === room.value)?.label
+      } - ${newBatchCode} - ${newBatchCost} - ${newBatchShouldStartAt} to ${newBatchShouldEndAt} Batch`;
     setNewBatchName(generatedName.toUpperCase());
   };
-  console.log();
   useEffect(() => {
     if (newBatchCode) {
       // Generate the name based on the class (if selected)
@@ -278,11 +273,9 @@ const Batches = () => {
     newBatchCode,
   ]);
   const getClassName = (instructorId) => {
-    console.log(instructorId);
     const selectedInstructor = classList.find(
       (instructor) => instructor._id === instructorId
     );
-    console.log(instructorId);
     return selectedInstructor ? selectedInstructor : "Unknown"; // You can provide a default value like 'Unknown'
   };
   const getStatus = () => {
@@ -325,9 +318,7 @@ const Batches = () => {
       const response = await axios.get("/api/room");
       if (response.status === 200) {
         const roomData = response.data;
-        console.log(roomData);
         const options = mapApiDataToOptions(roomData);
-        console.log(options);
         setRoomData(roomData);
         setRoomOptions(options);
       }
@@ -336,7 +327,6 @@ const Batches = () => {
       // Handle error
     }
   };
-  console.log(roomOptions);
   useEffect(() => {
     // Fetch room options from your API endpoint
     fetchRoomsData();
@@ -397,7 +387,6 @@ const Batches = () => {
       setDeletingBatch(false);
     }
   };
-  console.log(newBatchLecturesTimes);
   const [editingBatch, setEditingBatch] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const openEditModal = (batch) => {
@@ -718,7 +707,7 @@ const Batches = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedBatches.map((batch, index) => (
+                  {sortedBatches?.map((batch, index) => (
                     <tr
                       key={batch._id}
                       onClick={() => openBatchDetailsModal(batch)}
@@ -727,7 +716,7 @@ const Batches = () => {
                       <td>{batch.name}</td>
                       <td>{batch.status}</td>
                       <td>
-                        {batch.class ? getClassName(batch.class).name : "N/A"}
+                        {batch?.class?.name}
                       </td>
                       <td>
                         {new Intl.NumberFormat("en-US", {
@@ -750,8 +739,7 @@ const Batches = () => {
                       </td>
                       <td>
                         {
-                          roomOptions.find((room) => room.value === batch.room)
-                            ?.label
+                          batch?.room?.name
                         }
                       </td>
                       <td>{batch.code}</td>
@@ -777,7 +765,7 @@ const Batches = () => {
                 <p>Name: {selectedBatch.name}</p>
                 <p>Status: {selectedBatch.status}</p>
                 <p>Code: {selectedBatch.code}</p>
-                <p>Class: {selectedBatch.class}</p>
+                <p>Class: {selectedBatch?.class?.name}</p>
                 <p>Hours: {selectedBatch.hours}</p>
                 <p>Cost: {selectedBatch.cost} EGP</p>
                 <p>Limit Trainees: {selectedBatch.limitTrainees} Trainees</p>
@@ -792,9 +780,7 @@ const Batches = () => {
                 <p>
                   Room:{" "}
                   {
-                    roomOptions.find(
-                      (room) => room.value === selectedBatch.room
-                    ).label
+                    selectedBatch?.room?.name
                   }
                 </p>
                 <p>Description: {selectedBatch.description}</p>
