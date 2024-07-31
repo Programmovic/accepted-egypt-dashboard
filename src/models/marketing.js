@@ -101,6 +101,13 @@ const marketingDataSchema = new mongoose.Schema(
     feedbackSessionDate: {
       type: String,
     },
+    testResultStatus: {
+      type: String,
+      ref: "FeedbackSessionStatus",
+    },
+    testResultDate: {
+      type: String,
+    },
     
     onBoardingName: {
       type: String,

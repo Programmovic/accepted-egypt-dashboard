@@ -18,8 +18,7 @@ const marketingDataHistorySchema = new mongoose.Schema(
     },
     editedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Assuming you have a User model to track who made the change
-      required: true,
+      ref: "User", 
     },
     editedAt: {
       type: Date,

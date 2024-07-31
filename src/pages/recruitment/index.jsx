@@ -175,7 +175,7 @@ const MarketingData = () => {
         name: newName,
         phoneNo1: newPhoneNo1,
         phoneNo2: newPhoneNo2,
-        assignTo: newAssignTo,
+        candidateSignUpFor: newAssignTo,
         chatSummary: newChatSummary,
         source: newSource,
         languageIssues: newLanguageIssues,
@@ -579,13 +579,13 @@ const MarketingData = () => {
             <p>{error}</p>
           ) : (
             <div style={{ maxWidth: "100%", overflowX: "auto" }}>
-              <Table striped bordered hover >
+              <Table striped bordered hover>
                 <thead>
                   <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Phone no1</th>
-                    <th>Phone no2</th>
+                    <th style={{ position: "sticky", left: 0, background: "#fff", zIndex: 1 }}>#</th>
+                    <th style={{ position: "sticky", left: 0, background: "#fff", zIndex: 1 }}>Name</th>
+                    <th style={{ minWidth: "fit-content" }}>Phone no1</th>
+                    <th style={{ minWidth: "fit-content" }}>Phone no2</th>
                     <th>Source</th>
                     <th>Phone Interview Status</th>
                     <th>Phone Interview Date</th>
@@ -593,6 +593,8 @@ const MarketingData = () => {
                     <th>Face To Face Date</th>
                     <th>Feedback Session Status</th>
                     <th>Feedback Session Date</th>
+                    <th>Test Result</th>
+                    <th>Test Result Date</th>
                     <th>Created At</th>
                     <th>Last Updated</th>
                   </tr>
@@ -601,37 +603,18 @@ const MarketingData = () => {
                   {filteredData.map((item, index) => (
                     <tr key={index}>
                       <td className={(index + 1 >= rangeStart && index + 1 <= rangeEnd) && "bg-success text-light"}>{index + 1}</td>
-                      <td>{item.name}</td>
+                      <td style={{ position: "sticky", left: 0, background: "#fff", zIndex: 1 }}>{item.name}</td>
                       <td>{item.phoneNo1}</td>
                       <td>{item.phoneNo2}</td>
                       <td>{item.source}</td>
-                      {/* <td>
-                        <Form.Control
-                          as="select"
-                          value={item.assignedToModeration}
-                          onChange={(e) => {
-                            setNewAssignedToModeration(e.target.value)
-                            handleUpdateMarketingData(item._id, {
-                              assignedToModeration: e.target.value,
-                              assignationDate: new Date(),
-                            })
-                          }}
-                        >
-                          <option value="" hidden>Select a sales supervisor</option>
-                          {salesModerators.map((moderator) => (
-                            <option key={moderator._id} value={moderator.name}>
-                              {moderator.name}
-                            </option>
-                          ))}
-                        </Form.Control>
-                      </td>
-                       */}
                       <td>{item.phoneInterviewStatus}</td>
                       <td>{item.phoneInterviewDate}</td>
                       <td>{item.faceToFaceStatus}</td>
                       <td>{item.faceToFaceDate}</td>
                       <td>{item.feedbackSessionStatus}</td>
                       <td>{item.feedbackSessionDate}</td>
+                      <td>{item.testResultStatus}</td>
+                      <td>{item.testResultDate}</td>
                       <td>{item.createdAt && new Date(item.createdAt).toLocaleString()}</td>
                       <td>{item.updatedAt && new Date(item.updatedAt).toLocaleString()}</td>
                     </tr>

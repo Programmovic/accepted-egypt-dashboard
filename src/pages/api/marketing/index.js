@@ -67,7 +67,7 @@ export default async (req, res) => {
             .populate([{ path: "placementTest", strictPopulate: false }]);
         } else if (recruitment) {
           allMarketingData = await MarketingData.find({
-            assignTo: "Recruitment",
+            candidateSignUpFor: "Recruitment",
           }).sort({ createdAt: -1 });
         } else {
           // Fetch all MarketingData records and sort by creation date (newest first)
