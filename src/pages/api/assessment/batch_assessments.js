@@ -56,7 +56,7 @@ export default async (req, res) => {
 
         // Create a waiting list entry
         const waitingListEntry = new WaitingList({
-          student: updatedStudent.student,
+          student: updatedStudent._id,
           studentName: updatedAssessment.name,
           studentNationalID: updatedAssessment.studentNationalID,
           studentPhoneNumber: updatedAssessment.phoneNumber,
