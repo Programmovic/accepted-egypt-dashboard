@@ -68,9 +68,9 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
+    "/*.ts",
+    "/*.tsx",
+    ".next/types//*.ts"
 , "src/models/admin.js", "src/pages/api/user/index.js", "src/pages/admins/index.jsx", "src/components/Users/UsersList.jsx", "src/pages/404.jsx", "src/layout/AdminLayout/Sidebar/SidebarNav.tsx"  ],
   "exclude": [
     "node_modules"
