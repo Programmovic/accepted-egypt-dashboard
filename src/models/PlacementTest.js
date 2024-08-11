@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-import PlacementTestSettings from "./placement_test_settings";
+import PlacementTestSettings from "./PlacementTestSettings";
 
 const placementTestSchema = new mongoose.Schema({
   student: {
