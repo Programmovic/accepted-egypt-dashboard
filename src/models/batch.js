@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Level = require('./level');
+const Level = require('./Level');
 const Room = require('./Room');
 const Class = require('./Class');
 

@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const MarketingDataHistory = require("./marketingHistory");
+const MarketingDataHistory = require("./MarketingHistory");
 
 const marketingDataSchema = new mongoose.Schema(
   {

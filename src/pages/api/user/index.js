@@ -1,5 +1,5 @@
 import connectDB from "@lib/db";
-import Admin from "@models/admin";
+import Admin from "@models/Admin";
 import bcrypt from "bcrypt";
 
 export default async (req, res) => {
