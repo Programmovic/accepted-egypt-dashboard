@@ -10,12 +10,14 @@
     "prettier"
   ],
   "parserOptions": {
-    "project": "./tsconfig.json"
+    "project": "./tsconfig.json",
+    "tsconfigRootDir": "./",
+    "ecmaVersion": 2020,
+    "sourceType": "module"
   },
   "rules": {
-    // https://stackoverflow.com/questions/69928061/struggling-with-typescript-react-eslint-and-simple-arrow-functions-components
     "react/function-component-definition": [
-      2,
+      "error",
       {
         "namedComponents": [
           "function-declaration",
@@ -23,24 +25,33 @@
         ]
       }
     ],
-    // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/blob/main/docs/rules/anchor-is-valid.md#case-i-use-nextjs-and-im-getting-this-error-inside-of-links
-    "jsx-a11y/anchor-is-valid": 0,
-    // airbnb config configures stricter rules, change assert to "either".
-    // https://github.com/jsx-eslint/eslint-plugin-jsx-a11y/issues/718
+    "jsx-a11y/anchor-is-valid": "off",
     "jsx-a11y/label-has-associated-control": [
-      2,
+      "error",
       {
         "assert": "either"
       }
     ],
-    // Since we do not use prop-types
-    "react/require-default-props": 0,
-    // Use semicolon as member delimiter for interfaces and type
-    "@typescript-eslint/member-delimiter-style": 2,
-    "@typescript-eslint/semi": 0,
+    "react/require-default-props": "off",
+    "@typescript-eslint/member-delimiter-style": "error",
+    "@typescript-eslint/semi": "off",
     "semi": [
-      2,
+      "error",
       "never"
     ]
-  }
+  },
+  "ignorePatterns": [
+    "node_modules/",
+    "build/",
+    "dist/"
+  ],
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "parserOptions": {
+        "project": "./tsconfig.json",
+        "tsconfigRootDir": "./"
+      }
+    }
+  ]
 }
