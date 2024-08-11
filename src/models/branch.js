@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Employee = require('./Employee');
+const Employee = require('./employee');
 
 
 const branchSchema = new mongoose.Schema({

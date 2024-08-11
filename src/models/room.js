@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const Branch = require("./Branch");
+const Branch = require("./branch");
 
 const roomSchema = new mongoose.Schema(
   {

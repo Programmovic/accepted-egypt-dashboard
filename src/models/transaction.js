@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
-const Student = require('./Student');
-const Batch = require('./Batch');
-const PaymentMethod = require('./PaymentMethod'); // Import the PaymentMethod model
+const Student = require('./student');
+const Batch = require('./batch');
+const PaymentMethod = require('./paymentMethod'); // Import the PaymentMethod model
 
 const transactionSchema = new mongoose.Schema({
   student: {
