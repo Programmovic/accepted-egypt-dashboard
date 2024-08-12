@@ -53,6 +53,10 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
       ref: "PaymentMethod",
     },
+    trainingLocation: {
+      type: String,
+      ref: "TrainingLocation",
+    },
     recieverNumber: {
       type: String,
     },

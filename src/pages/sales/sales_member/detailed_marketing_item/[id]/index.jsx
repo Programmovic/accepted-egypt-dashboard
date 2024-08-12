@@ -32,6 +32,7 @@ const MarketingDataDetail = () => {
   const [candidateSignUpFor, setCandidateSignUpFor] = useState([]);
   const [candidateStatusForSalesPerson, setCandidateStatusForSalesPerson] = useState([]);
   const [salesRejectionReason, setSalesRejectionReason] = useState([]);
+  const [trainingLocations, setTrainingLocations] = useState([]);
   const [unsavedChanges, setUnsavedChanges] = useState(false);
   const router = useRouter();
   const { id } = router.query;
@@ -105,12 +106,23 @@ const MarketingDataDetail = () => {
         console.error("Error fetching sales statuses:", error);
       }
     };
+    const fetchTrainingLocation = async () => {
+      try {
+        const response = await axios.get('/api/trainingLocation');
+        if (response.status === 200) {
+          setTrainingLocations(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching sales statuses:", error);
+      }
+    };
 
     if (id) {
       fetchMarketingData();
       fetchSalesStatuses();
       fetchPaymentMethods()
       fetchCandidateSignUpForStatus()
+      fetchTrainingLocation()
       fetchCandidateStatusForSalesPersonStatus()
       fetchSalesRejectionReason()
     }
@@ -216,6 +228,28 @@ const MarketingDataDetail = () => {
                       </Form.Control>
                     ) : (
                       marketingData.salesStatus
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Training Location</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        as="select"
+                        name="trainingLocation"
+                        value={marketingData.trainingLocation}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Training Location</option>
+                        {trainingLocations.map((status) => (
+                          <option key={status._id} value={status.name}>
+                            {status.name}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    ) : (
+                      marketingData.trainingLocation
                     )}
                   </td>
                 </tr>
