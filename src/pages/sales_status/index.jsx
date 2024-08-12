@@ -12,10 +12,10 @@ import {
 import { AdminLayout } from "@layout";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/router";
 
 const AdminManagement = () => {
-  const router = useSearchParams();
+  const router = useRouter();
   const [salesStatuses, setSalesStatuses] = useState([]);
   const [candidateSignUpFors, setCandidateSignUpFors] = useState([]);
   const [candidateStatusesForSalesPerson, setCandidateStatusesForSalesPerson] = useState([]);
@@ -85,19 +85,20 @@ const AdminManagement = () => {
       }
     }
   };
-
   useEffect(() => {
-    const selectedDropdown = router.get("selectedDropdown");
+    const { selectedDropdown } = router.query;
     if (selectedDropdown) {
       setActiveTab(selectedDropdown);
     }
+  }, [router.query]);
+  useEffect(() => {
     fetchData("/api/sales-status", setSalesStatuses);
     fetchData("/api/candidate_signup_for", setCandidateSignUpFors);
     fetchData("/api/candidate-status-for-sales-person", setCandidateStatusesForSalesPerson);
     fetchData("/api/payment-screenshot-status", setPaymentScreenshotStatuses);
     fetchData("/api/sales-rejection-reason", setSalesRejectionReasons);
   }, []);
-  
+
   return (
     <AdminLayout>
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
