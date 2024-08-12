@@ -1,7 +1,8 @@
 import connectDB from "@lib/db";
 import MarketingData from "../../../models/marketing";
 import Employee from "../../../models/employee"; // Import Employee model
-
+const Department = require("../../../models/department");
+const Position = require("../../../models/position");
 export default async (req, res) => {
   await connectDB();
 
@@ -73,21 +74,48 @@ export default async (req, res) => {
           // Fetch all MarketingData records and sort by creation date (newest first)
           allMarketingData = await MarketingData.find().sort({ createdAt: -1 });
         }
+        const positions = await Position.find({
+          name: { $in: ["Supervisor", "Agent"] },
+        }).select("_id name");
 
-        // Fetch employees in sales department with position matching 'member' or 'moderator' (case-insensitive)
-        const salesModerators = await Employee.find({
-          department: { $regex: new RegExp("^Sales$", "i") }, // Case-insensitive match for department
-          position: { $regex: new RegExp("^Supervisor$", "i") }, // Case-insensitive match for position
-        });
-        const salesMembers = await Employee.find({
-          department: { $regex: new RegExp("^Sales$", "i") }, // Case-insensitive match for department
-          position: { $regex: new RegExp("^Agent$", "i") }, // Case-insensitive match for position
-        });
+        console.log("Positions:", positions);
+
+        // Create a mapping for position names to IDs
+        const positionMap = positions.reduce((acc, p) => {
+          acc[p.name] = p._id;
+          return acc;
+        }, {});
+        const departments = await Department.find({
+          name: "Sales",
+        }).select("_id name");
+
+        console.log("Departments:", departments);
+
+        const departmentIds = departments.map((d) => d._id);
+        // Fetch supervisors in the Sales department
+        const salesSupervisors = await Employee.find({
+          department: { $in: departmentIds },
+          position: positionMap["Supervisor"], // Use positionMap to get the Supervisor ID
+        })
+          .populate("position")
+          .populate("department");
+
+        console.log("Sales Supervisors:", salesSupervisors);
+
+        // Fetch agents in the Sales department
+        const salesAgents = await Employee.find({
+          department: { $in: departmentIds },
+          position: positionMap["Agent"], // Use positionMap to get the Agent ID
+        })
+          .populate("position")
+          .populate("department");
+
+        console.log("Sales Agents:", salesAgents);
 
         return res.status(200).json({
           marketingData: allMarketingData,
-          salesModerators: salesModerators,
-          salesMembers: salesMembers,
+          salesModerators: salesSupervisors,
+          salesMembers: salesAgents,
         });
       }
     } catch (error) {

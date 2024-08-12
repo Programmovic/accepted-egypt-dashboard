@@ -51,7 +51,7 @@ const MarketingData = () => {
       if (response.status === 200) {
         const data = response.data;
         setMarketingData(data.marketingData);
-        console.log(data.marketingData)
+        console.log(data)
         setSalesModerators(data.salesModerators);
         setSalesMembers(data.salesMembers);
         setFilteredData(data.marketingData);

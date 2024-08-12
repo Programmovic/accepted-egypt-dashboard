@@ -17,13 +17,12 @@ const employeeSchema = new mongoose.Schema(
       required: true,
     },
     position: {
-      type: String,
-      required: true,
-      ref: "Position", // Example reference to a moderation entity
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Position',
     },
     department: {
-      type: String,
-      ref: "Department", // Example reference to a moderation entity
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Department',
     },
     address: {
       street: String,
