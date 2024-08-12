@@ -87,14 +87,17 @@ const AdminManagement = () => {
   };
 
   useEffect(() => {
-    setActiveTab(router.get("selectedDropdown"))
+    const selectedDropdown = router.get("selectedDropdown");
+    if (selectedDropdown) {
+      setActiveTab(selectedDropdown);
+    }
     fetchData("/api/sales-status", setSalesStatuses);
     fetchData("/api/candidate_signup_for", setCandidateSignUpFors);
     fetchData("/api/candidate-status-for-sales-person", setCandidateStatusesForSalesPerson);
     fetchData("/api/payment-screenshot-status", setPaymentScreenshotStatuses);
     fetchData("/api/sales-rejection-reason", setSalesRejectionReasons);
   }, []);
-
+  
   return (
     <AdminLayout>
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
