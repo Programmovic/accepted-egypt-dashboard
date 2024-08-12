@@ -12,8 +12,10 @@ import {
 import { AdminLayout } from "@layout";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSearchParams } from "next/navigation";
 
 const AdminManagement = () => {
+  const router = useSearchParams();
   const [salesStatuses, setSalesStatuses] = useState([]);
   const [candidateSignUpFors, setCandidateSignUpFors] = useState([]);
   const [candidateStatusesForSalesPerson, setCandidateStatusesForSalesPerson] = useState([]);
@@ -24,6 +26,7 @@ const AdminManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentItem, setCurrentItem] = useState({ id: null, status: "", order: null, description: "" });
+
   const [activeTab, setActiveTab] = useState("salesStatuses");
 
   const fetchData = async (endpoint, setState) => {
@@ -84,6 +87,7 @@ const AdminManagement = () => {
   };
 
   useEffect(() => {
+    setActiveTab(router.get("selectedDropdown"))
     fetchData("/api/sales-status", setSalesStatuses);
     fetchData("/api/candidate_signup_for", setCandidateSignUpFors);
     fetchData("/api/candidate-status-for-sales-person", setCandidateStatusesForSalesPerson);

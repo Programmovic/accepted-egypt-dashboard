@@ -8,10 +8,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { useRouter } from "next/navigation";
 
 import { ClassCard } from "@components/Classes";
 
 const MarketingData = () => {
+  const router = useRouter();
   const [marketingData, setMarketingData] = useState([]);
   const [candidateSignUpForData, setCandidateSignUpForData] = useState([]);
   const [salesModerators, setSalesModerators] = useState([]);
@@ -375,20 +377,32 @@ const MarketingData = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Candidate Signed Up For</Form.Label>
-              <Form.Control
-                as="select"
-                value={newAssignTo}
-                onChange={(e) => setNewAssignTo(e.target.value)}
-              >
-                <option value="" hidden>Select an option</option>
-                {candidateSignUpForData.map((status) => (
-                  <option key={status._id} value={status.status}>
-                    {status.status}
-                  </option>
-                ))}
-              </Form.Control>
+              <Form.Label className="me-2">Candidate Signed Up For</Form.Label>
+              <div className="d-flex flex-grow-1">
+                <Form.Control
+                  as="select"
+                  value={newAssignTo}
+                  onChange={(e) => setNewAssignTo(e.target.value)}
+                  className="me-2"
+                >
+                  <option value="" hidden>Select an option</option>
+                  {candidateSignUpForData.map((status) => (
+                    <option key={status._id} value={status.status}>
+                      {status.status}
+                    </option>
+                  ))}
+                </Form.Control>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    window.open(`/sales_status?selectedDropdown=candidate_signup_for`, '_blank');
+                  }}
+                >
+                  Add More
+                </Button>
+              </div>
             </Form.Group>
+
             {/* 
             <Form.Group className="mb-3">
               <Form.Label>Chat Summary</Form.Label>
