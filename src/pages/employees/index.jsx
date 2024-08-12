@@ -238,8 +238,8 @@ const Employees = () => {
                   <td>{employee.email}</td>
                   <td>{employee.phoneNumber}</td>
                   <td>{employee.address}</td>
-                  <td>{employee.department}</td>
-                  <td>{employee.position}</td>
+                  <td>{employee?.department?.name}</td>
+                  <td>{employee?.position?.name}</td>
                   <td>{employee.salary}</td>
                   <td>
                     {new Date(employee.startDate).toLocaleDateString()}

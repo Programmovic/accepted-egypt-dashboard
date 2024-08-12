@@ -9,7 +9,12 @@ export default async (req, res) => {
     try {
       const newEmployee = new Employee(req.body);
       await newEmployee.save();
-      return res.status(201).json({ message: "Employee created successfully", employee: newEmployee });
+      return res
+        .status(201)
+        .json({
+          message: "Employee created successfully",
+          employee: newEmployee,
+        });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Failed to create employee" });
@@ -17,7 +22,9 @@ export default async (req, res) => {
   } else if (req.method === "GET") {
     // Retrieve all employees
     try {
-      const employees = await Employee.find();
+      const employees = await Employee.find()
+        .populate("position")
+        .populate("department");
       return res.status(200).json(employees);
     } catch (error) {
       console.error(error);
@@ -31,7 +38,9 @@ export default async (req, res) => {
 
       // Check if the provided employee ID is valid
       if (!id) {
-        return res.status(400).json({ error: "Employee ID is required for updating" });
+        return res
+          .status(400)
+          .json({ error: "Employee ID is required for updating" });
       }
 
       // Find the employee by ID
@@ -47,7 +56,9 @@ export default async (req, res) => {
       // Save the updated employee to the database
       await employee.save();
 
-      return res.status(200).json({ message: "Employee data updated successfully", employee });
+      return res
+        .status(200)
+        .json({ message: "Employee data updated successfully", employee });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Failed to update employee data" });
