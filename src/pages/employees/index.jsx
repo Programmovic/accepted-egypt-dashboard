@@ -16,6 +16,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link"; // Import Link from Next.js
 import { useRouter } from "next/router"; // Import useRouter from Next.js
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
 const Employees = () => {
   const router = useRouter(); // Initialize the router
@@ -252,11 +253,11 @@ const Employees = () => {
         </Card.Body>
       </Card>
       <ToastContainer position="top-right" autoClose={3000} />
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal show={showModal} onHide={() => setShowModal(false)} size="xl">
         <Modal.Header closeButton>
           <Modal.Title>Create New Employee</Modal.Title>
         </Modal.Header>
-        <Modal.Body>
+        <Modal.Body style={{maxHeight: "500px", overflowY: "auto"}}>
           <Form>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
@@ -311,48 +312,62 @@ const Employees = () => {
               />
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Department</Form.Label>
-              
-              <Form.Control
-                as="select"
-                name="Department"
-                value={newEmployeeData.department}
-                onChange={(e) =>
-                  setNewEmployeeData({
-                    ...newEmployeeData,
-                    department: e.target.value,
-                  })
-                }
-              >
-                <option value="">Select Department</option>
-                {departments.map((department) => (
-                  <option key={department._id} value={department._id}>
-                    {department.name}
-                  </option>
-                ))}
-              </Form.Control>
+              <Form.Label className="me-2">Department</Form.Label>
+              <div className="d-flex flex-grow-1">
+                <Form.Control
+                  as="select"
+                  name="Department"
+                  value={newEmployeeData.department}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      department: e.target.value,
+                    })
+                  }
+                  className="me-2"
+                >
+                  <option value="" hidden>Select Department</option>
+                  {departments.map((department) => (
+                    <option key={department._id} value={department._id}>
+                      {department.name}
+                    </option>
+                  ))}
+                </Form.Control>
+                <Link href={`/departments`} target="_blank">
+                  <Button variant="outline-primary"><AddOutlinedIcon /></Button>
+                </Link>
+              </div>
             </Form.Group>
+
             <Form.Group className="mb-3">
-              <Form.Label>Position</Form.Label>
-              <Form.Control
-                as="select"
-                name="position"
-                value={newEmployeeData.position}
-                onChange={(e) =>
-                  setNewEmployeeData({
-                    ...newEmployeeData,
-                    position: e.target.value,
-                  })
-                }
-              >
-                <option value="">Select Position</option>
-                {positions.map((position) => (
-                  <option key={position._id} value={position._id}>
-                    {position.name}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form.Group>
+  <Form.Label className="me-2">Position</Form.Label>
+  <div className="d-flex flex-grow-1">
+    <Form.Control
+      as="select"
+      name="position"
+      value={newEmployeeData.position}
+      onChange={(e) =>
+        setNewEmployeeData({
+          ...newEmployeeData,
+          position: e.target.value,
+        })
+      }
+      className="me-2"
+    >
+      <option value="" hidden>Select Position</option>
+      {positions.map((position) => (
+        <option key={position._id} value={position._id}>
+          {position.name}
+        </option>
+      ))}
+    </Form.Control>
+    <Link href={`/positions`} target="_blank">
+      <Button variant="outline-primary" className="d-flex align-items-center">
+        <AddOutlinedIcon />
+      </Button>
+    </Link>
+  </div>
+</Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Salary</Form.Label>
               <Form.Control
