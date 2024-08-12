@@ -10,6 +10,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
 import { ClassCard } from "@components/Classes";
 
@@ -394,7 +395,7 @@ const MarketingData = () => {
                   ))}
                 </Form.Control>
                 <Link href={`/sales_status?selected=candidate_signup_for`} target="_blank">
-                  <Button variant="primary">Add More</Button>
+                <Button variant="outline-primary"><AddOutlinedIcon /></Button>
                 </Link>
               </div>
             </Form.Group>
