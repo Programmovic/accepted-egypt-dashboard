@@ -27,8 +27,8 @@ const AdminManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentItem, setCurrentItem] = useState({ id: null, status: "", order: null, description: "" });
-// Import the new state and setState
-const [trainingLocations, setTrainingLocations] = useState([]);
+  // Import the new state and setState
+  const [trainingLocations, setTrainingLocations] = useState([]);
   const [activeTab, setActiveTab] = useState("salesStatuses");
 
   const fetchData = async (endpoint, setState) => {
@@ -56,13 +56,18 @@ const [trainingLocations, setTrainingLocations] = useState([]);
     if (activeTab === "candidate_signup_for") {
       data.order = currentItem.order;
     }
-
+    if (activeTab === "trainingLocation") {
+      data.name = currentItem.name; // Replace with the actual field names for training location
+      data.address = currentItem.address;
+      data.description = currentItem.description;
+      // Add other fields specific to training location if any
+    }
     try {
       const response = await axios[method](url, data);
       if (response.status === 201 || response.status === 200) {
-        toast.success(`${activeTab === "sales-status" ? 'Sales Status' : activeTab === "candidate_signup_for" ? 'Candidate Sign Up For' : activeTab === "candidate-status-for-sales-person" ? 'Candidate Status For Sales Person' : activeTab === "payment-screenshot-status" ? 'Payment Screenshot Status' : 'Sales Rejection Reason'} ${isEdit ? 'updated' : 'added'} successfully!`);
-        fetchData(`/api/${activeTab}`, activeTab === "sales-status" ? setSalesStatuses : activeTab === "candidate_signup_for" ? setCandidateSignUpFors : activeTab === "candidate-status-for-sales-person" ? setCandidateStatusesForSalesPerson : activeTab === "payment-screenshot-status" ? setPaymentScreenshotStatuses : setSalesRejectionReasons);
-        setShowModal(false);
+        toast.success(`${activeTab === "sales-status" ? 'Sales Status' : activeTab === "candidate_signup_for" ? 'Candidate Sign Up For' : activeTab === "candidate-status-for-sales-person" ? 'Candidate Status For Sales Person' : activeTab === "payment-screenshot-status" ? 'Payment Screenshot Status' : activeTab === "trainingLocation" ? 'Training Location' : 'Sales Rejection Reason'} ${isEdit ? 'updated' : 'added'} successfully!`);
+      fetchData(`/api/${activeTab}`, activeTab === "sales-status" ? setSalesStatuses : activeTab === "candidate_signup_for" ? setCandidateSignUpFors : activeTab === "candidate-status-for-sales-person" ? setCandidateStatusesForSalesPerson : activeTab === "payment-screenshot-status" ? setPaymentScreenshotStatuses : activeTab === "trainingLocation" ? setTrainingLocations : setSalesRejectionReasons);
+      setShowModal(false);
         setCurrentItem({ id: null, status: "", order: null, description: "" });
       }
     } catch (error) {
@@ -105,46 +110,46 @@ const [trainingLocations, setTrainingLocations] = useState([]);
   return (
     <AdminLayout>
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
-      <Tab eventKey="trainingLocation" title="Training Location">
-  <Card>
-    <Card.Header>Training Locations</Card.Header>
-    <Card.Body>
-      <Button variant="success" onClick={() => { setShowModal(true); setIsEdit(false); }}>
-        Add Training Location
-      </Button>
+        <Tab eventKey="trainingLocation" title="Training Location">
+          <Card>
+            <Card.Header>Training Locations</Card.Header>
+            <Card.Body>
+              <Button variant="success" onClick={() => { setShowModal(true); setIsEdit(false); }}>
+                Add Training Location
+              </Button>
 
-      <Table striped bordered hover className="mt-3">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Name</th>
-            <th>Address</th>
-            <th>Description</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {trainingLocations.map((location, index) => (
-            <tr key={location._id}>
-              <td>{index + 1}</td>
-              <td>{location.name}</td>
-              <td>{location.address}</td>
-              <td>{location.description}</td>
-              <td>
-                <Button variant="primary" onClick={() => { setShowModal(true); setIsEdit(true); setCurrentItem(location); }}>
-                  Edit
-                </Button>
-                <Button variant="danger" onClick={() => handleDelete(location._id)} className="ms-2">
-                  Delete
-                </Button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </Table>
-    </Card.Body>
-  </Card>
-</Tab>
+              <Table striped bordered hover className="mt-3">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {trainingLocations.map((location, index) => (
+                    <tr key={location._id}>
+                      <td>{index + 1}</td>
+                      <td>{location.name}</td>
+                      <td>{location.address}</td>
+                      <td>{location.description}</td>
+                      <td>
+                        <Button variant="primary" onClick={() => { setShowModal(true); setIsEdit(true); setCurrentItem(location); }}>
+                          Edit
+                        </Button>
+                        <Button variant="danger" onClick={() => handleDelete(location._id)} className="ms-2">
+                          Delete
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            </Card.Body>
+          </Card>
+        </Tab>
 
         <Tab eventKey="sales-status" title="Sales Status">
           <Card>
@@ -335,62 +340,62 @@ const [trainingLocations, setTrainingLocations] = useState([]);
       <ToastContainer position="top-right" autoClose={3000} />
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
-  <Modal.Header closeButton>
-    <Modal.Title>{isEdit ? 'Edit' : 'Add'} {activeTab}</Modal.Title>
-  </Modal.Header>
-  <Modal.Body>
-    <Form>
-      {activeTab === "trainingLocation" && (
-        <>
-          <Form.Group className="mb-3">
-            <Form.Label>Name</Form.Label>
-            <Form.Control
-              type="text"
-              value={currentItem.name}
-              onChange={(e) => setCurrentItem({ ...currentItem, name: e.target.value })}
-            />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Address</Form.Label>
-            <Form.Control
-              type="text"
-              value={currentItem.address}
-              onChange={(e) => setCurrentItem({ ...currentItem, address: e.target.value })}
-            />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>Description</Form.Label>
-            <Form.Control
-              type="text"
-              value={currentItem.description}
-              onChange={(e) => setCurrentItem({ ...currentItem, description: e.target.value })}
-            />
-          </Form.Group>
-        </>
-      )}
-      {/* Existing fields for other tabs */}
-      {activeTab === "sales-status" && (
-        <Form.Group className="mb-3">
-          <Form.Label>Status</Form.Label>
-          <Form.Control
-            type="text"
-            value={currentItem.status}
-            onChange={(e) => setCurrentItem({ ...currentItem, status: e.target.value })}
-          />
-        </Form.Group>
-      )}
-      {/* Add other form groups based on the active tab */}
-    </Form>
-  </Modal.Body>
-  <Modal.Footer>
-    <Button variant="secondary" onClick={() => setShowModal(false)}>
-      Close
-    </Button>
-    <Button variant="success" onClick={handleSave}>
-      Save
-    </Button>
-  </Modal.Footer>
-</Modal>
+        <Modal.Header closeButton>
+          <Modal.Title>{isEdit ? 'Edit' : 'Add'} {activeTab}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            {activeTab === "trainingLocation" && (
+              <>
+                <Form.Group className="mb-3">
+                  <Form.Label>Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={currentItem.name}
+                    onChange={(e) => setCurrentItem({ ...currentItem, name: e.target.value })}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Address</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={currentItem.address}
+                    onChange={(e) => setCurrentItem({ ...currentItem, address: e.target.value })}
+                  />
+                </Form.Group>
+                <Form.Group className="mb-3">
+                  <Form.Label>Description</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={currentItem.description}
+                    onChange={(e) => setCurrentItem({ ...currentItem, description: e.target.value })}
+                  />
+                </Form.Group>
+              </>
+            )}
+            {/* Existing fields for other tabs */}
+            {activeTab === "sales-status" && (
+              <Form.Group className="mb-3">
+                <Form.Label>Status</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={currentItem.status}
+                  onChange={(e) => setCurrentItem({ ...currentItem, status: e.target.value })}
+                />
+              </Form.Group>
+            )}
+            {/* Add other form groups based on the active tab */}
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+          <Button variant="success" onClick={handleSave}>
+            Save
+          </Button>
+        </Modal.Footer>
+      </Modal>
 
     </AdminLayout>
   );

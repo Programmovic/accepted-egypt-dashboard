@@ -21,6 +21,7 @@ export default async (req, res) => {
 const createTrainingLocation = async (req, res) => {
   try {
     const { name, address, description } = req.body;
+    console.log(req.body);
     const trainingLocation = new TrainingLocation({ name, address, description });
     await trainingLocation.save();
     res.status(201).json(trainingLocation);
