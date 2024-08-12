@@ -27,7 +27,8 @@ const AdminManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
   const [currentItem, setCurrentItem] = useState({ id: null, status: "", order: null, description: "" });
-
+// Import the new state and setState
+const [trainingLocations, setTrainingLocations] = useState([]);
   const [activeTab, setActiveTab] = useState("salesStatuses");
 
   const fetchData = async (endpoint, setState) => {
@@ -98,11 +99,53 @@ const AdminManagement = () => {
     fetchData("/api/candidate-status-for-sales-person", setCandidateStatusesForSalesPerson);
     fetchData("/api/payment-screenshot-status", setPaymentScreenshotStatuses);
     fetchData("/api/sales-rejection-reason", setSalesRejectionReasons);
+    fetchData("/api/trainingLocation", setTrainingLocations);
   }, []);
 
   return (
     <AdminLayout>
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
+      <Tab eventKey="trainingLocation" title="Training Location">
+  <Card>
+    <Card.Header>Training Locations</Card.Header>
+    <Card.Body>
+      <Button variant="success" onClick={() => { setShowModal(true); setIsEdit(false); }}>
+        Add Training Location
+      </Button>
+
+      <Table striped bordered hover className="mt-3">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {trainingLocations.map((location, index) => (
+            <tr key={location._id}>
+              <td>{index + 1}</td>
+              <td>{location.name}</td>
+              <td>{location.address}</td>
+              <td>{location.description}</td>
+              <td>
+                <Button variant="primary" onClick={() => { setShowModal(true); setIsEdit(true); setCurrentItem(location); }}>
+                  Edit
+                </Button>
+                <Button variant="danger" onClick={() => handleDelete(location._id)} className="ms-2">
+                  Delete
+                </Button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
+    </Card.Body>
+  </Card>
+</Tab>
+
         <Tab eventKey="sales-status" title="Sales Status">
           <Card>
             <Card.Header>Sales Statuses</Card.Header>
@@ -292,61 +335,63 @@ const AdminManagement = () => {
       <ToastContainer position="top-right" autoClose={3000} />
 
       <Modal show={showModal} onHide={() => setShowModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>{isEdit ? 'Edit' : 'Add'} {activeTab}</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            {activeTab === "candidate_signup_for" && (
-              <Form.Group className="mb-3">
-                <Form.Label>Order</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={currentItem.order}
-                  onChange={(e) => setCurrentItem({ ...currentItem, order: e.target.value })}
-                />
-              </Form.Group>
-            )}
-            {(activeTab === "sales-status" || activeTab === "candidate_signup_for" || activeTab === "candidate-status-for-sales-person" || activeTab === "payment-screenshot-status") ? (
-              <Form.Group className="mb-3">
-                <Form.Label>Status</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={currentItem.status}
-                  onChange={(e) => setCurrentItem({ ...currentItem, status: e.target.value })}
-                />
-              </Form.Group>
-            ) : (
-              <Form.Group className="mb-3">
-                <Form.Label>Reason</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={currentItem.reason}
-                  onChange={(e) => setCurrentItem({ ...currentItem, reason: e.target.value })}
-                />
-              </Form.Group>
-            )}
-            {(activeTab === "candidateStatusesForSalesPerson" || activeTab === "paymentScreenshotStatuses") && (
-              <Form.Group className="mb-3">
-                <Form.Label>Description</Form.Label>
-                <Form.Control
-                  type="text"
-                  value={currentItem.description}
-                  onChange={(e) => setCurrentItem({ ...currentItem, description: e.target.value })}
-                />
-              </Form.Group>
-            )}
-          </Form>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowModal(false)}>
-            Close
-          </Button>
-          <Button variant="success" onClick={handleSave}>
-            Save
-          </Button>
-        </Modal.Footer>
-      </Modal>
+  <Modal.Header closeButton>
+    <Modal.Title>{isEdit ? 'Edit' : 'Add'} {activeTab}</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    <Form>
+      {activeTab === "trainingLocation" && (
+        <>
+          <Form.Group className="mb-3">
+            <Form.Label>Name</Form.Label>
+            <Form.Control
+              type="text"
+              value={currentItem.name}
+              onChange={(e) => setCurrentItem({ ...currentItem, name: e.target.value })}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Address</Form.Label>
+            <Form.Control
+              type="text"
+              value={currentItem.address}
+              onChange={(e) => setCurrentItem({ ...currentItem, address: e.target.value })}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>Description</Form.Label>
+            <Form.Control
+              type="text"
+              value={currentItem.description}
+              onChange={(e) => setCurrentItem({ ...currentItem, description: e.target.value })}
+            />
+          </Form.Group>
+        </>
+      )}
+      {/* Existing fields for other tabs */}
+      {activeTab === "sales-status" && (
+        <Form.Group className="mb-3">
+          <Form.Label>Status</Form.Label>
+          <Form.Control
+            type="text"
+            value={currentItem.status}
+            onChange={(e) => setCurrentItem({ ...currentItem, status: e.target.value })}
+          />
+        </Form.Group>
+      )}
+      {/* Add other form groups based on the active tab */}
+    </Form>
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowModal(false)}>
+      Close
+    </Button>
+    <Button variant="success" onClick={handleSave}>
+      Save
+    </Button>
+  </Modal.Footer>
+</Modal>
+
     </AdminLayout>
   );
 };
