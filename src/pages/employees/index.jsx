@@ -162,7 +162,7 @@ const Employees = () => {
     setFilterEmail("");
     setFilteredEmployees(employees);
   };
-
+  console.log(employees)
   // Define the page structure and components
   return (
     <AdminLayout>
@@ -257,7 +257,7 @@ const Employees = () => {
         <Modal.Header closeButton>
           <Modal.Title>Create New Employee</Modal.Title>
         </Modal.Header>
-        <Modal.Body style={{maxHeight: "500px", overflowY: "auto"}}>
+        <Modal.Body style={{ maxHeight: "500px", overflowY: "auto" }}>
           <Form>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
@@ -340,34 +340,34 @@ const Employees = () => {
             </Form.Group>
 
             <Form.Group className="mb-3">
-  <Form.Label className="me-2">Position</Form.Label>
-  <div className="d-flex flex-grow-1">
-    <Form.Control
-      as="select"
-      name="position"
-      value={newEmployeeData.position}
-      onChange={(e) =>
-        setNewEmployeeData({
-          ...newEmployeeData,
-          position: e.target.value,
-        })
-      }
-      className="me-2"
-    >
-      <option value="" hidden>Select Position</option>
-      {positions.map((position) => (
-        <option key={position._id} value={position._id}>
-          {position.name}
-        </option>
-      ))}
-    </Form.Control>
-    <Link href={`/positions`} target="_blank">
-      <Button variant="outline-primary" className="d-flex align-items-center">
-        <AddOutlinedIcon />
-      </Button>
-    </Link>
-  </div>
-</Form.Group>
+              <Form.Label className="me-2">Position</Form.Label>
+              <div className="d-flex flex-grow-1">
+                <Form.Control
+                  as="select"
+                  name="position"
+                  value={newEmployeeData.position}
+                  onChange={(e) =>
+                    setNewEmployeeData({
+                      ...newEmployeeData,
+                      position: e.target.value,
+                    })
+                  }
+                  className="me-2"
+                >
+                  <option value="" hidden>Select Position</option>
+                  {positions.map((position) => (
+                    <option key={position._id} value={position._id}>
+                      {position.name}
+                    </option>
+                  ))}
+                </Form.Control>
+                <Link href={`/positions`} target="_blank">
+                  <Button variant="outline-primary" className="d-flex align-items-center">
+                    <AddOutlinedIcon />
+                  </Button>
+                </Link>
+              </div>
+            </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Salary</Form.Label>
               <Form.Control

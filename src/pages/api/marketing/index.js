@@ -77,11 +77,11 @@ export default async (req, res) => {
         // Fetch employees in sales department with position matching 'member' or 'moderator' (case-insensitive)
         const salesModerators = await Employee.find({
           department: { $regex: new RegExp("^Sales$", "i") }, // Case-insensitive match for department
-          position: { $regex: new RegExp("^moderator$", "i") }, // Case-insensitive match for position
+          position: { $regex: new RegExp("^Sales Supervisor$", "i") }, // Case-insensitive match for position
         });
         const salesMembers = await Employee.find({
           department: { $regex: new RegExp("^Sales$", "i") }, // Case-insensitive match for department
-          position: { $regex: new RegExp("^member$", "i") }, // Case-insensitive match for position
+          position: { $regex: new RegExp("^Sales Agent$", "i") }, // Case-insensitive match for position
         });
 
         return res.status(200).json({
