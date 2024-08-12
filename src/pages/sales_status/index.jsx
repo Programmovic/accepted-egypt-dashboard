@@ -1,3 +1,4 @@
+'use Client'
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
@@ -86,9 +87,9 @@ const AdminManagement = () => {
     }
   };
   useEffect(() => {
-    const { selectedDropdown } = router.query;
-    if (selectedDropdown) {
-      setActiveTab(selectedDropdown);
+    const { selected } = router.query;
+    if (selected) {
+      setActiveTab(selected);
     }
   }, [router.query]);
   useEffect(() => {

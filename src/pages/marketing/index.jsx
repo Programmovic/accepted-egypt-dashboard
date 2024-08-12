@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 import { ClassCard } from "@components/Classes";
 
@@ -392,14 +393,9 @@ const MarketingData = () => {
                     </option>
                   ))}
                 </Form.Control>
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    window.open(`/sales_status?selectedDropdown=candidate_signup_for`, '_blank');
-                  }}
-                >
-                  Add More
-                </Button>
+                <Link href={`/sales_status?selected=candidate_signup_for`} target="_blank">
+                  <Button variant="primary">Add More</Button>
+                </Link>
               </div>
             </Form.Group>
 
