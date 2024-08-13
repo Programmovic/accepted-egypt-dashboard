@@ -1,6 +1,19 @@
 const mongoose = require("mongoose");
 const MarketingDataHistory = require("./marketingHistory");
 
+const Employee = require("./employee");
+const SalesStatus = require("./salesStatus");
+const CandidateSignUpFor = require("./candidateSignUpFor");
+const CandidateStatusForSalesPerson = require("./candidateStatusForSalesPerson");
+const PaymentMethod = require("./paymentMethod");
+const TrainingLocation = require("./trainingLocation");
+const PaymentScreenshotStatus = require("./paymentScreenshotStatus");
+const PlacementTestSettings = require("./placementTestSettings");
+const SalesRejectionReason = require("./salesRejectionReason");
+const PhoneInterviewStatus = require("./phoneInterviewStatus");
+const FaceToFaceStatus = require("./faceToFaceStatus");
+const FeedbackSessionStatus = require("./feedbackSessionStatus");
+
 const marketingDataSchema = new mongoose.Schema(
   {
     name: {
@@ -27,34 +40,34 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
     },
     assignedToModeration: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
     },
     assignationDate: {
       type: Date,
     },
     assignedToSales: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
     },
     salesStatus: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "SalesStatus",
     },
     candidateSignUpFor: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "CandidateSignUpFor",
     },
     candidateStatusForSalesPerson: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "CandidateStatusForSalesPerson",
     },
     paymentMethod: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "PaymentMethod",
     },
     trainingLocation: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "TrainingLocation",
     },
     recieverNumber: {
@@ -64,18 +77,18 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
     },
     paymentScreenshotStatus: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "PaymentScreenshotStatus",
     },
     paymentScreenshotDate: {
       type: String,
     },
     placementTest: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "PlacementTestSettings",
     },
     salesRejectionReason: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "SalesRejectionReason",
     },
     salesMemberAssignationDate: {
@@ -85,49 +98,48 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
     },
     phoneInterviewStatus: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "PhoneInterviewStatus",
     },
     phoneInterviewDate: {
       type: String,
     },
     faceToFaceStatus: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "FaceToFaceStatus",
     },
     faceToFaceDate: {
       type: String,
     },
     feedbackSessionStatus: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "FeedbackSessionStatus",
     },
     feedbackSessionDate: {
       type: String,
     },
     testResultStatus: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "FeedbackSessionStatus",
     },
     testResultDate: {
       type: String,
     },
-    
     onBoardingName: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
     },
     recruiterName: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
     },
     placerName: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
     },
     updatedBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Assuming you have a User model
+      ref: "User",
     },
   },
   {
