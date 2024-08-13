@@ -373,8 +373,17 @@ const AdminManagement = () => {
                 </Form.Group>
               </>
             )}
-            {/* Existing fields for other tabs */}
-            {activeTab === "sales-status" && (
+            {activeTab === "candidate_signup_for" && (
+              <Form.Group className="mb-3">
+                <Form.Label>Order</Form.Label>
+                <Form.Control
+                  type="number"
+                  value={currentItem.order}
+                  onChange={(e) => setCurrentItem({ ...currentItem, order: e.target.value })}
+                />
+              </Form.Group>
+            )}
+            {(activeTab === "sales-status" || activeTab === "candidate_signup_for" || activeTab === "candidate-status-for-sales-person" || activeTab === "payment-screenshot-status") ? (
               <Form.Group className="mb-3">
                 <Form.Label>Status</Form.Label>
                 <Form.Control
@@ -383,8 +392,26 @@ const AdminManagement = () => {
                   onChange={(e) => setCurrentItem({ ...currentItem, status: e.target.value })}
                 />
               </Form.Group>
+            ) : (
+              <Form.Group className="mb-3">
+                <Form.Label>Reason</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={currentItem.reason}
+                  onChange={(e) => setCurrentItem({ ...currentItem, reason: e.target.value })}
+                />
+              </Form.Group>
             )}
-            {/* Add other form groups based on the active tab */}
+            {(activeTab === "candidateStatusesForSalesPerson" || activeTab === "paymentScreenshotStatuses") && (
+              <Form.Group className="mb-3">
+                <Form.Label>Description</Form.Label>
+                <Form.Control
+                  type="text"
+                  value={currentItem.description}
+                  onChange={(e) => setCurrentItem({ ...currentItem, description: e.target.value })}
+                />
+              </Form.Group>
+            )}
           </Form>
         </Modal.Body>
         <Modal.Footer>

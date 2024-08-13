@@ -9,7 +9,6 @@ import Head from "next/head";
 import { Container } from "react-bootstrap";
 import Sidebar, { SidebarOverlay } from "@layout/AdminLayout/Sidebar/Sidebar";
 import Header from "@layout/AdminLayout/Header/Header";
-import Footer from "@layout/AdminLayout/Footer/Footer";
 import { useRouter } from "next/router";
 
 export default function AdminLayout({ children }: PropsWithChildren) {

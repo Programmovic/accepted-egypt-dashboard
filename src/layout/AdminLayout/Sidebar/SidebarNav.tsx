@@ -247,6 +247,9 @@ export default function SidebarNav() {
         <SidebarNavItem icon={faEdit} href="/progress_exit_tests">
           Progress / Exit Tests
         </SidebarNavItem>
+        <SidebarNavItem icon={faPerson} href="/students/prospect-list">
+          Prospect List
+        </SidebarNavItem>
         <SidebarNavItem icon={faPerson} href="/students/pending">
           Pending Students
         </SidebarNavItem>

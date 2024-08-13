@@ -31,7 +31,7 @@ const MarketingData = () => {
   const [assignedToSales, setAssignedToSales] = useState("");
   const fetchMarketingData = async () => {
     try {
-      const response = await axios.get("/api/marketing?pending=true");
+      const response = await axios.get("/api/marketing?prospect_list=true");
       if (response.status === 200) {
         const data = response.data;
         setMarketingData(data.marketingData);
@@ -326,44 +326,34 @@ const MarketingData = () => {
                     <td>{item.phoneNo1}</td>
                     <td>{item.phoneNo2}</td>
                     <td>{item.paymentMethod}</td>
-                    {item.paymentMethod !== "Cash" ? (
-                      <td>
-                        {(
-                          <Form.Control
-                            as="select"
-                            name="recieverNumber"
-                            value={item.recieverNumber}
-                            onChange={(e) => {
-                              handleUpdateMarketingData(item._id, {
-                                recieverNumber: e.target.value,
-                              })
-                            }}
-                          >
-                            <option value="">Select {item.paymentMethod} number</option>
-                            {["Vodafone Cash", "Orange Money", "Etisalat Cash"].includes(item.paymentMethod) &&
-                              paymentMethods.filter(method => method.type === item.paymentMethod)[0]?.configuration?.walletNumber.map((number) => (
-                                <option key={number} value={number}>
-                                  {number}
-                                </option>
-                              ))}
-                            {["Bank Transfer"].includes(item.paymentMethod) &&
-                              paymentMethods.filter(method => method.type === item.paymentMethod)[0]?.configuration?.bankAccountNumber.map((number) => (
-                                <option key={number} value={number}>
-                                  {number}
-                                </option>
-                              ))}
-                          </Form.Control>
-                        )}
-                      </td>
-                    )
-                      :
-                      (
-                        <td>
-                          Cash
-                        </td>
-                      )
-                    }
-
+                    <td>
+                      {(
+                        <Form.Control
+                          as="select"
+                          name="recieverNumber"
+                          value={item.recieverNumber}
+                          onChange={(e) => {
+                            handleUpdateMarketingData(item._id, {
+                              recieverNumber: e.target.value,
+                            })
+                          }}
+                        >
+                          <option value="">Select {item.paymentMethod} number</option>
+                          {["Vodafone Cash", "Orange Money", "Etisalat Cash"].includes(item.paymentMethod) &&
+                            paymentMethods.filter(method => method.type === item.paymentMethod)[0]?.configuration?.walletNumber.map((number) => (
+                              <option key={number} value={number}>
+                                {number}
+                              </option>
+                            ))}
+                          {["Bank Transfer"].includes(item.paymentMethod) &&
+                            paymentMethods.filter(method => method.type === item.paymentMethod)[0]?.configuration?.bankAccountNumber.map((number) => (
+                              <option key={number} value={number}>
+                                {number}
+                              </option>
+                            ))}
+                        </Form.Control>
+                      )}
+                    </td>
                     <td className="text-center">
                       {
                         <Form.Check
