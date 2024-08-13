@@ -49,7 +49,7 @@ const MarketingDataDetail = () => {
             ...prevData,
             ...response.data,
           }));
-          
+
         }
       } catch (error) {
         console.error("Error fetching marketing data:", error);
@@ -127,7 +127,7 @@ const MarketingDataDetail = () => {
       fetchSalesRejectionReason()
     }
   }, [id, apiUrl, salesStatusApiUrl, unsavedChanges]);
-
+  console.log(paymentMethods)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setMarketingData({ ...marketingData, [name]: value });
@@ -323,24 +323,71 @@ const MarketingDataDetail = () => {
                   <td>Payment Method</td>
                   <td>
                     {editing ? (
-                      <Form.Control
-                        as="select"
-                        name="paymentMethod"
-                        value={marketingData.paymentMethod}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select Payment Method</option>
-                        {paymentMethods.map((status) => (
-                          <option key={status._id} value={status.type}>
-                            {status.type}
-                          </option>
-                        ))}
-                      </Form.Control>
+                      <>
+                        <Form.Control
+                          as="select"
+                          name="paymentMethod"
+                          value={marketingData.paymentMethod}
+                          onChange={handleChange}
+                        >
+                          <option value="">Select Payment Method</option>
+                          {paymentMethods.map((method) => (
+                            <option key={method._id} value={method.type}>
+                              {method.type}
+                            </option>
+                          ))}
+                        </Form.Control>
+
+                        {marketingData.paymentMethod && (
+                          paymentMethods
+                            .filter((method) => method.type === marketingData.paymentMethod)
+                            .map((method) => (
+                              <div key={method._id}>
+                                {method.type === "Bank Transfer" && method.configuration.bankAccountNumber.length > 0 && (
+                                  <div  className="mt-2">
+                                    <Form.Control
+                                      as="select"
+                                      name="bankAccountNumber"
+                                      value={marketingData.bankAccountNumber || ""}
+                                      onChange={handleChange}
+                                    >
+                                      <option value="">Select Bank Account Number</option>
+                                      {method.configuration.bankAccountNumber.map((number, index) => (
+                                        <option key={index} value={number}>
+                                          {number}
+                                        </option>
+                                      ))}
+                                    </Form.Control>
+                                  </div>
+                                )}
+                                {["Vodafone Cash", "Orange Money", "Etisalat Cash"].includes(method.type) && method.configuration.walletNumber.length > 0 && (
+                                  <div className="mt-2">
+                                    <Form.Control
+                                      as="select"
+                                      name="walletNumber"
+                                      value={marketingData.walletNumber || ""}
+                                      onChange={handleChange}
+                                    >
+                                      <option value="">Select {method.type} Number</option>
+                                      {method.configuration.walletNumber.map((number, index) => (
+                                        <option key={index} value={number}>
+                                          {number}
+                                        </option>
+                                      ))}
+                                    </Form.Control>
+                                  </div>
+                                )}
+                              </div>
+                            ))
+                        )}
+                      </>
                     ) : (
                       marketingData.paymentMethod
                     )}
                   </td>
                 </tr>
+
+
                 <tr>
                   <td>Chat Summary</td>
                   <td>
