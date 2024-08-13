@@ -406,11 +406,11 @@ const MarketingData = () => {
                             })
                           }}
                         >
-                          <option value="">Select {item.paymentMethod} number</option>
+                          <option value="">Select Placement Test</option>
 
                           {placementTests.map((test) => (
                             <option key={test._id} value={test._id} title={`From ${test.startTime} to ${test.endTime} at ${new Date(test.date).toLocaleDateString()}, Limit Trainees ${test.limitTrainees}, Remaining ${test.limitTrainees - test.studentCount}`}>
-                              From {test.startTime} to {test.endTime} at {new Date(test.date).toLocaleDateString()}
+                              {test.startTime} to {test.endTime} | {new Date(test.date).toLocaleDateString()} | {test.studentCount}/{test.limitTrainees} ({(test.studentCount/test.limitTrainees)*100}%)
                             </option>
                           ))}
 

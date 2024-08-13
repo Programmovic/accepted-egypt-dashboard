@@ -52,7 +52,8 @@ const MarketingData = () => {
         const data = response.data;
         setMarketingData(data.marketingData);
         console.log(data)
-        setSalesModerators(data.salesModerators);
+        setSalesModerators(data.salesModerators.filter(s => s?.department?.name === "Sales"));
+        console.log(data.salesModerators.filter(s => { s?.department?.name === "Sales" && s?.position?.name === "Supervisor" }))
         setSalesMembers(data.salesMembers);
         setFilteredData(data.marketingData);
       }
@@ -395,7 +396,7 @@ const MarketingData = () => {
                   ))}
                 </Form.Control>
                 <Link href={`/sales_status?selected=candidate_signup_for`} target="_blank">
-                <Button variant="outline-primary"><AddOutlinedIcon /></Button>
+                  <Button variant="outline-primary"><AddOutlinedIcon /></Button>
                 </Link>
               </div>
             </Form.Group>

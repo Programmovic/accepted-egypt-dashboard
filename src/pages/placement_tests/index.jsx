@@ -374,9 +374,10 @@ const PlacementTests = () => {
   // Fetch instructors from the /api/instructor endpoint
   const fetchInstructors = async () => {
     try {
-      const instructorsResponse = await axios.get("/api/instructor");
+      const instructorsResponse = await axios.get("/api/instructor/get_instructors");
 
       if (instructorsResponse.status === 200) {
+        console.log(instructorsResponse.data)
         const formattedInstructors = instructorsResponse.data.map(
           (instructor) => ({
             value: instructor._id, // Use a unique identifier for each instructor

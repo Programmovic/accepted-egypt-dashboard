@@ -37,7 +37,6 @@ export default async (req, res) => {
         assignedToMember,
         pending,
         recruitment,
-        prospect_list
       } = req.query;
 
       if (id) {
@@ -70,13 +69,6 @@ export default async (req, res) => {
         } else if (recruitment) {
           allMarketingData = await MarketingData.find({
             candidateSignUpFor: "Recruitment",
-          }).sort({ createdAt: -1 });
-        } else if (prospect_list) {
-          
-          // Fetch all MarketingData records where the candidate is interested and has not completed the payment
-          allMarketingData = await MarketingData.find({
-            candidateStatusForSalesPerson: "Interested",
-            paymentMethod: "", // Assuming paymentMethod being null means payment is not completed
           }).sort({ createdAt: -1 });
         } else {
           // Fetch all MarketingData records and sort by creation date (newest first)

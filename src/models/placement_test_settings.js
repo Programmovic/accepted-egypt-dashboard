@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+import Employee from './employee';
 
 const placementTestSettingsSchema = new mongoose.Schema({
   cost: {
@@ -33,7 +34,7 @@ const placementTestSettingsSchema = new mongoose.Schema({
   },
   instructor: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Instructor',
+    ref: 'Employee',
   },
   createdByAdmin: {
     type: mongoose.Schema.Types.ObjectId,

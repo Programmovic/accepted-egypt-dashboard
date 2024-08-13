@@ -17,11 +17,11 @@ const employeeSchema = new mongoose.Schema(
       required: true,
     },
     position: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: 'Position',
     },
     department: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: 'Department',
     },
     address: {
