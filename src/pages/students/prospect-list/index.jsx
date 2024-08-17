@@ -1,4 +1,4 @@
-import { Card, Form, Button, Row, Col, Table, Badge } from "react-bootstrap";
+import { Card, Form, Button, Row, Col, Table } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { AdminLayout } from "@layout";
 import axios from "axios";
@@ -9,12 +9,8 @@ import "react-toastify/dist/ReactToastify.css";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
-import { ClassCard } from "@components/Classes";
-
-const MarketingData = () => {
-  const [marketingData, setMarketingData] = useState([]);
-  const [paymentMethods, setPaymentMethods] = useState([]);
-  const [placementTests, setPlacementTests] = useState([]);
+const ProspectList = () => {
+  const [prospects, setProspects] = useState([]);
   const [salesModerators, setSalesModerators] = useState([]);
   const [salesMembers, setSalesMembers] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -23,123 +19,88 @@ const MarketingData = () => {
   const [filterName, setFilterName] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
-  const [chatSummary, setChatSummary] = useState("");
-  const [Source, setSource] = useState("");
+  const [source, setSource] = useState("");
   const [languageIssues, setLanguageIssues] = useState("");
   const [assignedToModeration, setAssignedToModeration] = useState("");
   const [assignationDate, setAssignationDate] = useState("");
   const [assignedToSales, setAssignedToSales] = useState("");
-  const fetchMarketingData = async () => {
+
+  const fetchProspects = async () => {
     try {
-      const response = await axios.get("/api/marketing?prospect_list=true");
+      const response = await axios.get("/api/prospects");
       if (response.status === 200) {
         const data = response.data;
-        setMarketingData(data.marketingData);
-        console.log(data.marketingData)
-        setSalesModerators(data.salesModerators);
-        setSalesMembers(data.salesMembers);
-        setFilteredData(data.marketingData);
+        setProspects(data);
+        setFilteredData(data);
       }
     } catch (error) {
-      console.error("Error fetching marketing data:", error);
-      setError("Failed to fetch marketing data. Please try again later.");
+      console.error("Error fetching prospects:", error);
+      setError("Failed to fetch prospect data. Please try again later.");
     } finally {
       setLoading(false);
     }
   };
-  const fetchPaymentMethods = async () => {
-    try {
-      const response = await axios.get("/api/payment-method");
-      if (response.status === 200) {
-        const data = response.data;
-        setPaymentMethods(data);
-        console.log(data)
-      }
-    } catch (error) {
-      console.error("Error fetching marketing data:", error);
-      setError("Failed to fetch marketing data. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
-  const fetchPlacementsTests = async () => {
-    try {
-      const response = await axios.get("/api/placement_test_settings/for_placer");
-      if (response.status === 200) {
-        const data = response.data;
-        setPlacementTests(data);
-        console.log(data)
-      }
-    } catch (error) {
-      console.error("Error fetching marketing data:", error);
-      setError("Failed to fetch marketing data. Please try again later.");
-    } finally {
-      setLoading(false);
-    }
-  };
+
   useEffect(() => {
-    fetchMarketingData();
-    fetchPaymentMethods()
-    fetchPlacementsTests()
+    fetchProspects();
   }, []);
 
   useEffect(() => {
-    // Apply filters when filter inputs change
     handleFilter();
-  }, [filterName, filterDate, assignedTo, Source, languageIssues, assignedToModeration, assignationDate, assignedToSales, marketingData]);
+  }, [filterName, filterDate, assignedTo, source, languageIssues, assignedToModeration, assignationDate, assignedToSales, prospects]);
 
   const handleFilter = () => {
-    let filteredMarketingData = [...marketingData];
+    let filteredProspects = [...prospects];
 
     if (filterName) {
-      filteredMarketingData = filteredMarketingData.filter((item) =>
+      filteredProspects = filteredProspects.filter((item) =>
         item.name.toLowerCase().includes(filterName.toLowerCase())
       );
     }
 
     if (filterDate) {
-      filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.createdAt.includes(filterDate)
+      filteredProspects = filteredProspects.filter((item) =>
+        new Date(item.addedDate).toLocaleDateString() === new Date(filterDate).toLocaleDateString()
       );
     }
 
     if (assignedTo) {
-      filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.assignTo.toLowerCase().includes(assignedTo.toLowerCase())
+      filteredProspects = filteredProspects.filter((item) =>
+        item.assignedTo.toLowerCase().includes(assignedTo.toLowerCase())
       );
     }
 
-    if (Source) {
-      filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.Source.toLowerCase().includes(Source.toLowerCase())
+    if (source) {
+      filteredProspects = filteredProspects.filter((item) =>
+        item.source.toLowerCase().includes(source.toLowerCase())
       );
     }
 
     if (languageIssues) {
-      filteredMarketingData = filteredMarketingData.filter((item) =>
+      filteredProspects = filteredProspects.filter((item) =>
         item.languageIssues.toLowerCase().includes(languageIssues.toLowerCase())
       );
     }
 
     if (assignedToModeration) {
-      filteredMarketingData = filteredMarketingData.filter((item) =>
-        item?.assignedToModeration?.toLowerCase().includes(assignedToModeration.toLowerCase())
+      filteredProspects = filteredProspects.filter((item) =>
+        item.assignedToModeration?.toLowerCase().includes(assignedToModeration.toLowerCase())
       );
     }
 
     if (assignationDate) {
-      filteredMarketingData = filteredMarketingData.filter((item) =>
-        item?.assignationDate?.includes(assignationDate)
+      filteredProspects = filteredProspects.filter((item) =>
+        new Date(item.assignationDate).toLocaleDateString() === new Date(assignationDate).toLocaleDateString()
       );
     }
 
     if (assignedToSales) {
-      filteredMarketingData = filteredMarketingData.filter((item) =>
-        item?.assignedToSales?.toLowerCase().includes(assignedToSales.toLowerCase())
+      filteredProspects = filteredProspects.filter((item) =>
+        item.assignedToSales?.toLowerCase().includes(assignedToSales.toLowerCase())
       );
     }
 
-    setFilteredData(filteredMarketingData);
+    setFilteredData(filteredProspects);
   };
 
   const clearFilters = () => {
@@ -151,58 +112,27 @@ const MarketingData = () => {
     setAssignedToModeration("");
     setAssignationDate("");
     setAssignedToSales("");
-    setFilteredData(marketingData);
+    setFilteredData(prospects);
   };
-  const openModal = () => setShowModal(true);
-  const closeModal = () => setShowModal(false);
-  const handleUpdateMarketingData = async (id, updatedData) => {
+
+  const handleUpdateProspect = async (id, updatedData) => {
     try {
-      await axios.put(`/api/marketing?id=${id}`, updatedData);
-      fetchMarketingData(); // Assuming fetchMarketingData is a function to refetch the updated data
-      toast.success("Marketing data updated successfully!");
+      await axios.put(`/api/prospects/${id}`, updatedData);
+      fetchProspects();
+      toast.success("Prospect updated successfully!");
     } catch (error) {
-      console.error("Error updating marketing data:", error.message);
-      setError("Failed to update marketing data. Please try again.");
+      console.error("Error updating prospect:", error.message);
+      setError("Failed to update prospect. Please try again.");
       toast.error(error.message);
     }
   };
 
-  const [rangeStart, setRangeStart] = useState("");
-  const [rangeEnd, setRangeEnd] = useState("");
-  const [selectedSalesMember, setSelectedSalesMember] = useState("");
-  console.log(paymentMethods.filter(method => method.type === "Vodafone Cash").configuration)
   return (
     <AdminLayout>
       <ToastContainer />
-      {/* <Row>
-        <ClassCard
-          data={marketingData.length}
-          title="Total Leads"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={marketingData.filter(lead => lead.assignedToModeration).length}
-          title="Total Assigned Leads"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={marketingData.filter(lead => lead.assignTo === "EWFS").length}
-          title="Total Leads For EWFS"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={marketingData.filter(lead => lead.assignTo === "Autobus El Shoughl").length}
-          title="Total Leads For Autobus El Shoughl"
-          enableOptions={false}
-          isLoading={loading}
-        />
-      </Row> */}
       <Card>
         <Card.Header className="d-flex align-items-center">
-          <div className="w-50">Pending Students</div>
+          <div className="w-50">Prospect List</div>
         </Card.Header>
         <Card.Body>
           <Form className="mb-3">
@@ -242,21 +172,11 @@ const MarketingData = () => {
                   <Form.Label>Filter by Source</Form.Label>
                   <Form.Control
                     type="text"
-                    value={Source}
+                    value={source}
                     onChange={(e) => setSource(e.target.value)}
                   />
                 </Form.Group>
               </Col>
-              {/* <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Language Issues</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={languageIssues}
-                    onChange={(e) => setLanguageIssues(e.target.value)}
-                  />
-                </Form.Group>
-              </Col> */}
               <Col xs={6}>
                 <Form.Group className="mb-3">
                   <Form.Label>Filter by Assigned to Sales Supervisor</Form.Label>
@@ -264,8 +184,6 @@ const MarketingData = () => {
                     as="select"
                     value={assignedToModeration}
                     onChange={(e) => setAssignedToModeration(e.target.value)}
-
-
                   >
                     <option value="" hidden>Select a sales Supervisor</option>
                     {salesModerators.map((moderator) => (
@@ -286,7 +204,6 @@ const MarketingData = () => {
                   />
                 </Form.Group>
               </Col>
-
             </Row>
             <Button variant="secondary" onClick={clearFilters}>
               Clear Filters
@@ -294,7 +211,7 @@ const MarketingData = () => {
           </Form>
 
           {loading ? (
-            <p>Loading marketing data...</p>
+            <p>Loading prospect data...</p>
           ) : error ? (
             <p>{error}</p>
           ) : (
@@ -303,110 +220,33 @@ const MarketingData = () => {
                 <tr>
                   <th>#</th>
                   <th>Name</th>
-                  <th>Phone no1</th>
-                  <th>Phone no2</th>
-                  <th>Payment Method</th>
-                  <th>
-                    Reciever
-                  </th>
-                  <th>Sent the screenshot</th>
-                  <th>
-                    Reference Number
-                  </th>
-                  <th>
-                    Placement Test
-                  </th>
+                  <th>Phone Number</th>
+                  <th>Email</th>
+                  <th>National ID</th>
+                  <th>Interested in Course</th>
+                  <th>Status</th>
+                  <th>Level</th>
+                  <th>Source</th>
+                  <th>Marketing Data ID</th>
+                  <th>Student ID</th>
+                  <th>Added Date</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredData.map((item, index) => (
                   <tr key={index}>
-                    <td className={(index + 1 >= rangeStart && index + 1 <= rangeEnd) && "bg-success text-light"}>{index + 1}</td>
+                    <td>{index + 1}</td>
                     <td>{item.name}</td>
-                    <td>{item.phoneNo1}</td>
-                    <td>{item.phoneNo2}</td>
-                    <td>{item.paymentMethod}</td>
-                    <td>
-                      {(
-                        <Form.Control
-                          as="select"
-                          name="recieverNumber"
-                          value={item.recieverNumber}
-                          onChange={(e) => {
-                            handleUpdateMarketingData(item._id, {
-                              recieverNumber: e.target.value,
-                            })
-                          }}
-                        >
-                          <option value="">Select {item.paymentMethod} number</option>
-                          {["Vodafone Cash", "Orange Money", "Etisalat Cash"].includes(item.paymentMethod) &&
-                            paymentMethods.filter(method => method.type === item.paymentMethod)[0]?.configuration?.walletNumber.map((number) => (
-                              <option key={number} value={number}>
-                                {number}
-                              </option>
-                            ))}
-                          {["Bank Transfer"].includes(item.paymentMethod) &&
-                            paymentMethods.filter(method => method.type === item.paymentMethod)[0]?.configuration?.bankAccountNumber.map((number) => (
-                              <option key={number} value={number}>
-                                {number}
-                              </option>
-                            ))}
-                        </Form.Control>
-                      )}
-                    </td>
-                    <td className="text-center">
-                      {
-                        <Form.Check
-                          type="switch"
-                          id="custom-switch"
-                          className="fs-3"
-                          checked={item.paymentScreenshotStatus === "true"}
-                          onChange={(e) => {
-                            handleUpdateMarketingData(item._id, {
-                              paymentScreenshotStatus: e.target.checked,
-                            });
-                          }}
-                        />
-                      }
-                    </td>
-                    <td>
-                      {(
-                        <Form.Control
-                          name="referenceNumber"
-                          value={item.referenceNumber}
-                          disabled={item.paymentScreenshotStatus === "false" ? true : false}
-                          onBlur={(e) => {
-                            handleUpdateMarketingData(item._id, {
-                              referenceNumber: e.target.value,
-                            });
-                          }}
-                        />
-
-                      )}
-                    </td>
-                    <td>
-                      {(
-                        <Form.Control
-                          as="select"
-                          name="placementTest"
-                          value={item?.placementTest?._id}
-                          onChange={(e) => {
-                            handleUpdateMarketingData(item._id, {
-                              placementTest: e.target.value,
-                            })
-                          }}
-                        >
-                          <option value="">Select {item.paymentMethod} number</option>
-
-                          {placementTests.map((test) => (
-                            <option key={test._id} value={test._id} title={`From ${test.startTime} to ${test.endTime} at ${new Date(test.date).toLocaleDateString()}, Limit Trainees ${test.limitTrainees}, Remaining ${test.limitTrainees - test.studentCount}`}>
-                              From {test.startTime} to {test.endTime} at {new Date(test.date).toLocaleDateString()}
-                            </option>
-                          ))}
-
-                        </Form.Control>
-                      )}
-                    </td>
+                    <td>{item.phoneNumber}</td>
+                    <td>{item.email}</td>
+                    <td>{item.nationalId}</td>
+                    <td>{item.interestedInCourse}</td>
+                    <td>{item.status}</td>
+                    <td>{item.level}</td>
+                    <td>{item.source}</td>
+                    <td>{item.marketingDataId}</td>
+                    <td>{item.studentId}</td>
+                    <td>{new Date(item.addedDate).toLocaleDateString()}</td>
                   </tr>
                 ))}
               </tbody>
@@ -418,4 +258,4 @@ const MarketingData = () => {
   );
 };
 
-export default MarketingData;
+export default ProspectList;

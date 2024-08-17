@@ -156,9 +156,15 @@ const MarketingDataDetail = () => {
           <span>
             Last Updated: {new Date(marketingData?.updatedAt).toLocaleString()}
           </span>
-          <Button variant="primary" onClick={handleSave} disabled={!unsavedChanges}>
+          <div>
+          <Button variant="outline-primary" onClick={() => router.push(`/sales/sales_member/detailed_marketing_item/${id}/logs`)}>
+            Logs
+          </Button>
+          <Button variant="primary" className="ms-2" onClick={handleSave} disabled={!unsavedChanges}>
             Save
           </Button>
+          
+          </div>
         </Card.Header>
         <Card.Body>
           {marketingData ? (

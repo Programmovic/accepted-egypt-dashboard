@@ -679,14 +679,19 @@ const MarketingData = () => {
                         as="select"
                         value={item.assignedToModeration}
                         onChange={(e) => {
-                          setNewAssignedToModeration(e.target.value)
-                          handleUpdateMarketingData(item._id, {
-                            assignedToModeration: e.target.value,
-                            assignationDate: new Date(),
-                          })
-                        }
+                          const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000;
+                          const timeSinceLastUpdate = new Date() - new Date(item.updatedAt);
 
-                        }
+                          if (timeSinceLastUpdate < threeDaysInMillis) {
+                            toast.error("You Cannot Reassign after 3 days.");
+                          } else {
+                            setNewAssignedToModeration(e.target.value);
+                            handleUpdateMarketingData(item._id, {
+                              assignedToModeration: e.target.value,
+                              assignationDate: new Date(),
+                            });
+                          }
+                        }}
                       >
                         <option value="" hidden>Select a sales supervisor</option>
                         {salesModerators.map((moderator) => (
@@ -695,6 +700,8 @@ const MarketingData = () => {
                           </option>
                         ))}
                       </Form.Control>
+
+                      <ToastContainer />
                     </td>
                     <td>{item.assignationDate && new Date(item.assignationDate).toLocaleDateString()}</td>
                     <td>{item.createdAt && new Date(item.createdAt).toLocaleString()}</td>

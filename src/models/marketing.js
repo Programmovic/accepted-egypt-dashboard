@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const MarketingDataHistory = require("./marketingHistory");
-
+const Prospect = require("./prospect"); // Import the Prospect model
 const Employee = require("./employee");
 const SalesStatus = require("./salesStatus");
 const CandidateSignUpFor = require("./candidateSignUpFor");
@@ -27,6 +27,9 @@ const marketingDataSchema = new mongoose.Schema(
     phoneNo2: {
       type: String,
     },
+    nationalId: {
+      type: String,
+    },
     assignTo: {
       type: String,
     },
@@ -40,34 +43,38 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
     },
     assignedToModeration: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Employee",
     },
     assignationDate: {
       type: Date,
     },
     assignedToSales: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Employee",
     },
     salesStatus: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "SalesStatus",
     },
     candidateSignUpFor: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "CandidateSignUpFor",
     },
     candidateStatusForSalesPerson: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "CandidateStatusForSalesPerson",
     },
+    interestedInCourse: {
+      type: String,
+      default: "TBD", // "TBD" (To Be Determined) or leave empty if you prefer
+    },
     paymentMethod: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "PaymentMethod",
     },
     trainingLocation: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "TrainingLocation",
     },
     recieverNumber: {
@@ -77,18 +84,18 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
     },
     paymentScreenshotStatus: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "PaymentScreenshotStatus",
     },
     paymentScreenshotDate: {
       type: String,
     },
     placementTest: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "PlacementTestSettings",
     },
     salesRejectionReason: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "SalesRejectionReason",
     },
     salesMemberAssignationDate: {
@@ -98,47 +105,47 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
     },
     phoneInterviewStatus: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "PhoneInterviewStatus",
     },
     phoneInterviewDate: {
       type: String,
     },
     faceToFaceStatus: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "FaceToFaceStatus",
     },
     faceToFaceDate: {
       type: String,
     },
     feedbackSessionStatus: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "FeedbackSessionStatus",
     },
     feedbackSessionDate: {
       type: String,
     },
     testResultStatus: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "FeedbackSessionStatus",
     },
     testResultDate: {
       type: String,
     },
     onBoardingName: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Employee",
     },
     recruiterName: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Employee",
     },
     placerName: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "Employee",
     },
     updatedBy: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "User",
     },
   },
@@ -170,6 +177,44 @@ marketingDataSchema.post("findOneAndUpdate", async function (doc) {
     await history.save();
   }
 });
+// Middleware to add a lead to the Prospect schema after saving if they're interested
+marketingDataSchema.post("save", async function (doc, next) {
+  const candidateStatus = doc.candidateStatusForSalesPerson;
+
+  if (candidateStatus && candidateStatus.toLowerCase() === "interested") {
+    const prospect = new Prospect({
+      name: doc.name,
+      phoneNumber: doc.phoneNo1,
+      email: doc.email,
+      nationalId: doc.nationalId,
+      status: "Marketing Lead",
+      source: "Marketing",
+      marketingDataId: doc._id,
+      interestedInCourse: doc.interestedInCourse, // Will be 'TBD' or empty initially
+    });
+
+    try {
+      await prospect.save();
+    } catch (error) {
+      console.error("Error adding to prospect:", error);
+    }
+  }
+
+  next(); // Call the next middleware in the chain
+});
+
+// Later, when the course of interest is determined after a placement test
+async function updateProspectWithCourse(prospectId, courseId) {
+  try {
+    const prospect = await Prospect.findById(prospectId);
+    if (prospect) {
+      prospect.interestedInCourse = courseId; // Update with the actual course ID or name
+      await prospect.save();
+    }
+  } catch (error) {
+    console.error("Error updating prospect with course:", error);
+  }
+}
 
 module.exports =
   mongoose.models.MarketingData ||

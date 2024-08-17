@@ -1,8 +1,13 @@
 import connectDB from "@lib/db";
-import MarketingData from "../../../models/marketing";
+import MarketingData from "../../../models/Marketing";
+import MarketingDataHistory from "../../../models/marketingHistory";
+import Prospect from "../../../models/prospect";
 import Employee from "../../../models/employee"; // Import Employee model
-const Department = require("../../../models/department");
-const Position = require("../../../models/position");
+import Department from "../../../models/department";
+import Position from "../../../models/position";
+import jwt from 'jsonwebtoken';
+import cookie from 'cookie';
+
 export default async (req, res) => {
   await connectDB();
 
@@ -124,10 +129,28 @@ export default async (req, res) => {
     }
   } else if (req.method === "PUT") {
     try {
-      const { id } = req.query;
+      const { id } = req.query; // Assuming `id` is passed as a query parameter
       const updates = req.body;
 
-      // Update MarketingData document by ID
+      // Extract the token from cookies
+      const cookies = req.headers.cookie ? cookie.parse(req.headers.cookie) : {};
+      const token = cookies.client_token;
+
+      if (!token) {
+        return res.status(401).json({ error: "Unauthorized: No token provided" });
+      }
+
+      // Decode the token to get the user ID
+      const decoded = jwt.verify(token, 'your-secret-key');
+
+      // Find the original document before the update
+      const originalMarketingData = await MarketingData.findById(id);
+
+      if (!originalMarketingData) {
+        return res.status(404).json({ error: "Marketing data not found" });
+      }
+
+      // Update the MarketingData document by ID
       const updatedMarketingData = await MarketingData.findByIdAndUpdate(
         id,
         updates,
@@ -135,7 +158,48 @@ export default async (req, res) => {
       );
 
       if (!updatedMarketingData) {
-        return res.status(404).json({ error: "Marketing data not found" });
+        return res
+          .status(404)
+          .json({ error: "Marketing data not found after update" });
+      }
+
+      // Save the change history
+      const historyEntry = new MarketingDataHistory({
+        marketingDataId: id,
+        oldData: originalMarketingData.toObject(),
+        newData: updatedMarketingData.toObject(),
+        editedBy: decoded.adminId, // Use the decoded admin ID
+      });
+      await historyEntry.save();
+
+      if (
+        updates.candidateStatusForSalesPerson &&
+        updates.candidateStatusForSalesPerson.toLowerCase() === "interested"
+      ) {
+        const prospectData = {
+          name: updatedMarketingData.name,
+          phoneNumber: updatedMarketingData.phoneNo1,
+          email: updatedMarketingData.email,
+          nationalId: updatedMarketingData.nationalId,
+          status: "Marketing Lead",
+          source: "Marketing",
+          marketingDataId: updatedMarketingData._id,
+          interestedInCourse: updatedMarketingData.interestedInCourse, // Use updated value
+        };
+
+        // Check if a prospect with the same phoneNumber or email already exists
+        const existingProspect = await Prospect.findOne({
+          $or: [
+            { phoneNumber: prospectData.phoneNumber },
+            { email: prospectData.email },
+          ],
+        });
+
+        if (!existingProspect) {
+          // Create and save a new Prospect document
+          const newProspect = new Prospect(prospectData);
+          await newProspect.save();
+        }
       }
 
       return res.status(200).json(updatedMarketingData.toJSON());

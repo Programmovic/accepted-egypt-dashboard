@@ -286,10 +286,10 @@ const SalesModeratorData = () => {
                 </Col>
               )}
               <Col xs={4}>
-              <Button onClick={exportToExcel} variant="primary" className="ms-2">
-            Export to Excel
-          </Button>
-          </Col>
+                <Button onClick={exportToExcel} variant="primary" className="ms-2">
+                  Export to Excel
+                </Button>
+              </Col>
             </Row>
             {paginationEnabled || (
               <>
@@ -383,12 +383,18 @@ const SalesModeratorData = () => {
                           as="select"
                           value={item.assignedToSales}
                           onChange={(e) => {
-                            handleUpdateMarketingData(item._id, {
-                              assignedToSales: e.target.value,
-                              salesMemberAssignationDate: new Date(),
-                            })
+                            const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+                            const timeSinceLastUpdate = new Date() - new Date(item.updatedAt);
+
+                            if (timeSinceLastUpdate < threeDaysInMillis) {
+                              toast.error("You Cannot Reassign after 3 days.");
+                            } else {
+                              handleUpdateMarketingData(item._id, {
+                                assignedToSales: e.target.value,
+                                salesMemberAssignationDate: new Date(),
+                              });
+                            }
                           }}
-                          disabled={item.assignedToSales ? true : false}
                         >
                           <option value="" hidden>Select a sales member</option>
                           {salesMembers.map((moderator) => (
@@ -397,7 +403,9 @@ const SalesModeratorData = () => {
                             </option>
                           ))}
                         </Form.Control>
+
                       </td>
+
                       <td>{item.salesMemberAssignationDate && new Date(item.salesMemberAssignationDate).toLocaleDateString()}</td>
                     </tr>
                   ))}

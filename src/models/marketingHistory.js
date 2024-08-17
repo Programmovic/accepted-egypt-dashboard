@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
-
+const Admin = require("./admin"); // Import the Prospect model
+const MarketingData = require("./Marketing"); // Import the Prospect model
 // Define a schema for tracking the history of changes to the MarketingData schema
 const marketingDataHistorySchema = new mongoose.Schema(
   {
@@ -17,8 +18,8 @@ const marketingDataHistorySchema = new mongoose.Schema(
       required: true,
     },
     editedBy: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", 
+      type: String,
+      ref: "Admin", 
     },
     editedAt: {
       type: Date,
