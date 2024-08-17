@@ -29,6 +29,7 @@ const MarketingDataLogs = () => {
   const fetchLogs = async () => {
     try {
       const response = await axios.get(`/api/marketing/history?marketingDataId=${id}`);
+      console.log(response.data)
       setLogs(response.data);
       setLoading(false);
     } catch (error) {
@@ -116,7 +117,7 @@ const MarketingDataLogs = () => {
                           <p>No differences found</p>
                         )}
                       </td>
-                      <td>{log.editedByAdmin?.username || 'N/A'}</td>
+                      <td>{log.editedBy?.username || 'N/A'}</td>
                     </tr>
                   );
                 })}

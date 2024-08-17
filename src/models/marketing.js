@@ -154,68 +154,6 @@ const marketingDataSchema = new mongoose.Schema(
   }
 );
 
-// Pre hook to capture the original document before update
-marketingDataSchema.pre("findOneAndUpdate", async function (next) {
-  try {
-    const docToUpdate = await this.model.findOne(this.getQuery());
-    this._original = docToUpdate ? docToUpdate.toObject() : null;
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
-
-// Post hook to create a history record after update
-marketingDataSchema.post("findOneAndUpdate", async function (doc) {
-  if (this._original) {
-    const history = new MarketingDataHistory({
-      marketingDataId: doc._id,
-      oldData: this._original,
-      newData: doc.toObject(),
-      editedBy: doc.updatedBy, // Assuming you set updatedBy when updating the document
-    });
-    await history.save();
-  }
-});
-// Middleware to add a lead to the Prospect schema after saving if they're interested
-marketingDataSchema.post("save", async function (doc, next) {
-  const candidateStatus = doc.candidateStatusForSalesPerson;
-
-  if (candidateStatus && candidateStatus.toLowerCase() === "interested") {
-    const prospect = new Prospect({
-      name: doc.name,
-      phoneNumber: doc.phoneNo1,
-      email: doc.email,
-      nationalId: doc.nationalId,
-      status: "Marketing Lead",
-      source: "Marketing",
-      marketingDataId: doc._id,
-      interestedInCourse: doc.interestedInCourse, // Will be 'TBD' or empty initially
-    });
-
-    try {
-      await prospect.save();
-    } catch (error) {
-      console.error("Error adding to prospect:", error);
-    }
-  }
-
-  next(); // Call the next middleware in the chain
-});
-
-// Later, when the course of interest is determined after a placement test
-async function updateProspectWithCourse(prospectId, courseId) {
-  try {
-    const prospect = await Prospect.findById(prospectId);
-    if (prospect) {
-      prospect.interestedInCourse = courseId; // Update with the actual course ID or name
-      await prospect.save();
-    }
-  } catch (error) {
-    console.error("Error updating prospect with course:", error);
-  }
-}
-
 module.exports =
   mongoose.models.MarketingData ||
   mongoose.model("MarketingData", marketingDataSchema);

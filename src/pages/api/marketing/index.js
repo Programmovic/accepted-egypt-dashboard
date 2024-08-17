@@ -135,7 +135,6 @@ export default async (req, res) => {
       // Extract the token from cookies
       const cookies = req.headers.cookie ? cookie.parse(req.headers.cookie) : {};
       const token = cookies.client_token;
-
       if (!token) {
         return res.status(401).json({ error: "Unauthorized: No token provided" });
       }
@@ -162,7 +161,7 @@ export default async (req, res) => {
           .status(404)
           .json({ error: "Marketing data not found after update" });
       }
-
+console.log(decoded.adminId)
       // Save the change history
       const historyEntry = new MarketingDataHistory({
         marketingDataId: id,
@@ -170,6 +169,7 @@ export default async (req, res) => {
         newData: updatedMarketingData.toObject(),
         editedBy: decoded.adminId, // Use the decoded admin ID
       });
+      console.log(historyEntry)
       await historyEntry.save();
 
       if (
