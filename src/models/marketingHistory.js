@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const Admin = require("./admin"); // Import the Prospect model
-const MarketingData = require("./Marketing"); // Import the Prospect model
+const MarketingData = require("./marketingData"); // Import the Prospect model
 // Define a schema for tracking the history of changes to the MarketingData schema
 const marketingDataHistorySchema = new mongoose.Schema(
   {

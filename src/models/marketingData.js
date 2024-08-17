@@ -148,6 +148,15 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
       ref: "User",
     },
+    paidAmount: {
+      type: Number,
+      default: 0, // Default value can be set to 0 or adjust as needed
+    },
+    verificationStatus: {
+      type: String,
+      enum: ["Pending", "Verified", "Rejected"], // Enum to limit values
+      default: "Pending", // Default status
+    },
   },
   {
     timestamps: true,

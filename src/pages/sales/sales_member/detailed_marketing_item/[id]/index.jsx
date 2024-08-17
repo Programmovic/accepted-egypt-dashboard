@@ -392,7 +392,21 @@ const MarketingDataDetail = () => {
                     )}
                   </td>
                 </tr>
-
+                <tr>
+                  <td>Paid Amount</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="number"
+                        name="paidAmount"
+                        value={marketingData.paidAmount}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      marketingData.paidAmount
+                    )}
+                  </td>
+                </tr>
 
                 <tr>
                   <td>Chat Summary</td>

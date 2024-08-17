@@ -1,5 +1,5 @@
 import connectDB from "@lib/db";
-import MarketingData from "../../../models/Marketing";
+import MarketingData from "../../../models/marketingData";
 import MarketingDataHistory from "../../../models/marketingHistory";
 import Prospect from "../../../models/prospect";
 import Employee from "../../../models/employee"; // Import Employee model
