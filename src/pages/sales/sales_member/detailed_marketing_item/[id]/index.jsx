@@ -129,11 +129,26 @@ const MarketingDataDetail = () => {
   }, [id, apiUrl, salesStatusApiUrl, unsavedChanges]);
   console.log(paymentMethods)
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setMarketingData({ ...marketingData, [name]: value });
-    console.log(marketingData)
+    const { name, type, value, checked } = e.target;
+
+    // Handle switch input
+    if (type === "checkbox") {
+      setMarketingData({
+        ...marketingData,
+        [name]: checked ? "true" : "false",
+      });
+    } else {
+      // Handle other input types
+      setMarketingData({
+        ...marketingData,
+        [name]: value,
+      });
+    }
+
     setUnsavedChanges(true);
+    console.log(marketingData);
   };
+
 
   const handleSave = async () => {
 
@@ -157,13 +172,13 @@ const MarketingDataDetail = () => {
             Last Updated: {new Date(marketingData?.updatedAt).toLocaleString()}
           </span>
           <div>
-          <Button variant="outline-primary" onClick={() => router.push(`/sales/sales_member/detailed_marketing_item/${id}/logs`)}>
-            Logs
-          </Button>
-          <Button variant="primary" className="ms-2" onClick={handleSave} disabled={!unsavedChanges}>
-            Save
-          </Button>
-          
+            <Button variant="outline-primary" onClick={() => router.push(`/sales/sales_member/detailed_marketing_item/${id}/logs`)}>
+              Logs
+            </Button>
+            <Button variant="primary" className="ms-2" onClick={handleSave} disabled={!unsavedChanges}>
+              Save
+            </Button>
+
           </div>
         </Card.Header>
         <Card.Body>
@@ -350,11 +365,11 @@ const MarketingDataDetail = () => {
                             .map((method) => (
                               <div key={method._id}>
                                 {method.type === "Bank Transfer" && method.configuration.bankAccountNumber.length > 0 && (
-                                  <div  className="mt-2">
+                                  <div className="mt-2">
                                     <Form.Control
                                       as="select"
-                                      name="bankAccountNumber"
-                                      value={marketingData.bankAccountNumber || ""}
+                                      name="recieverNumber"
+                                      value={marketingData.recieverNumber || ""}
                                       onChange={handleChange}
                                     >
                                       <option value="">Select Bank Account Number</option>
@@ -370,8 +385,8 @@ const MarketingDataDetail = () => {
                                   <div className="mt-2">
                                     <Form.Control
                                       as="select"
-                                      name="walletNumber"
-                                      value={marketingData.walletNumber || ""}
+                                      name="recieverNumber"
+                                      value={marketingData.recieverNumber || ""}
                                       onChange={handleChange}
                                     >
                                       <option value="">Select {method.type} Number</option>
@@ -393,6 +408,24 @@ const MarketingDataDetail = () => {
                   </td>
                 </tr>
                 <tr>
+                  <td>Sent The Screenshot</td>
+                  <td>
+                    {editing ? (
+                      <Form.Check
+                        type="switch"
+                        id="custom-switch"
+                        className="fs-3"
+                        name="paymentScreenshotStatus"  // Add the name attribute here
+                        checked={marketingData.paymentScreenshotStatus === "true"}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      marketingData.paymentScreenshotStatus
+                    )}
+                  </td>
+                </tr>
+
+                <tr>
                   <td>Paid Amount</td>
                   <td>
                     {editing ? (
@@ -404,6 +437,21 @@ const MarketingDataDetail = () => {
                       />
                     ) : (
                       marketingData.paidAmount
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Reference Number</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="number"
+                        name="referenceNumber"
+                        value={marketingData.referenceNumber}
+                        onChange={handleChange}
+                      />
+                    ) : (
+                      marketingData.referenceNumber
                     )}
                   </td>
                 </tr>

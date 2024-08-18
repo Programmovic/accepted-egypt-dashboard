@@ -379,32 +379,32 @@ const SalesModeratorData = () => {
                       <td>{item.Source}</td>
                       <td>{item.languageIssues}</td>
                       <td>
-                        <Form.Control
-                          as="select"
-                          value={item.assignedToSales}
-                          onChange={(e) => {
-                            const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
-                            const timeSinceLastUpdate = new Date() - new Date(item.updatedAt);
+  <Form.Control
+    as="select"
+    value={item.assignedToSales}
+    onChange={(e) => {
+      const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+      const timeSinceLastAssignation = new Date() - new Date(item.salesMemberAssignationDate);
 
-                            if (timeSinceLastUpdate < threeDaysInMillis) {
-                              toast.error("You Cannot Reassign after 3 days.");
-                            } else {
-                              handleUpdateMarketingData(item._id, {
-                                assignedToSales: e.target.value,
-                                salesMemberAssignationDate: new Date(),
-                              });
-                            }
-                          }}
-                        >
-                          <option value="" hidden>Select a sales member</option>
-                          {salesMembers.map((moderator) => (
-                            <option key={moderator._id} value={moderator.name}>
-                              {moderator.name}
-                            </option>
-                          ))}
-                        </Form.Control>
+      if (item.assignedToSales && timeSinceLastAssignation < threeDaysInMillis) {
+        toast.error("You cannot reassign within 3 days of the last assignation.");
+      } else {
+        handleUpdateMarketingData(item._id, {
+          assignedToSales: e.target.value,
+          salesMemberAssignationDate: new Date(),
+        });
+      }
+    }}
+  >
+    <option value="" hidden>Select a sales member</option>
+    {salesMembers.map((moderator) => (
+      <option key={moderator._id} value={moderator.name}>
+        {moderator.name}
+      </option>
+    ))}
+  </Form.Control>
 
-                      </td>
+</td>
 
                       <td>{item.salesMemberAssignationDate && new Date(item.salesMemberAssignationDate).toLocaleDateString()}</td>
                     </tr>

@@ -306,121 +306,42 @@ const MarketingData = () => {
                   <th>Phone no1</th>
                   <th>Phone no2</th>
                   <th>Payment Method</th>
-                  <th>
-                    Reciever
-                  </th>
-                  <th>Sent the screenshot</th>
-                  <th>
-                    Reference Number
-                  </th>
-                  <th>
-                    Placement Test
-                  </th>
+                  <th>Receiver</th>
+                  <th>Sent the Screenshot</th>
+                  <th>Paid Amount</th>
+                  <th>Reference Number</th>
+                  <th>Verification Status</th> {/* New Column */}
                 </tr>
               </thead>
               <tbody>
                 {filteredData.map((item, index) => (
                   <tr key={index}>
-                    <td className={(index + 1 >= rangeStart && index + 1 <= rangeEnd) && "bg-success text-light"}>{index + 1}</td>
+                    <td>{index + 1}</td>
                     <td>{item.name}</td>
                     <td>{item.phoneNo1}</td>
                     <td>{item.phoneNo2}</td>
                     <td>{item.paymentMethod}</td>
-                    {item.paymentMethod !== "Cash" ? (
-                      <td>
-                        {(
-                          <Form.Control
-                            as="select"
-                            name="recieverNumber"
-                            value={item.recieverNumber}
-                            onChange={(e) => {
-                              handleUpdateMarketingData(item._id, {
-                                recieverNumber: e.target.value,
-                              })
-                            }}
-                          >
-                            <option value="">Select {item.paymentMethod} number</option>
-                            {["Vodafone Cash", "Orange Money", "Etisalat Cash"].includes(item.paymentMethod) &&
-                              paymentMethods.filter(method => method.type === item.paymentMethod)[0]?.configuration?.walletNumber.map((number) => (
-                                <option key={number} value={number}>
-                                  {number}
-                                </option>
-                              ))}
-                            {["Bank Transfer"].includes(item.paymentMethod) &&
-                              paymentMethods.filter(method => method.type === item.paymentMethod)[0]?.configuration?.bankAccountNumber.map((number) => (
-                                <option key={number} value={number}>
-                                  {number}
-                                </option>
-                              ))}
-                          </Form.Control>
-                        )}
-                      </td>
-                    )
-                      :
-                      (
-                        <td>
-                          Cash
-                        </td>
-                      )
-                    }
-
-                    <td className="text-center">
-                      {
-                        <Form.Check
-                          type="switch"
-                          id="custom-switch"
-                          className="fs-3"
-                          checked={item.paymentScreenshotStatus === "true"}
-                          onChange={(e) => {
-                            handleUpdateMarketingData(item._id, {
-                              paymentScreenshotStatus: e.target.checked,
-                            });
-                          }}
-                        />
-                      }
-                    </td>
+                    <td>{item.recieverNumber}</td>
+                    <td>{item.paymentScreenshotStatus ? "Yes" : "No"}</td>
+                    <td>{item.paidAmount}</td>
+                    <td>{item.referenceNumber}</td>
                     <td>
-                      {(
-                        <Form.Control
-                          name="referenceNumber"
-                          value={item.referenceNumber}
-                          disabled={item.paymentScreenshotStatus === "false" ? true : false}
-                          onBlur={(e) => {
-                            handleUpdateMarketingData(item._id, {
-                              referenceNumber: e.target.value,
-                            });
-                          }}
-                        />
-
-                      )}
-                    </td>
-                    <td>
-                      {(
-                        <Form.Control
-                          as="select"
-                          name="placementTest"
-                          value={item?.placementTest?._id}
-                          onChange={(e) => {
-                            handleUpdateMarketingData(item._id, {
-                              placementTest: e.target.value,
-                            })
-                          }}
-                        >
-                          <option value="">Select Placement Test</option>
-
-                          {placementTests.map((test) => (
-                            <option key={test._id} value={test._id} title={`From ${test.startTime} to ${test.endTime} at ${new Date(test.date).toLocaleDateString()}, Limit Trainees ${test.limitTrainees}, Remaining ${test.limitTrainees - test.studentCount}`}>
-                              {test.startTime} to {test.endTime} | {new Date(test.date).toLocaleDateString()} | {test.studentCount}/{test.limitTrainees} ({(test.studentCount/test.limitTrainees)*100}%)
-                            </option>
-                          ))}
-
-                        </Form.Control>
-                      )}
+                      <Form.Control
+                        as="select"
+                        name="verificationStatus"
+                        value={item.verificationStatus}
+                        onChange={(e) => handleUpdateMarketingData(item._id, { verificationStatus: e.target.value })}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="Verified">Verified</option>
+                        <option value="Rejected">Rejected</option>
+                      </Form.Control>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </Table>
+
           )}
         </Card.Body>
       </Card>

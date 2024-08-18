@@ -5,8 +5,10 @@ import Prospect from "../../../models/prospect";
 import Employee from "../../../models/employee"; // Import Employee model
 import Department from "../../../models/department";
 import Position from "../../../models/position";
-import jwt from 'jsonwebtoken';
-import cookie from 'cookie';
+import PlacementTest from "../../../models/placement_test"
+import Student from "../../../models/student";
+import jwt from "jsonwebtoken";
+import cookie from "cookie";
 
 export default async (req, res) => {
   await connectDB();
@@ -131,20 +133,23 @@ export default async (req, res) => {
     try {
       const { id } = req.query; // Assuming `id` is passed as a query parameter
       const updates = req.body;
-
+console.log(updates)
       // Extract the token from cookies
-      const cookies = req.headers.cookie ? cookie.parse(req.headers.cookie) : {};
+      const cookies = req.headers.cookie
+        ? cookie.parse(req.headers.cookie)
+        : {};
       const token = cookies.client_token;
       if (!token) {
-        return res.status(401).json({ error: "Unauthorized: No token provided" });
+        return res
+          .status(401)
+          .json({ error: "Unauthorized: No token provided" });
       }
 
       // Decode the token to get the user ID
-      const decoded = jwt.verify(token, 'your-secret-key');
+      const decoded = jwt.verify(token, "your-secret-key");
 
       // Find the original document before the update
       const originalMarketingData = await MarketingData.findById(id);
-
       if (!originalMarketingData) {
         return res.status(404).json({ error: "Marketing data not found" });
       }
@@ -155,13 +160,12 @@ export default async (req, res) => {
         updates,
         { new: true }
       );
-
       if (!updatedMarketingData) {
         return res
           .status(404)
           .json({ error: "Marketing data not found after update" });
       }
-console.log(decoded.adminId)
+
       // Save the change history
       const historyEntry = new MarketingDataHistory({
         marketingDataId: id,
@@ -169,9 +173,9 @@ console.log(decoded.adminId)
         newData: updatedMarketingData.toObject(),
         editedBy: decoded.adminId, // Use the decoded admin ID
       });
-      console.log(historyEntry)
       await historyEntry.save();
 
+      // Check for candidate interest status
       if (
         updates.candidateStatusForSalesPerson &&
         updates.candidateStatusForSalesPerson.toLowerCase() === "interested"
@@ -184,10 +188,9 @@ console.log(decoded.adminId)
           status: "Marketing Lead",
           source: "Marketing",
           marketingDataId: updatedMarketingData._id,
-          interestedInCourse: updatedMarketingData.interestedInCourse, // Use updated value
+          interestedInCourse: updatedMarketingData.interestedInCourse,
         };
 
-        // Check if a prospect with the same phoneNumber or email already exists
         const existingProspect = await Prospect.findOne({
           $or: [
             { phoneNumber: prospectData.phoneNumber },
@@ -196,10 +199,46 @@ console.log(decoded.adminId)
         });
 
         if (!existingProspect) {
-          // Create and save a new Prospect document
           const newProspect = new Prospect(prospectData);
           await newProspect.save();
         }
+      }
+
+      // Check if the update is setting a placement test
+      if (updates.placementTest) {
+        // Check if a student profile exists for the marketing data
+        let student = await Student.findOne({
+          phoneNumber: updatedMarketingData.phoneNo1,
+          nationalId: updatedMarketingData.nationalId,
+        });
+
+        if (!student) {
+          // Create a new student profile
+          student = new Student({
+            name: updatedMarketingData.name,
+            phoneNumber: updatedMarketingData.phoneNo1,
+            email: updatedMarketingData.email,
+            nationalId: updatedMarketingData.nationalId,
+            interestedInCourse: updatedMarketingData.interestedInCourse,
+            createdByAdmin: decoded.adminId,
+            adminName: decoded.adminName, // Assuming `adminName` is stored in the token
+          });
+          await student.save();
+        }
+
+        // Link the student to the selected placement test
+        const placementTestEntry = new PlacementTest({
+          student: student._id,
+          generalPlacementTest: updates.placementTest,
+          studentName: student.name,
+          status: "Scheduled", // or any status you prefer
+          studentNationalID: student.nationalId,
+          studentPhoneNumber: student.phoneNumber,
+          createdByAdmin: decoded.adminId,
+          adminName: decoded.adminName, // Assuming `adminName` is stored in the token
+        });
+
+        await placementTestEntry.save();
       }
 
       return res.status(200).json(updatedMarketingData.toJSON());

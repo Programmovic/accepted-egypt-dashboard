@@ -251,7 +251,7 @@ export default function SidebarNav() {
           Prospect List
         </SidebarNavItem>
         <SidebarNavItem icon={faPerson} href="/students/pending">
-          Pending Students
+          Pending Students (Payment)
         </SidebarNavItem>
         <SidebarNavItem icon={faPerson} href="/students">
           Students

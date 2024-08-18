@@ -266,8 +266,19 @@ const SalesMemberAssignedData = () => {
               <tbody>
                 {filteredData.map((item, index) => (
                   <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>
+                    <td
+                      className={
+                        item.verificationStatus === "Rejected"
+                          ? "bg-danger text-light"
+                          : item.verificationStatus === "Pending"
+                            ? "bg-warning text-dark"
+                            : item.verificationStatus === "Verified"
+                              ? "bg-success text-light"
+                              : ""
+                      }
+                    >
+                      {index + 1}
+                    </td><td>
                       <Link legacyBehavior href={`/sales/sales_member/detailed_marketing_item/${item._id}`}>
                         <a>{item.name}</a>
                       </Link>

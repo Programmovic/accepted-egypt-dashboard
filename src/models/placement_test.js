@@ -3,12 +3,12 @@ import PlacementTestSettings from "./placement_test_settings";
 
 const placementTestSchema = new mongoose.Schema({
   student: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: "Student", // Reference to the Student model
     required: true,
   },
   generalPlacementTest: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: "PlacementTest", // Reference to the Student model
     required: true,
   },
@@ -38,7 +38,7 @@ const placementTestSchema = new mongoose.Schema({
     default: Date.now,
   },
   createdByAdmin: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: "Admin",
   },
   adminName: {

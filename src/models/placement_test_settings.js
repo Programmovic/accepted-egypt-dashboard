@@ -29,15 +29,15 @@ const placementTestSettingsSchema = new mongoose.Schema({
     default: Date.now, // Set the default value to the current date and time
   },
   room: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'Room',
   },
   instructor: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'Employee',
   },
   createdByAdmin: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'Admin',
   },
   adminName: {
