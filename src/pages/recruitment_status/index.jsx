@@ -73,15 +73,15 @@ const AdminManagement = () => {
 
   const getActiveTabName = (tab) => {
     switch (tab) {
-      case "candidateStatusesForRecruiter":
+      case "candidate-status-for-recruiter":
         return "Candidate Status For Recruiter";
-      case "phoneInterviewStatuses":
+      case "phone-interview-status":
         return "Phone Interview Status";
-      case "faceToFaceStatuses":
+      case "face-to-face-status":
         return "Face To Face Status";
-      case "feedbackSessionStatuses":
+      case "feedback-session-status":
         return "Feedback Session Status";
-      case "recruitmentTestResultStatuses":
+      case "recruitment-test-result-status":
         return "Recruitment Test Result Status";
       default:
         return "";
@@ -90,19 +90,19 @@ const AdminManagement = () => {
 
   const reloadActiveTabData = (tab) => {
     switch (tab) {
-      case "candidateStatusesForRecruiter":
+      case "candidate-status-for-recruiter":
         fetchData("/api/candidate-status-for-recruiter", setCandidateStatusesForRecruiter);
         break;
-      case "phoneInterviewStatuses":
+      case "phone-interview-status":
         fetchData("/api/phone-interview-status", setPhoneInterviewStatuses);
         break;
-      case "faceToFaceStatuses":
+      case "face-to-face-status":
         fetchData("/api/face-to-face-status", setFaceToFaceStatuses);
         break;
       case "feedback-session-status":
         fetchData("/api/feedback-session-status", setFeedbackSessionStatuses);
         break;
-      case "recruitmentTestResultStatuses":
+      case "recruitment-test-result-status":
         fetchData("/api/recruitment-test-result-status", setRecruitmentTestResultStatuses);
         break;
       default:
@@ -121,7 +121,7 @@ const AdminManagement = () => {
   return (
     <AdminLayout>
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
-        <Tab eventKey="candidateStatusesForRecruiter" title="Candidate Status For Recruiter">
+        <Tab eventKey="candidate-status-for-recruiter" title="Candidate Status For Recruiter">
           <Card>
             <Card.Header>Candidate Statuses For Recruiter</Card.Header>
             <Card.Body>
@@ -158,7 +158,7 @@ const AdminManagement = () => {
             </Card.Body>
           </Card>
         </Tab>
-        <Tab eventKey="phoneInterviewStatuses" title="Phone Interview Status">
+        <Tab eventKey="phone-interview-status" title="Phone Interview Status">
           <Card>
             <Card.Header>Phone Interview Statuses</Card.Header>
             <Card.Body>
@@ -195,7 +195,7 @@ const AdminManagement = () => {
             </Card.Body>
           </Card>
         </Tab>
-        <Tab eventKey="faceToFaceStatuses" title="Face To Face Status">
+        <Tab eventKey="face-to-face-status" title="Face To Face Status">
           <Card>
             <Card.Header>Face To Face Statuses</Card.Header>
             <Card.Body>
@@ -269,7 +269,7 @@ const AdminManagement = () => {
             </Card.Body>
           </Card>
         </Tab>
-        <Tab eventKey="recruitmentTestResultStatuses" title="Recruitment Test Result Status">
+        <Tab eventKey="recruitment-test-result-status" title="Recruitment Test Result Status">
           <Card>
             <Card.Header>Recruitment Test Result Statuses</Card.Header>
             <Card.Body>
