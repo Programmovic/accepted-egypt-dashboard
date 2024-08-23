@@ -9,6 +9,7 @@ import "react-toastify/dist/ReactToastify.css";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { useRouter } from "next/navigation";
+import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 
@@ -108,7 +109,7 @@ const MarketingData = () => {
 
     if (Source) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.Source.toLowerCase().includes(Source.toLowerCase())
+        item.source.toLowerCase().includes(Source.toLowerCase())
       );
     }
 
@@ -349,7 +350,7 @@ const MarketingData = () => {
       </Row>
       <Modal show={showModal} onHide={closeModal} size="xl">
         <Modal.Header closeButton>
-          <Modal.Title>Add New Marketing Data</Modal.Title>
+          <Modal.Title>Add Lead</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={handleAddMarketingData} style={{ maxHeight: "500px", overflowY: 'auto', padding: "5px 5px" }}>
@@ -466,14 +467,14 @@ const MarketingData = () => {
             Close
           </Button>
           <Button variant="success" onClick={handleAddMarketingData}>
-            Add Marketing Data
+            Add Lead
           </Button>
 
         </Modal.Footer>
       </Modal>
       <Card>
         <Card.Header className="d-flex align-items-center">
-          <div className="w-50">Marketing Data</div>
+          <div className="w-50">Marketing Leads</div>
           <div className="w-50 d-flex justify-content-between align-items-center">
             <input type="file" onChange={handleFileUpload} accept=".xlsx, .xls" />
             <Button variant="outline-primary" onClick={downloadTemplate}>
@@ -506,7 +507,7 @@ const MarketingData = () => {
               </Col>
               <Col xs={6}>
                 <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assigned To</Form.Label>
+                  <Form.Label>Filter by Candidate Signed Up For</Form.Label>
                   <Form.Control
                     type="text"
                     value={assignedTo}
@@ -578,9 +579,11 @@ const MarketingData = () => {
               <Button variant="secondary" onClick={clearFilters}>
                 Clear Filters
               </Button>
-              <Button variant="primary" onClick={openModal}>
-                Add New Data
+              <Button variant="primary" onClick={openModal} className="d-flex align-items-center justify-content-center">
+                <faPlus style={{ marginRight: '8px' }} />
+                Add Lead
               </Button>
+
               {paginationEnabled && (
                 <Button variant="secondary" onClick={() => setPaginationEnabled(!paginationEnabled)}>
                   Assign In Range

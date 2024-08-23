@@ -16,6 +16,8 @@ const SalesModeratorData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filterName, setFilterName] = useState("");
+  
+  const [filterPhone, setFilterPhone] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
   const [Source, setSource] = useState("");
@@ -54,7 +56,7 @@ const SalesModeratorData = () => {
 
   useEffect(() => {
     handleFilter();
-  }, [filterName, filterDate, assignedTo, Source, languageIssues, assignedToModeration, assignationDate, assignedToSales, marketingData]);
+  }, [filterName, filterPhone, filterDate, assignedTo, Source, languageIssues, assignedToModeration, assignationDate, assignedToSales, marketingData]);
 
   const handleFilter = () => {
     let filteredMarketingData = [...marketingData];
@@ -65,9 +67,10 @@ const SalesModeratorData = () => {
       );
     }
 
-    if (filterDate) {
-      filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.createdAt.includes(filterDate)
+    if (filterPhone) {
+      filteredMarketingData = filteredMarketingData.filter(
+        (item) =>
+          item.phoneNo1.includes(filterPhone) || item.phoneNo2.includes(filterPhone)
       );
     }
 
@@ -79,7 +82,7 @@ const SalesModeratorData = () => {
 
     if (Source) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.Source.toLowerCase().includes(Source.toLowerCase())
+        item.source.toLowerCase().includes(Source.toLowerCase())
       );
     }
 
@@ -187,7 +190,7 @@ const SalesModeratorData = () => {
     <AdminLayout>
       <ToastContainer />
       <Card>
-        <Card.Header>Marketing Data</Card.Header>
+        <Card.Header>Sales Data for Sales Supervisor</Card.Header>
         <Card.Body>
           <Form className="mb-3">
             <Row>
@@ -198,6 +201,16 @@ const SalesModeratorData = () => {
                     type="text"
                     value={filterName}
                     onChange={(e) => setFilterName(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Phone</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filterPhone}
+                    onChange={(e) => setFilterPhone(e.target.value)}
                   />
                 </Form.Group>
               </Col>
@@ -238,36 +251,6 @@ const SalesModeratorData = () => {
                     type="text"
                     value={languageIssues}
                     onChange={(e) => setLanguageIssues(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assigned to Moderation</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={assignedToModeration}
-                    onChange={(e) => setAssignedToModeration(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assignation Date</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={assignationDate}
-                    onChange={(e) => setAssignationDate(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assigned to Sales</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={assignedToSales}
-                    onChange={(e) => setAssignedToSales(e.target.value)}
                   />
                 </Form.Group>
               </Col>
@@ -379,32 +362,32 @@ const SalesModeratorData = () => {
                       <td>{item.Source}</td>
                       <td>{item.languageIssues}</td>
                       <td>
-  <Form.Control
-    as="select"
-    value={item.assignedToSales}
-    onChange={(e) => {
-      const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
-      const timeSinceLastAssignation = new Date() - new Date(item.salesMemberAssignationDate);
+                        <Form.Control
+                          as="select"
+                          value={item.assignedToSales}
+                          onChange={(e) => {
+                            const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+                            const timeSinceLastAssignation = new Date() - new Date(item.salesMemberAssignationDate);
 
-      if (item.assignedToSales && timeSinceLastAssignation < threeDaysInMillis) {
-        toast.error("You cannot reassign within 3 days of the last assignation.");
-      } else {
-        handleUpdateMarketingData(item._id, {
-          assignedToSales: e.target.value,
-          salesMemberAssignationDate: new Date(),
-        });
-      }
-    }}
-  >
-    <option value="" hidden>Select a sales member</option>
-    {salesMembers.map((moderator) => (
-      <option key={moderator._id} value={moderator.name}>
-        {moderator.name}
-      </option>
-    ))}
-  </Form.Control>
+                            if (item.assignedToSales && timeSinceLastAssignation < threeDaysInMillis) {
+                              toast.error("You cannot reassign within 3 days of the last assignation.");
+                            } else {
+                              handleUpdateMarketingData(item._id, {
+                                assignedToSales: e.target.value,
+                                salesMemberAssignationDate: new Date(),
+                              });
+                            }
+                          }}
+                        >
+                          <option value="" hidden>Select a sales member</option>
+                          {salesMembers.map((moderator) => (
+                            <option key={moderator._id} value={moderator.name}>
+                              {moderator.name}
+                            </option>
+                          ))}
+                        </Form.Control>
 
-</td>
+                      </td>
 
                       <td>{item.salesMemberAssignationDate && new Date(item.salesMemberAssignationDate).toLocaleDateString()}</td>
                     </tr>

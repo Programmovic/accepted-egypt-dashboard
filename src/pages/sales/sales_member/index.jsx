@@ -1,18 +1,13 @@
-import { Card, Form, Button, Row, Col, Table, Collapse } from "react-bootstrap";
+import { Card, Form, Button, Row, Col, Table, Collapse, Modal } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { AdminLayout } from "@layout";
 import axios from "axios";
-import { Modal } from "react-bootstrap";
-import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
-import {
-  faFilter,
-} from "@fortawesome/free-solid-svg-icons";
-
+import { TextField } from "@mui/material";
 
 const SalesMemberAssignedData = () => {
   const [marketingData, setMarketingData] = useState([]);
@@ -21,16 +16,18 @@ const SalesMemberAssignedData = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showFilterModal, setShowFilterModal] = useState(false);
   const [filterName, setFilterName] = useState("");
   const [filterDate, setFilterDate] = useState("");
+  const [filterPhone, setFilterPhone] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
-  const [chatSummary, setChatSummary] = useState("");
   const [Source, setSource] = useState("");
   const [languageIssues, setLanguageIssues] = useState("");
   const [assignedToModeration, setAssignedToModeration] = useState("");
   const [assignationDate, setAssignationDate] = useState("");
   const [assignedToSales, setAssignedToSales] = useState("");
-  const [open, setOpen] = useState(false);
+
   const fetchMarketingData = async () => {
     try {
       const response = await axios.get("/api/marketing?assignedToMember=true");
@@ -56,10 +53,18 @@ const SalesMemberAssignedData = () => {
   useEffect(() => {
     // Apply filters when filter inputs change
     handleFilter();
-  }, [filterName, filterDate, assignedTo, Source, languageIssues, assignedToModeration, assignationDate, assignedToSales, marketingData]);
+  }, [searchTerm, filterName, filterDate, filterPhone, assignedTo, Source, languageIssues, assignedToModeration, assignationDate, assignedToSales, marketingData]);
 
   const handleFilter = () => {
     let filteredMarketingData = [...marketingData];
+
+    if (searchTerm) {
+      filteredMarketingData = filteredMarketingData.filter((item) =>
+        item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.phoneNo1.includes(searchTerm) ||
+        item.phoneNo2.includes(searchTerm)
+      );
+    }
 
     if (filterName) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
@@ -73,6 +78,13 @@ const SalesMemberAssignedData = () => {
       );
     }
 
+    if (filterPhone) {
+      filteredMarketingData = filteredMarketingData.filter(
+        (item) =>
+          item.phoneNo1.includes(filterPhone) || item.phoneNo2.includes(filterPhone)
+      );
+    }
+
     if (assignedTo) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
         item.assignTo.toLowerCase().includes(assignedTo.toLowerCase())
@@ -81,7 +93,7 @@ const SalesMemberAssignedData = () => {
 
     if (Source) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.Source.toLowerCase().includes(Source.toLowerCase())
+        item.source.toLowerCase().includes(Source.toLowerCase())
       );
     }
 
@@ -115,6 +127,7 @@ const SalesMemberAssignedData = () => {
   const clearFilters = () => {
     setFilterName("");
     setFilterDate("");
+    setFilterPhone("");
     setAssignedTo("");
     setSource("");
     setLanguageIssues("");
@@ -122,7 +135,9 @@ const SalesMemberAssignedData = () => {
     setAssignationDate("");
     setAssignedToSales("");
     setFilteredData(marketingData);
+    setSearchTerm("");
   };
+
   const exportToExcel = () => {
     const headers = [
       "Name", "Phone No. 1", "Phone No. 2", "Assign To", "Chat Summary", "Source", "Language Issues", "Assigned To Moderation", "Assignation Date", "Assigned To Sales"
@@ -139,111 +154,59 @@ const SalesMemberAssignedData = () => {
     const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(dataBlob, "marketing_data.xlsx");
   };
+
   return (
     <AdminLayout>
       <ToastContainer />
       <Card>
-        <Card.Header onClick={() => setOpen(!open)} className="d-flex justify-content-between cursor-pointer">Marketing Data <span>Click to {open ? "close" : "open"} Filters</span></Card.Header>
+        <Card.Header>
+          <Row>
+            <Col>
+              <Form className="d-flex">
+                <TextField
+                  id="standard-basic"
+                  label="Search"
+                  variant="standard"
+                  placeholder="Search..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  fullWidth // Adjust based on your layout needs
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      color: 'white', // Text color
+                      '::placeholder': {
+                        color: 'white', // Placeholder text color
+                      },
+                    },
+                    '& .MuiInputBase-input': {
+                      color: 'black', // Text color
+                    },
+                    '& .MuiInput-underline:before': {
+                      borderBottomColor: 'white', // Border color when the input is not focused
+                    },
+                    '& .MuiInput-underline:after': {
+                      borderBottomColor: 'white', // Border color when the input is focused
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: 'white', // Label color
+                    },
+                    '& .MuiFormLabel-root.Mui-focused': {
+                      color: 'white', // Label color when focused
+                    },
+                  }}
+                />
+                <Button
+                  variant="primary"
+                  onClick={() => setShowFilterModal(true)}
+                  className="ms-2"
+                >
+                  Filter
+                </Button>
+              </Form>
+            </Col>
+          </Row>
+        </Card.Header>
         <Card.Body>
-          <Collapse in={open}>
-            <Form className="mb-3">
-              <Row>
-                <Col xs={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Filter by Name</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={filterName}
-                      onChange={(e) => setFilterName(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col xs={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Filter by Date</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={filterDate}
-                      onChange={(e) => setFilterDate(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col xs={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Filter by Assigned To</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={assignedTo}
-                      onChange={(e) => setAssignedTo(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col xs={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Filter by Source</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={Source}
-                      onChange={(e) => setSource(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col xs={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Filter by Language Issues</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={languageIssues}
-                      onChange={(e) => setLanguageIssues(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col xs={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Filter by Assigned to Moderation</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={assignedToModeration}
-                      onChange={(e) => setAssignedToModeration(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col xs={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Filter by Assignation Date</Form.Label>
-                    <Form.Control
-                      type="date"
-                      value={assignationDate}
-                      onChange={(e) => setAssignationDate(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-                <Col xs={6}>
-                  <Form.Group className="mb-3">
-                    <Form.Label>Filter by Assigned to Sales</Form.Label>
-                    <Form.Control
-                      type="text"
-                      value={assignedToSales}
-                      onChange={(e) => setAssignedToSales(e.target.value)}
-                    />
-                  </Form.Group>
-                </Col>
-              </Row>
-              <Row>
-                <Col xs={6}>
-                  <Button variant="secondary" onClick={clearFilters}>
-                    Clear Filters
-                  </Button>
-                </Col>
-                <Col xs={6}>
-                  <Button onClick={exportToExcel} variant="primary" className="ms-2">
-                    Export to Excel
-                  </Button>
-                </Col>
-              </Row>
-            </Form>
-          </Collapse>
-
           {loading ? (
             <p>Loading marketing data...</p>
           ) : error ? (
@@ -278,7 +241,8 @@ const SalesMemberAssignedData = () => {
                       }
                     >
                       {index + 1}
-                    </td><td>
+                    </td>
+                    <td>
                       <Link legacyBehavior href={`/sales/sales_member/detailed_marketing_item/${item._id}`}>
                         <a>{item.name}</a>
                       </Link>
@@ -297,6 +261,95 @@ const SalesMemberAssignedData = () => {
           )}
         </Card.Body>
       </Card>
+
+      {/* Filter Modal */}
+      <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)} size="xl">
+        <Modal.Header closeButton>
+          <Modal.Title>Customize Filters</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Row>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filterName}
+                    onChange={(e) => setFilterName(e.target.value)}
+                  />
+                </Form.Group>
+
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Date</Form.Label>
+                  <Form.Control
+                    type="date"
+                    value={filterDate}
+                    onChange={(e) => setFilterDate(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Phone Number</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={filterPhone}
+                    onChange={(e) => setFilterPhone(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Assigned To</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={assignedTo}
+                    onChange={(e) => setAssignedTo(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Source</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={Source}
+                    onChange={(e) => setSource(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
+                  <Form.Label>Filter by Language Issues</Form.Label>
+                  <Form.Control
+                    type="text"
+                    value={languageIssues}
+                    onChange={(e) => setLanguageIssues(e.target.value)}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={12} className="d-flex justify-content-between">
+                <Button variant="secondary" onClick={clearFilters}>
+                  Clear Filters
+                </Button>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    handleFilter();
+                    setShowFilterModal(false);
+                  }}
+                >
+                  Apply Filters
+                </Button></Col>
+            </Row>
+          </Form>
+        </Modal.Body>
+      </Modal>
     </AdminLayout>
   );
 };
