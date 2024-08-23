@@ -99,7 +99,7 @@ const AdminManagement = () => {
       case "faceToFaceStatuses":
         fetchData("/api/face-to-face-status", setFaceToFaceStatuses);
         break;
-      case "feedbackSessionStatuses":
+      case "feedback-session-status":
         fetchData("/api/feedback-session-status", setFeedbackSessionStatuses);
         break;
       case "recruitmentTestResultStatuses":
@@ -232,7 +232,7 @@ const AdminManagement = () => {
             </Card.Body>
           </Card>
         </Tab>
-        <Tab eventKey="feedbackSessionStatuses" title="Feedback Session Status">
+        <Tab eventKey="feedback-session-status" title="Feedback Session Status">
           <Card>
             <Card.Header>Feedback Session Statuses</Card.Header>
             <Card.Body>
