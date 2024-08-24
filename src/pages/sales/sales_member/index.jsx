@@ -1,5 +1,5 @@
-import { Card, Form, Button, Row, Col, Table, Collapse, Modal } from "react-bootstrap";
-import { useEffect, useState } from "react";
+import { Card, Form, Button, Row, Col, Table, Overlay, Popover } from "react-bootstrap";
+import { useEffect, useState, useRef } from "react";
 import { AdminLayout } from "@layout";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
@@ -8,6 +8,7 @@ import Link from "next/link";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { TextField } from "@mui/material";
+import { faFilter } from "@fortawesome/free-solid-svg-icons";
 
 const SalesMemberAssignedData = () => {
   const [marketingData, setMarketingData] = useState([]);
@@ -17,7 +18,7 @@ const SalesMemberAssignedData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
   const [filterName, setFilterName] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [filterPhone, setFilterPhone] = useState("");
@@ -27,6 +28,8 @@ const SalesMemberAssignedData = () => {
   const [assignedToModeration, setAssignedToModeration] = useState("");
   const [assignationDate, setAssignationDate] = useState("");
   const [assignedToSales, setAssignedToSales] = useState("");
+  const [filterApplied, setFilterApplied] = useState(false);
+  const filterRef = useRef(null);
 
   const fetchMarketingData = async () => {
     try {
@@ -122,6 +125,9 @@ const SalesMemberAssignedData = () => {
     }
 
     setFilteredData(filteredMarketingData);
+    setFilterApplied(
+      searchTerm || filterName || filterDate || filterPhone || assignedTo || Source || languageIssues || assignedToModeration || assignationDate || assignedToSales
+    );
   };
 
   const clearFilters = () => {
@@ -136,6 +142,7 @@ const SalesMemberAssignedData = () => {
     setAssignedToSales("");
     setFilteredData(marketingData);
     setSearchTerm("");
+    setFilterApplied(false);
   };
 
   const exportToExcel = () => {
@@ -158,54 +165,123 @@ const SalesMemberAssignedData = () => {
   return (
     <AdminLayout>
       <ToastContainer />
-      <Card>
-        <Card.Header>
-          <Row>
-            <Col>
-              <Form className="d-flex">
-                <TextField
-                  id="standard-basic"
-                  label="Search"
-                  variant="standard"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  fullWidth // Adjust based on your layout needs
-                  sx={{
-                    '& .MuiInputBase-input': {
-                      color: 'white', // Text color
-                      '::placeholder': {
-                        color: 'white', // Placeholder text color
-                      },
-                    },
-                    '& .MuiInputBase-input': {
-                      color: 'black', // Text color
-                    },
-                    '& .MuiInput-underline:before': {
-                      borderBottomColor: 'white', // Border color when the input is not focused
-                    },
-                    '& .MuiInput-underline:after': {
-                      borderBottomColor: 'white', // Border color when the input is focused
-                    },
-                    '& .MuiInputLabel-root': {
-                      color: 'white', // Label color
-                    },
-                    '& .MuiFormLabel-root.Mui-focused': {
-                      color: 'white', // Label color when focused
-                    },
-                  }}
-                />
-                <Button
-                  variant="primary"
-                  onClick={() => setShowFilterModal(true)}
-                  className="ms-2"
-                >
-                  Filter
-                </Button>
+      <div className="d-flex justify-content-between mb-3" style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '8px' }}>
+
+        <TextField
+          id="outlined-basic"
+          label="Search"
+          variant="outlined"
+          placeholder="Search..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          fullWidth // Adjust based on your layout needs
+          
+        />
+        <Button
+          variant={filterApplied ? "warning" : "primary"}
+          onClick={() => setShowFilter(!showFilter)}
+          ref={filterRef}
+          className="ms-2"
+        >
+          <faFilter/>
+        </Button>
+
+        <Overlay
+          show={showFilter}
+          target={filterRef.current}
+          placement="bottom"
+        >
+          <Popover id="popover-contained">
+            <Popover.Header as="h3">Customize Filters</Popover.Header>
+            <Popover.Body>
+              <Form>
+                <Row>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Name</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={filterName}
+                        onChange={(e) => setFilterName(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Date</Form.Label>
+                      <Form.Control
+                        type="date"
+                        value={filterDate}
+                        onChange={(e) => setFilterDate(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Phone Number</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={filterPhone}
+                        onChange={(e) => setFilterPhone(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Assigned To</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={assignedTo}
+                        onChange={(e) => setAssignedTo(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Source</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={Source}
+                        onChange={(e) => setSource(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col xs={6}>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Filter by Language Issues</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={languageIssues}
+                        onChange={(e) => setLanguageIssues(e.target.value)}
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row>
+                  <Col xs={12} className="d-flex justify-content-between">
+                    <Button variant="secondary" onClick={clearFilters}>
+                      Clear Filters
+                    </Button>
+                    <Button
+                      variant="primary"
+                      onClick={() => {
+                        handleFilter();
+                        setShowFilter(false);
+                      }}
+                    >
+                      Apply Filters
+                    </Button>
+                  </Col>
+                </Row>
               </Form>
-            </Col>
-          </Row>
-        </Card.Header>
+            </Popover.Body>
+          </Popover>
+        </Overlay>
+      </div>
+
+      <Card>
+        
+      <Card.Header>Sales Data for Sales Agent</Card.Header>
         <Card.Body>
           {loading ? (
             <p>Loading marketing data...</p>
@@ -261,95 +337,6 @@ const SalesMemberAssignedData = () => {
           )}
         </Card.Body>
       </Card>
-
-      {/* Filter Modal */}
-      <Modal show={showFilterModal} onHide={() => setShowFilterModal(false)} size="xl">
-        <Modal.Header closeButton>
-          <Modal.Title>Customize Filters</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Row>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={filterName}
-                    onChange={(e) => setFilterName(e.target.value)}
-                  />
-                </Form.Group>
-
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Date</Form.Label>
-                  <Form.Control
-                    type="date"
-                    value={filterDate}
-                    onChange={(e) => setFilterDate(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Phone Number</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={filterPhone}
-                    onChange={(e) => setFilterPhone(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Assigned To</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={assignedTo}
-                    onChange={(e) => setAssignedTo(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Source</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={Source}
-                    onChange={(e) => setSource(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-              <Col xs={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Filter by Language Issues</Form.Label>
-                  <Form.Control
-                    type="text"
-                    value={languageIssues}
-                    onChange={(e) => setLanguageIssues(e.target.value)}
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-            <Row>
-              <Col xs={12} className="d-flex justify-content-between">
-                <Button variant="secondary" onClick={clearFilters}>
-                  Clear Filters
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={() => {
-                    handleFilter();
-                    setShowFilterModal(false);
-                  }}
-                >
-                  Apply Filters
-                </Button></Col>
-            </Row>
-          </Form>
-        </Modal.Body>
-      </Modal>
     </AdminLayout>
   );
 };
