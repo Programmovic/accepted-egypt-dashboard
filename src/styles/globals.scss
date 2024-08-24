@@ -20,6 +20,26 @@ $enable-negative-margins: true;
   --primary: hsl(var(--hue), 90%, 50%);
   --trans-dur: 0.3s;
 }
+.btn-primary {
+  --bs-btn-bg: #2c3d38;
+  --bs-btn-border-color: #2c3d38;
+}
+.popover-arrow {
+  position: relative;
+}
+
+.popover-arrow::before {
+  content: '';
+  position: absolute;
+  top: -10px; /* Adjust based on the size of your arrow */
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px;
+  border-style: solid;
+  border-color: transparent transparent #ffffff transparent; /* Adjust color as needed */
+  border-radius: 2px; /* Optional: for rounded corners */
+}
+
 body {
   zoom: 75%;
 
@@ -29,9 +49,9 @@ body {
   font-optical-sizing: auto;
   font-style: normal;
 }
-.content-body{
-    background: white;
-  }
+.content-body {
+  background: white;
+}
 .full-content-wrapper {
   min-height: 142vh;
 }
@@ -40,10 +60,10 @@ body {
   height: 100%;
 }
 
-.radius-large{
-    border-radius: 40px
+.radius-large {
+  border-radius: 40px;
 }
-.radius-top-large{
-    border-top-left-radius: 40px;
-    border-top-right-radius: 40px;
+.radius-top-large {
+  border-top-left-radius: 40px;
+  border-top-right-radius: 40px;
 }

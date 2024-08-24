@@ -9,6 +9,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { TextField } from "@mui/material";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
+import FilterAltIcon from '@mui/icons-material/FilterAlt';
 
 const SalesMemberAssignedData = () => {
   const [marketingData, setMarketingData] = useState([]);
@@ -175,23 +176,24 @@ const SalesMemberAssignedData = () => {
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           fullWidth // Adjust based on your layout needs
-          
+
         />
         <Button
           variant={filterApplied ? "warning" : "primary"}
           onClick={() => setShowFilter(!showFilter)}
           ref={filterRef}
-          className="ms-2"
+          className="ms-2 "
         >
-          <faFilter/>
+          <FilterAltIcon style={{ color: filterApplied ? 'yellow' : 'white' }} />
         </Button>
 
         <Overlay
           show={showFilter}
           target={filterRef.current}
           placement="bottom"
+          className="popover-arrow"
         >
-          <Popover id="popover-contained">
+          <Popover id="popover-contained" style={{ maxHeight: '400px', overflowY: "auto", minWidth: '800px' }}>
             <Popover.Header as="h3">Customize Filters</Popover.Header>
             <Popover.Body>
               <Form>
@@ -277,11 +279,12 @@ const SalesMemberAssignedData = () => {
             </Popover.Body>
           </Popover>
         </Overlay>
+
       </div>
 
       <Card>
-        
-      <Card.Header>Sales Data for Sales Agent</Card.Header>
+
+        <Card.Header>Sales Data for Sales Agent</Card.Header>
         <Card.Body>
           {loading ? (
             <p>Loading marketing data...</p>
