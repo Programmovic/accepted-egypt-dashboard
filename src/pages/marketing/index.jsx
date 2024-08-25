@@ -251,7 +251,7 @@ const MarketingData = () => {
           });
           return;
       }
-      if (dataItem.phoneNo1.length !== 11) {
+      if (dataItem.phoneNo1.length !== 11 || dataItem.phoneNo2.length !== 11 ) {
           toast.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`, {
               autoClose: false, // Makes the toast persistent
           });
