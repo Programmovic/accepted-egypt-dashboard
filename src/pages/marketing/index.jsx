@@ -234,50 +234,69 @@ const MarketingData = () => {
     const fileInput = event.target; // Reference to the file input
     const file = fileInput.files[0];
     const reader = new FileReader();
-
+  
     reader.onload = (e) => {
       const data = new Uint8Array(e.target.result);
       const workbook = XLSX.read(data, { type: "array" });
       const firstSheetName = workbook.SheetNames[0];
       const worksheet = workbook.Sheets[firstSheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
+  
       // Process each data item
       jsonData.forEach(async (dataItem) => {
         // Check for validity
         if (!dataItem.name || !dataItem.phoneNo1) {
           toast.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`, {
-              autoClose: false, // Makes the toast persistent
+            autoClose: false, // Makes the toast persistent
           });
           return;
-      }
-      if (dataItem.phoneNo1.length !== 11 || dataItem.phoneNo2.length !== 11 ) {
+        }
+        if (dataItem.phoneNo1.length !== 11 || (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11)) {
           toast.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`, {
-              autoClose: false, // Makes the toast persistent
+            autoClose: false, // Makes the toast persistent
           });
           return;
-      }
-      
-
-        // If valid, proceed with the request
+        }
+        if (dataItem.phoneNo2 && dataItem.phoneNo1 === dataItem.phoneNo2) {
+          toast.error(`Error: Phone numbers for ${dataItem.name} must be different.`, {
+            autoClose: false, // Makes the toast persistent
+          });
+          return;
+        }
+  
         try {
+          // Check if the item already exists in the database
+          const existingItem = await axios.post("/api/marketing/check-duplicate", {
+            phoneNo1: dataItem.phoneNo1,
+            phoneNo2: dataItem.phoneNo2,
+          });
+  
+          if (existingItem.data.exists) {
+            toast.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`, {
+              autoClose: false, // Makes the toast persistent
+            });
+            return;
+          }
+  
+          // If no duplicate is found, proceed with the request
           await axios.post("/api/marketing", dataItem);
           fetchMarketingData();
           toast.success(`${dataItem.name} has been added successfully!`);
         } catch (error) {
-          console.error("Error adding marketing data from file:", error.message);
+          console.error("Error checking or adding marketing data from file:", error.message);
           toast.error(`Error adding data for ${dataItem.name}`);
         }
       });
-
+  
       // Reset the file input after processing
       fileInput.value = "";
-
+  
       toast.success("Marketing data upload process completed!");
     };
-
+  
     reader.readAsArrayBuffer(file);
-};
+  };
+  
 
 
   const downloadTemplate = () => {
