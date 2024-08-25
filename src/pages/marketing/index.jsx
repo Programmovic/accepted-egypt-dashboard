@@ -230,6 +230,19 @@ const MarketingData = () => {
       toast.error(error.message);
     }
   };
+  const handleDeleteMarketingData = async (id) => {
+    try {
+      await axios.delete(`/api/marketing?id=${id}`); // Assuming you pass the ID in the URL params
+      closeModal();
+      fetchMarketingData(); // Assuming fetchMarketingData is a function to refetch the updated data
+      toast.success("Marketing data deleted successfully!");
+    } catch (error) {
+      console.error("Error deleting marketing data:", error.message);
+      setError("Failed to delete marketing data. Please try again.");
+      toast.error(error.message);
+    }
+  };
+  
   const handleFileUpload = (event) => {
     const fileInput = event.target; // Reference to the file input
     const file = fileInput.files[0];
