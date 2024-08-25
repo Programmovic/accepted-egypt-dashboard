@@ -16,7 +16,8 @@ import TextField from "@mui/material/TextField";
 
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
-
+import { Delete } from "@mui/icons-material";
+import { Edit } from "@mui/icons-material";
 import { ClassCard } from "@components/Classes";
 
 const MarketingData = () => {
@@ -42,9 +43,21 @@ const MarketingData = () => {
   const [filterApplied, setFilterApplied] = useState(false); // Added state for filter applied
   const [showFilter, setShowFilter] = useState(false); // Added state for showing filter
   const filterRef = useRef(null); // Added ref for filter button
+  const [editItem, setEditItem] = useState(null); // For managing the item being edited
+  const [showModal, setShowModal] = useState(false); // To control the visibility of the modal
+  const handleEdit = (item) => {
+    // Set the item data to be edited
+    setEditItem(item);
+    // Set the form fields with existing data
+    setNewName(item.name);
+    setNewPhoneNo1(item.phoneNo1);
+    setNewPhoneNo2(item.phoneNo2);
+    setNewAssignTo(item.assignTo);
+    setNewSource(item.source);
+    // Open the modal
+    setShowModal(true);
+  };
 
-  // State for the modal form
-  const [showModal, setShowModal] = useState(false);
   const [newName, setNewName] = useState("");
   const [newPhoneNo1, setNewPhoneNo1] = useState("");
   const [newPhoneNo2, setNewPhoneNo2] = useState("");
@@ -218,11 +231,21 @@ const MarketingData = () => {
       toast.error(error.message);
     }
   };
-  const handleUpdateMarketingData = async (id, updatedData) => {
+  const handleUpdateMarketingData = async (e) => {
+    e.preventDefault(); // Prevent the default form submission
+
+    const updatedData = {
+      name: newName,
+      phoneNo1: newPhoneNo1,
+      phoneNo2: newPhoneNo2,
+      assignTo: newAssignTo,
+      source: newSource,
+    };
+
     try {
-      await axios.put(`/api/marketing?id=${id}`, updatedData); // Assuming you pass the ID in the URL params
+      await axios.put(`/api/marketing?id=${editItem._id}`, updatedData); // Send the PUT request with ID and updated data
       closeModal();
-      fetchMarketingData(); // Assuming fetchMarketingData is a function to refetch the updated data
+      fetchMarketingData(); // Refetch the data to reflect changes
       toast.success("Marketing data updated successfully!");
     } catch (error) {
       console.error("Error updating marketing data:", error.message);
@@ -230,6 +253,7 @@ const MarketingData = () => {
       toast.error(error.message);
     }
   };
+
   const handleDeleteMarketingData = async (id) => {
     try {
       await axios.delete(`/api/marketing?id=${id}`); // Assuming you pass the ID in the URL params
@@ -242,74 +266,114 @@ const MarketingData = () => {
       toast.error(error.message);
     }
   };
-  
+
   const handleFileUpload = (event) => {
     const fileInput = event.target; // Reference to the file input
     const file = fileInput.files[0];
+
+    if (!file) {
+      console.error("Error: No file selected.");
+      toast.error("Error: No file selected.");
+      return;
+    }
+
     const reader = new FileReader();
-  
-    reader.onload = (e) => {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, { type: "array" });
-      const firstSheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[firstSheetName];
-      const jsonData = XLSX.utils.sheet_to_json(worksheet);
-  
-      // Process each data item
-      jsonData.forEach(async (dataItem) => {
-        // Check for validity
-        if (!dataItem.name || !dataItem.phoneNo1) {
-          toast.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`, {
-            autoClose: false, // Makes the toast persistent
-          });
-          return;
-        }
-        if (dataItem.phoneNo1.length !== 11 || (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11)) {
-          toast.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`, {
-            autoClose: false, // Makes the toast persistent
-          });
-          return;
-        }
-        if (dataItem.phoneNo2 && dataItem.phoneNo1 === dataItem.phoneNo2) {
-          toast.error(`Error: Phone numbers for ${dataItem.name} must be different.`, {
-            autoClose: false, // Makes the toast persistent
-          });
-          return;
-        }
-  
-        try {
-          // Check if the item already exists in the database
-          const existingItem = await axios.post("/api/marketing/check-duplicate", {
-            phoneNo1: dataItem.phoneNo1,
-            phoneNo2: dataItem.phoneNo2,
-          });
-  
-          if (existingItem.data.exists) {
-            toast.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`, {
-              autoClose: false, // Makes the toast persistent
+
+    reader.onload = async (e) => {
+      try {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        console.log("Parsed JSON data:", jsonData);
+
+        // Process each data item
+        for (const dataItem of jsonData) {
+          console.log("Processing item:", dataItem);
+
+          // Validate required fields
+          if (!dataItem.name || !dataItem.phoneNo1) {
+            console.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`);
+            toast.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`, {
+              autoClose: false,
             });
-            return;
+            continue;
           }
-  
-          // If no duplicate is found, proceed with the request
-          await axios.post("/api/marketing", dataItem);
-          fetchMarketingData();
-          toast.success(`${dataItem.name} has been added successfully!`);
-        } catch (error) {
-          console.error("Error checking or adding marketing data from file:", error.message);
-          toast.error(`Error adding data for ${dataItem.name}`);
+
+          // Validate phone numbers
+          if (dataItem.phoneNo1.length !== 11 || (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11)) {
+            console.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`);
+            toast.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`, {
+              autoClose: false,
+            });
+            continue;
+          }
+
+          if (dataItem.phoneNo2 && dataItem.phoneNo1 === dataItem.phoneNo2) {
+            console.error(`Error: Phone numbers for ${dataItem.name} must be different.`);
+            toast.error(`Error: Phone numbers for ${dataItem.name} must be different.`, {
+              autoClose: false,
+            });
+            continue;
+          }
+
+          try {
+            // Check if the item already exists in the database
+            const existingItem = await axios.post("/api/marketing/check-duplicates", {
+              phoneNo1: dataItem.phoneNo1,
+              phoneNo2: dataItem.phoneNo2,
+            });
+
+            console.log("Check duplicate response:", existingItem.data);
+
+            if (existingItem.data.exists) {
+              console.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`);
+              toast.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`, {
+                autoClose: false,
+              });
+              continue;
+            }
+
+            // If no duplicate is found, proceed with the request
+            await axios.post("/api/marketing", dataItem);
+            console.log(`${dataItem.name} has been added successfully.`);
+            toast.success(`${dataItem.name} has been added successfully!`);
+          } catch (error) {
+            console.error("Error checking or adding marketing data from file:", error.message);
+            toast.error(`Error adding data for ${dataItem.name}: ${error.message}`);
+          }
         }
-      });
-  
-      // Reset the file input after processing
-      fileInput.value = "";
-  
-      toast.success("Marketing data upload process completed!");
+
+        // Fetch the latest marketing data after processing
+        try {
+          await fetchMarketingData();
+          console.log("Marketing data fetch completed.");
+          toast.success("Marketing data upload process completed!");
+        } catch (fetchError) {
+          console.error("Error fetching marketing data:", fetchError.message);
+          toast.error("Error fetching marketing data.");
+        }
+      } catch (error) {
+        console.error("Error reading or processing file:", error.message);
+        toast.error("Error processing the uploaded file.");
+      } finally {
+        // Reset the file input after processing
+        fileInput.value = "";
+        console.log("File input reset.");
+      }
     };
-  
+
+    reader.onerror = (error) => {
+      console.error("FileReader error:", error.message);
+      toast.error("Error reading the file.");
+    };
+
     reader.readAsArrayBuffer(file);
   };
-  
+
+
 
 
   const downloadTemplate = () => {
@@ -405,10 +469,10 @@ const MarketingData = () => {
       </Row>
       <Modal show={showModal} onHide={closeModal} size="xl">
         <Modal.Header closeButton>
-          <Modal.Title>Add Lead</Modal.Title>
+          <Modal.Title>{editItem ? "Edit Lead" : "Add Lead"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleAddMarketingData} style={{ maxHeight: "500px", overflowY: 'auto', padding: "5px 5px" }}>
+          <Form onSubmit={handleUpdateMarketingData} style={{ maxHeight: "500px", overflowY: 'auto', padding: "5px 5px" }}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control
@@ -422,9 +486,7 @@ const MarketingData = () => {
               <Form.Control
                 type="text"
                 value={newPhoneNo1}
-                onChange={(e) => {
-                  setNewPhoneNo1(e.target.value)
-                }}
+                onChange={(e) => setNewPhoneNo1(e.target.value)}
               />
             </Form.Group>
             <Form.Group className="mb-3">
@@ -472,20 +534,18 @@ const MarketingData = () => {
                 <option value="Other">Other</option>
               </Form.Control>
             </Form.Group>
-            
-
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={closeModal}>
             Close
           </Button>
-          <Button variant="success" onClick={handleAddMarketingData}>
-            Add Lead
+          <Button variant="success" onClick={editItem ? handleUpdateMarketingData : handleAddMarketingData}>
+            {editItem ? "Update Lead" : "Add Lead"}
           </Button>
-
         </Modal.Footer>
       </Modal>
+
       <div className="d-flex justify-content-between mb-3" style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '8px' }}>
 
         <TextField
@@ -631,6 +691,7 @@ const MarketingData = () => {
                   <th>Assignation Date</th>
                   <th>Created At</th>
                   <th>Last Updated</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -673,6 +734,10 @@ const MarketingData = () => {
                     <td>{item.assignationDate && new Date(item.assignationDate).toLocaleDateString()}</td>
                     <td>{item.createdAt && new Date(item.createdAt).toLocaleString()}</td>
                     <td>{item.updatedAt && new Date(item.updatedAt).toLocaleString()}</td>
+                    <td className="d-flex justify-content-between">
+                      <Button variant="warning" onClick={() => handleEdit(item)}><Edit style={{ color: filterApplied ? 'yellow' : 'white' }} /></Button>
+                      <Button variant="danger" className="ms-2" onClick={() => handleDeleteMarketingData(item._id)}><Delete style={{ color: filterApplied ? 'yellow' : 'white' }} /></Button>
+                    </td>
                   </tr>
                 ))}
               </tbody>

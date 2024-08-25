@@ -5,7 +5,7 @@ import Prospect from "../../../models/prospect";
 import Employee from "../../../models/employee"; // Import Employee model
 import Department from "../../../models/department";
 import Position from "../../../models/position";
-import PlacementTest from "../../../models/placement_test"
+import PlacementTest from "../../../models/placement_test";
 import Student from "../../../models/student";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
@@ -133,7 +133,7 @@ export default async (req, res) => {
     try {
       const { id } = req.query; // Assuming `id` is passed as a query parameter
       const updates = req.body;
-console.log(updates)
+      console.log(updates);
       // Extract the token from cookies
       const cookies = req.headers.cookie
         ? cookie.parse(req.headers.cookie)
@@ -247,10 +247,23 @@ console.log(updates)
       return res.status(500).json({ error: error.message });
     }
   } else if (req.method === "DELETE") {
+    const { id } = req.query; // Extract `id` from query parameters
+
     try {
-      // Delete all MarketingData documents
-      await MarketingData.deleteMany({});
-      return res.status(204).send(); // Respond with a 204 status code for successful deletion
+      if (id) {
+        // Delete the specific MarketingData document by id
+        const result = await MarketingData.findByIdAndDelete(id);
+
+        if (!result) {
+          return res.status(404).json({ error: "Item not found" }); // Respond with 404 if item is not found
+        }
+
+        return res.status(204).send(); // Respond with 204 status code for successful deletion
+      } else {
+        // Delete all MarketingData documents
+        await MarketingData.deleteMany({});
+        return res.status(204).send(); // Respond with 204 status code for successful deletion
+      }
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: error.message });
