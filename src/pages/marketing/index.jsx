@@ -456,16 +456,6 @@ const MarketingData = () => {
                 </Link>
               </div>
             </Form.Group>
-
-            {/* 
-            <Form.Group className="mb-3">
-              <Form.Label>Chat Summary</Form.Label>
-              <Form.Control
-                as="textarea"
-                value={newChatSummary}
-                onChange={(e) => setNewChatSummary(e.target.value)}
-              />
-            </Form.Group> */}
             <Form.Group className="mb-3">
               <Form.Label>Source</Form.Label>
               <Form.Control
@@ -482,38 +472,7 @@ const MarketingData = () => {
                 <option value="Other">Other</option>
               </Form.Control>
             </Form.Group>
-            {/* <Form.Group className="mb-3">
-              <Form.Label>Language Issues</Form.Label>
-              <Form.Control
-                type="text"
-                value={newLanguageIssues}
-                onChange={(e) => setNewLanguageIssues(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Assigned to Moderation</Form.Label>
-              <Form.Control
-                type="text"
-                value={newAssignedToModeration}
-                onChange={(e) => setNewAssignedToModeration(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Assignation Date</Form.Label>
-              <Form.Control
-                type="date"
-                value={newAssignationDate}
-                onChange={(e) => setNewAssignationDate(e.target.value)}
-              />
-            </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Assigned to Sales</Form.Label>
-              <Form.Control
-                type="text"
-                value={newAssignedToSales}
-                onChange={(e) => setNewAssignedToSales(e.target.value)}
-              />
-            </Form.Group> */}
+            
 
           </Form>
         </Modal.Body>
