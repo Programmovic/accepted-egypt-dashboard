@@ -242,26 +242,24 @@ const MarketingData = () => {
       const worksheet = workbook.Sheets[firstSheetName];
       const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-      // Filter out invalid data items
-      const validDataItems = jsonData.filter(dataItem => {
+      // Process each data item
+      jsonData.forEach(async (dataItem) => {
+        // Check for validity
         if (!dataItem.name || !dataItem.phoneNo1) {
-          toast.error("Please fill all required fields.");
-          return false;
-        }
-        if (dataItem.phoneNo1.length !== 11) {
-          toast.error("Phone must be exactly 11 digits.");
-          return false;
-        }
-        return true;
-      });
-
-      if (validDataItems.length === 0) {
-        toast.error("No valid data to upload.");
-        return;
+          toast.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`, {
+              autoClose: false, // Makes the toast persistent
+          });
+          return;
       }
+      if (dataItem.phoneNo1.length !== 11) {
+          toast.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`, {
+              autoClose: false, // Makes the toast persistent
+          });
+          return;
+      }
+      
 
-      // Process valid data items
-      validDataItems.forEach(async (dataItem) => {
+        // If valid, proceed with the request
         try {
           await axios.post("/api/marketing", dataItem);
           fetchMarketingData();
@@ -272,10 +270,10 @@ const MarketingData = () => {
         }
       });
 
-      // Reset the file input after successful processing
+      // Reset the file input after processing
       fileInput.value = "";
 
-      toast.success("Marketing data uploaded successfully!");
+      toast.success("Marketing data upload process completed!");
     };
 
     reader.readAsArrayBuffer(file);
