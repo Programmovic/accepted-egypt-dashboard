@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const MarketingDataHistory = require("./marketingHistory");
-const Prospect = require("./prospect"); // Import the Prospect model
+const Prospect = require("./prospect"); 
 const Employee = require("./employee");
 const SalesStatus = require("./salesStatus");
 const CandidateSignUpFor = require("./candidateSignUpFor");
@@ -67,7 +67,7 @@ const marketingDataSchema = new mongoose.Schema(
     },
     interestedInCourse: {
       type: String,
-      default: "TBD", // "TBD" (To Be Determined) or leave empty if you prefer
+      default: "TBD",
     },
     paymentMethod: {
       type: String,
@@ -150,12 +150,20 @@ const marketingDataSchema = new mongoose.Schema(
     },
     paidAmount: {
       type: Number,
-      default: 0, // Default value can be set to 0 or adjust as needed
+      default: 0,
+    },
+    discount: {
+      type: Number,
+      default: 0,
+    },
+    amountAfterDiscount: {
+      type: Number,
+      default: 0,
     },
     verificationStatus: {
       type: String,
-      enum: ["Pending", "Verified", "Rejected"], // Enum to limit values
-      default: "Pending", // Default status
+      enum: ["Pending", "Verified", "Rejected"],
+      default: "Pending",
     },
   },
   {

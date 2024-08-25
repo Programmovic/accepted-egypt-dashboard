@@ -1,4 +1,4 @@
-import { Card, Form, Button, Row, Col, Table,  Overlay, Popover } from "react-bootstrap";
+import { Card, Form, Button, Row, Col, Table, Overlay, Popover } from "react-bootstrap";
 import { useEffect, useState, useRef } from "react";
 import { AdminLayout } from "@layout";
 import axios from "axios";
@@ -93,7 +93,7 @@ const MarketingData = () => {
   useEffect(() => {
     // Apply filters when filter inputs change
     handleFilter();
-  }, [searchTerm, filterName, filterPhone,filterDate, assignedTo, Source, languageIssues, assignedToModeration, assignationDate, assignedToSales, marketingData]);
+  }, [searchTerm, filterName, filterPhone, filterDate, assignedTo, Source, languageIssues, assignedToModeration, assignationDate, assignedToSales, marketingData]);
 
   const handleFilter = () => {
     let filteredMarketingData = [...marketingData];
@@ -231,7 +231,8 @@ const MarketingData = () => {
     }
   };
   const handleFileUpload = (event) => {
-    const file = event.target.files[0];
+    const fileInput = event.target; // Reference to the file input
+    const file = fileInput.files[0];
     const reader = new FileReader();
 
     reader.onload = (e) => {
@@ -271,11 +272,15 @@ const MarketingData = () => {
         }
       });
 
+      // Reset the file input after successful processing
+      fileInput.value = "";
+
       toast.success("Marketing data uploaded successfully!");
     };
 
     reader.readAsArrayBuffer(file);
-  };
+};
+
 
   const downloadTemplate = () => {
     const templateData = [
