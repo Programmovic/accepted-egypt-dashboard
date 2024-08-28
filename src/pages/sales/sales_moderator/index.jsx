@@ -205,7 +205,6 @@ const SalesModeratorData = () => {
   return (
     <AdminLayout>
       <ToastContainer />
-      <RangeAssignment salesMembers={salesMembers} handleRangeAssign={handleRangeAssign} />
       <div className="d-flex justify-content-between mb-3" style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '8px' }}>
 
         <TextField
@@ -321,6 +320,8 @@ const SalesModeratorData = () => {
         </Overlay>
 
       </div>
+      <RangeAssignment salesMembers={salesMembers} handleRangeAssign={handleRangeAssign} />
+      
       <Card>
         <Card.Header>Sales Data for Sales Supervisor</Card.Header>
         <Card.Body>
