@@ -11,6 +11,7 @@ import { saveAs } from "file-saver";
 import { useRouter } from "next/navigation";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
+import RangeAssignment from "../../components/RangeAssignment";
 
 import TextField from "@mui/material/TextField";
 
@@ -231,19 +232,11 @@ const MarketingData = () => {
       toast.error(error.message);
     }
   };
-  const handleUpdateMarketingData = async (e) => {
-    e.preventDefault(); // Prevent the default form submission
+  const handleUpdateMarketingData = async (item, updatedData) => {
 
-    const updatedData = {
-      name: newName,
-      phoneNo1: newPhoneNo1,
-      phoneNo2: newPhoneNo2,
-      assignTo: newAssignTo,
-      source: newSource,
-    };
 
     try {
-      const response = await axios.put(`/api/marketing?id=${editItem._id}`, updatedData); // Send the PUT request with ID and updated data
+      const response = await axios.put(`/api/marketing?id=${item}`, updatedData); // Send the PUT request with ID and updated data
       closeModal();
       fetchMarketingData(); // Refetch the data to reflect changes
       toast.success("Marketing data updated successfully!");
@@ -257,9 +250,9 @@ const MarketingData = () => {
         if (errorData.error === "Phone number already exists in another record") {
           console.log(errorData)
           toast.error(`${errorData.error}. Conflict data: ${JSON.stringify(errorData.conflictData)}`);
-          } else {
+        } else {
           toast.error("Failed to update marketing data. Please try again.");
-          }
+        }
       } else {
         // Handle other types of errors (e.g., server errors)
         toast.error("An unexpected error occurred. Please try again.");
@@ -407,11 +400,7 @@ const MarketingData = () => {
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(data, "MarketingDataTemplate.xlsx");
   };
-  const [paginationEnabled, setPaginationEnabled] = useState(true);
-  const [rangeStart, setRangeStart] = useState("");
-  const [rangeEnd, setRangeEnd] = useState("");
-  const [selectedSalesMember, setSelectedSalesMember] = useState("");
-  const handleRangeAssign = async () => {
+  const handleRangeAssign = async (rangeStart, rangeEnd, selectedSalesMember) => {
     if (!rangeStart || !rangeEnd || !selectedSalesMember) {
       toast.error("Please fill in all range fields and select a sales member.");
       return;
@@ -429,9 +418,6 @@ const MarketingData = () => {
       );
       await Promise.all(updates);
       toast.success("Assigned sales member to specified range successfully!");
-      setRangeStart(0)
-      setRangeEnd(0)
-      setSelectedSalesMember(null)
     } else {
       toast.error("Invalid range.");
     }
@@ -486,7 +472,7 @@ const MarketingData = () => {
           <Modal.Title>{editItem ? "Edit Lead" : "Add Lead"}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={handleUpdateMarketingData} style={{ maxHeight: "500px", overflowY: 'auto', padding: "5px 5px" }}>
+          <Form style={{ maxHeight: "500px", overflowY: 'auto', padding: "5px 5px" }}>
             <Form.Group className="mb-3">
               <Form.Label>Name</Form.Label>
               <Form.Control
@@ -551,15 +537,31 @@ const MarketingData = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={closeModal}>
-            Close
-          </Button>
-          <Button variant="success" onClick={editItem ? handleUpdateMarketingData : handleAddMarketingData}>
-            {editItem ? "Update Lead" : "Add Lead"}
-          </Button>
-        </Modal.Footer>
-      </Modal>
+  <Button variant="secondary" onClick={closeModal}>
+    Close
+  </Button>
+  <Button
+    variant="success"
+    onClick={() => {
+      if (editItem) {
+        handleUpdateMarketingData(editItem._id, {
+          name: newName,
+          phoneNo1: newPhoneNo1,
+          phoneNo2: newPhoneNo2,
+          assignTo: newAssignTo,
+          source: newSource,
+        });
+      } else {
+        handleAddMarketingData();
+      }
+    }}
+  >
+    {editItem ? "Update Lead" : "Add Lead"}
+  </Button>
+</Modal.Footer>
 
+      </Modal>
+      <RangeAssignment salesMembers={salesModerators} handleRangeAssign={handleRangeAssign} />
       <div className="d-flex justify-content-between mb-3" style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '8px' }}>
 
         <TextField
@@ -711,7 +713,7 @@ const MarketingData = () => {
               <tbody>
                 {filteredData.map((item, index) => (
                   <tr key={index}>
-                    <td className={(index + 1 >= rangeStart && index + 1 <= rangeEnd) && "bg-success text-light"}>{index + 1}</td>
+                    <td>{index + 1}</td>
                     <td>{item.name}</td>
                     <td>{item.phoneNo1}</td>
                     <td>{item.phoneNo2}</td>
