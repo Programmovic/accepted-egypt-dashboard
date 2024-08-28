@@ -118,6 +118,8 @@ const MarketingData = () => {
         item.phoneNo1.includes(searchTerm) ||
         item.phoneNo2.includes(searchTerm)
       );
+    } else{
+      setFilterApplied(false)
     }
     if (filterName) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
