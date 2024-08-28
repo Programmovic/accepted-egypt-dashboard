@@ -753,7 +753,7 @@ const MarketingData = () => {
                     <td>{item.createdAt && new Date(item.createdAt).toLocaleString()}</td>
                     <td>{item.updatedAt && new Date(item.updatedAt).toLocaleString()}</td>
                     <td className="d-flex justify-content-between">
-                      <Button variant="warning" onClick={() => handleEdit(item)}><Edit style={{ color: filterApplied ? 'yellow' : 'white' }} /></Button>
+                      <Button variant="warning" onClick={() => handleEdit(item)}><Edit style={{ color: 'white'}} /></Button>
                       <Button variant="danger" className="ms-2" onClick={() => handleDeleteMarketingData(item._id)}><Delete style={{ color: filterApplied ? 'yellow' : 'white' }} /></Button>
                     </td>
                   </tr>
