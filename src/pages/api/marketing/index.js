@@ -69,8 +69,10 @@ export default async (req, res) => {
           }).sort({ createdAt: -1 });
         } else if (pending) {
           allMarketingData = await MarketingData.find({
-            paymentMethod: { $ne: null },
+            paidAmount: { $ne: null },
+            verificationStatus: { $ne: "Verified" },
           })
+
             .sort({ createdAt: -1 })
             .populate([{ path: "placementTest", strictPopulate: false }]);
         } else if (recruitment) {
@@ -79,7 +81,7 @@ export default async (req, res) => {
           }).sort({ createdAt: -1 });
         } else {
           // Fetch all MarketingData records and sort by creation date (newest first)
-          allMarketingData = await MarketingData.find().sort({ createdAt: -1 });
+          allMarketingData = await MarketingData.find();
         }
         const positions = await Position.find({
           name: { $in: ["Supervisor", "Agent"] },
@@ -141,7 +143,9 @@ export default async (req, res) => {
         : {};
       const token = cookies.client_token;
       if (!token) {
-        return res.status(401).json({ error: "Unauthorized: No token provided" });
+        return res
+          .status(401)
+          .json({ error: "Unauthorized: No token provided" });
       }
   
       // Decode the token to get the user ID
@@ -155,24 +159,38 @@ export default async (req, res) => {
   
       // Check for duplicate phone numbers
       const phoneNumberChecks = [];
-      if (updates.phoneNo1 && updates.phoneNo1 !== originalMarketingData.phoneNo1) {
+      if (
+        updates.phoneNo1 &&
+        updates.phoneNo1 !== originalMarketingData.phoneNo1
+      ) {
         phoneNumberChecks.push(
           MarketingData.findOne({
             _id: { $ne: id },
-            $or: [{ phoneNo1: updates.phoneNo1 }, { phoneNo2: updates.phoneNo1 }],
+            $or: [
+              { phoneNo1: updates.phoneNo1 },
+              { phoneNo2: updates.phoneNo1 },
+            ],
           })
         );
       }
-      if (updates.phoneNo2 && updates.phoneNo2 !== originalMarketingData.phoneNo2) {
+      if (
+        updates.phoneNo2 &&
+        updates.phoneNo2 !== originalMarketingData.phoneNo2
+      ) {
         phoneNumberChecks.push(
           MarketingData.findOne({
             _id: { $ne: id },
-            $or: [{ phoneNo1: updates.phoneNo2 }, { phoneNo2: updates.phoneNo2 }],
+            $or: [
+              { phoneNo1: updates.phoneNo2 },
+              { phoneNo2: updates.phoneNo2 },
+            ],
           })
         );
       }
   
-      const [existingPhoneNo1, existingPhoneNo2] = await Promise.all(phoneNumberChecks);
+      const [existingPhoneNo1, existingPhoneNo2] = await Promise.all(
+        phoneNumberChecks
+      );
   
       if (existingPhoneNo1) {
         return res.status(400).json({
@@ -197,7 +215,9 @@ export default async (req, res) => {
       );
       console.log(updatedMarketingData);
       if (!updatedMarketingData) {
-        return res.status(404).json({ error: "Marketing data not found after update" });
+        return res
+          .status(404)
+          .json({ error: "Marketing data not found after update" });
       }
   
       // Save the change history
@@ -236,6 +256,19 @@ export default async (req, res) => {
           const newProspect = new Prospect(prospectData);
           await newProspect.save();
         }
+      }
+  
+      // Remove prospect if verificationStatus is set to verified
+      if (
+        updates.verificationStatus &&
+        updates.verificationStatus.toLowerCase() === "verified"
+      ) {
+        await Prospect.findOneAndDelete({
+          $or: [
+            { phoneNumber: updatedMarketingData.phoneNo1 },
+            { email: updatedMarketingData.email },
+          ],
+        });
       }
   
       // Check if the update is setting a placement test
@@ -278,12 +311,12 @@ export default async (req, res) => {
       return res.status(200).json(updatedMarketingData.toJSON());
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: "Failed to update marketing data. Please try again." });
+      return res
+        .status(500)
+        .json({ error: "Failed to update marketing data. Please try again." });
     }
   }
-  
-
-else if (req.method === "DELETE") {
+  else if (req.method === "DELETE") {
     const { id } = req.query; // Extract `id` from query parameters
 
     try {
