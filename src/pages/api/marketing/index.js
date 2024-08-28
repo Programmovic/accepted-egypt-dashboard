@@ -61,7 +61,7 @@ export default async (req, res) => {
           // Fetch all MarketingData records assigned to moderators and sort by creation date (newest first)
           allMarketingData = await MarketingData.find({
             assignedToModeration: { $exists: true, $ne: null, $ne: "" },
-          }).sort({ createdAt: -1 });
+          });
         } else if (assignedToMember) {
           // Fetch all MarketingData records assigned to members and sort by creation date (newest first)
           allMarketingData = await MarketingData.find({
