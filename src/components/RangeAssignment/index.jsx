@@ -9,7 +9,7 @@ const RangeAssignment = ({ handleRangeAssign, salesMembers }) => {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    
+
     // Reset error
     setError('');
 
@@ -27,53 +27,56 @@ const RangeAssignment = ({ handleRangeAssign, salesMembers }) => {
   };
 
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
-      sx={{ display: 'flex', flexDirection: 'row', gap: 2, py: 2 }}
-    >
-      <TextField
-        label="Range Start"
-        type="number"
-        value={rangeStart}
-        onChange={(e) => setRangeStart(e.target.value)}
-        variant="outlined"
-        fullWidth
-        error={!!error && !rangeStart}
-        helperText={!!error && !rangeStart ? error : ''}
-      />
-      <TextField
-        label="Range End"
-        type="number"
-        value={rangeEnd}
-        onChange={(e) => setRangeEnd(e.target.value)}
-        variant="outlined"
-        fullWidth
-        error={!!error && !rangeEnd}
-        helperText={!!error && !rangeEnd ? error : ''}
-      />
-      <FormControl fullWidth>
-        <InputLabel>Select Sales Member</InputLabel>
-        <Select
-          value={selectedSalesMember}
-          onChange={(e) => setSelectedSalesMember(e.target.value)}
-          label="Select Sales Member"
-        >
-          <MenuItem value="">
-            <em>Select</em>
-          </MenuItem>
-          {salesMembers.map((member) => (
-            <MenuItem key={member._id} value={member.name}>
-              {member.name}
+    <>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{ display: 'flex', flexDirection: 'row', gap: 2, py: 2 }}
+      >
+        <TextField
+          label="Range Start"
+          type="number"
+          value={rangeStart}
+          onChange={(e) => setRangeStart(e.target.value)}
+          variant="outlined"
+          fullWidth
+          error={!!error && !rangeStart}
+          helperText={!!error && !rangeStart ? error : ''}
+        />
+        <TextField
+          label="Range End"
+          type="number"
+          value={rangeEnd}
+          onChange={(e) => setRangeEnd(e.target.value)}
+          variant="outlined"
+          fullWidth
+          error={!!error && !rangeEnd}
+          helperText={!!error && !rangeEnd ? error : ''}
+        />
+        <FormControl fullWidth>
+          <InputLabel>Select Sales Member</InputLabel>
+          <Select
+            value={selectedSalesMember}
+            onChange={(e) => setSelectedSalesMember(e.target.value)}
+            label="Select Sales Member"
+          >
+            <MenuItem value="">
+              <em>Select</em>
             </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-      <Button variant="contained" sx={{ background: "#2c3d38" }} type="submit" fullWidth>
-        Assign Leads
-      </Button>
-      {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
-    </Box>
+            {salesMembers.map((member) => (
+              <MenuItem key={member._id} value={member.name}>
+                {member.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <Button variant="contained" sx={{ background: "#2c3d38" }} type="submit" fullWidth>
+          Assign Leads
+        </Button>
+
+      </Box>
+      {error && <Alert severity="error" sx={{ my: 2 }}>{error}</Alert>}
+    </>
   );
 };
 
