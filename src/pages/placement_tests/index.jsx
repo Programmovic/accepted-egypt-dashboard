@@ -515,6 +515,8 @@ const PlacementTests = () => {
                         <th>Instructor</th>
                         <th>Instructions</th>
                         <th>Room</th>
+                        <th>Limit Trainees</th>
+                        <th>Student Count</th>
                         <th>Date</th>
                         <th>Total Receivable</th>
                       </tr>
@@ -545,6 +547,8 @@ const PlacementTests = () => {
                                 ?.name
                             }
                           </td>
+                          <td>{setting.limitTrainees}</td>
+                          <td>{setting.studentCount}</td>
                           <td>{new Date(setting.date).toLocaleDateString()}</td>
                           <td>
                             {+totalNoOfStudentsInThisTest(setting._id) *

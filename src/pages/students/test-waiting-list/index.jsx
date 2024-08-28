@@ -233,7 +233,7 @@ const MarketingData = () => {
                         <option value="">Select a test</option>
                         {placementTests.map((test) => (
                           <option key={test._id} value={test._id}>
-                            {test.cost} EGP - {new Date(test.date).toLocaleString()}
+                            {test.cost} EGP - {new Date(test.date).toLocaleDateString()} - {test.studentCount} of {test.limitTrainees}
                           </option>
                         ))}
                       </Form.Control>
