@@ -253,6 +253,9 @@ export default function SidebarNav() {
         <SidebarNavItem icon={faPerson} href="/students/pending">
           Pending Students (Payment)
         </SidebarNavItem>
+        <SidebarNavItem icon={faPerson} href="/students/test-waiting-list">
+          Waiting List For Placment Test
+        </SidebarNavItem>
         <SidebarNavItem icon={faPerson} href="/students">
           Students
         </SidebarNavItem>
