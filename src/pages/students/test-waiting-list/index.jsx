@@ -212,6 +212,7 @@ const MarketingData = () => {
                   <th>Name</th>
                   <th>Phone no1</th>
                   <th>Phone no2</th>
+                  <th>Sales Member</th>
                   <th>Select Test</th>
                 </tr>
               </thead>
@@ -222,6 +223,7 @@ const MarketingData = () => {
                     <td>{item.name}</td>
                     <td>{item.phoneNo1}</td>
                     <td>{item.phoneNo2}</td>
+                    <td>{item.assignedToSales}</td>
                     <td>
                       <Form.Control
                         as="select"
@@ -231,7 +233,7 @@ const MarketingData = () => {
                         <option value="">Select a test</option>
                         {placementTests.map((test) => (
                           <option key={test._id} value={test._id}>
-                            {test.cost}
+                            {test.cost} - {new Date(test.date).toLocaleString()}
                           </option>
                         ))}
                       </Form.Control>
