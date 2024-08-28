@@ -54,7 +54,7 @@ const RangeAssignment = ({ handleRangeAssign, salesMembers }) => {
           ))}
         </Select>
       </FormControl>
-      <Button variant="contained" color="primary" type="submit" fullWidth>
+      <Button variant="contained" sx={{background: "#2c3d38"}} type="submit" fullWidth>
         Assign Leads
       </Button>
     </Box>

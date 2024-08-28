@@ -107,6 +107,7 @@ const MarketingData = () => {
   useEffect(() => {
     // Apply filters when filter inputs change
     handleFilter();
+    setFilterApplied(true)
   }, [searchTerm, filterName, filterPhone, filterDate, assignedTo, Source, languageIssues, assignedToModeration, assignationDate, assignedToSales, marketingData]);
 
   const handleFilter = () => {
@@ -182,7 +183,6 @@ const MarketingData = () => {
     setFilteredData(marketingData);
     setSearchTerm("");
     setFilterApplied(false);
-    setCurrentPage(1)
   };
 
   const openModal = () => setShowModal(true);
@@ -249,7 +249,7 @@ const MarketingData = () => {
 
         if (errorData.error === "Phone number already exists in another record") {
           console.log(errorData)
-          toast.error(`${errorData.error}. Conflict data: ${JSON.stringify(errorData.conflictData)}`);
+          toast.error(`${errorData.error}`);
         } else {
           toast.error("Failed to update marketing data. Please try again.");
         }
@@ -467,6 +467,7 @@ const MarketingData = () => {
           isLoading={loading}
         />
       </Row>
+      
       <Modal show={showModal} onHide={closeModal} size="xl">
         <Modal.Header closeButton>
           <Modal.Title>{editItem ? "Edit Lead" : "Add Lead"}</Modal.Title>
@@ -561,8 +562,7 @@ const MarketingData = () => {
 </Modal.Footer>
 
       </Modal>
-      <RangeAssignment salesMembers={salesModerators} handleRangeAssign={handleRangeAssign} />
-      <div className="d-flex justify-content-between mb-3" style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '8px' }}>
+      <div className="d-flex justify-content-between " style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '8px' }}>
 
         <TextField
           id="outlined-basic"
@@ -677,6 +677,8 @@ const MarketingData = () => {
         </Overlay>
 
       </div>
+      <RangeAssignment salesMembers={salesModerators} handleRangeAssign={handleRangeAssign} />
+      
       <Card>
         <Card.Header className="d-flex align-items-center">
           <div className="w-50">Marketing Leads</div>
