@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
-import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Box } from '@mui/material';
+import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Box, Alert } from '@mui/material';
 
 const RangeAssignment = ({ handleRangeAssign, salesMembers }) => {
   const [rangeStart, setRangeStart] = useState('');
   const [rangeEnd, setRangeEnd] = useState('');
   const [selectedSalesMember, setSelectedSalesMember] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (event) => {
     event.preventDefault();
+    
+    // Reset error
+    setError('');
+
+    // Validate range
+    if (parseFloat(rangeStart) >= parseFloat(rangeEnd)) {
+      setError('Range start must be less than range end.');
+      return;
+    }
+
     if (selectedSalesMember) {
       handleRangeAssign(rangeStart, rangeEnd, selectedSalesMember);
     } else {
-      alert('Please select a sales member');
+      setError('Please select a sales member');
     }
   };
 
@@ -28,6 +39,8 @@ const RangeAssignment = ({ handleRangeAssign, salesMembers }) => {
         onChange={(e) => setRangeStart(e.target.value)}
         variant="outlined"
         fullWidth
+        error={!!error && !rangeStart}
+        helperText={!!error && !rangeStart ? error : ''}
       />
       <TextField
         label="Range End"
@@ -36,6 +49,8 @@ const RangeAssignment = ({ handleRangeAssign, salesMembers }) => {
         onChange={(e) => setRangeEnd(e.target.value)}
         variant="outlined"
         fullWidth
+        error={!!error && !rangeEnd}
+        helperText={!!error && !rangeEnd ? error : ''}
       />
       <FormControl fullWidth>
         <InputLabel>Select Sales Member</InputLabel>
@@ -54,9 +69,10 @@ const RangeAssignment = ({ handleRangeAssign, salesMembers }) => {
           ))}
         </Select>
       </FormControl>
-      <Button variant="contained" sx={{background: "#2c3d38"}} type="submit" fullWidth>
+      <Button variant="contained" sx={{ background: "#2c3d38" }} type="submit" fullWidth>
         Assign Leads
       </Button>
+      {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
     </Box>
   );
 };
