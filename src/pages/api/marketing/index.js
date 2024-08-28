@@ -134,38 +134,72 @@ export default async (req, res) => {
       const { id } = req.query; // Assuming `id` is passed as a query parameter
       const updates = req.body;
       console.log(updates);
+  
       // Extract the token from cookies
       const cookies = req.headers.cookie
         ? cookie.parse(req.headers.cookie)
         : {};
       const token = cookies.client_token;
       if (!token) {
-        return res
-          .status(401)
-          .json({ error: "Unauthorized: No token provided" });
+        return res.status(401).json({ error: "Unauthorized: No token provided" });
       }
-
+  
       // Decode the token to get the user ID
       const decoded = jwt.verify(token, "your-secret-key");
-
+  
       // Find the original document before the update
       const originalMarketingData = await MarketingData.findById(id);
       if (!originalMarketingData) {
         return res.status(404).json({ error: "Marketing data not found" });
       }
-
+  
+      // Check for duplicate phone numbers
+      const phoneNumberChecks = [];
+      if (updates.phoneNo1 && updates.phoneNo1 !== originalMarketingData.phoneNo1) {
+        phoneNumberChecks.push(
+          MarketingData.findOne({
+            _id: { $ne: id },
+            $or: [{ phoneNo1: updates.phoneNo1 }, { phoneNo2: updates.phoneNo1 }],
+          })
+        );
+      }
+      if (updates.phoneNo2 && updates.phoneNo2 !== originalMarketingData.phoneNo2) {
+        phoneNumberChecks.push(
+          MarketingData.findOne({
+            _id: { $ne: id },
+            $or: [{ phoneNo1: updates.phoneNo2 }, { phoneNo2: updates.phoneNo2 }],
+          })
+        );
+      }
+  
+      const [existingPhoneNo1, existingPhoneNo2] = await Promise.all(phoneNumberChecks);
+  
+      if (existingPhoneNo1) {
+        return res.status(400).json({
+          error: "Phone number already exists in another record",
+          conflictData: existingPhoneNo1,
+          originalData: originalMarketingData.toJSON(), // Return the original data
+        });
+      }
+      if (existingPhoneNo2) {
+        return res.status(400).json({
+          error: "Phone number already exists in another record",
+          conflictData: existingPhoneNo2,
+          originalData: originalMarketingData.toJSON(), // Return the original data
+        });
+      }
+  
       // Update the MarketingData document by ID
       const updatedMarketingData = await MarketingData.findByIdAndUpdate(
         id,
         updates,
         { new: true }
       );
+      console.log(updatedMarketingData);
       if (!updatedMarketingData) {
-        return res
-          .status(404)
-          .json({ error: "Marketing data not found after update" });
+        return res.status(404).json({ error: "Marketing data not found after update" });
       }
-
+  
       // Save the change history
       const historyEntry = new MarketingDataHistory({
         marketingDataId: id,
@@ -174,7 +208,7 @@ export default async (req, res) => {
         editedBy: decoded.adminId, // Use the decoded admin ID
       });
       await historyEntry.save();
-
+  
       // Check for candidate interest status
       if (
         updates.candidateStatusForSalesPerson &&
@@ -190,20 +224,20 @@ export default async (req, res) => {
           marketingDataId: updatedMarketingData._id,
           interestedInCourse: updatedMarketingData.interestedInCourse,
         };
-
+  
         const existingProspect = await Prospect.findOne({
           $or: [
             { phoneNumber: prospectData.phoneNumber },
             { email: prospectData.email },
           ],
         });
-
+  
         if (!existingProspect) {
           const newProspect = new Prospect(prospectData);
           await newProspect.save();
         }
       }
-
+  
       // Check if the update is setting a placement test
       if (updates.placementTest) {
         // Check if a student profile exists for the marketing data
@@ -211,7 +245,7 @@ export default async (req, res) => {
           phoneNumber: updatedMarketingData.phoneNo1,
           nationalId: updatedMarketingData.nationalId,
         });
-
+  
         if (!student) {
           // Create a new student profile
           student = new Student({
@@ -225,7 +259,7 @@ export default async (req, res) => {
           });
           await student.save();
         }
-
+  
         // Link the student to the selected placement test
         const placementTestEntry = new PlacementTest({
           student: student._id,
@@ -237,16 +271,19 @@ export default async (req, res) => {
           createdByAdmin: decoded.adminId,
           adminName: decoded.adminName, // Assuming `adminName` is stored in the token
         });
-
+  
         await placementTestEntry.save();
       }
-
+  
       return res.status(200).json(updatedMarketingData.toJSON());
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: "Failed to update marketing data. Please try again." });
     }
-  } else if (req.method === "DELETE") {
+  }
+  
+
+else if (req.method === "DELETE") {
     const { id } = req.query; // Extract `id` from query parameters
 
     try {

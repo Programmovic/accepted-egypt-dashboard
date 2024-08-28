@@ -243,16 +243,30 @@ const MarketingData = () => {
     };
 
     try {
-      await axios.put(`/api/marketing?id=${editItem._id}`, updatedData); // Send the PUT request with ID and updated data
+      const response = await axios.put(`/api/marketing?id=${editItem._id}`, updatedData); // Send the PUT request with ID and updated data
       closeModal();
       fetchMarketingData(); // Refetch the data to reflect changes
       toast.success("Marketing data updated successfully!");
     } catch (error) {
-      console.error("Error updating marketing data:", error.message);
-      setError("Failed to update marketing data. Please try again.");
-      toast.error(error.message);
+      closeModal();
+      fetchMarketingData();
+      // Handle and display specific error message
+      if (error.response && error.response.status === 400) {
+        const errorData = error.response.data;
+
+        if (errorData.error === "Phone number already exists in another record") {
+          console.log(errorData)
+          toast.error(`${errorData.error}. Conflict data: ${JSON.stringify(errorData.conflictData)}`);
+          } else {
+          toast.error("Failed to update marketing data. Please try again.");
+          }
+      } else {
+        // Handle other types of errors (e.g., server errors)
+        toast.error("An unexpected error occurred. Please try again.");
+      }
     }
   };
+
 
   const handleDeleteMarketingData = async (id) => {
     try {
