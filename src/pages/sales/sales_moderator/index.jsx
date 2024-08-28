@@ -9,6 +9,7 @@ import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import TextField from "@mui/material/TextField";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
+import RangeAssignment from "../../../components/RangeAssignment";
 
 const SalesModeratorData = () => {
   const [marketingData, setMarketingData] = useState([]);
@@ -160,7 +161,7 @@ const SalesModeratorData = () => {
     }
   };
 
-  const handleRangeAssign = async () => {
+  const handleRangeAssign = async (rangeStart, rangeEnd, selectedSalesMember) => {
     if (!rangeStart || !rangeEnd || !selectedSalesMember) {
       toast.error("Please fill in all range fields and select a sales member.");
       return;
@@ -204,6 +205,7 @@ const SalesModeratorData = () => {
   return (
     <AdminLayout>
       <ToastContainer />
+      <RangeAssignment salesMembers={salesMembers} handleRangeAssign={handleRangeAssign} />
       <div className="d-flex justify-content-between mb-3" style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '8px' }}>
 
         <TextField
