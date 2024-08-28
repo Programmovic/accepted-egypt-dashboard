@@ -571,6 +571,7 @@ const PlacementTests = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       {/* Modal for adding a new placement test */}
       <Modal
+      size="xl"
         show={showModal}
         onHide={() => {
           setShowModal(false);
@@ -612,7 +613,6 @@ const PlacementTests = () => {
                   setSelectedInstructor(selectedOption)
                 }
                 options={instructors}
-                isSearchable={true} // Enable search functionality
                 placeholder="Select an Instructor"
               />
             </Form.Group>
