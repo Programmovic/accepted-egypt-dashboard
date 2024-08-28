@@ -75,7 +75,7 @@ const RangeAssignment = ({ handleRangeAssign, salesMembers }) => {
         </Button>
 
       </Box>
-      {error && <Alert severity="error" sx={{ my: 2 }}>{error}</Alert>}
+      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
     </>
   );
 };

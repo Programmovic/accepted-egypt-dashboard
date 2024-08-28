@@ -69,6 +69,7 @@ export default async (req, res) => {
           }).sort({ createdAt: -1 });
         } else if (pending) {
           allMarketingData = await MarketingData.find({
+            paymentMethod: { $ne: null },
             paidAmount: { $ne: null },
             verificationStatus: { $ne: "Verified" },
           })
