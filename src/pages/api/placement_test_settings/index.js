@@ -36,7 +36,7 @@ export default async (req, res) => {
     }
   } else if (req.method === "GET") {
     try {
-      const allTests = await PlacementTestSettings.find();
+      const allTests = await PlacementTestSettings.find().populate('room').populate('instructor');
       return res.status(200).json(allTests);
     } catch (error) {
       console.error(error);

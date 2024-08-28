@@ -5,11 +5,9 @@ import { Card, Button, Table, Form, Modal, Accordion, Row, Col } from "react-boo
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { AdminLayout } from "@layout";
-import { useRouter } from "next/router"; // Import useRouter
-import { ClassCard } from "@components/Classes";
+import { useRouter } from "next/router";
 import Select from "react-select";
 import PlacementTestsSummary from "../../components/PlacementTestsSummary";
-import { Loader } from "@components/Loader";
 import Cookies from "js-cookie";
 import Calendar from "../../components/Calendar";
 
@@ -31,7 +29,6 @@ const PlacementTests = () => {
   const [newTestInstructions, setNewTestInstructions] = useState("");
   const [newTestRoom, setNewTestRoom] = useState("");
   const [newTestDate, setNewTestDate] = useState("");
-  // Add state variables for the filter values
   const [filterStudentName, setFilterStudentName] = useState("");
   const [filterLevel, setFilterLevel] = useState("");
   const [filterFromDate, setFilterFromDate] = useState("");
@@ -43,6 +40,7 @@ const PlacementTests = () => {
   const fetchPlacementTestData = async () => {
     try {
       const settingsResponse = await axios.get("/api/placement_test_settings");
+      console.log("egirje", settingsResponse.data)
       const testsResponse = await axios.get("/api/placement_test");
 
       if (settingsResponse.status === 200 && testsResponse.status === 200) {
@@ -91,6 +89,7 @@ const PlacementTests = () => {
       const rooms = roomsResponse.data.map((room) => ({
         value: room._id, // Use a unique identifier for each room
         label: room.name, // Display room name as label
+        capacity: room.capacity
       }));
       setAvailableRooms(rooms);
     } catch (error) {
@@ -293,23 +292,6 @@ const PlacementTests = () => {
     setFilteredPlacementTests(filteredTests);
   };
 
-  const getTotalStudentsCount = () => filterdPlacementTests.length;
-
-  const getLevelCount = (level) => {
-    return filterdPlacementTests.filter((test) => test.assignedLevel === level)
-      .length;
-  };
-
-  const getWaitingListCount = () => {
-    return filterdPlacementTests.filter(
-      (test) => test.status === "Waiting List"
-    ).length;
-  };
-
-  const getNACount = () => {
-    return filterdPlacementTests.filter((test) => test.assignedLevel === "N/A")
-      .length;
-  };
   const getTotalAmountReceived = () => {
     const totalCost = filterdPlacementTests.reduce(
       (acc, setting) => filterdPlacementTests.length * setting.cost,
@@ -334,27 +316,11 @@ const PlacementTests = () => {
     return filterdPlacementTests.filter((test) => test.status === status)
       .length;
   };
-  const clearFilters = () => {
-    // Clear the filter values and call fetchPlacementTestData without filters
-    setFilterStudentName("");
-    setFilterLevel("");
-    setFilterFromDate("");
-    setFilterToDate("");
-    fetchPlacementTestData();
-  };
   useEffect(() => {
     // Automatically apply filters when filter inputs change
     applyFilters();
   }, [filterStudentName, filterLevel, filterFromDate, filterToDate]);
   console.log(newTestRoom);
-  const getClassName = (instructorId) => {
-    console.log("instructorId");
-    const selectedInstructor = availableRooms.find(
-      (instructor) => instructor.value === instructorId
-    );
-    console.log(instructorId);
-    return selectedInstructor ? selectedInstructor : "Unknown"; // You can provide a default value like 'Unknown'
-  };
   const [levels, setLevels] = useState([]); // Store the selected level here
 
   useEffect(() => {
@@ -427,63 +393,7 @@ const PlacementTests = () => {
   }
   return (
     <AdminLayout>
-      {/* <div className="row">
-        <ClassCard
-          data={getTotalStudentsCount()}
-          title="Total Students"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        {levels?.map((level, i) => (
-          <ClassCard
-            data={getLevelCount(level.name)}
-            title={`Level ${level.name}`}
-            enableOptions={false}
-            isLoading={loading}
-          />
-        ))}
-
-        <ClassCard
-          data={getNACount()}
-          title="Level N/A"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        {levels?.map((level, i) => (
-          <ClassCard
-            data={getAmountReceivedForLevel(level.name)}
-            title={`Amount Received for Level ${level.name}`}
-            enableOptions={false}
-            isLoading={loading}
-          />
-        ))}
-        <ClassCard
-          data={`${getTotalAmountReceived()} EGP`}
-          title="Total Amount Received"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getPlacementTestCountByStatus("Not Started Yet!")}
-          title="Not Started Yet"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getPlacementTestCountByStatus("Assigned Level")}
-          title="Assigned Level"
-          enableOptions={false}
-          isLoading={loading}
-        />
-        <ClassCard
-          data={getPlacementTestCountByStatus(
-            "Finished, Moved to Waiting List"
-          )}
-          title="Finished, Moved to Waiting List"
-          enableOptions={false}
-          isLoading={loading}
-        />
-      </div> */}
+      
       <PlacementTestsSummary
         filterdPlacementTests={filterdPlacementTests}
         levels={levels}
@@ -533,19 +443,11 @@ const PlacementTests = () => {
                           <td>{index + 1}</td>
                           <td>{setting.cost}</td>
                           <td>
-                            {
-                              instructors.find(
-                                (instructor) =>
-                                  instructor.value === setting.instructor
-                              )?.label
-                            }
+                            {setting?.instructor?.name}
                           </td>
                           <td>{setting.instructions || "No Instructions"}</td>
                           <td>
-                            {
-                              rooms.find((room) => room._id === setting.room)
-                                ?.name
-                            }
+                            {setting?.room?.name}
                           </td>
                           <td>{setting.limitTrainees}</td>
                           <td>{setting.studentCount}</td>
@@ -703,6 +605,8 @@ const PlacementTests = () => {
             <Form.Group className="mb-3">
               <Form.Label>Select an Instructor</Form.Label>
               <Select
+              isClearable
+              isSearchable
                 value={selectedInstructor}
                 onChange={(selectedOption) =>
                   setSelectedInstructor(selectedOption)
@@ -743,42 +647,50 @@ const PlacementTests = () => {
               </Col>
             </Row>
             <Form.Group className="mb-3">
+  <Form.Label>
+    Available Rooms <span className="fw-bold">(Just if On-site)</span>
+  </Form.Label>
+  <Select
+    value={selectedRoom}
+    onChange={(selectedOption) => {
+      setNewTestRoom(selectedOption ? selectedOption.value : ''); // Clear the room when the selection is cleared
+      setSelectedRoom(selectedOption);
+      setNewTestLimit(selectedOption ? selectedOption.capacity : ''); // Automatically set the limit based on the room's capacity
+      console.log(selectedOption);
+    }}
+    options={availableRooms}
+    isDisabled={!newTestDate && true}
+    isClearable // Enables the option to clear the selection
+    placeholder={
+      newTestDate
+        ? "Select Room"
+        : "You Must Select a Date To Check Availability"
+    }
+  />
+  {selectedRoom && selectedRoom.value && (
+    <>
+      <Button
+        variant="primary"
+        onClick={() => setShowRoomReservationsModal(true)}
+        className="mt-2"
+      >
+        View ({selectedRoom.label}) Reservations
+      </Button>
+    </>
+  )}
+</Form.Group>
+
+            <Form.Group className="mb-3">
               <Form.Label>Limit:</Form.Label>
               <Form.Control
                 type="number"
                 value={newTestLimit}
                 onChange={(e) => setNewTestLimit(e.target.value)}
+                disabled={!!selectedRoom} // Disable manual entry if a room is selected
               />
             </Form.Group>
-            <Form.Group className="mb-3">
-              <Form.Label>Available Rooms <span className="fw-bold">(Just if On-site)</span></Form.Label>
-              {/* Render the React-Select component for selecting a room */}
-              <Select
-                value={selectedRoom}
-                onChange={(selectedOption) => {
-                  setNewTestRoom(selectedOption.value);
-                  setSelectedRoom(selectedOption);
-                }}
-                options={availableRooms}
-                isDisabled={!newTestDate && true}
-                placeholder={
-                  newTestDate
-                    ? "Select Room"
-                    : "You Must Select a Date To Check Availability"
-                }
-              />
-              {selectedRoom && selectedRoom.value && (
-                <>
-                  <Button
-                    variant="primary"
-                    onClick={() => setShowRoomReservationsModal(true)}
-                    className="mt-2"
-                  >
-                    View ({selectedRoom.label}) Reservations
-                  </Button>
-                </>
-              )}
-            </Form.Group>
+
+
 
           </Form>
         </Modal.Body>
@@ -796,7 +708,7 @@ const PlacementTests = () => {
           >
             Close
           </Button>
-          <Button variant="success" onClick={handleAddPlacementTest} onKeyDown={() => {console.log("stuff is happening")}}>
+          <Button variant="success" onClick={handleAddPlacementTest} onKeyDown={() => { console.log("stuff is happening") }}>
             Add Placement Test
           </Button>
         </Modal.Footer>

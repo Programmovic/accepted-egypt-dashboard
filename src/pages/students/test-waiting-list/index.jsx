@@ -127,12 +127,28 @@ const MarketingData = () => {
     setFilteredData(marketingData);
   };
 
-  const handleUpdateTestSelection = (id, test) => {
-    setSelectedTest(prevState => ({
-      ...prevState,
-      [id]: test
-    }));
+  const handleUpdateTestSelection = async (id, test) => {
+    try {
+      const response = await axios.put(`/api/marketing?id=${id}`, {
+        placementTest: test
+      });
+      
+      if (response.status === 200) {
+        // Update state with the new selected test
+        setSelectedTest(prevState => ({
+          ...prevState,
+          [id]: test
+        }));
+        toast.success("Test selection updated successfully");
+      } else {
+        toast.error("Failed to update test selection");
+      }
+    } catch (error) {
+      console.error("Error updating test selection:", error);
+      toast.error("Error updating test selection");
+    }
   };
+  
 
   return (
     <AdminLayout>

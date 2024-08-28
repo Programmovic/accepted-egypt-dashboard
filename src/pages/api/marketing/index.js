@@ -49,7 +49,7 @@ export default async (req, res) => {
 
       if (id) {
         // Fetch specific MarketingData record by ID
-        const marketingData = await MarketingData.findById(id);
+        const marketingData = await MarketingData.findById(id).populate("placementTest");
 
         if (!marketingData) {
           return res.status(404).json({ error: "Marketing data not found" });

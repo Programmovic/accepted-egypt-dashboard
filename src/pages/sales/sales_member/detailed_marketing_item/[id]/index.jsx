@@ -25,6 +25,9 @@ const MarketingDataDetail = () => {
     paymentScreenshotStatus: "",
     salesRejectionReason: "",
     salesMemberAssignationDate: null,
+    paidAmount: 0,
+    discount: 0,
+    amountAfterDiscount: 0,
   });
 
   const [salesStatuses, setSalesStatuses] = useState([]);
@@ -51,6 +54,7 @@ const MarketingDataDetail = () => {
           }));
 
         }
+        console.log("ifjo", response.data);
       } catch (error) {
         console.error("Error fetching marketing data:", error);
       }
@@ -130,7 +134,7 @@ const MarketingDataDetail = () => {
   console.log(paymentMethods)
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
-
+  
     // Handle switch input
     if (type === "checkbox") {
       setMarketingData({
@@ -139,16 +143,24 @@ const MarketingDataDetail = () => {
       });
     } else {
       // Handle other input types
-      setMarketingData({
+      const updatedData = {
         ...marketingData,
         [name]: value,
-      });
+      };
+  
+      // Calculate paidAmount and amountAfterDiscount if discount is changed
+      if (name === 'discount') {
+        const discountPercentage = parseFloat(value);
+        updatedData.paidAmount = marketingData?.placementTest?.cost * (1 - discountPercentage / 100);
+        updatedData.amountAfterDiscount = updatedData.paidAmount; // assuming no other discounts
+      }
+  
+      setMarketingData(updatedData);
     }
-
+  
     setUnsavedChanges(true);
-    console.log(marketingData);
   };
-
+  
 
   const handleSave = async () => {
 
@@ -434,6 +446,43 @@ const MarketingDataDetail = () => {
                         name="paidAmount"
                         value={marketingData.paidAmount}
                         onChange={handleChange}
+                        disabled
+                      />
+                    ) : (
+                      marketingData.paidAmount
+                    )}
+                  </td>
+                </tr>
+                <tr>
+  <td>Discount (%)</td>
+  <td>
+    {editing ? (
+      <div className="d-flex justify-content-between">
+        <Form.Range
+          name="discount"
+          value={marketingData.discount}
+          onChange={handleChange}
+          min={0}
+          max={100}
+        />
+        <span className="ms-3">{marketingData.discount}%</span> {/* Display the current discount value */}
+      </div>
+    ) : (
+      `${marketingData.discount}%`
+    )}
+  </td>
+</tr>
+
+<tr>
+                  <td>Amount After Discount</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="number"
+                        name="amountAfterDiscount"
+                        value={marketingData.amountAfterDiscount}
+                        onChange={handleChange}
+                        disabled
                       />
                     ) : (
                       marketingData.paidAmount

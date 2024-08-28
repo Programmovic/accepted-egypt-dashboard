@@ -170,6 +170,12 @@ const marketingDataSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+marketingDataSchema.pre('save', function (next) {
+  if (this.isModified('paidAmount') || this.isModified('discount')) {
+    this.amountAfterDiscount = this.paidAmount - this.discount;
+  }
+  next();
+});
 
 module.exports =
   mongoose.models.MarketingData ||
