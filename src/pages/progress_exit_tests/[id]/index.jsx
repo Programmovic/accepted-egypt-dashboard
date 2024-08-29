@@ -9,13 +9,13 @@ const BatchAssessments = () => {
   const [batch, setBatch] = useState({});
   const [selectedAssessment, setSelectedAssessment] = useState(null);
   const [editModalVisible, setEditModalVisible] = useState(false);
-  const [levels, setLevels] = useState([]); // To store levels from /api/level
+  const [levels, setLevels] = useState([]);
   const router = useRouter();
   const { id } = router.query;
   const apiUrl = `/api/assessment/batch_assessments?batchId=${id}`;
 
   useEffect(() => {
-    // Fetch levels from /api/level when the component mounts
+    // Fetch levels from /api/level
     axios.get("/api/level").then((response) => {
       if (response.status === 200) {
         setLevels(response.data);
@@ -52,15 +52,12 @@ const BatchAssessments = () => {
   };
 
   const handleSaveEdit = async () => {
-    console.log(selectedAssessment);
-    // Send the edited assessment data to the server
     try {
       const response = await axios.put(
         `/api/assessment/batch_assessments?assessmentId=${selectedAssessment._id}`,
         selectedAssessment
       );
       if (response.status === 200) {
-        // Update your local state with the edited assessment
         const updatedAssessments = assessments.map((assessment) =>
           assessment._id === selectedAssessment._id
             ? selectedAssessment
@@ -77,7 +74,6 @@ const BatchAssessments = () => {
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
 
-    // If it's a radio input, handle the radio button logic
     if (type === "radio") {
       if (value === "Stay at the same") {
         setSelectedAssessment({
@@ -91,20 +87,13 @@ const BatchAssessments = () => {
           stayAtTheSame: false,
           movedToHigherLevel: true,
         });
-      }
-      if (value === "Show") {
-        setSelectedAssessment({
-          ...selectedAssessment,
-          attendanceStatus: value,
-        });
-      } else if (value === "No Show") {
+      } else if (value === "Show" || value === "No Show") {
         setSelectedAssessment({
           ...selectedAssessment,
           attendanceStatus: value,
         });
       }
     } else {
-      // Handle other input fields
       const newValue = type === "checkbox" ? checked : value;
       setSelectedAssessment({
         ...selectedAssessment,
@@ -113,7 +102,6 @@ const BatchAssessments = () => {
     }
   };
 
-  console.log(selectedAssessment);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 7;
 
@@ -125,6 +113,7 @@ const BatchAssessments = () => {
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
+
   return (
     <AdminLayout>
       <Card>
@@ -140,11 +129,12 @@ const BatchAssessments = () => {
                   <th>Class Code</th>
                   <th>Name</th>
                   <th>Phone Number</th>
-                  <th>Attendance status</th>
-                  <th>Moved to a higher Level</th>
+                  <th>Attendance Status</th>
+                  <th>Moved to a Higher Level</th>
                   <th>Feedback</th>
                   <th>Language Comment</th>
                   <th>Language Feedback</th>
+                  <th>Attendance Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -160,14 +150,15 @@ const BatchAssessments = () => {
                     <td>{assessment.name}</td>
                     <td>{assessment.phoneNumber}</td>
                     <td>{assessment.attendanceStatus || "Not Assigned"}</td>
-                    <td>{assessment.movedToHigherLevel ? `Yes` : "No"}</td>
+                    <td>{assessment.movedToHigherLevel ? "Yes" : "No"}</td>
                     <td>{assessment.assessmentFeedback || "-"}</td>
                     <td>
                       {assessment?.languageComment
-                        ? `${assessment?.languageComment?.slice(0, 30)}...`
+                        ? `${assessment.languageComment.slice(0, 30)}...`
                         : "-"}
                     </td>
                     <td>{assessment.languageFeedback || "-"}</td>
+                    <td>{assessment.attendanceDate || "-"}</td>
                   </tr>
                 ))}
               </tbody>
@@ -175,6 +166,7 @@ const BatchAssessments = () => {
           </div>
         </Card.Body>
       </Card>
+
       <Modal show={editModalVisible} onHide={handleCloseEditModal}>
         <Modal.Header closeButton>
           <Modal.Title>Edit Assessment</Modal.Title>
@@ -182,7 +174,7 @@ const BatchAssessments = () => {
         <Modal.Body>
           <Form>
             <Form.Group className="mb-3">
-              <Form.Label>Attendance status</Form.Label>
+              <Form.Label>Attendance Status</Form.Label>
               <div>
                 <Form.Check
                   type="radio"
@@ -204,7 +196,7 @@ const BatchAssessments = () => {
             </Form.Group>
 
             <Form.Group className="my-3">
-              <Form.Label>Assessment feedback</Form.Label>
+              <Form.Label>Assessment Feedback</Form.Label>
               <Form.Control
                 as="textarea"
                 name="assessmentFeedback"
@@ -234,7 +226,7 @@ const BatchAssessments = () => {
 
             {selectedAssessment?.movedToHigherLevel && (
               <Form.Group className="my-3">
-                <Form.Label>Specify the level</Form.Label>
+                <Form.Label>Specify the Level</Form.Label>
                 <Form.Control
                   as="select"
                   name="newLevel"
@@ -252,10 +244,9 @@ const BatchAssessments = () => {
             )}
 
             <Form.Group className="my-3">
-              <Form.Label>Language comment</Form.Label>
+              <Form.Label>Language Comment</Form.Label>
               <Form.Control
-                as={"textarea"}
-                type="text"
+                as="textarea"
                 name="languageComment"
                 value={selectedAssessment?.languageComment}
                 onChange={handleInputChange}
@@ -263,11 +254,21 @@ const BatchAssessments = () => {
             </Form.Group>
 
             <Form.Group className="my-3">
-              <Form.Label>Language feedback</Form.Label>
+              <Form.Label>Language Feedback</Form.Label>
               <Form.Control
                 type="text"
                 name="languageFeedback"
                 value={selectedAssessment?.languageFeedback}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
+
+            <Form.Group className="my-3">
+              <Form.Label>Attendance Date</Form.Label>
+              <Form.Control
+                type="date"
+                name="attendanceDate"
+                value={selectedAssessment?.attendanceDate?.split('T')[0] || ""}
                 onChange={handleInputChange}
               />
             </Form.Group>
@@ -282,6 +283,7 @@ const BatchAssessments = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
       <div className="d-flex justify-content-center mt-3">
         <Pagination>
           {[...Array(totalPageCount).keys()].map((page) => (
