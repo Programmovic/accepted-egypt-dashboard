@@ -393,7 +393,7 @@ const PlacementTests = () => {
   }
   return (
     <AdminLayout>
-      
+
       <PlacementTestsSummary
         filterdPlacementTests={filterdPlacementTests}
         levels={levels}
@@ -571,7 +571,7 @@ const PlacementTests = () => {
       <ToastContainer position="top-right" autoClose={3000} />
       {/* Modal for adding a new placement test */}
       <Modal
-      size="xl"
+        size="xl"
         show={showModal}
         onHide={() => {
           setShowModal(false);
@@ -606,8 +606,8 @@ const PlacementTests = () => {
             <Form.Group className="mb-3">
               <Form.Label>Select an Instructor</Form.Label>
               <Select
-              isClearable
-              isSearchable
+                isClearable
+                isSearchable
                 value={selectedInstructor}
                 onChange={(selectedOption) =>
                   setSelectedInstructor(selectedOption)
@@ -647,38 +647,38 @@ const PlacementTests = () => {
               </Col>
             </Row>
             <Form.Group className="mb-3">
-  <Form.Label>
-    Available Rooms <span className="fw-bold">(Just if On-site)</span>
-  </Form.Label>
-  <Select
-    value={selectedRoom}
-    onChange={(selectedOption) => {
-      setNewTestRoom(selectedOption ? selectedOption.value : ''); // Clear the room when the selection is cleared
-      setSelectedRoom(selectedOption);
-      setNewTestLimit(selectedOption ? selectedOption.capacity : ''); // Automatically set the limit based on the room's capacity
-      console.log(selectedOption);
-    }}
-    options={availableRooms}
-    isDisabled={!newTestDate && true}
-    isClearable // Enables the option to clear the selection
-    placeholder={
-      newTestDate
-        ? "Select Room"
-        : "You Must Select a Date To Check Availability"
-    }
-  />
-  {selectedRoom && selectedRoom.value && (
-    <>
-      <Button
-        variant="primary"
-        onClick={() => setShowRoomReservationsModal(true)}
-        className="mt-2"
-      >
-        View ({selectedRoom.label}) Reservations
-      </Button>
-    </>
-  )}
-</Form.Group>
+              <Form.Label>
+                Available Rooms <span className="fw-bold">(Just if On-site)</span>
+              </Form.Label>
+              <Select
+                value={selectedRoom}
+                onChange={(selectedOption) => {
+                  setNewTestRoom(selectedOption ? selectedOption.value : ''); // Clear the room when the selection is cleared
+                  setSelectedRoom(selectedOption);
+                  setNewTestLimit(selectedOption ? selectedOption.capacity : ''); // Automatically set the limit based on the room's capacity
+                  console.log(selectedOption);
+                }}
+                options={availableRooms}
+                isDisabled={!newTestDate && true}
+                isClearable // Enables the option to clear the selection
+                placeholder={
+                  newTestDate
+                    ? "Select Room"
+                    : "You Must Select a Date To Check Availability"
+                }
+              />
+              {selectedRoom && selectedRoom.value && (
+                <>
+                  <Button
+                    variant="primary"
+                    onClick={() => setShowRoomReservationsModal(true)}
+                    className="mt-2"
+                  >
+                    View ({selectedRoom.label}) Reservations
+                  </Button>
+                </>
+              )}
+            </Form.Group>
 
             <Form.Group className="mb-3">
               <Form.Label>Limit:</Form.Label>
@@ -731,7 +731,7 @@ const PlacementTests = () => {
               </p>
 
               {selectedPlacementTest &&
-                selectedPlacementTest?.assignedLevel === "N/A" && (
+                !selectedPlacementTest?.assignedLevel && (
                   <Form.Group>
                     <Form.Label>Set Level:</Form.Label>
                     <Form.Control as="select" onChange={handleLevelSelect}>
@@ -764,16 +764,13 @@ const PlacementTests = () => {
           >
             Close
           </Button>
-          {selectedPlacementTest &&
-            selectedPlacementTest?.assignedLevel === "N/A" && (
-              <Button
-                variant="success"
-                onClick={handleAssignLevel}
-                disabled={!selectedLevel}
-              >
-                Assign Level
-              </Button>
-            )}
+          <Button
+            variant="success"
+            onClick={handleAssignLevel}
+            disabled={!selectedLevel}
+          >
+            Assign Level
+          </Button>
           <Button
             variant="success"
             onClick={handleMoveToWaitingList}
