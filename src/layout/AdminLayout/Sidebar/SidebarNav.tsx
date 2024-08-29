@@ -254,14 +254,14 @@ export default function SidebarNav() {
           Pending Students (Payment)
         </SidebarNavItem>
         <SidebarNavItem icon={faPerson} href="/students/test-waiting-list">
-          Waiting List For Placment Test
+        Placement Test Waiting List
         </SidebarNavItem>
         <SidebarNavItem icon={faPerson} href="/students">
           Students
         </SidebarNavItem>
         
         <SidebarNavItem icon={faClock} href="/waiting_list">
-          Waiting List
+          Batch Waiting List
         </SidebarNavItem>
         <SidebarNavItem icon={faCamera} href="/qr_code_attendance">
           Attendance Scanner
