@@ -12,7 +12,7 @@ export default async (req, res) => {
 
     if (req.method === "PUT") {
       const { studentId } = req.query; // Assuming you pass the studentId as a query parameter
-      const { batch, paidAmount } = req.body;
+      const { discount, batch, paidAmount } = req.body;
 
       if (!studentId) {
         return res.status(400).json({ error: "Student ID is required" });

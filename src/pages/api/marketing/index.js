@@ -84,7 +84,7 @@ export default async (req, res) => {
         } else if (test_waiting_list) {
           allMarketingData = await MarketingData.find({
             verificationStatus: "Verified",
-            placementTest: "",
+            placementTest: null,
           }).sort({ createdAt: -1 });
         } else {
           // Fetch all MarketingData records and sort by creation date (newest first)
