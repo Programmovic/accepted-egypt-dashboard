@@ -34,8 +34,14 @@ const Assessments = () => {
   const [newAssessment, setNewAssessment] = useState({
     assessmentType: "",
     batch: "",
+    date: ""
   });
-
+  const handleDateChange = (e) => {
+    setNewAssessment({
+      ...newAssessment,
+      date: e.target.value,
+    });
+  };
   const fetchAssessmentData = async () => {
     try {
       const response = await axios.get("/api/assessment");
@@ -102,39 +108,37 @@ const Assessments = () => {
             Add Assessment
           </Button>
           <div style={{ overflowX: "auto" }}>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Assessment Type</th>
-                <th>Batch</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {batches.map((batch) => {
-
-                const assessmentForBatch = assessments.find(
-                  (assessment) => assessment.batch === batch._id
-                );
-                return assessmentForBatch ? (
-                  <tr key={batch._id}>
-                    <td>{assessmentForBatch.assessmentType}</td>
-                    <td>{batch.name}</td>
-                    <td>
-                      <Button
-                        variant="info"
-                        onClick={() => {
-                          router.push(`/progress_exit_tests/${batch._id}`);
-                        }}
-                      >
-                        Details
-                      </Button>
-                    </td>
-                  </tr>
-                ) : null;
-              })}
-            </tbody>
-          </Table>
+            <Table striped bordered hover>
+              <thead>
+                <tr>
+                  <th>Assessment Type</th>
+                  <th>Batch</th>
+                  <th>Date</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {assessments.map((assessment) => {
+                  return (
+                    <tr key={assessment._id}>
+                      <td>{assessment.assessmentType}</td>
+                      <td>{assessment?.batch?.name}</td>
+                      <td>{assessment?.date}</td>
+                      <td>
+                        <Button
+                          variant="info"
+                          onClick={() => {
+                            router.push(`/progress_exit_tests/${assessment?.batch?._id}`);
+                          }}
+                        >
+                          Details
+                        </Button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </Table>
           </div>
         </Card.Body>
       </Card>
@@ -147,6 +151,7 @@ const Assessments = () => {
           setNewAssessment({
             assessmentType: "",
             batch: "",
+            date: "",
           });
         }}
       >
@@ -189,6 +194,14 @@ const Assessments = () => {
                 ))}
               </Form.Control>
             </Form.Group>
+            <Form.Group className="my-3">
+              <Form.Label>Test Date</Form.Label>
+              <Form.Control
+                type="date"
+                value={newAssessment.date}
+                onChange={handleDateChange}
+              />
+            </Form.Group>
             {/* Add other form fields for assessment details */}
           </Form>
         </Modal.Body>
@@ -200,6 +213,7 @@ const Assessments = () => {
               setNewAssessment({
                 assessmentType: "",
                 batch: "",
+                date: "",
               });
             }}
           >

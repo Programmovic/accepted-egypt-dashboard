@@ -32,6 +32,10 @@ const assessmentSchema = new mongoose.Schema({
   attendanceStatus: {
     type: String, // Attendance status (e.g., Present, Absent)
   },
+  attendanceDate: {
+    type: Date, // Timestamp of when the assessment document was created
+    default: Date.now, // Set the default value to the current date and time
+  },
   assessmentFeedback: {
     type: String, // Assessment feedback
   },
@@ -50,7 +54,7 @@ const assessmentSchema = new mongoose.Schema({
   languageFeedback: {
     type: String, // Language feedback
   },
-  createdAt: {
+  date: {
     type: Date, // Timestamp of when the assessment document was created
     default: Date.now, // Set the default value to the current date and time
   },

@@ -28,55 +28,55 @@ export default async (req, res) => {
   } else if (req.method === "PUT") {
     // Update an assessment by ID
     try {
-      const { assessmentId } = req.query;
-      const updatedAssessmentData = req.body;
-      console.log(updatedAssessmentData)
-      const updatedAssessment = await Assessment.findByIdAndUpdate(
-        assessmentId,
-        updatedAssessmentData,
-        { new: true }
-      );
-      console.log(updatedAssessment)
-      if (!updatedAssessment) {
-        return res.status(404).json({ error: "Assessment not found" });
-      }
+        const { assessmentId } = req.query;
+        const updatedAssessmentData = req.body;
+        console.log(updatedAssessmentData);
 
-      // Check if the student moved to a higher level
-      if (updatedAssessment.movedToHigherLevel) {
-        // Update the student's status to "Waiting List" and set their level to the new level
-        const updatedStudent = await Student.findByIdAndUpdate(
-          updatedAssessment.student,
-          {
-            status: "Waiting List",
-            level: updatedAssessment.newLevel,
-          },
-          { new: true }
+        const updatedAssessment = await Assessment.findByIdAndUpdate(
+            assessmentId,
+            updatedAssessmentData,
+            { new: true }
         );
-        console.log(updatedStudent)
+        console.log(updatedAssessment);
+
+        if (!updatedAssessment) {
+            return res.status(404).json({ error: "Assessment not found" });
+        }
+
+        // Update the student's status to "Waiting List"
+        const updatedStudent = await Student.findByIdAndUpdate(
+            updatedAssessment.student,
+            {
+                status: "Waiting List",
+                level: updatedAssessment.newLevel || undefined, // Update level if a new level is provided
+            },
+            { new: true }
+        );
+        console.log(updatedStudent);
 
         // Create a waiting list entry
         const waitingListEntry = new WaitingList({
-          student: updatedStudent._id,
-          studentName: updatedAssessment.name,
-          studentNationalID: updatedAssessment.studentNationalID,
-          studentPhoneNumber: updatedAssessment.phoneNumber,
-          assignedLevel: updatedAssessment.newLevel,
-          source: "Batch", // You can adjust this based on your needs
-          // Add other waiting list fields as needed
+            student: updatedStudent._id,
+            studentName: updatedAssessment.name,
+            studentNationalID: updatedAssessment.studentNationalID,
+            studentPhoneNumber: updatedAssessment.phoneNumber,
+            assignedLevel: updatedAssessment.newLevel || updatedStudent.level, // Use newLevel or current level
+            source: "Batch", // Adjust based on your needs
+            // Add other waiting list fields as needed
         });
 
         await waitingListEntry.save();
-      }
 
-      return res.status(200).json({
-        message: "Assessment updated successfully",
-        assessment: updatedAssessment,
-      });
+        return res.status(200).json({
+            message: "Assessment updated successfully",
+            assessment: updatedAssessment,
+        });
     } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Could not update the assessment" });
+        console.error(error);
+        return res.status(500).json({ error: "Could not update the assessment" });
     }
-  } else {
+}
+else {
     return res.status(400).json({ error: "Invalid request" });
   }
 };

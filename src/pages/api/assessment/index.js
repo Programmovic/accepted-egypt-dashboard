@@ -47,7 +47,7 @@ export default async (req, res) => {
     }
   } else if (req.method === "GET") {
     try {
-      const allAssessments = await Assessment.find();
+      const allAssessments = await Assessment.find().populate('batch');
       return res.status(200).json(allAssessments);
     } catch (error) {
       console.error(error);
