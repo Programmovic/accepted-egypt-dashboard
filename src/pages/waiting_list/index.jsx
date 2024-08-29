@@ -404,7 +404,6 @@ const calculateFinalPrice = () => {
             <thead>
               <tr>
                 <th>#</th>
-                <th>Student ID</th>
                 <th>Student Name</th>
                 <th>Assigned Level</th>
                 <th>Came From</th>
@@ -420,7 +419,6 @@ const calculateFinalPrice = () => {
                   style={{ cursor: "pointer" }}
                 >
                   <td>{index + 1}</td>
-                  <td>{waitingListItem.student}</td>
                   <td>{waitingListItem.studentName}</td>
                   <td>{waitingListItem.assignedLevel}</td>
                   <td>{waitingListItem.source}</td>
