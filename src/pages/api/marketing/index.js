@@ -294,6 +294,7 @@ export default async (req, res) => {
             email: updatedMarketingData.email,
             nationalId: updatedMarketingData.nationalId,
             interestedInCourse: updatedMarketingData.interestedInCourse,
+            placementTestDate: updates?.placementTest?.date,
             createdByAdmin: decoded.adminId,
             adminName: decoded.adminName, // Assuming `adminName` is stored in the token
           });
