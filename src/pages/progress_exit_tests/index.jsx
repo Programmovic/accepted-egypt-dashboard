@@ -45,6 +45,7 @@ const Assessments = () => {
   const fetchAssessmentData = async () => {
     try {
       const response = await axios.get("/api/assessment");
+      console.log(response.data)
 
       if (response.status === 200) {
         setAssessments(response.data);

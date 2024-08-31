@@ -1,7 +1,6 @@
 import connectDB from "@lib/db";
 import Assessment from "../../../models/progress_exit_test";
-import Student from "../../../models/student"; // Import the Student model
-import Batch from "../../../models/batch"; // Import the Batch model
+import Batch from "../../../models/batch";
 
 export default async (req, res) => {
   await connectDB();
@@ -10,35 +9,32 @@ export default async (req, res) => {
     const assessmentData = req.body;
 
     try {
-      // Retrieve the selected batch by ID
       const selectedBatch = await Batch.findById(assessmentData.batch);
 
       if (!selectedBatch) {
         return res.status(404).json({ error: "Selected batch not found" });
       }
 
-      // Automatically create assessments for all students in the selected batch
       const studentsInBatch = await Student.find({ batch: assessmentData.batch });
 
       const studentAssessments = studentsInBatch.map(async (student) => {
         const studentAssessmentData = {
           assessmentType: assessmentData.assessmentType,
           batch: assessmentData.batch,
-          classLevel: selectedBatch.levelName, // Set the level
-          classCode: selectedBatch.code, // Set the code
+          classLevel: selectedBatch.levelName,
+          classCode: selectedBatch.code,
           student: student._id,
           name: student.name,
           phoneNumber: student.phoneNumber,
         };
 
-        // Create an assessment for the student
         const studentAssessment = new Assessment(studentAssessmentData);
         await studentAssessment.save();
 
         return studentAssessment;
       });
 
-      await Promise.all(studentAssessments); // Wait for all student assessments to be created
+      await Promise.all(studentAssessments);
 
       return res.status(201).json({ message: "Done" });
     } catch (error) {
@@ -47,7 +43,8 @@ export default async (req, res) => {
     }
   } else if (req.method === "GET") {
     try {
-      const allAssessments = await Assessment.find().populate('batch');
+      // Group assessments by type and batch
+      const allAssessments = await Assessment.find().populate('batch').populate('student');
       return res.status(200).json(allAssessments);
     } catch (error) {
       console.error(error);

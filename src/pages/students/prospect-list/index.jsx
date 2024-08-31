@@ -215,7 +215,8 @@ const ProspectList = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
-            <Table striped bordered hover style={{ overflowX: "auto" }}>
+            <div style={{ overflowX: "auto" }}>
+            <Table striped bordered hover style={{ overflowX: "auto", maxWidth: "100px" }}>
               <thead>
                 <tr>
                   <th>#</th>
@@ -251,6 +252,7 @@ const ProspectList = () => {
                 ))}
               </tbody>
             </Table>
+            </div>
           )}
         </Card.Body>
       </Card>
