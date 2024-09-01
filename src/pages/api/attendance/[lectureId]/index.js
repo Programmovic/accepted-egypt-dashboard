@@ -1,5 +1,9 @@
 import connectDB from "@lib/db";
 import Attendance from "../../../../models/attendance";
+import Student from "../../../../models/student"; // Import the Student model
+import Lecture from "../../../../models/lecture"; // Import the Lecture model
+import Batch from "../../../../models/batch"; // Import the Batch model
+import WaitingList from "../../../../models/waitingList"; // Import the WaitingList model
 
 export default async (req, res) => {
   await connectDB();
@@ -18,14 +22,50 @@ export default async (req, res) => {
     }
   } else if (req.method === "PUT") {
     try {
-      // Assuming you pass the updated status and the attendance record ID in the request body
       const { status, attendanceId } = req.body;
 
       // Find the attendance record by ID and update the status
-      const updatedAttendance = await Attendance.findByIdAndUpdate(attendanceId, { status }, { new: true });
+      const updatedAttendance = await Attendance.findByIdAndUpdate(
+        attendanceId,
+        { status },
+        { new: true }
+      );
 
       if (!updatedAttendance) {
         return res.status(404).json({ error: "Attendance record not found" });
+      }
+
+      // Check if the attendance status is "Attended"
+      if (status === "Attended") {
+        // Find the lecture related to this attendance
+        const lecture = await Lecture.findById(updatedAttendance.lecture);
+
+        if (lecture) {
+          // Find the student related to this attendance
+          const student = await Student.findById(updatedAttendance.trainee);
+
+          if (student && student.batch) {
+            // Find the batch related to this student
+            const batch = await Batch.findById(student.batch);
+
+            if (batch && lecture.batch.toString() === batch._id.toString()) {
+              // Check if this is the student's first attendance in the batch
+              const firstAttendance = await Attendance.findOne({
+                trainee: student._id,
+                lecture: { $in: batch.lectures }, // Assume batch has an array of lecture IDs
+                status: "Attended",
+              }).sort({ date: 1 });
+
+              if (!firstAttendance || firstAttendance._id.toString() === updatedAttendance._id.toString()) {
+                // Update the student's waiting list status and save changes
+                student.waitingList = false;
+                student.status = "Joined Batch";
+                await WaitingList.findOneAndRemove({ student: student._id });
+                await student.save();
+              }
+            }
+          }
+        }
       }
 
       return res.status(200).json(updatedAttendance);

@@ -17,6 +17,7 @@ import { AdminLayout } from "@layout";
 import { ClassCard } from "@components/Classes";
 import { useRouter } from "next/router";
 import IdentityCard from "../../../components/StudentIDCard";
+import StudentHistoryDisplay from "../../../components/StudentHistory";
 
 const StudentProfile = () => {
   const [studentData, setStudentData] = useState({});
@@ -225,8 +226,9 @@ const StudentProfile = () => {
   const handleBatchUpdate = async () => {
     try {
       // Send a request to update the student's batch with selectedBatch
+      console.log(selectedBatch )
       const response = await axios.put(`/api/student/${id}`, {
-        batch: selectedBatch,
+        batch: selectedBatch || null,
       });
 
       if (response.status === 200) {
@@ -390,6 +392,7 @@ const StudentProfile = () => {
           </tbody>
         </Table>
       </Row>
+      <StudentHistoryDisplay id={id}/>
     </div>
         <Row>
           <Col xs={4}>

@@ -3,24 +3,22 @@ import Student from "../../../../models/student";
 import Attendance from "../../../../models/attendance";
 import Lecture from "../../../../models/lecture";
 
-
 export default async (req, res) => {
   try {
     await connectDB();
 
     if (req.method === "POST") {
-
     } else if (req.method === "PUT") {
       const { id } = req.query;
       const updateData = req.body; // Assuming your request body contains the updated data
-      console.log(updateData)
+      console.log(updateData);
       // Find the student by ID and update the batch
       const updatedStudent = await Student.findOneAndUpdate(
         { _id: id },
         updateData,
         { new: true }
       );
-      
+
       if (!updatedStudent) {
         return res.status(404).json({ error: "Student not found" });
       }
@@ -28,7 +26,9 @@ export default async (req, res) => {
       // Check if the batch has changed
       if (updateData.batch && updateData.batch !== updatedStudent.batch) {
         // Fetch the lectures of the new batch
-        const newBatchLectures = await Lecture.find({ batch: updateData.batch });
+        const newBatchLectures = await Lecture.find({
+          batch: updateData.batch,
+        });
 
         // Create attendances for the student in the new batch's lectures
         newBatchLectures.forEach(async (lecture) => {
@@ -48,11 +48,6 @@ export default async (req, res) => {
       return res.status(200).json({ student: updatedStudent });
     } else if (req.method === "GET") {
       const { id } = req.query;
-      const students = await Student.find({ _id: id });
-      // You can also fetch associated placement test and transaction data here if needed
-      return res.status(200).json({ students });
-    } else if (req.method === "GET") {
-      const { id } = req.query
       const students = await Student.find({ _id: id });
       // You can also fetch associated placement test and transaction data here if needed
       return res.status(200).json({ students });

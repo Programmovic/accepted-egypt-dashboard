@@ -145,6 +145,7 @@ const PlacementTests = () => {
   console.log(selectedRoom);
   const handleAddPlacementTest = async () => {
     const token = Cookies.get("client_token");
+    
     if (!newTestCost || !selectedInstructor || !newTestDate) {
       toast.error("Please fill in all required fields.", {
         position: "top-right",
@@ -152,6 +153,10 @@ const PlacementTests = () => {
       });
       return;
     }
+  
+    // Show loading toast
+    const toastId = toast.loading("Adding placement test...");
+  
     try {
       const response = await axios.post("/api/placement_test_settings", {
         cost: newTestCost,
@@ -164,13 +169,19 @@ const PlacementTests = () => {
         instructor: selectedInstructor.value,
         token,
       });
+  
       if (response.status === 201) {
         // Data added successfully
         fetchPlacementTestData();
-        toast.success("Placement Test added successfully!", {
-          position: "top-right",
+  
+        // Update toast with success message
+        toast.update(toastId, {
+          render: "Placement Test added successfully!",
+          type: "success",
+          isLoading: false,
           autoClose: 3000,
         });
+  
         setShowModal(false);
         setNewTestCost("");
         setNewTestDate("");
@@ -182,15 +193,28 @@ const PlacementTests = () => {
       } else {
         // Handle other possible response status codes here
         console.error("Unexpected status code:", response.status);
+  
+        // Update toast with error message
+        toast.update(toastId, {
+          render: "Failed to add the placement test. Please try again.",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
       }
     } catch (error) {
       console.error("Error adding placement test:", error);
-      toast.error("Failed to add the placement test. Please try again.", {
-        position: "top-right",
+  
+      // Update toast with error message
+      toast.update(toastId, {
+        render: "An error occurred while adding the placement test. Please try again.",
+        type: "error",
+        isLoading: false,
         autoClose: 3000,
       });
     }
   };
+  
   const openPlacementTestDetailsModal = (placementTest) => {
     setSelectedPlacementTest(placementTest);
     setShowPlacementTestDetailsModal(true);

@@ -64,7 +64,7 @@ export default async (req, res) => {
         studentNationalID: updatedAssessment.studentNationalID,
         studentPhoneNumber: updatedAssessment.phoneNumber,
         assignedLevel: updatedAssessment.newLevel || updatedStudent.level, // Use newLevel or current level
-        source: "Batch", // Adjust based on your needs
+        source: `Batch ${updatedAssessment.classCode}`, // Adjust based on your needs
         // Add other waiting list fields as needed
       });
 

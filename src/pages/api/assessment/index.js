@@ -16,8 +16,10 @@ export default async (req, res) => {
         return res.status(404).json({ error: "Selected batch not found" });
       }
 
-      const studentsInBatch = await Student.find({ batch: assessmentData.batch });
-console.log(selectedBatch)
+      const studentsInBatch = await Student.find({
+        batch: assessmentData.batch,
+      });
+      console.log(selectedBatch);
       const studentAssessments = studentsInBatch.map(async (student) => {
         const studentAssessmentData = {
           assessmentType: assessmentData.assessmentType,
@@ -45,7 +47,9 @@ console.log(selectedBatch)
   } else if (req.method === "GET") {
     try {
       // Group assessments by type and batch
-      const allAssessments = await Assessment.find().populate('batch').populate('student');
+      const allAssessments = await Assessment.find()
+        .populate("batch")
+        .populate("student");
       return res.status(200).json(allAssessments);
     } catch (error) {
       console.error(error);

@@ -227,7 +227,7 @@ const calculateFinalPrice = () => {
         }
       }
     } catch (error) {
-      console.error("Error assigning student to batch:", error.message);
+      console.error("Error assigning student to batch:", error);
       toast.error("Failed to assign the student to the batch", {
         position: "top-right",
         autoClose: 3000,

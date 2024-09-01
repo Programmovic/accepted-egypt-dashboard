@@ -43,10 +43,10 @@ export default async (req, res) => {
 
       // Assign the student to the batch
       student.batch = batch;
-      student.status = "Joined Batch";
+      student.status = "Waiting List";
       student.paid += +paidAmount;
       student.due = +dueAmount;
-      student.WaitingList = false
+      student.WaitingList = true
 
       // Create a transaction for the received amount
       const receivedTransaction = new Transaction({
@@ -60,7 +60,6 @@ export default async (req, res) => {
       receivedTransaction.save()
       // Save the updated student
       await student.save();
-      await WaitingList.findOneAndRemove({ student: student._id });
       const lectures = await Lecture.find({ batch: batch });
       console.log(req.body)
       for (const lectureId of lectures) {
