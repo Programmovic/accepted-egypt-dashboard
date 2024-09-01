@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -8,14 +8,17 @@ import "react-toastify/dist/ReactToastify.css";
 import { Button, Container, TextField, Typography, Grid } from "@mui/material";
 import Head from "next/head";
 
-const Login: NextPage = () => {
+const Login = () => {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  // Retrieve the "redirect" query parameter from the router object
+  const { redirect } = router.query;
+
   const getRedirect = () => {
-    return "/";
+    return redirect ? decodeURIComponent(redirect) : "/";
   };
 
   const login = async () => {
@@ -37,6 +40,8 @@ const Login: NextPage = () => {
 
       if (res.status === 200) {
         Cookies.set("client_token", res.data.token, { expires: 1 });
+
+        // Redirect to the last visited page or the default home page
         router.push(getRedirect());
         toast.success("Login successful!", { position: "top-right" });
       } else {

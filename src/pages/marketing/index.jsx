@@ -235,32 +235,58 @@ const MarketingData = () => {
     }
   };
   const handleUpdateMarketingData = async (item, updatedData) => {
-
-
+    // Display a loading toast
+    const toastId = toast.loading("Updating marketing data...");
+  
     try {
       const response = await axios.put(`/api/marketing?id=${item}`, updatedData); // Send the PUT request with ID and updated data
       closeModal();
       fetchMarketingData(); // Refetch the data to reflect changes
-      toast.success("Marketing data updated successfully!");
+  
+      // Update the toast to success
+      toast.update(toastId, {
+        render: "Marketing data updated successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000, // Automatically close the toast after 3 seconds
+      });
     } catch (error) {
       closeModal();
       fetchMarketingData();
-      // Handle and display specific error message
+      
+      // Handle and display specific error messages
       if (error.response && error.response.status === 400) {
         const errorData = error.response.data;
-
+  
         if (errorData.error === "Phone number already exists in another record") {
-          console.log(errorData)
-          toast.error(`${errorData.error}`);
+          // Update the toast to show an error
+          toast.update(toastId, {
+            render: errorData.error,
+            type: "error",
+            isLoading: false,
+            autoClose: 3000,
+          });
         } else {
-          toast.error("Failed to update marketing data. Please try again.");
+          // General error message for failure
+          toast.update(toastId, {
+            render: "Failed to update marketing data. Please try again.",
+            type: "error",
+            isLoading: false,
+            autoClose: 3000,
+          });
         }
       } else {
         // Handle other types of errors (e.g., server errors)
-        toast.error("An unexpected error occurred. Please try again.");
+        toast.update(toastId, {
+          render: "An unexpected error occurred. Please try again.",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
       }
     }
   };
+  
 
 
   const handleDeleteMarketingData = async (id) => {
@@ -457,13 +483,13 @@ const MarketingData = () => {
           isLoading={loading}
         />
         <ClassCard
-          data={marketingData.filter(lead => lead.assignTo === "EWFS").length}
+          data={marketingData.filter(lead => lead.candidateSignUpFor === "E3WFS").length}
           title="Total Leads For EWFS"
           enableOptions={false}
           isLoading={loading}
         />
         <ClassCard
-          data={marketingData.filter(lead => lead.assignTo === "Autobus El Shoughl").length}
+          data={marketingData.filter(lead => lead.candidateSignUpFor === "Recruitment").length}
           title="Total Leads For Autobus El Shoughl"
           enableOptions={false}
           isLoading={loading}
