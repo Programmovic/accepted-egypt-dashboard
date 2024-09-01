@@ -43,94 +43,128 @@ const MarketingDataDetail = () => {
   const salesStatusApiUrl = `/api/sales-status`; // Define the API route to fetch sales statuses
   const editing = true;
 
-  useEffect(() => {
-    const fetchMarketingData = async () => {
-      try {
-        const response = await axios.get(apiUrl);
-        if (response.status === 200) {
-          setMarketingData((prevData) => ({
-            ...prevData,
-            ...response.data,
-          }));
 
+  useEffect(() => {
+    const toastId = toast.loading("Loading data...");
+
+    const fetchMarketingData = async () => {
+        try {
+            const response = await axios.get(apiUrl);
+            if (response.status === 200) {
+                setMarketingData((prevData) => ({
+                    ...prevData,
+                    ...response.data,
+                }));
+            }
+        } catch (error) {
+            console.error("Error fetching marketing data:", error);
         }
-        console.log("ifjo", response.data);
-      } catch (error) {
-        console.error("Error fetching marketing data:", error);
-      }
     };
-    console.log(marketingData);
+
     const fetchSalesStatuses = async () => {
-      try {
-        const response = await axios.get(salesStatusApiUrl);
-        if (response.status === 200) {
-          setSalesStatuses(response.data);
+        try {
+            const response = await axios.get(salesStatusApiUrl);
+            if (response.status === 200) {
+                setSalesStatuses(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching sales statuses:", error);
         }
-      } catch (error) {
-        console.error("Error fetching sales statuses:", error);
-      }
     };
+
     const fetchPaymentMethods = async () => {
-      try {
-        const response = await axios.get('/api/payment-method');
-        if (response.status === 200) {
-          setPaymentMethods(response.data);
+        try {
+            const response = await axios.get('/api/payment-method');
+            if (response.status === 200) {
+                setPaymentMethods(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching payment methods:", error);
         }
-      } catch (error) {
-        console.error("Error fetching sales statuses:", error);
-      }
     };
+
     const fetchCandidateSignUpForStatus = async () => {
-      try {
-        const response = await axios.get('/api/candidate_signup_for');
-        if (response.status === 200) {
-          setCandidateSignUpFor(response.data);
+        try {
+            const response = await axios.get('/api/candidate_signup_for');
+            if (response.status === 200) {
+                setCandidateSignUpFor(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching candidate sign up statuses:", error);
         }
-      } catch (error) {
-        console.error("Error fetching sales statuses:", error);
-      }
     };
+
     const fetchCandidateStatusForSalesPersonStatus = async () => {
-      try {
-        const response = await axios.get('/api/candidate-status-for-sales-person');
-        if (response.status === 200) {
-          setCandidateStatusForSalesPerson(response.data);
+        try {
+            const response = await axios.get('/api/candidate-status-for-sales-person');
+            if (response.status === 200) {
+                setCandidateStatusForSalesPerson(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching candidate status for sales person:", error);
         }
-      } catch (error) {
-        console.error("Error fetching sales statuses:", error);
-      }
     };
+
     const fetchSalesRejectionReason = async () => {
-      try {
-        const response = await axios.get('/api/sales-rejection-reason');
-        if (response.status === 200) {
-          setSalesRejectionReason(response.data);
+        try {
+            const response = await axios.get('/api/sales-rejection-reason');
+            if (response.status === 200) {
+                setSalesRejectionReason(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching sales rejection reasons:", error);
         }
-      } catch (error) {
-        console.error("Error fetching sales statuses:", error);
-      }
     };
+
     const fetchTrainingLocation = async () => {
-      try {
-        const response = await axios.get('/api/trainingLocation');
-        if (response.status === 200) {
-          setTrainingLocations(response.data);
+        try {
+            const response = await axios.get('/api/trainingLocation');
+            if (response.status === 200) {
+                setTrainingLocations(response.data);
+            }
+        } catch (error) {
+            console.error("Error fetching training locations:", error);
         }
-      } catch (error) {
-        console.error("Error fetching sales statuses:", error);
-      }
+    };
+
+    const fetchData = async () => {
+        try {
+            await Promise.all([
+                fetchMarketingData(),
+                fetchSalesStatuses(),
+                fetchPaymentMethods(),
+                fetchCandidateSignUpForStatus(),
+                fetchCandidateStatusForSalesPersonStatus(),
+                fetchSalesRejectionReason(),
+                fetchTrainingLocation(),
+            ]);
+
+            // Update toast with success message
+            toast.update(toastId, {
+                render: "Data loaded successfully!",
+                type: "success",
+                isLoading: false,
+                autoClose: 3000,
+            });
+        } catch (error) {
+            // Update toast with error message
+            toast.update(toastId, {
+                render: "Error loading data.",
+                type: "error",
+                isLoading: false,
+                autoClose: 3000,
+            });
+        }
     };
 
     if (id) {
-      fetchMarketingData();
-      fetchSalesStatuses();
-      fetchPaymentMethods()
-      fetchCandidateSignUpForStatus()
-      fetchTrainingLocation()
-      fetchCandidateStatusForSalesPersonStatus()
-      fetchSalesRejectionReason()
+        fetchData();
     }
-  }, [id, apiUrl, salesStatusApiUrl, unsavedChanges]);
+
+    // Clear the toast if the component unmounts
+    return () => toast.dismiss(toastId);
+
+}, [id, apiUrl, salesStatusApiUrl, unsavedChanges]);
   console.log(paymentMethods)
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
@@ -163,17 +197,35 @@ const MarketingDataDetail = () => {
   
 
   const handleSave = async () => {
+    // Show loading toast
+    const toastId = toast.loading("Saving marketing data...");
 
     try {
-      await axios.put(`/api/marketing?id=${id}`, marketingData);
-      setUnsavedChanges(false);
-      toast.success("Marketing data saved successfully!");
-      console.log(marketingData)
+        await axios.put(`/api/marketing?id=${id}`, marketingData);
+        setUnsavedChanges(false);
+
+        // Update toast with success message
+        toast.update(toastId, {
+            render: "Marketing data saved successfully!",
+            type: "success",
+            isLoading: false,
+            autoClose: 3000,
+        });
+
+        console.log(marketingData);
     } catch (error) {
-      console.error("Error saving marketing data:", error.message);
-      toast.error(error.message);
+        console.error("Error saving marketing data:", error.message);
+
+        // Update toast with error message
+        toast.update(toastId, {
+            render: `Error: ${error.message}`,
+            type: "error",
+            isLoading: false,
+            autoClose: 3000,
+        });
     }
-  };
+};
+
 
   return (
     <AdminLayout>
