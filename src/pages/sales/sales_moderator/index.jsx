@@ -40,22 +40,42 @@ const SalesModeratorData = () => {
   const filterRef = useRef(null); // Added ref for filter button
 
   const fetchMarketingData = async () => {
+    // Show loading toast
+    const toastId = toast.loading("Fetching marketing data...");
+
     try {
-      const response = await axios.get("/api/marketing?assignedToModerator=true");
-      if (response.status === 200) {
-        const data = response.data;
-        setMarketingData(data.marketingData);
-        setSalesModerators(data.salesModerators);
-        setSalesMembers(data.salesMembers);
-        setFilteredData(data.marketingData);
-      }
+        const response = await axios.get("/api/marketing?assignedToModerator=true");
+        
+        if (response.status === 200) {
+            const data = response.data;
+            setMarketingData(data.marketingData);
+            setSalesModerators(data.salesModerators);
+            setSalesMembers(data.salesMembers);
+            setFilteredData(data.marketingData);
+
+            // Update toast with success message
+            toast.update(toastId, {
+                render: "Marketing data fetched successfully!",
+                type: "success",
+                isLoading: false,
+                autoClose: 3000,
+            });
+            setLoading(false);
+        }
     } catch (error) {
-      console.error("Error fetching marketing data:", error);
-      setError("Failed to fetch marketing data. Please try again later.");
-    } finally {
-      setLoading(false);
+        console.error("Error fetching marketing data:", error.message);
+        setError("Failed to fetch marketing data. Please try again later.");
+
+        // Update toast with error message
+        toast.update(toastId, {
+            render: "Error fetching marketing data.",
+            type: "error",
+            isLoading: false,
+            autoClose: 3000,
+        });
     }
-  };
+};
+
 
   useEffect(() => {
     fetchMarketingData();
