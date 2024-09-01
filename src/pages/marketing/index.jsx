@@ -124,7 +124,7 @@ const MarketingData = () => {
         item.phoneNo1.includes(searchTerm) ||
         item.phoneNo2.includes(searchTerm)
       );
-    } else{
+    } else {
       setFilterApplied(false)
     }
     if (filterName) {
@@ -243,12 +243,12 @@ const MarketingData = () => {
   const handleUpdateMarketingData = async (item, updatedData) => {
     // Display a loading toast
     const toastId = toast.loading("Updating marketing data...");
-  
+
     try {
       const response = await axios.put(`/api/marketing?id=${item}`, updatedData); // Send the PUT request with ID and updated data
       closeModal();
       fetchMarketingData(); // Refetch the data to reflect changes
-  
+
       // Update the toast to success
       toast.update(toastId, {
         render: "Marketing data updated successfully!",
@@ -259,11 +259,11 @@ const MarketingData = () => {
     } catch (error) {
       closeModal();
       fetchMarketingData();
-      
+
       // Handle and display specific error messages
       if (error.response && error.response.status === 400) {
         const errorData = error.response.data;
-  
+
         if (errorData.error === "Phone number already exists in another record") {
           // Update the toast to show an error
           toast.update(toastId, {
@@ -292,7 +292,7 @@ const MarketingData = () => {
       }
     }
   };
-  
+
 
 
   const handleDeleteMarketingData = async (id) => {
@@ -308,111 +308,112 @@ const MarketingData = () => {
     }
   };
 
-  const handleFileUpload = (event) => {
+  const handleFileUpload = async (event) => {
     const fileInput = event.target; // Reference to the file input
     const file = fileInput.files[0];
 
     if (!file) {
-      console.error("Error: No file selected.");
-      toast.error("Error: No file selected.");
-      return;
+        console.error("Error: No file selected.");
+        toast.error("Error: No file selected.");
+        return;
     }
 
     const reader = new FileReader();
 
     reader.onload = async (e) => {
-      try {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, { type: "array" });
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        try {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const firstSheetName = workbook.SheetNames[0];
+            const worksheet = workbook.Sheets[firstSheetName];
+            const jsonData = XLSX.utils.sheet_to_json(worksheet);
 
-        console.log("Parsed JSON data:", jsonData);
+            console.log("Parsed JSON data:", jsonData);
 
-        // Process each data item
-        for (const dataItem of jsonData) {
-          console.log("Processing item:", dataItem);
+            // Process each data item
+            for (const dataItem of jsonData) {
+                console.log("Processing item:", dataItem);
 
-          // Validate required fields
-          if (!dataItem.name || !dataItem.phoneNo1) {
-            console.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`);
-            toast.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`, {
-              autoClose: false,
-            });
-            continue;
-          }
+                // Validate required fields
+                if (!dataItem.name || !dataItem.phoneNo1) {
+                    console.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`);
+                    toast.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`, {
+                        autoClose: false,
+                    });
+                    continue;
+                }
 
-          // Validate phone numbers
-          if (dataItem.phoneNo1.length !== 11 || (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11)) {
-            console.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`);
-            toast.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`, {
-              autoClose: false,
-            });
-            continue;
-          }
+                // Validate phone numbers
+                if (dataItem.phoneNo1.length !== 11 || (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11)) {
+                    console.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`);
+                    toast.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`, {
+                        autoClose: false,
+                    });
+                    continue;
+                }
 
-          if (dataItem.phoneNo2 && dataItem.phoneNo1 === dataItem.phoneNo2) {
-            console.error(`Error: Phone numbers for ${dataItem.name} must be different.`);
-            toast.error(`Error: Phone numbers for ${dataItem.name} must be different.`, {
-              autoClose: false,
-            });
-            continue;
-          }
+                if (dataItem.phoneNo2 && dataItem.phoneNo1 === dataItem.phoneNo2) {
+                    console.error(`Error: Phone numbers for ${dataItem.name} must be different.`);
+                    toast.error(`Error: Phone numbers for ${dataItem.name} must be different.`, {
+                        autoClose: false,
+                    });
+                    continue;
+                }
 
-          try {
-            // Check if the item already exists in the database
-            const existingItem = await axios.post("/api/marketing/check-duplicates", {
-              phoneNo1: dataItem.phoneNo1,
-              phoneNo2: dataItem.phoneNo2,
-            });
+                try {
+                    // Check if the item already exists in the database
+                    const existingItem = await axios.post("/api/marketing/check-duplicates", {
+                        phoneNo1: dataItem.phoneNo1,
+                        phoneNo2: dataItem.phoneNo2,
+                    });
 
-            console.log("Check duplicate response:", existingItem.data);
+                    console.log("Check duplicate response:", existingItem.data);
 
-            if (existingItem.data.exists) {
-              console.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`);
-              toast.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`, {
-                autoClose: false,
-              });
-              continue;
+                    if (existingItem.data.exists) {
+                        console.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`);
+                        toast.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`, {
+                            autoClose: false,
+                        });
+                        continue;
+                    }
+
+                    // If no duplicate is found, proceed with the request
+                    await axios.post("/api/marketing", dataItem);
+                    console.log(`${dataItem.name} has been added successfully.`);
+                    toast.success(`${dataItem.name} has been added successfully!`);
+                } catch (error) {
+                    console.error("Error checking or adding marketing data from file:", error.message);
+                    toast.error(`Error adding data for ${dataItem.name}: ${error.message}`);
+                }
             }
 
-            // If no duplicate is found, proceed with the request
-            await axios.post("/api/marketing", dataItem);
-            console.log(`${dataItem.name} has been added successfully.`);
-            toast.success(`${dataItem.name} has been added successfully!`);
-          } catch (error) {
-            console.error("Error checking or adding marketing data from file:", error.message);
-            toast.error(`Error adding data for ${dataItem.name}: ${error.message}`);
-          }
+            // Fetch the latest marketing data after processing
+            try {
+                await fetchMarketingData();
+                console.log("Marketing data fetch completed.");
+                toast.success("Marketing data upload process completed!");
+            } catch (fetchError) {
+                console.error("Error fetching marketing data:", fetchError.message);
+                toast.error("Error fetching marketing data.");
+            }
+        } catch (error) {
+            console.error("Error reading or processing file:", error.message);
+            toast.error("Error processing the uploaded file.");
+        } finally {
+            // Reset the file input after processing
+            fileInput.value = "";
+            console.log("File input reset.");
         }
-
-        // Fetch the latest marketing data after processing
-        try {
-          await fetchMarketingData();
-          console.log("Marketing data fetch completed.");
-          toast.success("Marketing data upload process completed!");
-        } catch (fetchError) {
-          console.error("Error fetching marketing data:", fetchError.message);
-          toast.error("Error fetching marketing data.");
-        }
-      } catch (error) {
-        console.error("Error reading or processing file:", error.message);
-        toast.error("Error processing the uploaded file.");
-      } finally {
-        // Reset the file input after processing
-        fileInput.value = "";
-        console.log("File input reset.");
-      }
     };
 
     reader.onerror = (error) => {
-      console.error("FileReader error:", error.message);
-      toast.error("Error reading the file.");
+        console.error("FileReader error:", error.message);
+        toast.error("Error reading the file.");
     };
 
     reader.readAsArrayBuffer(file);
-  };
+};
+
 
 
 
@@ -501,7 +502,7 @@ const MarketingData = () => {
           isLoading={loading}
         />
       </Row>
-      
+
       <Modal show={showModal} onHide={closeModal} size="xl">
         <Modal.Header closeButton>
           <Modal.Title>{editItem ? "Edit Lead" : "Add Lead"}</Modal.Title>
@@ -572,28 +573,28 @@ const MarketingData = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-  <Button variant="secondary" onClick={closeModal}>
-    Close
-  </Button>
-  <Button
-    variant="success"
-    onClick={() => {
-      if (editItem) {
-        handleUpdateMarketingData(editItem._id, {
-          name: newName,
-          phoneNo1: newPhoneNo1,
-          phoneNo2: newPhoneNo2,
-          assignTo: newAssignTo,
-          source: newSource,
-        });
-      } else {
-        handleAddMarketingData();
-      }
-    }}
-  >
-    {editItem ? "Update Lead" : "Add Lead"}
-  </Button>
-</Modal.Footer>
+          <Button variant="secondary" onClick={closeModal}>
+            Close
+          </Button>
+          <Button
+            variant="success"
+            onClick={() => {
+              if (editItem) {
+                handleUpdateMarketingData(editItem._id, {
+                  name: newName,
+                  phoneNo1: newPhoneNo1,
+                  phoneNo2: newPhoneNo2,
+                  assignTo: newAssignTo,
+                  source: newSource,
+                });
+              } else {
+                handleAddMarketingData();
+              }
+            }}
+          >
+            {editItem ? "Update Lead" : "Add Lead"}
+          </Button>
+        </Modal.Footer>
 
       </Modal>
       <div className="d-flex justify-content-between " style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '8px' }}>
@@ -712,7 +713,7 @@ const MarketingData = () => {
 
       </div>
       <RangeAssignment salesMembers={salesModerators} handleRangeAssign={handleRangeAssign} />
-      <ExcelUploadDownload openModal={openModal} handleDownloadTemplate={downloadTemplate} handleDataUpload={handleFileUpload}/>
+      <ExcelUploadDownload openModal={openModal} handleDownloadTemplate={downloadTemplate} handleDataUpload={handleFileUpload} />
       <Card>
         <Card.Header className="d-flex align-items-center">
           <div className="w-50">Marketing Leads</div>
@@ -787,8 +788,8 @@ const MarketingData = () => {
                     <td>{item.createdAt && new Date(item.createdAt).toLocaleString()}</td>
                     <td>{item.updatedAt && new Date(item.updatedAt).toLocaleString()}</td>
                     <td className="d-flex justify-content-between">
-                      <Button variant="warning" onClick={() => handleEdit(item)}><Edit style={{ color: 'white'}} /></Button>
-                      <Button variant="danger" className="ms-2" onClick={() => handleDeleteMarketingData(item._id)}><Delete style={{ color: 'white'}} /></Button>
+                      <Button variant="warning" onClick={() => handleEdit(item)}><Edit style={{ color: 'white' }} /></Button>
+                      <Button variant="danger" className="ms-2" onClick={() => handleDeleteMarketingData(item._id)}><Delete style={{ color: 'white' }} /></Button>
                     </td>
                   </tr>
                 ))}
