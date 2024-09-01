@@ -246,7 +246,7 @@ export default async (req, res) => {
           phoneNumber: updatedMarketingData.phoneNo1,
           email: updatedMarketingData.email,
           nationalId: updatedMarketingData.nationalId,
-          status: "Marketing Lead",
+          status: "New",
           source: "Marketing",
           marketingDataId: updatedMarketingData._id,
           interestedInCourse: updatedMarketingData.interestedInCourse,

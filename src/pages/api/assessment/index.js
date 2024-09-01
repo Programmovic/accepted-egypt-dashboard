@@ -1,6 +1,7 @@
 import connectDB from "@lib/db";
 import Assessment from "../../../models/progress_exit_test";
 import Batch from "../../../models/batch";
+import Student from "../../../models/student";
 
 export default async (req, res) => {
   await connectDB();
@@ -16,7 +17,7 @@ export default async (req, res) => {
       }
 
       const studentsInBatch = await Student.find({ batch: assessmentData.batch });
-
+console.log(selectedBatch)
       const studentAssessments = studentsInBatch.map(async (student) => {
         const studentAssessmentData = {
           assessmentType: assessmentData.assessmentType,

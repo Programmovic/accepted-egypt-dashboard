@@ -78,9 +78,9 @@ export default async (req, res) => {
           email: updatedStudent.email, // You may need to update this if it's part of Student
           nationalId: updatedAssessment.studentNationalID,
           interestedInCourse: updatedAssessment.classCode, // Adjust based on your needs
-          status: "Marketing Lead",
+          status: "Renewal",
           level: updatedAssessment.newLevel,
-          source: "Progress Test", // Adjust based on your needs
+          source: "Exit Test", // Adjust based on your needs
           studentId: updatedAssessment.student,
         });
 
