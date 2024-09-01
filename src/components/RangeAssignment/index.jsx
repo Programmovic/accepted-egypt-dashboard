@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { TextField, Button, MenuItem, FormControl, InputLabel, Select, Box, Alert } from '@mui/material';
+import { Form, Button, Alert, Row, Col } from 'react-bootstrap';
 
 const RangeAssignment = ({ handleRangeAssign, salesMembers }) => {
   const [rangeStart, setRangeStart] = useState('');
@@ -28,54 +28,65 @@ const RangeAssignment = ({ handleRangeAssign, salesMembers }) => {
 
   return (
     <>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ display: 'flex', flexDirection: 'row', gap: 2, py: 2 }}
-      >
-        <TextField
-          label="Range Start"
-          type="number"
-          value={rangeStart}
-          onChange={(e) => setRangeStart(e.target.value)}
-          variant="outlined"
-          fullWidth
-          error={!!error && !rangeStart}
-          helperText={!!error && !rangeStart ? error : ''}
-        />
-        <TextField
-          label="Range End"
-          type="number"
-          value={rangeEnd}
-          onChange={(e) => setRangeEnd(e.target.value)}
-          variant="outlined"
-          fullWidth
-          error={!!error && !rangeEnd}
-          helperText={!!error && !rangeEnd ? error : ''}
-        />
-        <FormControl fullWidth>
-          <InputLabel>Select Sales Member</InputLabel>
-          <Select
-            value={selectedSalesMember}
-            onChange={(e) => setSelectedSalesMember(e.target.value)}
-            label="Select Sales Member"
-          >
-            <MenuItem value="">
-              <em>Select</em>
-            </MenuItem>
-            {salesMembers.map((member) => (
-              <MenuItem key={member._id} value={member.name}>
-                {member.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <Button variant="contained" sx={{ background: "#2c3d38" }} type="submit" fullWidth>
-          Assign Leads
-        </Button>
-
-      </Box>
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      <Form onSubmit={handleSubmit} className="my-3 px-4 pt-3 pb-1" style={{ backgroundColor: "rgb(245, 245, 245)", borderRadius: "8px" }}>
+        <Row className="mb-3">
+          <Col>
+            <Form.Group controlId="rangeStart">
+              <Form.Label>Range Start</Form.Label>
+              <Form.Control
+                type="number"
+                value={rangeStart}
+                onChange={(e) => setRangeStart(e.target.value)}
+                isInvalid={!!error && !rangeStart}
+              />
+              <Form.Control.Feedback type="invalid">
+                {error && !rangeStart ? error : ''}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col>
+            <Form.Group controlId="rangeEnd">
+              <Form.Label>Range End</Form.Label>
+              <Form.Control
+                type="number"
+                value={rangeEnd}
+                onChange={(e) => setRangeEnd(e.target.value)}
+                isInvalid={!!error && !rangeEnd}
+              />
+              <Form.Control.Feedback type="invalid">
+                {error && !rangeEnd ? error : ''}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col>
+            <Form.Group controlId="selectSalesMember">
+              <Form.Label>Select Sales Member</Form.Label>
+              <Form.Control
+                as="select"
+                value={selectedSalesMember}
+                onChange={(e) => setSelectedSalesMember(e.target.value)}
+                isInvalid={!!error && !selectedSalesMember}
+              >
+                <option value="">Select</option>
+                {salesMembers.map((member) => (
+                  <option key={member._id} value={member.name}>
+                    {member.name}
+                  </option>
+                ))}
+              </Form.Control>
+              <Form.Control.Feedback type="invalid">
+                {error && !selectedSalesMember ? error : ''}
+              </Form.Control.Feedback>
+            </Form.Group>
+          </Col>
+          <Col className="d-flex align-items-end">
+            <Button variant="dark" type="submit" className="w-100">
+              Assign Leads
+            </Button>
+          </Col>
+        </Row>
+      </Form>
+      {error && <Alert variant="danger">{error}</Alert>}
     </>
   );
 };
