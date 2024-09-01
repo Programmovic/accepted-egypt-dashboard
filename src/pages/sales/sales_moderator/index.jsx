@@ -19,7 +19,7 @@ const SalesModeratorData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filterName, setFilterName] = useState("");
-  
+
   const [filterPhone, setFilterPhone] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
@@ -150,16 +150,42 @@ const SalesModeratorData = () => {
   const paginate = (pageNumber) => setCurrentPage(pageNumber);
 
   const handleUpdateMarketingData = async (id, updatedData) => {
+    // Show loading toast
+    const toastId = toast.loading("Updating marketing data...");
+
     try {
       await axios.put(`/api/marketing?id=${id}`, updatedData);
-      fetchMarketingData();
-      toast.success("Marketing data updated successfully!");
+
+      // Fetch the latest marketing data after update
+      try {
+        await fetchMarketingData();
+        toast.update(toastId, {
+          render: "Marketing data updated successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+      } catch (fetchError) {
+        console.error("Error fetching updated marketing data:", fetchError.message);
+        toast.update(toastId, {
+          render: "Failed to fetch updated marketing data.",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
+      }
     } catch (error) {
       console.error("Error updating marketing data:", error.message);
       setError("Failed to update marketing data. Please try again.");
-      toast.error(error.message);
+      toast.update(toastId, {
+        render: `Error: ${error.message}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
     }
   };
+
 
   const handleRangeAssign = async (rangeStart, rangeEnd, selectedSalesMember) => {
     if (!rangeStart || !rangeEnd || !selectedSalesMember) {
@@ -321,7 +347,7 @@ const SalesModeratorData = () => {
 
       </div>
       <RangeAssignment salesMembers={salesMembers} handleRangeAssign={handleRangeAssign} />
-      
+
       <Card>
         <Card.Header>Sales Data for Sales Supervisor</Card.Header>
         <Card.Body>
