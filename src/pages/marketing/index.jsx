@@ -712,7 +712,7 @@ const MarketingData = () => {
 
       </div>
       <RangeAssignment salesMembers={salesModerators} handleRangeAssign={handleRangeAssign} />
-      <ExcelUploadDownload handleDownloadTemplate={downloadTemplate} handleDataUpload={handleFileUpload}/>
+      <ExcelUploadDownload openModal={openModal} handleDownloadTemplate={downloadTemplate} handleDataUpload={handleFileUpload}/>
       <Card>
         <Card.Header className="d-flex align-items-center">
           <div className="w-50">Marketing Leads</div>

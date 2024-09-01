@@ -1,9 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Button, Alert, Row, Col } from 'react-bootstrap';
-import { saveAs } from 'file-saver';
-import * as XLSX from 'xlsx';
 
-const ExcelUploadDownload = ({ handleDownloadTemplate, handleDataUpload }) => {
+const ExcelUploadDownload = ({ handleDownloadTemplate, handleDataUpload, openModal }) => {
   return (
     <>
       <Form className="my-3 px-4 pt-3 pb-1" style={{ backgroundColor: "rgb(245, 245, 245)", borderRadius: "8px" }}>
@@ -16,13 +14,13 @@ const ExcelUploadDownload = ({ handleDownloadTemplate, handleDataUpload }) => {
             </Form.Group>
           </Col>
           <Col className="d-flex align-items-end flex-column">
-  <Button variant="dark" onClick={handleDownloadTemplate} className="w-100 mb-2">
-    Create New Lead
-  </Button>
-  <Button variant="dark" onClick={handleDownloadTemplate} className="w-100">
-    Download Excel Template
-  </Button>
-</Col>
+            <Button variant="dark" onClick={openModal} className="w-100 mb-2">
+              Create New Lead
+            </Button>
+            <Button variant="dark" onClick={handleDownloadTemplate} className="w-100">
+              Download Excel Template
+            </Button>
+          </Col>
 
         </Row>
       </Form>
