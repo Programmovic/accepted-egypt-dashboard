@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { faPlus } from "@fortawesome/free-solid-svg-icons";
 import Link from "next/link";
 import RangeAssignment from "../../components/RangeAssignment";
-
+import ExcelUploadDownload from "../../components/UploadExcel";
 import TextField from "@mui/material/TextField";
 
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
@@ -70,24 +70,30 @@ const MarketingData = () => {
   const [newAssignationDate, setNewAssignationDate] = useState("");
   const [newAssignedToSales, setNewAssignedToSales] = useState("");
   const fetchMarketingData = async () => {
+    toast.info("Fetching marketing data...", { autoClose: false, toastId: "fetch-toast" }); // Show loading toast with a unique ID
+    setLoading(true); // Set loading state to true
+
     try {
       const response = await axios.get("/api/marketing");
       if (response.status === 200) {
         const data = response.data;
         setMarketingData(data.marketingData);
-        console.log(data)
         setSalesModerators(data.salesModerators.filter(s => s?.department?.name === "Sales"));
-        console.log(data.salesModerators.filter(s => { s?.department?.name === "Sales" && s?.position?.name === "Supervisor" }))
         setSalesMembers(data.salesMembers);
         setFilteredData(data.marketingData);
+        toast.dismiss("fetch-toast"); // Dismiss loading toast
+        toast.success("Marketing data fetched successfully!");
       }
     } catch (error) {
+      toast.dismiss("fetch-toast"); // Dismiss loading toast
+      toast.error("Failed to fetch marketing data. Please try again later.");
       console.error("Error fetching marketing data:", error);
       setError("Failed to fetch marketing data. Please try again later.");
     } finally {
-      setLoading(false);
+      setLoading(false); // Set loading state to false
     }
   };
+
   const fetchCandidateSignUpForStatus = async () => {
     try {
       const response = await axios.get('/api/candidate_signup_for');
@@ -706,7 +712,7 @@ const MarketingData = () => {
 
       </div>
       <RangeAssignment salesMembers={salesModerators} handleRangeAssign={handleRangeAssign} />
-      
+      <ExcelUploadDownload handleDownloadTemplate={downloadTemplate} handleDataUpload={handleFileUpload}/>
       <Card>
         <Card.Header className="d-flex align-items-center">
           <div className="w-50">Marketing Leads</div>

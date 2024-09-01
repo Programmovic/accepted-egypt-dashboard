@@ -4,6 +4,8 @@ import { PropsWithChildren, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Cookies from "js-cookie";
 import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 type ItemWithIconProps = {
   icon: React.ReactNode;
@@ -28,12 +30,18 @@ export default function HeaderProfileNav() {
   const [showPopover, setShowPopover] = useState(false);
 
   const logout = async () => {
+    toast.info("Logging out...", { autoClose: false, toastId: "logout-toast" }); // Show loading toast with a unique ID
+
     try {
       const res = await axios.post("/api/user/logout");
       if (res.status === 200) {
+        toast.dismiss("logout-toast"); // Dismiss loading toast
+        toast.success("Logged out successfully!");
         router.push("/login");
       }
     } catch (error) {
+      toast.dismiss("logout-toast"); // Dismiss loading toast
+      toast.error("An error occurred while logging out. Please try again.");
       console.error(error);
     }
   };
@@ -68,6 +76,7 @@ export default function HeaderProfileNav() {
 
   return (
     <div style={{ position: "relative" }}>
+      <ToastContainer position="top-right" autoClose={3000} />
       <Button
         onClick={() => setShowPopover(!showPopover)}
         startIcon={<Avatar>{username && username[0].toUpperCase()}</Avatar>}
