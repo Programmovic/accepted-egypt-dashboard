@@ -164,37 +164,33 @@ const MarketingDataDetail = () => {
     // Clear the toast if the component unmounts
     return () => toast.dismiss(toastId);
 
-}, [id, apiUrl, salesStatusApiUrl, unsavedChanges]);
+}, [id, apiUrl, salesStatusApiUrl]);
   console.log(paymentMethods)
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
-  
-    // Handle switch input
+
     if (type === "checkbox") {
-      setMarketingData({
-        ...marketingData,
-        [name]: checked ? "true" : "false",
-      });
+        setMarketingData({
+            ...marketingData,
+            [name]: checked ? "true" : "false",
+        });
+    } else if (type === "range") {
+        const discountValue = parseFloat(value);
+        setMarketingData({
+            ...marketingData,
+            [name]: discountValue,
+            amountAfterDiscount: marketingData.paidAmount * (1 - discountValue / 100),
+        });
     } else {
-      // Handle other input types
-      const updatedData = {
-        ...marketingData,
-        [name]: value,
-      };
-  
-      // Calculate paidAmount and amountAfterDiscount if discount is changed
-      if (name === 'discount') {
-        const discountPercentage = parseFloat(value);
-        updatedData.paidAmount = marketingData?.placementTest?.cost * (1 - discountPercentage / 100);
-        updatedData.amountAfterDiscount = updatedData.paidAmount; // assuming no other discounts
-      }
-  
-      setMarketingData(updatedData);
+        setMarketingData({
+            ...marketingData,
+            [name]: value,
+        });
     }
-  
+
     setUnsavedChanges(true);
-  };
-  
+};
+
 
   const handleSave = async () => {
     // Show loading toast
