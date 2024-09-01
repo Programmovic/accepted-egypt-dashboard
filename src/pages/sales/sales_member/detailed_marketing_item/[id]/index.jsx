@@ -232,10 +232,10 @@ const MarketingDataDetail = () => {
             Last Updated: {new Date(marketingData?.updatedAt).toLocaleString()}
           </span>
           <div>
-            <Button variant="outline-secondry" onClick={() => router.push(`/sales/sales_member/detailed_marketing_item/${id}/logs`)}>
+            <Button variant="outline-primary" onClick={() => router.push(`/sales/sales_member/detailed_marketing_item/${id}/logs`)}>
               Logs
             </Button>
-            <Button variant="primary" className="ms-2" onClick={handleSave} disabled={!unsavedChanges}>
+            <Button variant="outline-primary" className="ms-2" onClick={handleSave} disabled={!unsavedChanges}>
               Save
             </Button>
 

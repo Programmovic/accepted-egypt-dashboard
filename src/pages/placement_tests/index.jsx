@@ -38,29 +38,42 @@ const PlacementTests = () => {
   const [availableRooms, setAvailableRooms] = useState([]); // New state for rooms
   const [selectedRoom, setSelectedRoom] = useState(null);
   const fetchPlacementTestData = async () => {
+    // Show loading toast
+    const toastId = toast.loading("Loading placement test data...");
+  
     try {
       const settingsResponse = await axios.get("/api/placement_test_settings");
-      console.log("egirje", settingsResponse.data)
+      console.log("egirje", settingsResponse.data);
       const testsResponse = await axios.get("/api/placement_test");
-
+  
       if (settingsResponse.status === 200 && testsResponse.status === 200) {
         setPlacementTestSettings(settingsResponse.data);
         setPlacementTests(testsResponse.data);
         setFilteredPlacementTests(testsResponse.data);
+  
+        // Update toast with success message
+        toast.update(toastId, {
+          render: "Placement test data loaded successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
       }
     } catch (error) {
       console.error("Error fetching placement test data:", error);
-      toast.error(
-        "Failed to fetch placement test data. Please try again later.",
-        {
-          position: "top-right",
-          autoClose: 3000,
-        }
-      );
+  
+      // Update toast with error message
+      toast.update(toastId, {
+        render: "Failed to fetch placement test data. Please try again later.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
     } finally {
       setLoading(false);
     }
   };
+  
   const date = newTestDate; // Use your desired date
   const [newTestStartTime, setNewTestStartTime] = useState("");
   const [newTestEndTime, setNewTestEndTime] = useState("");
@@ -69,6 +82,9 @@ const PlacementTests = () => {
   const apiUrl = "/api/reservation/available-rooms"; // Update the URL if needed
   console.log(date, new Date());
   const fetchRooms = async () => {
+    // Show loading toast
+    const toastId = toast.loading("Fetching room data...");
+  
     try {
       // Fetch all rooms
       const params = {
@@ -77,25 +93,46 @@ const PlacementTests = () => {
         newTestEndTime,
       };
       const roomsResponse = await axios.get(apiUrl, { params });
-      if (roomsResponse.status !== 200) {
-        console.error("Error fetching rooms:", roomsResponse.statusText);
-        toast.error("Failed to fetch room data. Please try again later.", {
-          position: "top-right",
+  
+      if (roomsResponse.status === 200) {
+        const rooms = roomsResponse.data.map((room) => ({
+          value: room._id, // Use a unique identifier for each room
+          label: room.name, // Display room name as label
+          capacity: room.capacity
+        }));
+        setAvailableRooms(rooms);
+  
+        // Update toast with success message
+        toast.update(toastId, {
+          render: "Room data fetched successfully!",
+          type: "success",
+          isLoading: false,
           autoClose: 3000,
         });
-        return;
+      } else {
+        console.error("Error fetching rooms:", roomsResponse.statusText);
+  
+        // Update toast with error message
+        toast.update(toastId, {
+          render: "Failed to fetch room data. Please try again later.",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
       }
-
-      const rooms = roomsResponse.data.map((room) => ({
-        value: room._id, // Use a unique identifier for each room
-        label: room.name, // Display room name as label
-        capacity: room.capacity
-      }));
-      setAvailableRooms(rooms);
     } catch (error) {
       console.error("Error fetching rooms and reservations:", error);
+  
+      // Update toast with error message
+      toast.update(toastId, {
+        render: "An error occurred while fetching room data. Please try again.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
     }
   };
+  
 
   useEffect(() => {
     fetchRooms();
