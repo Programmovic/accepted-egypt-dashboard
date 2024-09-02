@@ -3,7 +3,7 @@ import Attendance from "../../../../models/attendance";
 import Student from "../../../../models/student"; // Import the Student model
 import Lecture from "../../../../models/lecture"; // Import the Lecture model
 import Batch from "../../../../models/batch"; // Import the Batch model
-import WaitingList from "../../../../models/waitingList"; // Import the WaitingList model
+import WaitingList from "../../../../models/waiting_list"; // Import the WaitingList model
 
 export default async (req, res) => {
   await connectDB();
