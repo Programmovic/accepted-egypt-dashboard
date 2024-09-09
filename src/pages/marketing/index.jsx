@@ -20,6 +20,7 @@ import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { Delete } from "@mui/icons-material";
 import { Edit } from "@mui/icons-material";
 import { ClassCard } from "@components/Classes";
+import { Alert, Container } from 'react-bootstrap';
 
 const MarketingData = () => {
   const router = useRouter();
@@ -255,7 +256,7 @@ const MarketingData = () => {
         type: "success",
         isLoading: false,
         autoClose: 3000, // Automatically close the toast after 3 seconds
-        
+
       });
     } catch (error) {
       closeModal();
@@ -272,7 +273,7 @@ const MarketingData = () => {
             type: "error",
             isLoading: false,
             autoClose: 3000,
-            
+
           });
         } else {
           // General error message for failure
@@ -281,7 +282,7 @@ const MarketingData = () => {
             type: "error",
             isLoading: false,
             autoClose: 3000,
-            
+
           });
         }
       } else {
@@ -291,7 +292,7 @@ const MarketingData = () => {
           type: "error",
           isLoading: false,
           autoClose: 3000,
-          
+
         });
       }
     }
@@ -312,13 +313,15 @@ const MarketingData = () => {
     }
   };
 
+
+  const [messages, setMessages] = useState({ errors: [], successes: [] }); // State for storing messages
+
   const handleFileUpload = async (event) => {
-    const fileInput = event.target; // Reference to the file input
+    const fileInput = event.target;
     const file = fileInput.files[0];
 
     if (!file) {
-      console.error("Error: No file selected.");
-      toast.error("Error: No file selected.");
+      setMessages(prev => ({ ...prev, errors: [...prev.errors, "Error: No file selected."] }));
       return;
     }
 
@@ -334,41 +337,25 @@ const MarketingData = () => {
 
         console.log("Parsed JSON data:", jsonData);
 
-        // Process each data item
         for (const dataItem of jsonData) {
           console.log("Processing item:", dataItem);
 
-          // Validate required fields
           if (!dataItem.name || !dataItem.phoneNo1) {
-            console.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`);
-            toast.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`, {
-              autoClose: false,
-              
-            });
+            setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`] }));
             continue;
           }
 
-          // Validate phone numbers
           if (dataItem.phoneNo1.length !== 11 || (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11)) {
-            console.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`);
-            toast.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`, {
-              autoClose: false,
-              
-            });
+            setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error: Phone number for ${dataItem.name} must be exactly 11 digits.`] }));
             continue;
           }
 
           if (dataItem.phoneNo2 && dataItem.phoneNo1 === dataItem.phoneNo2) {
-            console.error(`Error: Phone numbers for ${dataItem.name} must be different.`);
-            toast.error(`Error: Phone numbers for ${dataItem.name} must be different.`, {
-              autoClose: false,
-              
-            });
+            setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error: Phone numbers for ${dataItem.name} must be different.`] }));
             continue;
           }
 
           try {
-            // Check if the item already exists in the database
             const existingItem = await axios.post("/api/marketing/check-duplicates", {
               phoneNo1: dataItem.phoneNo1,
               phoneNo2: dataItem.phoneNo2,
@@ -377,53 +364,36 @@ const MarketingData = () => {
             console.log("Check duplicate response:", existingItem.data);
 
             if (existingItem.data.exists) {
-              console.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`);
-              toast.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`, {
-                autoClose: false,
-                
-              });
+              setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`] }));
               continue;
             }
 
-            // If no duplicate is found, proceed with the request
             await axios.post("/api/marketing", dataItem);
-            console.log(`${dataItem.name} has been added successfully.`);
-            toast.success(`${dataItem.name} has been added successfully!`, {
-
-            });
+            setMessages(prev => ({ ...prev, successes: [...prev.successes, `${dataItem.name} has been added successfully.`] }));
           } catch (error) {
-            console.error("Error checking or adding marketing data from file:", error.message);
-            toast.error(`Error adding data for ${dataItem.name}: ${error.message}`);
+            setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error adding data for ${dataItem.name}: ${error.message}`] }));
           }
         }
 
-        // Fetch the latest marketing data after processing
         try {
           await fetchMarketingData();
-          console.log("Marketing data fetch completed.");
           toast.success("Marketing data upload process completed!");
         } catch (fetchError) {
-          console.error("Error fetching marketing data:", fetchError.message);
-          toast.error("Error fetching marketing data.");
+          setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error fetching marketing data: ${fetchError.message}`] }));
         }
       } catch (error) {
-        console.error("Error reading or processing file:", error.message);
-        toast.error("Error processing the uploaded file.");
+        setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error processing the uploaded file: ${error.message}`] }));
       } finally {
-        // Reset the file input after processing
         fileInput.value = "";
-        console.log("File input reset.");
       }
     };
 
     reader.onerror = (error) => {
-      console.error("FileReader error:", error.message);
-      toast.error("Error reading the file.");
+      setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error reading the file: ${error.message}`] }));
     };
 
     reader.readAsArrayBuffer(file);
   };
-
 
 
 
@@ -485,14 +455,18 @@ const MarketingData = () => {
   };
   const closeAllToasts = () => {
     toast.dismiss();
+
   };
   return (
     <AdminLayout>
-      <Button variant="outline-secondary" className="mb-3" onClick={closeAllToasts}>
+      <Button variant="outline-secondary" className="mb-3" onClick={() => {
+        closeAllToasts();
+        setMessages({ errors: [], successes: [] })
+      }}>
         Clear
       </Button>
 
-      
+
       <Row>
         <ClassCard
           data={marketingData.length}
@@ -731,10 +705,31 @@ const MarketingData = () => {
       </div>
       <RangeAssignment salesMembers={salesModerators} handleRangeAssign={handleRangeAssign} />
       <ExcelUploadDownload openModal={openModal} handleDownloadTemplate={downloadTemplate} handleDataUpload={handleFileUpload} />
+      <Container>
+        {/* Scrollable Error Container */}
+        <div className="px-5 py-3" style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1rem', backgroundColor: "rgb(245, 245, 245)", borderRadius: "8px" }}>
+          {messages.errors.length > 0 && messages.errors.map((msg, index) => (
+            <Alert key={index} variant="danger">
+              {msg}
+            </Alert>
+          ))}
+        </div>
+
+        {/* Success Messages */}
+        {messages.successes.length > 0 && (
+          <div>
+            {messages.successes.map((msg, index) => (
+              <Alert key={index} variant="success">
+                {msg}
+              </Alert>
+            ))}
+          </div>
+        )}
+      </Container>
       <Card>
         <Card.Header className="d-flex align-items-center">
           <div className="w-50">Marketing Leads</div>
-          
+
         </Card.Header>
         <Card.Body>
 
