@@ -488,8 +488,8 @@ const MarketingData = () => {
   };
   return (
     <AdminLayout>
-      <Button variant="danger" onClick={closeAllToasts}>
-        Close All Toasts
+      <Button variant="outline-secondary" className="mb-3" onClick={closeAllToasts}>
+        Clear
       </Button>
 
       
@@ -734,12 +734,7 @@ const MarketingData = () => {
       <Card>
         <Card.Header className="d-flex align-items-center">
           <div className="w-50">Marketing Leads</div>
-          {/* <div className="w-50 d-flex justify-content-between align-items-center">
-            <input type="file" onChange={handleFileUpload} accept=".xlsx, .xls" />
-            <Button variant="outline-primary" onClick={downloadTemplate}>
-              Download Template
-            </Button>
-          </div> */}
+          
         </Card.Header>
         <Card.Body>
 
