@@ -319,14 +319,17 @@ const MarketingData = () => {
   const handleFileUpload = async (event) => {
     const fileInput = event.target;
     const file = fileInput.files[0];
-
+  
     if (!file) {
-      setMessages(prev => ({ ...prev, errors: [...prev.errors, "Error: No file selected."] }));
+      setMessages((prev) => ({
+        ...prev,
+        errors: [...prev.errors, "Error: No file selected."],
+      }));
       return;
     }
-
+  
     const reader = new FileReader();
-
+  
     reader.onload = async (e) => {
       try {
         const data = new Uint8Array(e.target.result);
@@ -334,66 +337,147 @@ const MarketingData = () => {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
-
+  
         console.log("Parsed JSON data:", jsonData);
-
+  
         for (const dataItem of jsonData) {
           console.log("Processing item:", dataItem);
-
+  
+          // Ensure phone numbers are strings for manipulation
+          let phoneNo1 = dataItem.phoneNo1 ? dataItem.phoneNo1.toString() : "";
+          let phoneNo2 = dataItem.phoneNo2 ? dataItem.phoneNo2.toString() : "";
+  
+          // Add leading zero if the phone number is less than 11 digits and does not start with zero
+          if (phoneNo1.length < 11 && !phoneNo1.startsWith("0")) {
+            phoneNo1 = "0" + phoneNo1;
+          }
+          if (phoneNo2.length < 11 && !phoneNo2.startsWith("0")) {
+            phoneNo2 = "0" + phoneNo2;
+          }
+  
+          // Update dataItem with formatted phone numbers
+          dataItem.phoneNo1 = phoneNo1;
+          dataItem.phoneNo2 = phoneNo2;
+  
+          // Validate required fields
           if (!dataItem.name || !dataItem.phoneNo1) {
-            setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`] }));
+            setMessages((prev) => ({
+              ...prev,
+              errors: [
+                ...prev.errors,
+                `Error: Missing required fields in item for ${
+                  dataItem.name || "unknown name"
+                }.`,
+              ],
+            }));
             continue;
           }
-
-          if (dataItem.phoneNo1.length !== 11 || (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11)) {
-            setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error: Phone number for ${dataItem.name} must be exactly 11 digits.`] }));
+  
+          // Validate phone numbers
+          if (
+            dataItem.phoneNo1.length !== 11 ||
+            (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11)
+          ) {
+            setMessages((prev) => ({
+              ...prev,
+              errors: [
+                ...prev.errors,
+                `Error: Phone number for ${dataItem.name} must be exactly 11 digits.`,
+              ],
+            }));
             continue;
           }
-
+  
           if (dataItem.phoneNo2 && dataItem.phoneNo1 === dataItem.phoneNo2) {
-            setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error: Phone numbers for ${dataItem.name} must be different.`] }));
+            setMessages((prev) => ({
+              ...prev,
+              errors: [
+                ...prev.errors,
+                `Error: Phone numbers for ${dataItem.name} must be different.`,
+              ],
+            }));
             continue;
           }
-
+  
           try {
-            const existingItem = await axios.post("/api/marketing/check-duplicates", {
-              phoneNo1: dataItem.phoneNo1,
-              phoneNo2: dataItem.phoneNo2,
-            });
-
+            const existingItem = await axios.post(
+              "/api/marketing/check-duplicates",
+              {
+                phoneNo1: dataItem.phoneNo1,
+                phoneNo2: dataItem.phoneNo2,
+              }
+            );
+  
             console.log("Check duplicate response:", existingItem.data);
-
+  
             if (existingItem.data.exists) {
-              setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`] }));
+              setMessages((prev) => ({
+                ...prev,
+                errors: [
+                  ...prev.errors,
+                  `Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`,
+                ],
+              }));
               continue;
             }
-
+  
             await axios.post("/api/marketing", dataItem);
-            setMessages(prev => ({ ...prev, successes: [...prev.successes, `${dataItem.name} has been added successfully.`] }));
+            setMessages((prev) => ({
+              ...prev,
+              successes: [
+                ...prev.successes,
+                `${dataItem.name} has been added successfully.`,
+              ],
+            }));
           } catch (error) {
-            setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error adding data for ${dataItem.name}: ${error.message}`] }));
+            setMessages((prev) => ({
+              ...prev,
+              errors: [
+                ...prev.errors,
+                `Error adding data for ${dataItem.name}: ${error.message}`,
+              ],
+            }));
           }
         }
-
+  
         try {
           await fetchMarketingData();
           toast.success("Marketing data upload process completed!");
         } catch (fetchError) {
-          setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error fetching marketing data: ${fetchError.message}`] }));
+          setMessages((prev) => ({
+            ...prev,
+            errors: [
+              ...prev.errors,
+              `Error fetching marketing data: ${fetchError.message}`,
+            ],
+          }));
         }
       } catch (error) {
-        setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error processing the uploaded file: ${error.message}`] }));
+        setMessages((prev) => ({
+          ...prev,
+          errors: [
+            ...prev.errors,
+            `Error processing the uploaded file: ${error.message}`,
+          ],
+        }));
       } finally {
         fileInput.value = "";
       }
     };
-
+  
     reader.onerror = (error) => {
-      setMessages(prev => ({ ...prev, errors: [...prev.errors, `Error reading the file: ${error.message}`] }));
+      setMessages((prev) => ({
+        ...prev,
+        errors: [
+          ...prev.errors,
+          `Error reading the file: ${error.message}`,
+        ],
+      }));
     };
-
+  
     reader.readAsArrayBuffer(file);
   };
+  
 
 
 
