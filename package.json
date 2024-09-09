@@ -59,6 +59,7 @@
     "node-cron": "^3.0.2",
     "nprogress": "^0.2.0",
     "nylas": "^6.10.0",
+    "papaparse": "^5.4.1",
     "print-react": "^1.0.3",
     "prop-types": "^15.8.1",
     "qrcode": "^1.5.3",

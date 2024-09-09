@@ -14,7 +14,7 @@ import Link from "next/link";
 import RangeAssignment from "../../components/RangeAssignment";
 import ExcelUploadDownload from "../../components/UploadExcel";
 import TextField from "@mui/material/TextField";
-
+import Papa from "papaparse";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { Delete } from "@mui/icons-material";
@@ -81,12 +81,12 @@ const MarketingData = () => {
         setSalesModerators(data.salesModerators.filter(s => s?.department?.name === "Sales"));
         setSalesMembers(data.salesMembers);
         setFilteredData(data.marketingData);
-        toast.dismiss("fetch-toast"); // Dismiss loading toast
+        toast.dismiss("fetch-toast", { toastId: 13 }); // Dismiss loading toast
         toast.success("Marketing data fetched successfully!");
       }
     } catch (error) {
-      toast.dismiss("fetch-toast"); // Dismiss loading toast
-      toast.error("Failed to fetch marketing data. Please try again later.");
+      toast.dismiss("fetch-toast", { toastId: 13 }); // Dismiss loading toast
+      toast.error("Failed to fetch marketing data. Please try again later.", { toastId: 13 });
       console.error("Error fetching marketing data:", error);
       setError("Failed to fetch marketing data. Please try again later.");
     } finally {
@@ -212,11 +212,11 @@ const MarketingData = () => {
 
     try {
       if (!newName || !newPhoneNo1) {
-        toast.error("Please fill all required fields.");
+        toast.error("Please fill all required fields.", { toastId: 13 });
         return;
       }
       if (newPhoneNo1.length > 11 || newPhoneNo1.length < 11) {
-        toast.error("Phone must be at least 11 digits.");
+        toast.error("Phone must be at least 11 digits.", { toastId: 13 });
         return;
       }
       await axios.post("/api/marketing", {
@@ -233,16 +233,16 @@ const MarketingData = () => {
       });
       closeModal();
       fetchMarketingData();
-      toast.success("Marketing data added successfully!");
+      toast.success("Marketing data added successfully!", { toastId: 13 });
     } catch (error) {
       console.error("Error adding marketing data:", error.message);
       setError("Failed to add marketing data. Please try again.");
-      toast.error(error.message);
+      toast.error(error.message, { toastId: 13 });
     }
   };
   const handleUpdateMarketingData = async (item, updatedData) => {
     // Display a loading toast
-    const toastId = toast.loading("Updating marketing data...");
+    const toastId = toast.loading("Updating marketing data...", { toastId: 13 });
 
     try {
       const response = await axios.put(`/api/marketing?id=${item}`, updatedData); // Send the PUT request with ID and updated data
@@ -255,6 +255,7 @@ const MarketingData = () => {
         type: "success",
         isLoading: false,
         autoClose: 3000, // Automatically close the toast after 3 seconds
+        toastId: 13
       });
     } catch (error) {
       closeModal();
@@ -271,6 +272,7 @@ const MarketingData = () => {
             type: "error",
             isLoading: false,
             autoClose: 3000,
+            toastId: 13
           });
         } else {
           // General error message for failure
@@ -279,6 +281,7 @@ const MarketingData = () => {
             type: "error",
             isLoading: false,
             autoClose: 3000,
+            toastId: 13
           });
         }
       } else {
@@ -288,6 +291,7 @@ const MarketingData = () => {
           type: "error",
           isLoading: false,
           autoClose: 3000,
+          toastId: 13
         });
       }
     }
@@ -300,11 +304,11 @@ const MarketingData = () => {
       await axios.delete(`/api/marketing?id=${id}`); // Assuming you pass the ID in the URL params
       closeModal();
       fetchMarketingData(); // Assuming fetchMarketingData is a function to refetch the updated data
-      toast.success("Marketing data deleted successfully!");
+      toast.success("Marketing data deleted successfully!", { toastId: 13 });
     } catch (error) {
       console.error("Error deleting marketing data:", error.message);
       setError("Failed to delete marketing data. Please try again.");
-      toast.error(error.message);
+      toast.error(error.message, { toastId: 13 });
     }
   };
 
@@ -314,7 +318,7 @@ const MarketingData = () => {
 
     if (!file) {
       console.error("Error: No file selected.");
-      toast.error("Error: No file selected.");
+      toast.error("Error: No file selected.", { toastId: 13 });
       return;
     }
 
@@ -339,6 +343,7 @@ const MarketingData = () => {
             console.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`);
             toast.error(`Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`, {
               autoClose: false,
+              toastId: 13
             });
             continue;
           }
@@ -348,6 +353,7 @@ const MarketingData = () => {
             console.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`);
             toast.error(`Error: Phone number for ${dataItem.name} must be exactly 11 digits.`, {
               autoClose: false,
+              toastId: 13
             });
             continue;
           }
@@ -356,6 +362,7 @@ const MarketingData = () => {
             console.error(`Error: Phone numbers for ${dataItem.name} must be different.`);
             toast.error(`Error: Phone numbers for ${dataItem.name} must be different.`, {
               autoClose: false,
+              toastId: 13
             });
             continue;
           }
@@ -373,6 +380,7 @@ const MarketingData = () => {
               console.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`);
               toast.error(`Error: An item with phone number ${dataItem.phoneNo1} or ${dataItem.phoneNo2} already exists.`, {
                 autoClose: false,
+                toastId: 13
               });
               continue;
             }
@@ -380,7 +388,9 @@ const MarketingData = () => {
             // If no duplicate is found, proceed with the request
             await axios.post("/api/marketing", dataItem);
             console.log(`${dataItem.name} has been added successfully.`);
-            toast.success(`${dataItem.name} has been added successfully!`);
+            toast.success(`${dataItem.name} has been added successfully!`, {
+toastId: 13
+            });
           } catch (error) {
             console.error("Error checking or adding marketing data from file:", error.message);
             toast.error(`Error adding data for ${dataItem.name}: ${error.message}`);
@@ -391,14 +401,14 @@ const MarketingData = () => {
         try {
           await fetchMarketingData();
           console.log("Marketing data fetch completed.");
-          toast.success("Marketing data upload process completed!");
+          toast.success("Marketing data upload process completed!", {toastId: 13  });
         } catch (fetchError) {
           console.error("Error fetching marketing data:", fetchError.message);
-          toast.error("Error fetching marketing data.");
+          toast.error("Error fetching marketing data.", {toastId: 13  });
         }
       } catch (error) {
         console.error("Error reading or processing file:", error.message);
-        toast.error("Error processing the uploaded file.");
+        toast.error("Error processing the uploaded file.", {toastId: 13  });
       } finally {
         // Reset the file input after processing
         fileInput.value = "";
@@ -408,7 +418,7 @@ const MarketingData = () => {
 
     reader.onerror = (error) => {
       console.error("FileReader error:", error.message);
-      toast.error("Error reading the file.");
+      toast.error("Error reading the file.", {toastId: 13  });
     };
 
     reader.readAsArrayBuffer(file);
@@ -437,7 +447,7 @@ const MarketingData = () => {
   };
   const handleRangeAssign = async (rangeStart, rangeEnd, selectedSalesMember) => {
     if (!rangeStart || !rangeEnd || !selectedSalesMember) {
-      toast.error("Please fill in all range fields and select a sales member.");
+      toast.error("Please fill in all range fields and select a sales member.", {toastId: 13  });
       return;
     }
 
@@ -452,9 +462,9 @@ const MarketingData = () => {
         })
       );
       await Promise.all(updates);
-      toast.success("Assigned sales member to specified range successfully!");
+      toast.success("Assigned sales member to specified range successfully!", {toastId: 13  });
     } else {
-      toast.error("Invalid range.");
+      toast.error("Invalid range.", {toastId: 13  });
     }
   };
   const exportToExcel = () => {
@@ -473,9 +483,19 @@ const MarketingData = () => {
     const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(dataBlob, "marketing_data.xlsx");
   };
+  const closeAllToasts = () => {
+    toast.dismiss();
+  };
   return (
     <AdminLayout>
-      <ToastContainer />
+      <Button variant="danger" onClick={closeAllToasts}>
+        Close All Toasts
+      </Button>
+
+      <ToastContainer
+        position="bottom-center"
+      />
+      
       <Row>
         <ClassCard
           data={marketingData.length}
