@@ -340,18 +340,42 @@ const MarketingData = () => {
   
         console.log("Parsed JSON data:", jsonData);
   
+        // Function to normalize Arabic numbers to Western digits
+        const normalizeNumber = (number) => {
+          const arabicToWesternMap = {
+            '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+            '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9',
+          };
+          return number.replace(/[٠-٩]/g, (digit) => arabicToWesternMap[digit]);
+        };
+  
+        // Function to check if the phone number contains only digits
+        const isValidPhoneNumber = (number) => /^[0-9]+$/.test(number);
+  
         for (const dataItem of jsonData) {
           console.log("Processing item:", dataItem);
   
-          // Ensure phone numbers are strings for manipulation
-          let phoneNo1 = dataItem.phoneNo1 ? dataItem.phoneNo1.toString() : "";
-          let phoneNo2 = dataItem.phoneNo2 ? dataItem.phoneNo2.toString() : "";
+          // Normalize and ensure phone numbers are strings for manipulation
+          let phoneNo1 = dataItem.phoneNo1 ? normalizeNumber(dataItem.phoneNo1.toString()) : "";
+          let phoneNo2 = dataItem.phoneNo2 ? normalizeNumber(dataItem.phoneNo2.toString()) : "";
+  
+          // Validate that phone numbers contain only digits
+          if (!isValidPhoneNumber(phoneNo1) || (phoneNo2 && !isValidPhoneNumber(phoneNo2))) {
+            setMessages((prev) => ({
+              ...prev,
+              errors: [
+                ...prev.errors,
+                `Error: Phone number for ${dataItem.name} contains invalid characters. It must contain only digits.`,
+              ],
+            }));
+            continue;
+          }
   
           // Add leading zero if the phone number is less than 11 digits and does not start with zero
           if (phoneNo1.length < 11 && !phoneNo1.startsWith("0")) {
             phoneNo1 = "0" + phoneNo1;
           }
-          if (dataItem.phoneNo2 && phoneNo2.length < 11 && !phoneNo2.startsWith("0")) {
+          if (phoneNo2 && phoneNo2.length < 11 && !phoneNo2.startsWith("0")) {
             phoneNo2 = "0" + phoneNo2;
           }
   
@@ -365,38 +389,34 @@ const MarketingData = () => {
               ...prev,
               errors: [
                 ...prev.errors,
-                `Error: Missing required fields in item for ${
-                  dataItem.name || "unknown name"
-                }.`,
+                `Error: Missing required fields in item for ${dataItem.name || "unknown name"}.`,
               ],
             }));
             continue;
           }
   
           // Validate phone numbers
-          // Validate phone numbers
-        if (dataItem.phoneNo1.length !== 11) {
-          setMessages((prev) => ({
-            ...prev,
-            errors: [
-              ...prev.errors,
-              `Error: Phone number for ${dataItem.name} must be exactly 11 digits.`,
-            ],
-          }));
-          continue;
-        }
-
-        if (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11) {
-          setMessages((prev) => ({
-            ...prev,
-            errors: [
-              ...prev.errors,
-              `Error: Secondary phone number for ${dataItem.phoneNo2} must be exactly 11 digits if provided.`,
-            ],
-          }));
-          continue;
-        }
-
+          if (dataItem.phoneNo1.length !== 11) {
+            setMessages((prev) => ({
+              ...prev,
+              errors: [
+                ...prev.errors,
+                `Error: Phone number for ${dataItem.name} must be exactly 11 digits.`,
+              ],
+            }));
+            continue;
+          }
+  
+          if (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11) {
+            setMessages((prev) => ({
+              ...prev,
+              errors: [
+                ...prev.errors,
+                `Error: Secondary phone number for ${dataItem.name} must be exactly 11 digits if provided.`,
+              ],
+            }));
+            continue;
+          }
   
           if (dataItem.phoneNo2 && dataItem.phoneNo1 === dataItem.phoneNo2) {
             setMessages((prev) => ({
@@ -487,6 +507,7 @@ const MarketingData = () => {
   
     reader.readAsArrayBuffer(file);
   };
+  
   
 
 
