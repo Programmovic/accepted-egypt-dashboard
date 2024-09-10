@@ -351,7 +351,7 @@ const MarketingData = () => {
           if (phoneNo1.length < 11 && !phoneNo1.startsWith("0")) {
             phoneNo1 = "0" + phoneNo1;
           }
-          if (phoneNo2.length < 11 && !phoneNo2.startsWith("0")) {
+          if (dataItem.phoneNo2 && phoneNo2.length < 11 && !phoneNo2.startsWith("0")) {
             phoneNo2 = "0" + phoneNo2;
           }
   
@@ -374,19 +374,29 @@ const MarketingData = () => {
           }
   
           // Validate phone numbers
-          if (
-            dataItem.phoneNo1.length !== 11 ||
-            (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11)
-          ) {
-            setMessages((prev) => ({
-              ...prev,
-              errors: [
-                ...prev.errors,
-                `Error: Phone number for ${dataItem.name} must be exactly 11 digits.`,
-              ],
-            }));
-            continue;
-          }
+          // Validate phone numbers
+        if (dataItem.phoneNo1.length !== 11) {
+          setMessages((prev) => ({
+            ...prev,
+            errors: [
+              ...prev.errors,
+              `Error: Phone number for ${dataItem.name} must be exactly 11 digits.`,
+            ],
+          }));
+          continue;
+        }
+
+        if (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11) {
+          setMessages((prev) => ({
+            ...prev,
+            errors: [
+              ...prev.errors,
+              `Error: Secondary phone number for ${dataItem.phoneNo2} must be exactly 11 digits if provided.`,
+            ],
+          }));
+          continue;
+        }
+
   
           if (dataItem.phoneNo2 && dataItem.phoneNo1 === dataItem.phoneNo2) {
             setMessages((prev) => ({
