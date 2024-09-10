@@ -516,6 +516,7 @@ const MarketingData = () => {
   const downloadTemplate = () => {
     const templateData = [
       {
+        createdAt: "",
         name: "",
         phoneNo1: "",
         phoneNo2: "",
