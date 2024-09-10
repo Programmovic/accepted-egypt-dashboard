@@ -603,7 +603,7 @@ const MarketingData = () => {
         />
         <ClassCard
           data={marketingData.filter(lead => lead.candidateSignUpFor === "Recruitment").length}
-          title="Total Leads For Autobus El Shoughl"
+          title="Total Leads For Recruitment"
           enableOptions={false}
           isLoading={loading}
         />
