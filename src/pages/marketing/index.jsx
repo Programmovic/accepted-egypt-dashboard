@@ -319,7 +319,7 @@ const MarketingData = () => {
   const handleFileUpload = async (event) => {
     const fileInput = event.target;
     const file = fileInput.files[0];
-  
+
     if (!file) {
       setMessages((prev) => ({
         ...prev,
@@ -327,9 +327,9 @@ const MarketingData = () => {
       }));
       return;
     }
-  
+
     const reader = new FileReader();
-  
+
     reader.onload = async (e) => {
       try {
         const data = new Uint8Array(e.target.result);
@@ -337,9 +337,9 @@ const MarketingData = () => {
         const firstSheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet);
-  
+
         console.log("Parsed JSON data:", jsonData);
-  
+
         // Function to normalize Arabic numbers to Western digits
         const normalizeNumber = (number) => {
           const arabicToWesternMap = {
@@ -348,17 +348,17 @@ const MarketingData = () => {
           };
           return number.replace(/[٠-٩]/g, (digit) => arabicToWesternMap[digit]);
         };
-  
+
         // Function to check if the phone number contains only digits
         const isValidPhoneNumber = (number) => /^[0-9]+$/.test(number);
-  
+
         for (const dataItem of jsonData) {
           console.log("Processing item:", dataItem);
-  
+
           // Normalize and ensure phone numbers are strings for manipulation
           let phoneNo1 = dataItem.phoneNo1 ? normalizeNumber(dataItem.phoneNo1.toString()) : "";
           let phoneNo2 = dataItem.phoneNo2 ? normalizeNumber(dataItem.phoneNo2.toString()) : "";
-  
+
           // Validate that phone numbers contain only digits
           if (!isValidPhoneNumber(phoneNo1) || (phoneNo2 && !isValidPhoneNumber(phoneNo2))) {
             setMessages((prev) => ({
@@ -370,7 +370,7 @@ const MarketingData = () => {
             }));
             continue;
           }
-  
+
           // Add leading zero if the phone number is less than 11 digits and does not start with zero
           if (phoneNo1.length < 11 && !phoneNo1.startsWith("0")) {
             phoneNo1 = "0" + phoneNo1;
@@ -378,11 +378,14 @@ const MarketingData = () => {
           if (phoneNo2 && phoneNo2.length < 11 && !phoneNo2.startsWith("0")) {
             phoneNo2 = "0" + phoneNo2;
           }
-  
+
           // Update dataItem with formatted phone numbers
           dataItem.phoneNo1 = phoneNo1;
           dataItem.phoneNo2 = phoneNo2;
-  
+          const excelBaseDate = new Date(1899, 11, 30); // Excel base date is December 30, 1899
+          const days = dataItem.createdAt; // Example days value
+          const date = new Date(excelBaseDate.getTime() + days * 24 * 60 * 60 * 1000);
+          dataItem.createdAt = date
           // Validate required fields
           if (!dataItem.name || !dataItem.phoneNo1) {
             setMessages((prev) => ({
@@ -394,7 +397,7 @@ const MarketingData = () => {
             }));
             continue;
           }
-  
+
           // Validate phone numbers
           if (dataItem.phoneNo1.length !== 11) {
             setMessages((prev) => ({
@@ -406,7 +409,7 @@ const MarketingData = () => {
             }));
             continue;
           }
-  
+
           if (dataItem.phoneNo2 && dataItem.phoneNo2.length !== 11) {
             setMessages((prev) => ({
               ...prev,
@@ -417,7 +420,7 @@ const MarketingData = () => {
             }));
             continue;
           }
-  
+
           if (dataItem.phoneNo2 && dataItem.phoneNo1 === dataItem.phoneNo2) {
             setMessages((prev) => ({
               ...prev,
@@ -428,7 +431,7 @@ const MarketingData = () => {
             }));
             continue;
           }
-  
+
           try {
             const existingItem = await axios.post(
               "/api/marketing/check-duplicates",
@@ -437,9 +440,9 @@ const MarketingData = () => {
                 phoneNo2: dataItem.phoneNo2,
               }
             );
-  
+
             console.log("Check duplicate response:", existingItem.data);
-  
+
             if (existingItem.data.exists) {
               setMessages((prev) => ({
                 ...prev,
@@ -450,7 +453,7 @@ const MarketingData = () => {
               }));
               continue;
             }
-  
+
             await axios.post("/api/marketing", dataItem);
             setMessages((prev) => ({
               ...prev,
@@ -469,7 +472,7 @@ const MarketingData = () => {
             }));
           }
         }
-  
+
         try {
           await fetchMarketingData();
           toast.success("Marketing data upload process completed!");
@@ -494,7 +497,7 @@ const MarketingData = () => {
         fileInput.value = "";
       }
     };
-  
+
     reader.onerror = (error) => {
       setMessages((prev) => ({
         ...prev,
@@ -504,11 +507,11 @@ const MarketingData = () => {
         ],
       }));
     };
-  
+
     reader.readAsArrayBuffer(file);
   };
-  
-  
+
+
 
 
 

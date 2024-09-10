@@ -9,18 +9,23 @@ export default async (req, res) => {
       const { phoneNo1, phoneNo2 } = req.body;
 
       // Validate the input data
-      if (!phoneNo1) {
-        return res.status(400).json({ error: "PhoneNo1 is required" });
+      if (!phoneNo1 && !phoneNo2) {
+        return res.status(400).json({ error: "At least one phone number is required" });
       }
 
-      // Query to check if the phone numbers exist in any record
+      // Prepare query conditions
+      const queryConditions = [];
+
+      if (phoneNo1) {
+        queryConditions.push({ phoneNo1 });
+      }
+      if (phoneNo2) {
+        queryConditions.push({ phoneNo2 });
+      }
+
+      // Query to check if any phone number exists in the database
       const duplicateItem = await MarketingData.findOne({
-        $or: [
-          { phoneNo1 },
-          { phoneNo2 },
-          { phoneNo1: phoneNo2 }, // Check if phoneNo1 in the current item matches phoneNo2 in any record
-          { phoneNo2: phoneNo1 }  // Check if phoneNo2 in the current item matches phoneNo1 in any record
-        ]
+        $or: queryConditions
       });
 
       if (duplicateItem) {
