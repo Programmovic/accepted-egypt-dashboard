@@ -11,7 +11,7 @@
   border-radius: 50%;
 }
 
-.radio-group .custom-control-input:checked~.custom-control-label::before {
+.radio-group .custom-control-input:checked ~ .custom-control-label::before {
   background-color: #007bff;
   /* Background color for the selected state */
   border: none;
@@ -19,7 +19,7 @@
 }
 
 .radio-group .custom-control-label::after {
-  content: '';
+  content: "";
   width: 0.6rem;
   height: 0.6rem;
   background-color: white;
@@ -32,7 +32,7 @@
   display: none;
 }
 
-.radio-group .custom-control-input:checked~.custom-control-label::after {
+.radio-group .custom-control-input:checked ~ .custom-control-label::after {
   display: block;
   /* Show the radio dot in the selected state */
 }
@@ -117,6 +117,16 @@ ol.progress-meter li.todo:before {
   flex-wrap: wrap;
   gap: 10px;
 }
+.fc .fc-daygrid-body,
+.fc .fc-scrollgrid-section-body table,
+.fc .fc-scrollgrid-section-footer table,
+.fc .fc-scrollgrid-section table,
+.fc .fc-timegrid-axis-chunk > table,
+.fc .fc-timegrid-slots,
+.fc .fc-timegrid-body  {
+  width: 100% !important;
+  height: 100% !important;
+}
 
 .reservation {
   background-color: #f0f0f0;
@@ -140,30 +150,29 @@ ol.progress-meter li.todo:before {
   grid-column: span 1;
 }
 
-
 .profile-button {
   background: rgb(99, 39, 120);
   box-shadow: none;
-  border: none
+  border: none;
 }
 
 .profile-button:hover {
-  background: #682773
+  background: #682773;
 }
 
 .profile-button:focus {
   background: #682773;
-  box-shadow: none
+  box-shadow: none;
 }
 
 .profile-button:active {
   background: #682773;
-  box-shadow: none
+  box-shadow: none;
 }
 
 .back:hover {
   color: #682773;
-  cursor: pointer
+  cursor: pointer;
 }
 
 .labels {
@@ -171,10 +180,10 @@ ol.progress-meter li.todo:before {
 }
 
 .add-experience:hover {
-  background: #BA68C8;
+  background: #ba68c8;
   color: #fff;
   cursor: pointer;
-  border: solid 1px #BA68C8
+  border: solid 1px #ba68c8;
 }
 
 .bike {
@@ -389,12 +398,12 @@ ol.progress-meter li.todo:before {
   text-decoration: none;
 }
 
-.fc-direction-ltr .fc-button-group>.fc-button,
+.fc-direction-ltr .fc-button-group > .fc-button,
 .fc-today-button {
   text-transform: uppercase !important;
 }
 
-.fc-direction-ltr .fc-button-group>.fc-button {
+.fc-direction-ltr .fc-button-group > .fc-button {
   margin: 0px 10px;
   border-radius: 30px;
 }
@@ -411,7 +420,7 @@ ol.progress-meter li.todo:before {
 }
 .card,
 .card-header,
-.modal-header, 
+.modal-header,
 .modal-content,
 .accordion-item {
   border-radius: 16px !important;
@@ -420,10 +429,10 @@ ol.progress-meter li.todo:before {
 .accordion-item {
   margin: 10px 0px;
 }
-.btn-success{
+.btn-success {
   background: #242b55;
 }
-.btn-success:hover{
+.btn-success:hover {
   background: #304f53;
 }
 .accordion-button:not(.collapsed) {
@@ -431,9 +440,9 @@ ol.progress-meter li.todo:before {
   background-color: transparent;
   box-shadow: none;
 }
-.btn-close{
+.btn-close {
   color: #fff !important;
-}/* Style the radio group container */
+} /* Style the radio group container */
 .radio-group {
   display: flex;
   flex-wrap: wrap; /* Allow wrapping to the next line */
@@ -461,7 +470,7 @@ ol.progress-meter li.todo:before {
 
 /* Style the custom radio button */
 .radio-group .form-check label:before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 2px;
@@ -477,7 +486,7 @@ ol.progress-meter li.todo:before {
 .radio-group .form-check input[type="radio"]:checked + label:before {
   background-color: #3498db; /* Set background color when checked */
   border-color: #3498db; /* Set border color when checked */
-  content: '\2713'; /* Add checkmark when checked */
+  content: "\2713"; /* Add checkmark when checked */
   color: #fff; /* Set checkmark color */
   text-align: center;
   line-height: 20px; /* Center the checkmark */
@@ -523,7 +532,7 @@ ol.progress-meter li.todo:before {
   text-decoration: underline !important; /* Underline on hover */
 }
 
-.barcode-scanner{
+.barcode-scanner {
   text-align: center;
 }
 /* Style for the button */
@@ -554,12 +563,11 @@ ol.progress-meter li.todo:before {
 /* Hover effect */
 .barcode-scanner button:hover {
   /* Darken the background color on hover */
-  background: linear-gradient(135deg, #388E3C, #2E7D32);
+  background: linear-gradient(135deg, #388e3c, #2e7d32);
 }
 
 /* Active state */
 .barcode-scanner button:active {
   /* Darken the background color on click */
-  background: linear-gradient(135deg, #2E7D32, #1B5E20);
+  background: linear-gradient(135deg, #2e7d32, #1b5e20);
 }
-
