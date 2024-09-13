@@ -5,6 +5,7 @@ import { AdminLayout } from "@layout";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PendingPaymentsTable from "../../../../../components/PendingPayments";
 const calculatePayments = (
   placementTestPaidAmount,
   placementTestDiscount,
@@ -71,7 +72,7 @@ const MarketingDataDetail = () => {
     referenceNumber: "",
     paymentScreenshotStatus: "",
     paymentScreenshotDate: "",
-    placementTest: {},
+    placementTest: "",
     salesRejectionReason: "",
     salesMemberAssignationDate: null,
     placementTestPaidAmount: 0,
@@ -536,21 +537,29 @@ const MarketingDataDetail = () => {
                           value={marketingData.placementTestDiscount}
                           onChange={(e) => {
                             const discount = parseFloat(e.target.value); // Get the discount value from slider
-                            const placementTestCost = marketingData.placementTest.cost; // Total cost of the placement test
+
+                            // Ensure placementTestCost is a number
+                            const placementTestCost = marketingData.placementTest?.cost || 0; // Default to 0 if undefined
+
+                            console.log('Discount:', discount);
+                            console.log('Placement Test Cost:', placementTestCost);
 
                             // Calculate the paid amount based on the discount percentage
                             const paidAmount = ((100 - discount) / 100) * placementTestCost;
-
                             // Calculate the amount after discount
                             const amountAfterDiscount = placementTestCost - (placementTestCost * discount / 100);
+
+                            console.log('Paid Amount:', paidAmount);
+                            console.log('Amount After Discount:', amountAfterDiscount);
 
                             // Update the discount, paid amount, and the calculated amount after discount
                             setMarketingData((prevData) => ({
                               ...prevData,
                               placementTestDiscount: discount,
-                              placementTestPaidAmount: paidAmount.toFixed(2), // Update the paid amount
-                              placementTestAmountAfterDiscount: amountAfterDiscount.toFixed(2), // Update the amount after discount
+                              placementTestPaidAmount: +paidAmount.toFixed(2), // Update the paid amount
+                              placementTestAmountAfterDiscount: +amountAfterDiscount.toFixed(2), // Update the amount after discount
                             }));
+                            setUnsavedChanges(true);
                           }}
                           min={0}
                           max={100}
@@ -562,6 +571,7 @@ const MarketingDataDetail = () => {
                     )}
                   </td>
                 </tr>
+
 
                 <tr>
                   <td>Placement Test Paid Amount</td>
@@ -590,20 +600,21 @@ const MarketingDataDetail = () => {
                               // Update the paid amount, discount, and the calculated amount after discount
                               setMarketingData((prevData) => ({
                                 ...prevData,
-                                placementTestPaidAmount: value,
-                                placementTestDiscount: discountPercentage, // Update the discount
-                                placementTestAmountAfterDiscount: amountAfterDiscount.toFixed(2), // Update the amount after discount
+                                placementTestPaidAmount: +value,
+                                placementTestDiscount: +discountPercentage, // Update the discount
+                                placementTestAmountAfterDiscount: +amountAfterDiscount?.toFixed(2), // Update the amount after discount
                               }));
                             } else {
                               // If the full amount is paid, reset the discount to 0
                               setMarketingData((prevData) => ({
                                 ...prevData,
-                                placementTestPaidAmount: value,
-                                placementTestDiscount: 0, // No discount if fully paid
-                                placementTestAmountAfterDiscount: placementTestCost.toFixed(2), // Set amount after discount to full cost
+                                placementTestPaidAmount: +value,
+                                placementTestDiscount: +0, // No discount if fully paid
+                                placementTestAmountAfterDiscount: +placementTestCost?.toFixed(2), // Set amount after discount to full cost
                               }));
                             }
                           }
+                          setUnsavedChanges(true);
                         }}
                       />
                     ) : (
@@ -750,9 +761,9 @@ const MarketingDataDetail = () => {
                             setMarketingData((prevData) => ({
                               ...prevData,
                               levelDiscount: discount,
-                              levelPaidAmount: paidAmount.toFixed(2), // Update the paid amount
-                              levelPaidRemainingAmount: (assignedLevelCost - paidAmount).toFixed(2), // Update the remaining amount
-                              levelAmountAfterDiscount: amountAfterDiscount.toFixed(2), // Update the amount after discount
+                              levelPaidAmount: paidAmount?.toFixed(2), // Update the paid amount
+                              levelPaidRemainingAmount: (assignedLevelCost - paidAmount)?.toFixed(2), // Update the remaining amount
+                              levelAmountAfterDiscount: amountAfterDiscount?.toFixed(2), // Update the amount after discount
                               isLevelFullPayment: paidAmount >= assignedLevelCost // Automatically set full payment status
                             }));
                           }}
@@ -783,7 +794,7 @@ const MarketingDataDetail = () => {
                             alert(`Paid amount cannot exceed ${assignedLevelCost}`);
                           } else {
                             // Calculate the discount percentage if the paid amount is less than the cost
-                            const discountPercentage = ((1 - value / assignedLevelCost) * 100).toFixed(2);
+                            const discountPercentage = ((1 - value / assignedLevelCost) * 100)?.toFixed(2);
                             const amountAfterDiscount = value;
 
                             // Update the paid amount, discount, and the calculated amount after discount
@@ -791,8 +802,8 @@ const MarketingDataDetail = () => {
                               ...prevData,
                               levelPaidAmount: value,
                               levelDiscount: discountPercentage, // Update the discount
-                              levelPaidRemainingAmount: (assignedLevelCost - value).toFixed(2), // Update the remaining amount
-                              levelAmountAfterDiscount: amountAfterDiscount.toFixed(2), // Update the amount after discount
+                              levelPaidRemainingAmount: (assignedLevelCost - value)?.toFixed(2), // Update the remaining amount
+                              levelAmountAfterDiscount: amountAfterDiscount?.toFixed(2), // Update the amount after discount
                               isLevelFullPayment: value >= assignedLevelCost // Automatically set full payment status
                             }));
                           }
@@ -913,6 +924,14 @@ const MarketingDataDetail = () => {
           ) : (
             <p>Loading...</p>
           )}
+        </Card.Body>
+      </Card>
+      <Card className="mt-3">
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <span>Payments Need Verification</span>{" "}
+        </Card.Header>
+        <Card.Body>
+          <PendingPaymentsTable marketingDataId={id} />
         </Card.Body>
       </Card>
     </AdminLayout>

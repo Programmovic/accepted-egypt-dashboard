@@ -6,6 +6,7 @@ import Employee from "../../../models/employee"; // Import Employee model
 import Department from "../../../models/department";
 import Position from "../../../models/position";
 import PlacementTest from "../../../models/placement_test";
+import PendingPayment from "../../../models/pendingLeadPayment";
 import Student from "../../../models/student";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
@@ -44,12 +45,14 @@ export default async (req, res) => {
         assignedToMember,
         pending,
         recruitment,
-        test_waiting_list
+        test_waiting_list,
       } = req.query;
 
       if (id) {
         // Fetch specific MarketingData record by ID
-        const marketingData = await MarketingData.findById(id).populate("placementTest");
+        const marketingData = await MarketingData.findById(id).populate(
+          "placementTest"
+        );
 
         if (!marketingData) {
           return res.status(404).json({ error: "Marketing data not found" });
@@ -314,6 +317,38 @@ export default async (req, res) => {
         });
 
         await placementTestEntry.save();
+      }
+
+      // Create pending payment for placement test verification if applicable
+      if (updates.placementTestAmountAfterDiscount ) {
+        const pendingPayment = new PendingPayment({
+          leadId: id,
+          customerName: updatedMarketingData.name,
+          customerPhone: updatedMarketingData.phoneNo1,
+          amountPaid: updates.placementTestAmountAfterDiscount,
+          paymentMethod: updates.paymentMethod || "Bank Transfer", // Use provided payment method or default
+          paymentType: "Placement Test",
+          paymentDate: new Date(), // Set appropriate payment date
+          createdBy: decoded.adminId,
+          updatedBy: decoded.adminId,
+        });
+        await pendingPayment.save();
+      }
+
+      // Create pending payment for level fee verification if applicable
+      if (updates.levelPaidAmount) {
+        const pendingPayment = new PendingPayment({
+          leadId: id,
+          customerName: updatedMarketingData.name,
+          customerPhone: updatedMarketingData.phoneNo1,
+          amountPaid: updates.levelPaidAmount,
+          paymentMethod: updates.paymentMethod || "Bank Transfer", // Use provided payment method or default
+          paymentType: "Level Fee",
+          paymentDate: new Date(), // Set appropriate payment date
+          createdBy: decoded.adminId,
+          updatedBy: decoded.adminId,
+        });
+        await pendingPayment.save();
       }
 
       return res.status(200).json(updatedMarketingData.toJSON());

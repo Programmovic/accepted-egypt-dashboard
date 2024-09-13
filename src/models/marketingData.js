@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const Level = require("./level"); // Import Level model
+const PendingPayment = require("./pendingLeadPayment"); // Import PendingPayment model
 
 const marketingDataSchema = new mongoose.Schema(
   {
@@ -172,23 +173,18 @@ const marketingDataSchema = new mongoose.Schema(
       enum: ["Pending", "Verified", "Rejected"],
       default: "Pending",
     },
+    pendingPayments: [
+      {
+        type: String,
+        ref: "PendingPayment",
+      },
+    ],
   },
   {
     timestamps: true,
   }
 );
 
-// Middleware to calculate amount after discount and determine full payment
-marketingDataSchema.pre("save", async function (next) {
-  if (
-    this.isModified("paidAmount") ||
-    this.isModified("discount") ||
-    this.isModified("assignedLevel")
-  ) {
-    this.amountAfterDiscount = this.paidAmount - this.discount;
-  }
-  next();
-});
 
 module.exports =
   mongoose.models.MarketingData ||

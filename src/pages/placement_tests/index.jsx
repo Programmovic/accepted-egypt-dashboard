@@ -846,13 +846,13 @@ const PlacementTests = () => {
           >
             Assign Level
           </Button>
-          <Button
+          {/* <Button
             variant="success"
             onClick={handleMoveToWaitingList}
             disabled={!selectedPlacementTest?.assignedLevel}
           >
             Move to Waiting List
-          </Button>
+          </Button> */}
         </Modal.Footer>
       </Modal>
       <Modal
