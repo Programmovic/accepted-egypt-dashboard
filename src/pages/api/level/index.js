@@ -1,6 +1,7 @@
-// attendance.js
 import connectDB from "@lib/db";
 import Level from "../../../models/level";
+import Batch from "../../../models/batch";
+import Student from "../../../models/student";
 
 export default async (req, res) => {
   await connectDB();
@@ -22,8 +23,33 @@ export default async (req, res) => {
     }
   } else if (req.method === "GET") {
     try {
+      // Fetch all levels
       const allLevels = await Level.find();
-      return res.status(200).json(allLevels);
+
+      // For each level, find batches and count students
+      const levelsWithDetails = await Promise.all(
+        allLevels.map(async (level) => {
+          // Find batches assigned to this level
+          const batches = await Batch.find({ level: level._id });
+
+          // Extract batch codes
+          const batchCodes = batches.map((batch) => batch.code);
+
+          // Count students assigned to those batches
+          const studentCount = await Student.countDocuments({
+            batch: { $in: batches.map((batch) => batch._id) },
+          });
+
+          return {
+            ...level._doc, // Spread level document fields
+            batchCount: batches.length,
+            batchCodes,
+            studentCount,
+          };
+        })
+      );
+
+      return res.status(200).json(levelsWithDetails);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Could not fetch Attendance records" });

@@ -17,7 +17,7 @@ export default async (req, res) => {
       // Find all employees in the "Teaching" department
       const teachingEmployees = await Employee.find({ department: teachingDepartment._id })
         .populate("position") // Assuming you want to populate the position details
-        .populate("department"); // Populate department details as well
+        .populate("department") // Populate department details as well
 
       return res.status(200).json(teachingEmployees);
     } catch (error) {

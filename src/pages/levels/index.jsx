@@ -14,16 +14,15 @@ const Levels = () => {
   const [showModal, setShowModal] = useState(false);
   const [newLevelName, setNewLevelName] = useState("");
   const [newLevelCode, setNewLevelCode] = useState("");
-  const [students, setStudents] = useState([]);
-  const [batches, setBatches] = useState([]);
+  const [newLevelPrice, setNewLevelPrice] = useState("");
 
   const fetchLevelData = async () => {
     try {
       const response = await axios.get("/api/level");
       if (response.status === 200) {
-        const levelData = response.data;
-        setLevelResource(levelData);
-        setFilteredData(levelData);
+        const levels = response.data;
+        setLevelResource(levels);
+        setFilteredData(levels);
       }
     } catch (error) {
       console.error("Error fetching level data:", error);
@@ -33,40 +32,8 @@ const Levels = () => {
     }
   };
 
-  const fetchStudentsData = async () => {
-    try {
-      const response = await axios.get("/api/student");
-      if (response.status === 200) {
-        const studentsData = response.data;
-        setStudents(studentsData.students);
-      }
-    } catch (error) {
-      console.error("Error fetching student data:", error);
-      setError("Failed to fetch student data. Please try again later.");
-    }
-  };
-
-  const fetchBatchesData = async () => {
-    try {
-      const response = await axios.get("/api/batch");
-      if (response.status === 200) {
-        const batchesData = response.data;
-        setBatches(batchesData);
-      }
-    } catch (error) {
-      console.error("Error fetching batch data:", error);
-      setError("Failed to fetch batch data. Please try again later.");
-    }
-  };
-
-  const filterOngoingBatches = () => {
-    return batches.filter((batch) => batch.status === "Ongoing");
-  };
-
   useEffect(() => {
     fetchLevelData();
-    fetchStudentsData();
-    fetchBatchesData();
   }, []);
 
   useEffect(() => {
@@ -98,7 +65,8 @@ const Levels = () => {
       // Send a POST request to your API to create a new level
       const response = await axios.post("/api/level", {
         name: newLevelName,
-        code: newLevelCode, // Adjust this to match your schema
+        code: newLevelCode,
+        price: +newLevelPrice,
       });
 
       if (response.status === 201) {
@@ -138,6 +106,14 @@ const Levels = () => {
                 type="text"
                 value={newLevelCode}
                 onChange={(e) => setNewLevelCode(e.target.value)}
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Price</Form.Label>
+              <Form.Control
+                type="text"
+                value={newLevelPrice}
+                onChange={(e) => setNewLevelPrice(e.target.value)}
               />
             </Form.Group>
           </Form>
@@ -192,46 +168,21 @@ const Levels = () => {
                 <tr>
                   <th>Class Level</th>
                   <th>Level Code</th>
+                  <th>Level Price</th>
                   <th>Number of batches</th>
-                  <th>Batch code</th>
+                  <th>Batch codes</th>
                   <th>Number of students</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredData.map((level, index) => (
+                {filteredData.map((level) => (
                   <tr key={level._id}>
                     <td>{level.name}</td>
                     <td>{level.code}</td>
-                    <td>
-                      {
-                        filterOngoingBatches().filter(
-                          (batch) => batch.level === level._id
-                        ).length || '-'
-                      }
-                    </td>
-                    <td>
-                      {filterOngoingBatches()
-                        .filter((batch) => batch.level === level._id)
-                        .map((batch, i) => (
-                          <tr key={i}>
-                            <td>{batch.code}</td>
-                          </tr>
-                        )) || '-'}
-                    </td>
-                    <td>
-                      {filterOngoingBatches()
-                        .filter((batch) => batch.level === level._id)
-                        .map((batch) => {
-                          const studentsInBatch = students.filter(
-                            (student) => student.batch === batch._id
-                          );
-                          return (
-                            <tr key={batch._id}>
-                              <td>{studentsInBatch.length}</td>
-                            </tr>
-                          );
-                        })}
-                    </td>
+                    <td>{level.price}</td>
+                    <td>{level.batchCount}</td>
+                    <td>{level.batchCodes.join(", ") || '-'}</td>
+                    <td>{level.studentCount}</td>
                   </tr>
                 ))}
               </tbody>

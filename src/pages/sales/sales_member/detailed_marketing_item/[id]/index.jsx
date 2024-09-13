@@ -5,12 +5,55 @@ import { AdminLayout } from "@layout";
 import { useRouter } from "next/router";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+const calculatePayments = (
+  placementTestPaidAmount,
+  placementTestDiscount,
+  placementTestAmount,
+  levelPaidAmount,
+  assignedLevel,
+  levelPaidRemainingAmount,
+  levelPrice,
+  levelDiscount
+) => {
+  // Calculate final amount for placement test
+  const placementTestFinalAmount = placementTestAmount - placementTestDiscount;
+
+  // Calculate final amount for the level after discount
+  const levelFinalAmount = levelPrice - levelDiscount;
+
+  // Calculate remaining amount for the level
+  levelPaidRemainingAmount = levelFinalAmount - levelPaidAmount;
+  const isLevelFullPayment = levelPaidRemainingAmount <= 0;
+
+  // Calculate total amount after discounts
+  const totalPaidAmount = placementTestPaidAmount + levelPaidAmount;
+  const totalDiscount = placementTestDiscount + levelDiscount;
+  const amountAfterDiscount = totalPaidAmount - totalDiscount;
+
+  // Determine the total required amount
+  const totalRequiredAmount = placementTestFinalAmount + levelFinalAmount;
+
+  // Calculate remaining amount
+  const remainingAmount = totalRequiredAmount - amountAfterDiscount;
+  const isFullPayment = remainingAmount <= 0;
+
+  return {
+    placementTestFinalAmount,
+    levelFinalAmount,
+    levelPaidRemainingAmount,
+    isLevelFullPayment,
+    amountAfterDiscount,
+    remainingAmount,
+    isFullPayment,
+  };
+};
 
 const MarketingDataDetail = () => {
   const [marketingData, setMarketingData] = useState({
     name: "",
     phoneNo1: "",
     phoneNo2: "",
+    nationalId: "",
     assignTo: "",
     chatSummary: "",
     source: "",
@@ -21,14 +64,40 @@ const MarketingDataDetail = () => {
     salesStatus: "",
     candidateSignUpFor: "",
     candidateStatusForSalesPerson: "",
+    interestedInCourse: "TBD", // Default value
     paymentMethod: "",
+    trainingLocation: "",
+    recieverNumber: "",
+    referenceNumber: "",
     paymentScreenshotStatus: "",
+    paymentScreenshotDate: "",
+    placementTest: {},
     salesRejectionReason: "",
     salesMemberAssignationDate: null,
-    paidAmount: 0,
-    discount: 0,
-    amountAfterDiscount: 0,
+    placementTestPaidAmount: 0,
+    placementTestDiscount: 0,
+    placementTestAmountAfterDiscount: 0,
+    assignedLevel: "",
+    levelPaidAmount: 0,
+    levelDiscount: 0, // Added field
+    isLevelFullPayment: false,
+    levelPaidRemainingAmount: 0,
+    verificationStatus: "Pending", // Default value
+    candidateStatusForRecruiter: "",
+    phoneInterviewStatus: "",
+    phoneInterviewDate: "",
+    faceToFaceStatus: "",
+    faceToFaceDate: "",
+    feedbackSessionStatus: "",
+    feedbackSessionDate: "",
+    testResultStatus: "",
+    testResultDate: "",
+    onBoardingName: "",
+    recruiterName: "",
+    placerName: "",
+    updatedBy: ""
   });
+
 
   const [salesStatuses, setSalesStatuses] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
@@ -42,154 +111,175 @@ const MarketingDataDetail = () => {
   const apiUrl = `/api/marketing?id=${id}`; // Define the API route to fetch marketing data by ID
   const salesStatusApiUrl = `/api/sales-status`; // Define the API route to fetch sales statuses
   const editing = true;
+  const [calculationResult, setCalculationResult] = useState({});
 
+
+  useEffect(() => {
+    const result = calculatePayments(
+      marketingData.placementTestPaidAmount,
+      marketingData.placementTestDiscount,
+      marketingData.placementTestAmountAfterDiscount,
+      marketingData.levelPrice,
+      marketingData.levelDiscount,
+      marketingData.levelPaidAmount
+    );
+    setCalculationResult(result);
+  }, [
+    marketingData.placementTestPaidAmount,
+    marketingData.placementTestDiscount,
+    marketingData.placementTestAmountAfterDiscount,
+    marketingData.levelPrice,
+    marketingData.levelDiscount,
+    marketingData.levelPaidAmount
+  ]);
 
   useEffect(() => {
     const toastId = toast.loading("Loading data...");
 
     const fetchMarketingData = async () => {
-        try {
-            const response = await axios.get(apiUrl);
-            if (response.status === 200) {
-                setMarketingData((prevData) => ({
-                    ...prevData,
-                    ...response.data,
-                }));
-            }
-        } catch (error) {
-            console.error("Error fetching marketing data:", error);
+      try {
+        const response = await axios.get(apiUrl);
+        if (response.status === 200) {
+          setMarketingData((prevData) => ({
+            ...prevData,
+            ...response.data,
+          }));
+          console.log(response.data)
         }
+      } catch (error) {
+        console.error("Error fetching marketing data:", error);
+      }
     };
 
     const fetchSalesStatuses = async () => {
-        try {
-            const response = await axios.get(salesStatusApiUrl);
-            if (response.status === 200) {
-                setSalesStatuses(response.data);
-            }
-        } catch (error) {
-            console.error("Error fetching sales statuses:", error);
+      try {
+        const response = await axios.get(salesStatusApiUrl);
+        if (response.status === 200) {
+          setSalesStatuses(response.data);
         }
+      } catch (error) {
+        console.error("Error fetching sales statuses:", error);
+      }
     };
 
     const fetchPaymentMethods = async () => {
-        try {
-            const response = await axios.get('/api/payment-method');
-            if (response.status === 200) {
-                setPaymentMethods(response.data);
-            }
-        } catch (error) {
-            console.error("Error fetching payment methods:", error);
+      try {
+        const response = await axios.get('/api/payment-method');
+        if (response.status === 200) {
+          setPaymentMethods(response.data);
         }
+      } catch (error) {
+        console.error("Error fetching payment methods:", error);
+      }
     };
 
     const fetchCandidateSignUpForStatus = async () => {
-        try {
-            const response = await axios.get('/api/candidate_signup_for');
-            if (response.status === 200) {
-                setCandidateSignUpFor(response.data);
-            }
-        } catch (error) {
-            console.error("Error fetching candidate sign up statuses:", error);
+      try {
+        const response = await axios.get('/api/candidate_signup_for');
+        if (response.status === 200) {
+          setCandidateSignUpFor(response.data);
         }
+      } catch (error) {
+        console.error("Error fetching candidate sign up statuses:", error);
+      }
     };
 
     const fetchCandidateStatusForSalesPersonStatus = async () => {
-        try {
-            const response = await axios.get('/api/candidate-status-for-sales-person');
-            if (response.status === 200) {
-                setCandidateStatusForSalesPerson(response.data);
-            }
-        } catch (error) {
-            console.error("Error fetching candidate status for sales person:", error);
+      try {
+        const response = await axios.get('/api/candidate-status-for-sales-person');
+        if (response.status === 200) {
+          setCandidateStatusForSalesPerson(response.data);
         }
+      } catch (error) {
+        console.error("Error fetching candidate status for sales person:", error);
+      }
     };
 
     const fetchSalesRejectionReason = async () => {
-        try {
-            const response = await axios.get('/api/sales-rejection-reason');
-            if (response.status === 200) {
-                setSalesRejectionReason(response.data);
-            }
-        } catch (error) {
-            console.error("Error fetching sales rejection reasons:", error);
+      try {
+        const response = await axios.get('/api/sales-rejection-reason');
+        if (response.status === 200) {
+          setSalesRejectionReason(response.data);
         }
+      } catch (error) {
+        console.error("Error fetching sales rejection reasons:", error);
+      }
     };
 
     const fetchTrainingLocation = async () => {
-        try {
-            const response = await axios.get('/api/trainingLocation');
-            if (response.status === 200) {
-                setTrainingLocations(response.data);
-            }
-        } catch (error) {
-            console.error("Error fetching training locations:", error);
+      try {
+        const response = await axios.get('/api/trainingLocation');
+        if (response.status === 200) {
+          setTrainingLocations(response.data);
         }
+      } catch (error) {
+        console.error("Error fetching training locations:", error);
+      }
     };
 
     const fetchData = async () => {
-        try {
-            await Promise.all([
-                fetchMarketingData(),
-                fetchSalesStatuses(),
-                fetchPaymentMethods(),
-                fetchCandidateSignUpForStatus(),
-                fetchCandidateStatusForSalesPersonStatus(),
-                fetchSalesRejectionReason(),
-                fetchTrainingLocation(),
-            ]);
+      try {
+        await Promise.all([
+          fetchMarketingData(),
+          fetchSalesStatuses(),
+          fetchPaymentMethods(),
+          fetchCandidateSignUpForStatus(),
+          fetchCandidateStatusForSalesPersonStatus(),
+          fetchSalesRejectionReason(),
+          fetchTrainingLocation(),
+        ]);
 
-            // Update toast with success message
-            toast.update(toastId, {
-                render: "Data loaded successfully!",
-                type: "success",
-                isLoading: false,
-                autoClose: 3000,
-            });
-        } catch (error) {
-            // Update toast with error message
-            toast.update(toastId, {
-                render: "Error loading data.",
-                type: "error",
-                isLoading: false,
-                autoClose: 3000,
-            });
-        }
+        // Update toast with success message
+        toast.update(toastId, {
+          render: "Data loaded successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+      } catch (error) {
+        // Update toast with error message
+        toast.update(toastId, {
+          render: "Error loading data.",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
+      }
     };
 
     if (id) {
-        fetchData();
+      fetchData();
     }
 
     // Clear the toast if the component unmounts
     return () => toast.dismiss(toastId);
 
-}, [id, apiUrl, salesStatusApiUrl]);
+  }, [id, apiUrl, salesStatusApiUrl]);
   console.log(paymentMethods)
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
 
     if (type === "checkbox") {
-        setMarketingData({
-            ...marketingData,
-            [name]: checked ? "true" : "false",
-        });
+      setMarketingData({
+        ...marketingData,
+        [name]: checked ? "true" : "false",
+      });
     } else if (type === "range") {
-        const discountValue = parseFloat(value);
-        setMarketingData({
-            ...marketingData,
-            [name]: discountValue,
-            amountAfterDiscount: marketingData.paidAmount * (1 - discountValue / 100),
-        });
+      const discountValue = parseFloat(value);
+      setMarketingData({
+        ...marketingData,
+        [name]: discountValue,
+        amountAfterDiscount: marketingData.paidAmount * (1 - discountValue / 100),
+      });
     } else {
-        setMarketingData({
-            ...marketingData,
-            [name]: value,
-        });
+      setMarketingData({
+        ...marketingData,
+        [name]: value,
+      });
     }
 
     setUnsavedChanges(true);
-};
+  };
 
 
   const handleSave = async () => {
@@ -197,32 +287,48 @@ const MarketingDataDetail = () => {
     const toastId = toast.loading("Saving marketing data...");
 
     try {
-        await axios.put(`/api/marketing?id=${id}`, marketingData);
-        setUnsavedChanges(false);
+      await axios.put(`/api/marketing?id=${id}`, marketingData);
+      setUnsavedChanges(false);
 
-        // Update toast with success message
-        toast.update(toastId, {
-            render: "Marketing data saved successfully!",
-            type: "success",
-            isLoading: false,
-            autoClose: 3000,
-        });
+      // Update toast with success message
+      toast.update(toastId, {
+        render: "Marketing data saved successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
 
-        console.log(marketingData);
+      console.log(marketingData);
     } catch (error) {
-        console.error("Error saving marketing data:", error.message);
+      console.error("Error saving marketing data:", error.message);
 
-        // Update toast with error message
-        toast.update(toastId, {
-            render: `Error: ${error.message}`,
-            type: "error",
-            isLoading: false,
-            autoClose: 3000,
-        });
+      // Update toast with error message
+      toast.update(toastId, {
+        render: `Error: ${error.message}`,
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
     }
-};
+  };
 
+  const [placementTests, setPlacementTests] = useState([]);
+  const fetchPlacementTests = async () => {
+    try {
+      const response = await axios.get("/api/placement_test_settings/for_placer");
+      if (response.status === 200) {
+        const data = response.data;
+        setPlacementTests(data);
+      }
+    } catch (error) {
+      console.error("Error fetching placement tests:", error);
+      setError("Failed to fetch placement tests. Please try again later.");
+    }
+  };
 
+  useEffect(() => {
+    fetchPlacementTests();
+  }, []);
   return (
     <AdminLayout>
       <Card>
@@ -401,6 +507,128 @@ const MarketingDataDetail = () => {
                   </td>
                 </tr>
                 <tr>
+                  <td>
+                    Schedule Placement Test
+                  </td>
+                  <td>
+                    <Form.Control
+                      as="select"
+                      name="placementTest"
+                      value={marketingData.placementTest}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select a test</option>
+                      {placementTests.map((test) => (
+                        <option key={test._id} value={test._id}>
+                          {test.cost} EGP - {new Date(test.date).toLocaleDateString()} - From {test.startTime} to {test.endTime} - {test.studentCount} of {test.limitTrainees}
+                        </option>
+                      ))}
+                    </Form.Control>
+                  </td>
+                </tr>
+                <tr>
+                  <td>Placement Test Discount (%)</td>
+                  <td>
+                    {editing ? (
+                      <div className="d-flex justify-content-between">
+                        <Form.Range
+                          name="placementTestDiscount"
+                          value={marketingData.placementTestDiscount}
+                          onChange={(e) => {
+                            const discount = parseFloat(e.target.value); // Get the discount value from slider
+                            const placementTestCost = marketingData.placementTest.cost; // Total cost of the placement test
+
+                            // Calculate the paid amount based on the discount percentage
+                            const paidAmount = ((100 - discount) / 100) * placementTestCost;
+
+                            // Calculate the amount after discount
+                            const amountAfterDiscount = placementTestCost - (placementTestCost * discount / 100);
+
+                            // Update the discount, paid amount, and the calculated amount after discount
+                            setMarketingData((prevData) => ({
+                              ...prevData,
+                              placementTestDiscount: discount,
+                              placementTestPaidAmount: paidAmount.toFixed(2), // Update the paid amount
+                              placementTestAmountAfterDiscount: amountAfterDiscount.toFixed(2), // Update the amount after discount
+                            }));
+                          }}
+                          min={0}
+                          max={100}
+                        />
+                        <span className="ms-3">{marketingData.placementTestDiscount}%</span> {/* Display the current discount value */}
+                      </div>
+                    ) : (
+                      `${marketingData.placementTestDiscount}%`
+                    )}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Placement Test Paid Amount</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="number"
+                        name="placementTestPaidAmount"
+                        value={marketingData.placementTestPaidAmount}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value); // Convert to number
+                          const placementTestCost = marketingData.placementTest.cost; // Total cost of the placement test
+                          let discountPercentage = 0; // Initialize discount
+
+                          if (value > placementTestCost) {
+                            alert(`Paid amount cannot exceed ${placementTestCost}`);
+                          } else {
+                            // Calculate the discount percentage if the paid amount is less than the cost
+                            if (value < placementTestCost) {
+                              discountPercentage = ((1 - value / placementTestCost) * 100).toFixed();
+                              console.log(discountPercentage);
+
+                              // Calculate the amount after discount
+                              const amountAfterDiscount = value;
+
+                              // Update the paid amount, discount, and the calculated amount after discount
+                              setMarketingData((prevData) => ({
+                                ...prevData,
+                                placementTestPaidAmount: value,
+                                placementTestDiscount: discountPercentage, // Update the discount
+                                placementTestAmountAfterDiscount: amountAfterDiscount.toFixed(2), // Update the amount after discount
+                              }));
+                            } else {
+                              // If the full amount is paid, reset the discount to 0
+                              setMarketingData((prevData) => ({
+                                ...prevData,
+                                placementTestPaidAmount: value,
+                                placementTestDiscount: 0, // No discount if fully paid
+                                placementTestAmountAfterDiscount: placementTestCost.toFixed(2), // Set amount after discount to full cost
+                              }));
+                            }
+                          }
+                        }}
+                      />
+                    ) : (
+                      marketingData.placementTestPaidAmount
+                    )}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Placement Test Amount After Discount</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="number"
+                        name="placementTestAmountAfterDiscount"
+                        value={marketingData.placementTestAmountAfterDiscount}
+                        onChange={handleChange}
+                        disabled
+                      />
+                    ) : (
+                      marketingData.placementTestAmountAfterDiscount
+                    )}
+                  </td>
+                </tr>
+                <tr>
                   <td>Payment Method</td>
                   <td>
                     {editing ? (
@@ -484,59 +712,140 @@ const MarketingDataDetail = () => {
                     )}
                   </td>
                 </tr>
-
                 <tr>
-                  <td>Paid Amount</td>
+                  <td>Assigned Level</td>
                   <td>
                     {editing ? (
                       <Form.Control
-                        type="number"
-                        name="paidAmount"
-                        value={marketingData.paidAmount}
+                        type="text"
+                        name="assignedLevel"
+                        value={marketingData.assignedLevel || "Still Not Assigned"}
                         onChange={handleChange}
-                        disabled
+                        disabled={!marketingData.assignedLevel} // Disable the input if the assignedTo field is empty
                       />
                     ) : (
-                      marketingData.paidAmount
+                      marketingData.assignedLevel
                     )}
                   </td>
                 </tr>
                 <tr>
-  <td>Discount (%)</td>
-  <td>
-    {editing ? (
-      <div className="d-flex justify-content-between">
-        <Form.Range
-          name="discount"
-          value={marketingData.discount}
-          onChange={handleChange}
-          min={0}
-          max={100}
-        />
-        <span className="ms-3">{marketingData.discount}%</span> {/* Display the current discount value */}
-      </div>
-    ) : (
-      `${marketingData.discount}%`
-    )}
-  </td>
-</tr>
+                  <td>Level Discount (%)</td>
+                  <td>
+                    {editing ? (
+                      <div className="d-flex justify-content-between">
+                        <Form.Range
+                          name="levelDiscount"
+                          value={marketingData.levelDiscount}
+                          onChange={(e) => {
+                            const discount = parseFloat(e.target.value); // Get the discount value from slider
+                            const assignedLevelCost = marketingData?.assignedLevel?.cost; // Total cost of the assigned level
 
-<tr>
-                  <td>Amount After Discount</td>
+                            // Calculate the paid amount based on the discount percentage
+                            const paidAmount = ((100 - discount) / 100) * assignedLevelCost;
+
+                            // Calculate the amount after discount
+                            const amountAfterDiscount = assignedLevelCost - (assignedLevelCost * discount / 100);
+
+                            // Update the discount, paid amount, and the calculated amount after discount
+                            setMarketingData((prevData) => ({
+                              ...prevData,
+                              levelDiscount: discount,
+                              levelPaidAmount: paidAmount.toFixed(2), // Update the paid amount
+                              levelPaidRemainingAmount: (assignedLevelCost - paidAmount).toFixed(2), // Update the remaining amount
+                              levelAmountAfterDiscount: amountAfterDiscount.toFixed(2), // Update the amount after discount
+                              isLevelFullPayment: paidAmount >= assignedLevelCost // Automatically set full payment status
+                            }));
+                          }}
+                          min={0}
+                          max={100}
+                        />
+                        <span className="ms-3">{marketingData.levelDiscount}%</span> {/* Display the current discount value */}
+                      </div>
+                    ) : (
+                      `${marketingData.levelDiscount}%`
+                    )}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Level Paid Amount</td>
                   <td>
                     {editing ? (
                       <Form.Control
                         type="number"
-                        name="amountAfterDiscount"
-                        value={marketingData.amountAfterDiscount}
+                        name="levelPaidAmount"
+                        value={marketingData.levelPaidAmount}
+                        onChange={(e) => {
+                          const value = parseFloat(e.target.value); // Convert to number
+                          const assignedLevelCost = marketingData.assignedLevelCost; // Total cost of the assigned level
+
+                          if (value > assignedLevelCost) {
+                            alert(`Paid amount cannot exceed ${assignedLevelCost}`);
+                          } else {
+                            // Calculate the discount percentage if the paid amount is less than the cost
+                            const discountPercentage = ((1 - value / assignedLevelCost) * 100).toFixed(2);
+                            const amountAfterDiscount = value;
+
+                            // Update the paid amount, discount, and the calculated amount after discount
+                            setMarketingData((prevData) => ({
+                              ...prevData,
+                              levelPaidAmount: value,
+                              levelDiscount: discountPercentage, // Update the discount
+                              levelPaidRemainingAmount: (assignedLevelCost - value).toFixed(2), // Update the remaining amount
+                              levelAmountAfterDiscount: amountAfterDiscount.toFixed(2), // Update the amount after discount
+                              isLevelFullPayment: value >= assignedLevelCost // Automatically set full payment status
+                            }));
+                          }
+                        }}
+                      />
+                    ) : (
+                      marketingData.levelPaidAmount
+                    )}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Level Amount After Discount</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="number"
+                        name="levelAmountAfterDiscount"
+                        value={marketingData.levelAmountAfterDiscount}
                         onChange={handleChange}
                         disabled
                       />
                     ) : (
-                      marketingData.paidAmount
+                      marketingData.levelAmountAfterDiscount
                     )}
                   </td>
                 </tr>
+
+                <tr>
+                  <td>Level Paid Remaining Amount</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="number"
+                        name="levelPaidRemainingAmount"
+                        value={marketingData.levelPaidRemainingAmount}
+                        onChange={handleChange}
+                        disabled
+                      />
+                    ) : (
+                      marketingData.levelPaidRemainingAmount
+                    )}
+                  </td>
+                </tr>
+
+                <tr>
+                  <td>Is Level Fully Paid</td>
+                  <td>
+                    {marketingData.isLevelFullPayment ? 'Yes' : 'No'}
+                  </td>
+                </tr>
+
+
                 <tr>
                   <td>Reference Number</td>
                   <td>

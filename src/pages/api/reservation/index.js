@@ -5,12 +5,37 @@ import mongoose from "mongoose";
 
 export default async (req, res) => {
   await connectDB();
+
   if (req.method === "POST") {
-    // Handle POST request
+    // Handle POST request (if applicable)
   } else if (req.method === "GET") {
-    // Handle fetching all reservations
+    // Handle fetching all reservations with optional filters
     try {
-      const allReservations = await Reservation.find().populate('batch').populate('room'); // Populate batch data
+      const { room, instructor } = req.query;
+
+      let query = {};
+
+      // Add filter by room if provided
+      if (room) {
+        query.room = new mongoose.Types.ObjectId(room); // Use `new` with `ObjectId`
+      }
+      const batch = await Batch.find({ instructor: query.instructor });
+      console.log(batch);
+      // Add filter by instructor if provided
+      if (instructor) {
+        query["batch"] = new mongoose.Types.ObjectId(batch._id); // Use `new` with `ObjectId`
+      }
+
+      const allReservations = await Reservation.find(query)
+        .populate({
+          path: "batch",
+          populate: {
+            path: "instructor", // Assuming the Batch model has an 'instructor' field
+            model: "Employee", // Populate the instructor data from the Employee model (adjust if needed)
+          },
+        })
+        .populate("room"); // Populate room data
+
       return res.status(200).json(allReservations);
     } catch (error) {
       console.error(error);

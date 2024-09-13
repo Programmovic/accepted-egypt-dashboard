@@ -1,18 +1,5 @@
 const mongoose = require("mongoose");
-const MarketingDataHistory = require("./marketingHistory");
-const Prospect = require("./prospect"); 
-const Employee = require("./employee");
-const SalesStatus = require("./salesStatus");
-const CandidateSignUpFor = require("./candidateSignUpFor");
-const CandidateStatusForSalesPerson = require("./candidateStatusForSalesPerson");
-const PaymentMethod = require("./paymentMethod");
-const TrainingLocation = require("./trainingLocation");
-const PaymentScreenshotStatus = require("./paymentScreenShotStatus");
-const PlacementTestSettings = require("./placement_test_settings");
-const SalesRejectionReason = require("./salesRejectionReason");
-const PhoneInterviewStatus = require("./phoneInterviewStatus");
-const FaceToFaceStatus = require("./faceToFaceStatus");
-const FeedbackSessionStatus = require("./feedbackSessionStatus");
+const Level = require("./level"); // Import Level model
 
 const marketingDataSchema = new mongoose.Schema(
   {
@@ -148,15 +135,35 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
       ref: "User",
     },
-    paidAmount: {
+    placementTestPaidAmount: {
       type: Number,
       default: 0,
     },
-    discount: {
+    placementTestDiscount: {
       type: Number,
       default: 0,
     },
-    amountAfterDiscount: {
+    placementTestAmountAfterDiscount: {
+      type: Number,
+      default: 0,
+    },
+    assignedLevel: {
+      type: String,
+      ref: "Level", // Reference to the Level model
+    },
+    levelPaidAmount: {
+      type: Number,
+      default: 0,
+    },
+    levelDiscount: {
+      type: Number,
+      default: 0,
+    },
+    isLevelFullPayment: {
+      type: Boolean,
+      default: false,
+    },
+    levelPaidRemainingAmount: {
       type: Number,
       default: 0,
     },
@@ -170,8 +177,14 @@ const marketingDataSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-marketingDataSchema.pre('save', function (next) {
-  if (this.isModified('paidAmount') || this.isModified('discount')) {
+
+// Middleware to calculate amount after discount and determine full payment
+marketingDataSchema.pre("save", async function (next) {
+  if (
+    this.isModified("paidAmount") ||
+    this.isModified("discount") ||
+    this.isModified("assignedLevel")
+  ) {
     this.amountAfterDiscount = this.paidAmount - this.discount;
   }
   next();

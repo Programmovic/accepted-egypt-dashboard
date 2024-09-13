@@ -54,6 +54,15 @@ const EditEventModal = ({ show, onHide, event, onUpdate }) => {
                 onChange={handleInputChange}
               />
             </Form.Group>
+            <Form.Group className="mb-3" controlId="formDate">
+              <Form.Label>Instructor</Form.Label>
+              <Form.Control
+                type="text"
+                name="instructor"
+                value={editedEvent?.batch?.instructor?.name}
+                disabled
+              />
+            </Form.Group>
             <Form.Group className="mb-3" controlId="formStartTime">
               <Form.Label>Start Time</Form.Label>
               <Form.Control

@@ -7,6 +7,9 @@ const levelSchema = new mongoose.Schema({
   code: {
     type: String,
   },
+  price: {
+    type: Number,
+  },
   createdByAdmin: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Admin',

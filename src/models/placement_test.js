@@ -29,6 +29,9 @@ const placementTestSchema = new mongoose.Schema({
   studentPhoneNumber: {
     type: String,
   },
+  comment: {
+    type: String,
+  },
   cost: {
     type: Number, // Cost associated with taking the placement test
   },

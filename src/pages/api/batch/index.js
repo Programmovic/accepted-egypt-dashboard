@@ -88,7 +88,7 @@ export default async (req, res) => {
     }
   } else if (req.method === "GET") {
     try {
-      const allBatches = await Batch.find().populate('class').populate('level').populate('room');
+      const allBatches = await Batch.find().populate('class').populate('level').populate('room').populate('instructor');
       const batchsWithStudentCount = await Promise.all(
         allBatches.map(async (batch) => {
           const studentCount = await Student.countDocuments({ batch: batch._id });

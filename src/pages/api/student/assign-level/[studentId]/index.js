@@ -1,16 +1,17 @@
 import connectDB from "@lib/db";
 import Student from "../../../../../models/student";
 import PlacementTest from "../../../../../models/placement_test";
+import MarketingData from "../../../../../models/marketingData";
 
 export default async (req, res) => {
   try {
     await connectDB();
 
     if (req.method === "POST") {
-
-    } if (req.method === "PUT") {
+    }
+    if (req.method === "PUT") {
       const { studentId } = req.query; // Assuming you pass the studentId as a query parameter
-      const { assignedLevel, placementTestID, status } = req.body;
+      const { assignedLevel, placementTestID, status, comment } = req.body;
 
       if (!studentId) {
         return res.status(400).json({ error: "Student ID is required" });
@@ -32,7 +33,15 @@ export default async (req, res) => {
         placementTestID,
         {
           status: status,
-          assignedLevel: assignedLevel
+          assignedLevel: assignedLevel,
+          comment: comment,
+        },
+        { new: true }
+      );
+      const updatedMarketingData = await MarketingData.findOneAndUpdate(
+        { placementTest: placementTestID },
+        {
+          assignedLevel: assignedLevel,
         },
         { new: true }
       );

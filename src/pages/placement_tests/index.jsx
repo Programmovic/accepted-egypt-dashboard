@@ -26,6 +26,7 @@ const PlacementTests = () => {
   ] = useState(false);
   const [newTestCost, setNewTestCost] = useState("");
   const [newTestLimit, setNewTestLimit] = useState("");
+  const [newTestComment, setNewTestComment] = useState("");
   const [newTestInstructions, setNewTestInstructions] = useState("");
   const [newTestRoom, setNewTestRoom] = useState("");
   const [newTestDate, setNewTestDate] = useState("");
@@ -40,17 +41,17 @@ const PlacementTests = () => {
   const fetchPlacementTestData = async () => {
     // Show loading toast
     const toastId = toast.loading("Loading placement test data...");
-  
+
     try {
       const settingsResponse = await axios.get("/api/placement_test_settings");
       console.log("egirje", settingsResponse.data);
       const testsResponse = await axios.get("/api/placement_test");
-  
+
       if (settingsResponse.status === 200 && testsResponse.status === 200) {
         setPlacementTestSettings(settingsResponse.data);
         setPlacementTests(testsResponse.data);
         setFilteredPlacementTests(testsResponse.data);
-  
+
         // Update toast with success message
         toast.update(toastId, {
           render: "Placement test data loaded successfully!",
@@ -61,7 +62,7 @@ const PlacementTests = () => {
       }
     } catch (error) {
       console.error("Error fetching placement test data:", error);
-  
+
       // Update toast with error message
       toast.update(toastId, {
         render: "Failed to fetch placement test data. Please try again later.",
@@ -73,7 +74,7 @@ const PlacementTests = () => {
       setLoading(false);
     }
   };
-  
+
   const date = newTestDate; // Use your desired date
   const [newTestStartTime, setNewTestStartTime] = useState("");
   const [newTestEndTime, setNewTestEndTime] = useState("");
@@ -84,7 +85,7 @@ const PlacementTests = () => {
   const fetchRooms = async () => {
     // Show loading toast
     const toastId = toast.loading("Fetching room data...");
-  
+
     try {
       // Fetch all rooms
       const params = {
@@ -93,7 +94,7 @@ const PlacementTests = () => {
         newTestEndTime,
       };
       const roomsResponse = await axios.get(apiUrl, { params });
-  
+
       if (roomsResponse.status === 200) {
         const rooms = roomsResponse.data.map((room) => ({
           value: room._id, // Use a unique identifier for each room
@@ -101,7 +102,7 @@ const PlacementTests = () => {
           capacity: room.capacity
         }));
         setAvailableRooms(rooms);
-  
+
         // Update toast with success message
         toast.update(toastId, {
           render: "Room data fetched successfully!",
@@ -111,7 +112,7 @@ const PlacementTests = () => {
         });
       } else {
         console.error("Error fetching rooms:", roomsResponse.statusText);
-  
+
         // Update toast with error message
         toast.update(toastId, {
           render: "Failed to fetch room data. Please try again later.",
@@ -122,7 +123,7 @@ const PlacementTests = () => {
       }
     } catch (error) {
       console.error("Error fetching rooms and reservations:", error);
-  
+
       // Update toast with error message
       toast.update(toastId, {
         render: "An error occurred while fetching room data. Please try again.",
@@ -132,7 +133,7 @@ const PlacementTests = () => {
       });
     }
   };
-  
+
 
   useEffect(() => {
     fetchRooms();
@@ -145,7 +146,7 @@ const PlacementTests = () => {
   console.log(selectedRoom);
   const handleAddPlacementTest = async () => {
     const token = Cookies.get("client_token");
-    
+
     if (!newTestCost || !selectedInstructor || !newTestDate) {
       toast.error("Please fill in all required fields.", {
         position: "top-right",
@@ -153,10 +154,10 @@ const PlacementTests = () => {
       });
       return;
     }
-  
+
     // Show loading toast
     const toastId = toast.loading("Adding placement test...");
-  
+
     try {
       const response = await axios.post("/api/placement_test_settings", {
         cost: newTestCost,
@@ -169,11 +170,11 @@ const PlacementTests = () => {
         instructor: selectedInstructor.value,
         token,
       });
-  
+
       if (response.status === 201) {
         // Data added successfully
         fetchPlacementTestData();
-  
+
         // Update toast with success message
         toast.update(toastId, {
           render: "Placement Test added successfully!",
@@ -181,7 +182,7 @@ const PlacementTests = () => {
           isLoading: false,
           autoClose: 3000,
         });
-  
+
         setShowModal(false);
         setNewTestCost("");
         setNewTestDate("");
@@ -193,7 +194,7 @@ const PlacementTests = () => {
       } else {
         // Handle other possible response status codes here
         console.error("Unexpected status code:", response.status);
-  
+
         // Update toast with error message
         toast.update(toastId, {
           render: "Failed to add the placement test. Please try again.",
@@ -204,7 +205,7 @@ const PlacementTests = () => {
       }
     } catch (error) {
       console.error("Error adding placement test:", error);
-  
+
       // Update toast with error message
       toast.update(toastId, {
         render: "An error occurred while adding the placement test. Please try again.",
@@ -214,7 +215,7 @@ const PlacementTests = () => {
       });
     }
   };
-  
+
   const openPlacementTestDetailsModal = (placementTest) => {
     setSelectedPlacementTest(placementTest);
     setShowPlacementTestDetailsModal(true);
@@ -279,6 +280,7 @@ const PlacementTests = () => {
             student: selectedPlacementTest?.student,
             status: "Assigned Level",
             placementTestID: selectedPlacementTest?._id,
+            comment: newTestComment
           }
         );
 
@@ -585,6 +587,7 @@ const PlacementTests = () => {
                         <th>Student Name</th>
                         <th>Status</th>
                         <th>Assigned Level</th>
+                        <th>Comment</th>
                         <th>Phone Number</th>
                         <th>Cost</th>
                         <th>Date</th>
@@ -616,6 +619,7 @@ const PlacementTests = () => {
                           <td>{test.studentName}</td>
                           <td>{test.status}</td>
                           <td>{test.assignedLevel}</td>
+                          <td>{test.comment}</td>
                           <td>{test.studentPhoneNumber}</td>
                           <td>{test.cost || 0} EGP</td>
                           <td>{new Date(test.date).toLocaleDateString()}</td>
@@ -793,19 +797,29 @@ const PlacementTests = () => {
 
               {selectedPlacementTest &&
                 !selectedPlacementTest?.assignedLevel && (
-                  <Form.Group>
-                    <Form.Label>Set Level:</Form.Label>
-                    <Form.Control as="select" onChange={handleLevelSelect}>
-                      <option value="" hidden>
-                        Select a level
-                      </option>
-                      {levels.map((level) => (
-                        <option key={level._id} value={level.name}>
-                          {level.name}
+                  <>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Set Level:</Form.Label>
+                      <Form.Control as="select" onChange={handleLevelSelect}>
+                        <option value="" hidden>
+                          Select a level
                         </option>
-                      ))}
-                    </Form.Control>
-                  </Form.Group>
+                        {levels.map((level) => (
+                          <option key={level._id} value={level.name}>
+                            {level.name}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label>Comment:</Form.Label>
+                      <Form.Control
+                        type="text"
+                        value={newTestComment}
+                        onChange={(e) => setNewTestComment(e.target.value)}
+                      />
+                    </Form.Group>
+                  </>
                 )}
 
               {moveToWaitingList && (

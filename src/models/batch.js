@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const Class = require("./class");
 const Room = require("./room");
 const Level = require("./level");
+const Employee = require("./employee");
 
 const batchSchema = new mongoose.Schema({
   name: {
@@ -47,6 +48,10 @@ const batchSchema = new mongoose.Schema({
   level: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Level',
+  },
+  instructor: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Employee',
   },
   levelName: {
     type: String,

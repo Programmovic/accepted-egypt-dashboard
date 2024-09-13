@@ -35,6 +35,7 @@ const Batches = () => {
   const [newBatchStatus, setNewBatchStatus] = useState("");
   const [newBatchSelectedClass, setNewBatchSelectedClass] = useState("");
   const [newBatchClass, setNewBatchClass] = useState("");
+  const [newBatchInstructor, setNewBatchInstructor] = useState("");
   const [newBatchHours, setNewBatchHours] = useState("");
   const [newBatchCost, setNewBatchCost] = useState("");
   const [newBatchLimitTrainees, setNewBatchLimitTrainees] = useState("");
@@ -50,6 +51,7 @@ const Batches = () => {
   const [selectedLevel, setSelectedLevel] = useState("");
   const [selectedLevelName, setSelectedLevelName] = useState("");
   const [roomData, setRoomData] = useState([]);
+  const [instructors, setInstructors] = useState([]);
   // Function to open the modal and set the selected batch details
   const openBatchDetailsModal = (batch) => {
     setSelectedBatch(batch);
@@ -122,10 +124,22 @@ const Batches = () => {
       // Handle error
     }
   };
-
+  const fetchInstructors = async () => {
+    try {
+      const response = await axios.get("/api/instructor/get_instructors");
+      if (response.status === 200) {
+        const instructorsData = response.data;
+        setInstructors(instructorsData);
+      }
+    } catch (error) {
+      console.error("Error fetching instructor data:", error);
+      // Handle error
+    }
+  };
   useEffect(() => {
     fetchBatchData();
     fetchClassData(); // Fetch class data when the component mounts
+    fetchInstructors()
   }, []);
 
   useEffect(() => {
@@ -233,6 +247,7 @@ const Batches = () => {
         description: newBatchDescription,
         level: selectedLevel,
         levelName: selectedLevelName,
+        instructor: newBatchInstructor, // Add other batch attributes here
         // Add other batch attributes here
       });
       closeModal();
@@ -459,7 +474,7 @@ const Batches = () => {
       setNewBatchLimitTrainees(enteredValue);
     }
   };
-
+console.log(selectedBatch)
   return (
     <AdminLayout>
       <ToastContainer />
@@ -766,6 +781,7 @@ const Batches = () => {
                 <p>Status: {selectedBatch.status}</p>
                 <p>Code: {selectedBatch.code}</p>
                 <p>Class: {selectedBatch?.class?.name}</p>
+                <p>Instructor: {selectedBatch?.instructor?.name}</p>
                 <p>Hours: {selectedBatch.hours}</p>
                 <p>Cost: {selectedBatch.cost} EGP</p>
                 <p>Limit Trainees: {selectedBatch.limitTrainees} Trainees</p>
@@ -897,6 +913,25 @@ const Batches = () => {
               </Col>
               <Col xs={6}>
                 <Form.Group className="mb-3">
+                  <Form.Label>Instructor</Form.Label>
+
+                  <Select
+                    value={newBatchInstructor}
+                    options={instructors.map((student) => ({
+                      value: student._id,
+                      label: student.name,
+                    }))}
+                    onChange={(e) => {
+                      setNewBatchInstructor(e?.value);
+                    }}
+                    isClearable={true}
+                    isSearchable={true}
+                    placeholder="Instructor"
+                  />
+                </Form.Group>
+              </Col>
+              <Col xs={6}>
+                <Form.Group className="mb-3">
                   <Form.Label>Hours</Form.Label>
                   <Form.Control
                     type="number"
@@ -981,7 +1016,7 @@ const Batches = () => {
               </Col>
 
               <Col xs={6}>
-                <Form.Group>
+                <Form.Group  className="mb-3">
                   <Form.Label>Set Level:</Form.Label>
                   <Form.Control as="select" onChange={handleLevelSelect}>
                     <option value="" required hidden>

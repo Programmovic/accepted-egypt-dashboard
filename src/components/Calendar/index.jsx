@@ -4,7 +4,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import bootstrap5Plugin from "@fullcalendar/bootstrap5";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import listPlugin from "@fullcalendar/list";
-import { Card, Badge, Button, Modal, Form } from "react-bootstrap";
+import { Card, Badge, Button, Form } from "react-bootstrap";
 import axios from "axios";
 import EditEventModal from "../EditEvent";
 
@@ -13,12 +13,18 @@ const Calendar = ({ id }) => {
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventModal, setShowEventModal] = useState(false);
   const [editedEvent, setEditedEvent] = useState(null);
+  const [rooms, setRooms] = useState([]);
+  const [instructors, setInstructors] = useState([]);
+  const [selectedRoom, setSelectedRoom] = useState("");
+  const [selectedInstructor, setSelectedInstructor] = useState("");
 
   const apiUrl = id ? `/api/reservation/${id}` : "/api/reservation";
 
-  const fetchReservations = async () => {
+  const fetchReservations = async (room = "", instructor = "") => {
     try {
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(apiUrl, {
+        params: { room, instructor },
+      });
       if (response.status === 200) {
         setRoomReservations(response.data);
       }
@@ -27,9 +33,33 @@ const Calendar = ({ id }) => {
     }
   };
 
+  const fetchFilters = async () => {
+    try {
+      const roomResponse = await axios.get("/api/room"); // API to fetch available rooms
+      const instructorResponse = await axios.get("/api/instructor/get_instructors"); // API to fetch instructors
+      if (roomResponse.status === 200) setRooms(roomResponse.data);
+      if (instructorResponse.status === 200) setInstructors(instructorResponse.data);
+    } catch (error) {
+      console.error("Error fetching filter data:", error);
+    }
+  };
+
   useEffect(() => {
+    fetchFilters(); // Fetch available rooms and instructors for filtering
     fetchReservations();
   }, [id]);
+
+  const handleRoomChange = (e) => {
+    const room = e.target.value;
+    setSelectedRoom(room);
+    fetchReservations(room, selectedInstructor); // Fetch reservations based on selected filters
+  };
+
+  const handleInstructorChange = (e) => {
+    const instructor = e.target.value;
+    setSelectedInstructor(instructor);
+    fetchReservations(selectedRoom, instructor); // Fetch reservations based on selected filters
+  };
 
   const getRandomColor = (title) => {
     if (title === "Placement Test") {
@@ -74,9 +104,7 @@ const Calendar = ({ id }) => {
   };
 
   const handleUpdateEvent = () => {
-    // Make API call to update event details
     console.log("Updated Event:", editedEvent);
-    // Close the modal
     setShowEventModal(false);
   };
 
@@ -99,7 +127,7 @@ const Calendar = ({ id }) => {
 
   const handleEventClick = (clickInfo) => {
     setSelectedEvent(clickInfo.event.extendedProps.eventInfo);
-    setEditedEvent(clickInfo.event.extendedProps.eventInfo); // Initialize edited event with selected event data
+    setEditedEvent(clickInfo.event.extendedProps.eventInfo);
     setShowEventModal(true);
   };
 
@@ -112,12 +140,39 @@ const Calendar = ({ id }) => {
     <>
       <Card>
         <Card.Header as={"h5"}>
-          Room Reservations Calendar{" "}
+          Calendar{" "}
           <Badge pill variant="primary" className="me-2">
             {roomReservations.length}
           </Badge>
         </Card.Header>
         <Card.Body>
+          <div className="mb-3 d-flex justify-content-between">
+            <Form.Select
+              value={selectedRoom}
+              onChange={handleRoomChange}
+              className="me-3"
+            >
+              <option value="">All Rooms</option>
+              {rooms.map((room) => (
+                <option key={room._id} value={room._id}>
+                  {room.name}
+                </option>
+              ))}
+            </Form.Select>
+
+            <Form.Select
+              value={selectedInstructor}
+              onChange={handleInstructorChange}
+            >
+              <option value="">All Instructors</option>
+              {instructors.map((instructor) => (
+                <option key={instructor._id} value={instructor._id}>
+                  {instructor.name}
+                </option>
+              ))}
+            </Form.Select>
+          </div>
+
           <FullCalendar
             plugins={[
               dayGridPlugin,
@@ -143,14 +198,13 @@ const Calendar = ({ id }) => {
         </Card.Body>
       </Card>
       {editedEvent && (
-  <EditEventModal
-    show={showEventModal}
-    onHide={() => setShowEventModal(false)}
-    event={editedEvent}
-    onUpdate={handleUpdateEvent}
-  />
-)}
-
+        <EditEventModal
+          show={showEventModal}
+          onHide={() => setShowEventModal(false)}
+          event={editedEvent}
+          onUpdate={handleUpdateEvent}
+        />
+      )}
     </>
   );
 };
