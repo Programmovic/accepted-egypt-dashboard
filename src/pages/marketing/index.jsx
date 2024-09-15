@@ -301,10 +301,14 @@ const MarketingData = () => {
 
 
   const handleDeleteMarketingData = async (id) => {
+    const isConfirmed = window.confirm("Are you sure you want to delete this marketing data?");
+    
+    if (!isConfirmed) return; // Do nothing if the user cancels
+  
     try {
-      await axios.delete(`/api/marketing?id=${id}`); // Assuming you pass the ID in the URL params
+      await axios.delete(`/api/marketing?id=${id}`);
       closeModal();
-      fetchMarketingData(); // Assuming fetchMarketingData is a function to refetch the updated data
+      fetchMarketingData(); // Refresh the data after deletion
       toast.success("Marketing data deleted successfully!");
     } catch (error) {
       console.error("Error deleting marketing data:", error.message);
@@ -312,6 +316,7 @@ const MarketingData = () => {
       toast.error(error.message);
     }
   };
+  
 
 
   const [messages, setMessages] = useState({ errors: [], successes: [] }); // State for storing messages
@@ -382,11 +387,37 @@ const MarketingData = () => {
           // Update dataItem with formatted phone numbers
           dataItem.phoneNo1 = phoneNo1;
           dataItem.phoneNo2 = phoneNo2;
-          const excelBaseDate = new Date(1899, 11, 30); // Excel base date is December 30, 1899
-          const days = dataItem.createdAt; // Example days value
-          const date = new Date(excelBaseDate.getTime() + days * 24 * 60 * 60 * 1000);
-          dataItem.createdAt = date
-          // Validate required fields
+          // Function to check if a value is a serial number date from Excel
+          const isExcelDate = (value) => {
+            return typeof value === "number";
+          };
+
+          // Function to convert Excel serial date to JavaScript Date
+          const excelDateToJSDate = (serial) => {
+            const excelBaseDate = new Date(1899, 11, 30); // Excel base date is December 30, 1899
+            const date = new Date(excelBaseDate.getTime() + serial * 24 * 60 * 60 * 1000);
+            return date;
+          };
+          // Check and process 'createdAt' date
+          if (dataItem.createdAt) {
+            if (isExcelDate(dataItem.createdAt)) {
+              // If it's an Excel serial number, convert it to a JS Date object
+              dataItem.createdAt = excelDateToJSDate(dataItem.createdAt);
+            } else {
+              // If it's already in a date format (like MM/DD/YYYY), parse it directly
+              dataItem.createdAt = new Date(dataItem.createdAt);
+            }
+          } else {
+            // Handle missing date case if needed
+            setMessages((prev) => ({
+              ...prev,
+              errors: [
+                ...prev.errors,
+                `Error: Missing 'createdAt' value for ${dataItem.name || "unknown name"}.`,
+              ],
+            }));
+            continue;
+          }
           if (!dataItem.name || !dataItem.phoneNo1) {
             setMessages((prev) => ({
               ...prev,
@@ -836,7 +867,7 @@ const MarketingData = () => {
 
         {/* Success Messages */}
         {messages.successes.length > 0 && (
-          <div>
+          <div  className="px-5 py-3" style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1rem', backgroundColor: "rgb(245, 245, 245)", borderRadius: "8px" }}>
             {messages.successes.map((msg, index) => (
               <Alert key={index} variant="success">
                 {msg}
@@ -857,6 +888,7 @@ const MarketingData = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
+            <div style={{ overflowX: "auto" }}>
             <Table striped bordered hover>
               <thead>
                 <tr>
@@ -921,6 +953,7 @@ const MarketingData = () => {
                 ))}
               </tbody>
             </Table>
+            </div>
           )}
         </Card.Body>
       </Card>

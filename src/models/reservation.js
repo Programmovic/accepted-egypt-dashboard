@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const PlacementTestSettings = require("./placement_test_settings");
 // Edit
 const reservationSchema = new mongoose.Schema(
   {
@@ -25,6 +26,10 @@ const reservationSchema = new mongoose.Schema(
     batch: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Batch",
+    },
+    placementTest: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "PlacementTestSettings",
     },
     level: {
       type: mongoose.Schema.Types.ObjectId,

@@ -1,18 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import Table from 'react-bootstrap/Table';
 import axios from 'axios';
-import { Spinner, Alert, Form, Button } from 'react-bootstrap';
+import { Spinner, Alert, Form } from 'react-bootstrap';
 
 const PendingPaymentsTable = ({ marketingDataId }) => {
-  console.log(marketingDataId)
   const [pendingPayments, setPendingPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
   const fetchPendingPayments = async () => {
     try {
-      const response = await axios.get(`/api/marketing/verify-payment?leadId=${marketingDataId}`);
+      let response;
+      if (marketingDataId) {
+        // Fetch payments for a specific lead ID
+        response = await axios.get(`/api/marketing/verify-payment?leadId=${marketingDataId}`);
+      } else {
+        // Fetch all pending payments if no marketingDataId is provided
+        response = await axios.get(`/api/marketing/verify-payment`);
+      }
+
       const data = response.data;
-      console.log("data", data);
       setPendingPayments(data); // Assuming the API response includes `pendingPayments`
     } catch (err) {
       setError('Failed to fetch pending payments');
@@ -22,13 +29,23 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
   };
 
   useEffect(() => {
-
-    if (marketingDataId) fetchPendingPayments();
+    fetchPendingPayments(); // Fetch payments whether `marketingDataId` is present or not
   }, [marketingDataId]);
 
-  const handleStatusChange = async (paymentId, newStatus) => {
+  const handleStatusChange = async (paymentId, newStatus, paymentType, marketingDataId) => {
     try {
-      await axios.put(`/api/marketing/verify-payment?id=${paymentId}`, { paymentStatus: newStatus });
+      // Step 1: Fetch data from `/api/marketing?id={paymentId}`
+      const marketingResponse = await axios.get(`/api/marketing?id=${marketingDataId}`);
+      const marketingData = marketingResponse.data; // Assuming this returns the data you want to send
+
+      // Step 2: Send the fetched data to `/api/marketing/verify-payment?id=${paymentId}`
+      await axios.put(`/api/marketing/verify-payment?id=${paymentId}`, {
+        paymentType: paymentType,
+        paymentStatus: newStatus,
+        marketingData, // Send the fetched marketing data along with the update
+      });
+
+      // Step 3: Update the payment status locally
       setPendingPayments((prevPayments) =>
         prevPayments.map((payment) =>
           payment._id === paymentId ? { ...payment, paymentStatus: newStatus } : payment
@@ -39,9 +56,10 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
     }
   };
 
+
   if (loading) return <Spinner animation="border" />;
   if (error) return <Alert variant="danger">{error}</Alert>;
-  console.log(pendingPayments)
+
   return (
     <Table striped bordered hover>
       <thead>
@@ -67,7 +85,7 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
               <Form.Control
                 as="select"
                 value={payment.paymentStatus}
-                onChange={(e) => handleStatusChange(payment._id, e.target.value)}
+                onChange={(e) => handleStatusChange(payment._id, e.target.value, payment.paymentType, payment.leadId)}
               >
                 <option value="Pending">Pending</option>
                 <option value="Verified">Verified</option>

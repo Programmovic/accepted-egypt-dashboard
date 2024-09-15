@@ -8,6 +8,7 @@ import Position from "../../../models/position";
 import PlacementTest from "../../../models/placement_test";
 import PendingPayment from "../../../models/pendingLeadPayment";
 import Student from "../../../models/student";
+import Level from "../../../models/level";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
 
@@ -58,7 +59,22 @@ export default async (req, res) => {
           return res.status(404).json({ error: "Marketing data not found" });
         }
 
-        return res.status(200).json(marketingData.toJSON());
+        // Fetch Level details using the name stored in assignedLevel
+        const level = await Level.findOne({
+          name: marketingData.assignedLevel,
+        });
+
+        // Construct the response object with level details embedded
+        const response = {
+          ...marketingData.toJSON(),
+          assignedLevel: {
+            name: marketingData.assignedLevel,
+            details: level ? level.toJSON() : null, // Include level details or null if not found
+          },
+        };
+
+        // Return the response object
+        return res.status(200).json(response);
       } else {
         let allMarketingData = [];
         if (assignedToModerator) {
@@ -97,8 +113,6 @@ export default async (req, res) => {
           name: { $in: ["Supervisor", "Agent"] },
         }).select("_id name");
 
-        console.log("Positions:", positions);
-
         // Create a mapping for position names to IDs
         const positionMap = positions.reduce((acc, p) => {
           acc[p.name] = p._id;
@@ -107,8 +121,6 @@ export default async (req, res) => {
         const departments = await Department.find({
           name: "Sales",
         }).select("_id name");
-
-        console.log("Departments:", departments);
 
         const departmentIds = departments.map((d) => d._id);
         // Fetch supervisors in the Sales department
@@ -119,8 +131,6 @@ export default async (req, res) => {
           .populate("position")
           .populate("department");
 
-        console.log("Sales Supervisors:", salesSupervisors);
-
         // Fetch agents in the Sales department
         const salesAgents = await Employee.find({
           department: { $in: departmentIds },
@@ -128,8 +138,6 @@ export default async (req, res) => {
         })
           .populate("position")
           .populate("department");
-
-        console.log("Sales Agents:", salesAgents);
 
         return res.status(200).json({
           marketingData: allMarketingData,
@@ -144,9 +152,17 @@ export default async (req, res) => {
   } else if (req.method === "PUT") {
     try {
       const { id } = req.query; // Assuming `id` is passed as a query parameter
-      const updates = req.body;
-      console.log(updates);
+      let updates = req.body;
+      // Log the initial updates
+      console.log("Initial updates:", updates);
 
+      // Extract only the name from the assignedLevel object
+      if (updates?.assignedLevel?.name) {
+        updates.assignedLevel = updates.assignedLevel.name;
+      }
+
+      // Log the updated updates
+      console.log("Updated updates:", updates);
       // Extract the token from cookies
       const cookies = req.headers.cookie
         ? cookie.parse(req.headers.cookie)
@@ -281,46 +297,14 @@ export default async (req, res) => {
         });
       }
 
-      // Check if the update is setting a placement test
-      if (updates.placementTest) {
-        // Check if a student profile exists for the marketing data
-        let student = await Student.findOne({
-          phoneNumber: updatedMarketingData.phoneNo1,
-          nationalId: updatedMarketingData.nationalId,
-        });
+      // Check if a pending payment for the same lead and type already exists
+      const existingPendingPayment = await PendingPayment.findOne({
+        leadId: id,
+        paymentType: "Placement Test",
+      });
 
-        if (!student) {
-          // Create a new student profile
-          student = new Student({
-            name: updatedMarketingData.name,
-            phoneNumber: updatedMarketingData.phoneNo1,
-            email: updatedMarketingData.email,
-            nationalId: updatedMarketingData.nationalId,
-            interestedInCourse: updatedMarketingData.interestedInCourse,
-            placementTestDate: updates?.placementTest?.date,
-            createdByAdmin: decoded.adminId,
-            adminName: decoded.adminName, // Assuming `adminName` is stored in the token
-          });
-          await student.save();
-        }
-
-        // Link the student to the selected placement test
-        const placementTestEntry = new PlacementTest({
-          student: student._id,
-          generalPlacementTest: updates.placementTest,
-          studentName: student.name,
-          status: "Scheduled", // or any status you prefer
-          studentNationalID: student.nationalId,
-          studentPhoneNumber: student.phoneNumber,
-          createdByAdmin: decoded.adminId,
-          adminName: decoded.adminName, // Assuming `adminName` is stored in the token
-        });
-
-        await placementTestEntry.save();
-      }
-
-      // Create pending payment for placement test verification if applicable
-      if (updates.placementTestAmountAfterDiscount ) {
+      // If no existing payment is found, create a new one
+      if (!existingPendingPayment && updates.placementTestAmountAfterDiscount) {
         const pendingPayment = new PendingPayment({
           leadId: id,
           customerName: updatedMarketingData.name,
@@ -332,6 +316,7 @@ export default async (req, res) => {
           createdBy: decoded.adminId,
           updatedBy: decoded.adminId,
         });
+
         await pendingPayment.save();
       }
 

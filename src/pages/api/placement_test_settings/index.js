@@ -20,6 +20,7 @@ export default async (req, res) => {
         title: "Placement Test",
         date: testDate,
         daysOfWeek: [testDate.toLocaleDateString("en-US", { weekday: "long" })],
+        placemetTest: newTest._id,
         startTime: newTest.startTime, // Adjust start and end times as needed
         endTime: newTest.endTime,
         room: newTest.room, // Assuming you have room information in the placement test

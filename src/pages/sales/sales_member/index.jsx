@@ -162,7 +162,24 @@ const SalesMemberAssignedData = () => {
     const dataBlob = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(dataBlob, "marketing_data.xlsx");
   };
+  const [pendingPayments, setPendingPayments] = useState([]);
 
+  const fetchPendingPayments = async () => {
+    try {
+      let response = await axios.get(`/api/marketing/verify-payment`);
+
+      const data = response.data;
+      setPendingPayments(data); // Assuming the API response includes `pendingPayments`
+    } catch (err) {
+      setError('Failed to fetch pending payments');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPendingPayments(); // Fetch payments whether `marketingDataId` is present or not
+  }, []);
   return (
     <AdminLayout>
       <ToastContainer />
@@ -310,11 +327,12 @@ const SalesMemberAssignedData = () => {
                   <tr key={index}>
                     <td
                       className={
-                        item.verificationStatus === "Rejected"
+
+                        pendingPayments.filter((i) => i.leadId === item._id).paymentStatus === "Rejected"
                           ? "bg-danger text-light"
-                          : item.verificationStatus === "Pending"
+                          : pendingPayments.filter((i) => i.leadId === item._id).paymentStatus === "Pending"
                             ? "bg-warning text-dark"
-                            : item.verificationStatus === "Verified"
+                            : pendingPayments.filter((i) => i.leadId === item._id).paymentStatus === "Verified"
                               ? "bg-success text-light"
                               : ""
                       }

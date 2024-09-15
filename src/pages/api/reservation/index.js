@@ -34,7 +34,13 @@ export default async (req, res) => {
             model: "Employee", // Populate the instructor data from the Employee model (adjust if needed)
           },
         })
-        .populate("room"); // Populate room data
+        .populate("room").populate({
+          path: "placementTest",
+          populate: {
+            path: "instructor", // Assuming the Batch model has an 'instructor' field
+            model: "Employee", // Populate the instructor data from the Employee model (adjust if needed)
+          },
+        }); // Populate room data
 
       return res.status(200).json(allReservations);
     } catch (error) {

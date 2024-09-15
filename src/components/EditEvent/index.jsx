@@ -59,7 +59,7 @@ const EditEventModal = ({ show, onHide, event, onUpdate }) => {
               <Form.Control
                 type="text"
                 name="instructor"
-                value={editedEvent?.batch?.instructor?.name}
+                value={editedEvent?.batch?.instructor?.name  || editedEvent?.placementTest?.instructor?.name}
                 disabled
               />
             </Form.Group>

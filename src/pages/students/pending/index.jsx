@@ -6,10 +6,7 @@ import { Modal } from "react-bootstrap";
 import Select from "react-select";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
-
-import { ClassCard } from "@components/Classes";
+import PendingPaymentsTable from "../../../components/PendingPayments";
 
 const MarketingData = () => {
   const [marketingData, setMarketingData] = useState([]);
@@ -293,56 +290,7 @@ const MarketingData = () => {
             </Button>
           </Form>
 
-          {loading ? (
-            <p>Loading marketing data...</p>
-          ) : error ? (
-            <p>{error}</p>
-          ) : (
-            <Table striped bordered hover style={{ overflowX: "auto" }}>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Phone no1</th>
-                  <th>Phone no2</th>
-                  <th>Payment Method</th>
-                  <th>Receiver</th>
-                  <th>Sent the Screenshot</th>
-                  <th>Paid Amount</th>
-                  <th>Reference Number</th>
-                  <th>Verification Status</th> {/* New Column */}
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((item, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{item.name}</td>
-                    <td>{item.phoneNo1}</td>
-                    <td>{item.phoneNo2}</td>
-                    <td>{item.paymentMethod}</td>
-                    <td>{item.recieverNumber}</td>
-                    <td>{item.paymentScreenshotStatus ? "Yes" : "No"}</td>
-                    <td>{item.paidAmount}</td>
-                    <td>{item.referenceNumber}</td>
-                    <td>
-                      <Form.Control
-                        as="select"
-                        name="verificationStatus"
-                        value={item.verificationStatus}
-                        onChange={(e) => handleUpdateMarketingData(item._id, { verificationStatus: e.target.value })}
-                      >
-                        <option value="Pending">Pending</option>
-                        <option value="Verified">Verified</option>
-                        <option value="Rejected">Rejected</option>
-                      </Form.Control>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
-
-          )}
+          <PendingPaymentsTable />
         </Card.Body>
       </Card>
     </AdminLayout>

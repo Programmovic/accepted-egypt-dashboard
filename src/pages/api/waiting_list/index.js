@@ -9,7 +9,6 @@ export default async (req, res) => {
 
     if (req.method === "POST") {
       const student = req.body;
-
       // Create a new Student document
       const newStudent = new WaitingList(student);
       await newStudent.save()

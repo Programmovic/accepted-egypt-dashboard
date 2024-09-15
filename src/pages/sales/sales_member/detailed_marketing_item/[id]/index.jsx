@@ -286,7 +286,7 @@ const MarketingDataDetail = () => {
   const handleSave = async () => {
     // Show loading toast
     const toastId = toast.loading("Saving marketing data...");
-
+console.log(marketingData)
     try {
       await axios.put(`/api/marketing?id=${id}`, marketingData);
       setUnsavedChanges(false);
@@ -556,8 +556,8 @@ const MarketingDataDetail = () => {
                             setMarketingData((prevData) => ({
                               ...prevData,
                               placementTestDiscount: discount,
-                              placementTestPaidAmount: +paidAmount.toFixed(2), // Update the paid amount
-                              placementTestAmountAfterDiscount: +amountAfterDiscount.toFixed(2), // Update the amount after discount
+                              placementTestPaidAmount: +paidAmount, // Update the paid amount
+                              placementTestAmountAfterDiscount: +amountAfterDiscount, // Update the amount after discount
                             }));
                             setUnsavedChanges(true);
                           }}
@@ -602,7 +602,7 @@ const MarketingDataDetail = () => {
                                 ...prevData,
                                 placementTestPaidAmount: +value,
                                 placementTestDiscount: +discountPercentage, // Update the discount
-                                placementTestAmountAfterDiscount: +amountAfterDiscount?.toFixed(2), // Update the amount after discount
+                                placementTestAmountAfterDiscount: +amountAfterDiscount, // Update the amount after discount
                               }));
                             } else {
                               // If the full amount is paid, reset the discount to 0
@@ -610,7 +610,7 @@ const MarketingDataDetail = () => {
                                 ...prevData,
                                 placementTestPaidAmount: +value,
                                 placementTestDiscount: +0, // No discount if fully paid
-                                placementTestAmountAfterDiscount: +placementTestCost?.toFixed(2), // Set amount after discount to full cost
+                                placementTestAmountAfterDiscount: +placementTestCost, // Set amount after discount to full cost
                               }));
                             }
                           }
@@ -729,10 +729,8 @@ const MarketingDataDetail = () => {
                     {editing ? (
                       <Form.Control
                         type="text"
-                        name="assignedLevel"
-                        value={marketingData.assignedLevel || "Still Not Assigned"}
-                        onChange={handleChange}
-                        disabled={!marketingData.assignedLevel} // Disable the input if the assignedTo field is empty
+                        value={marketingData.assignedLevel.name || "Still Not Assigned"}
+                        disabled={true} // Disable the input if the assignedTo field is empty
                       />
                     ) : (
                       marketingData.assignedLevel
@@ -749,23 +747,24 @@ const MarketingDataDetail = () => {
                           value={marketingData.levelDiscount}
                           onChange={(e) => {
                             const discount = parseFloat(e.target.value); // Get the discount value from slider
-                            const assignedLevelCost = marketingData?.assignedLevel?.cost; // Total cost of the assigned level
+                            const assignedLevelCost = marketingData?.assignedLevel.details.price; // Total cost of the assigned level
 
                             // Calculate the paid amount based on the discount percentage
-                            const paidAmount = ((100 - discount) / 100) * assignedLevelCost;
+                            const paidAmount = discount > 0 ? ((100 - discount) / 100) * assignedLevelCost : marketingData.levelPaidAmount;
 
-                            // Calculate the amount after discount
-                            const amountAfterDiscount = assignedLevelCost - (assignedLevelCost * discount / 100);
+                            // Calculate the amount after discount only if discount is greater than 0
+                            const amountAfterDiscount = discount > 0 ? assignedLevelCost - (assignedLevelCost * discount / 100) : assignedLevelCost;
 
                             // Update the discount, paid amount, and the calculated amount after discount
                             setMarketingData((prevData) => ({
                               ...prevData,
                               levelDiscount: discount,
-                              levelPaidAmount: paidAmount?.toFixed(2), // Update the paid amount
-                              levelPaidRemainingAmount: (assignedLevelCost - paidAmount)?.toFixed(2), // Update the remaining amount
-                              levelAmountAfterDiscount: amountAfterDiscount?.toFixed(2), // Update the amount after discount
+                              levelPaidAmount: paidAmount, // Update the paid amount
+                              levelPaidRemainingAmount: (assignedLevelCost - paidAmount), // Update the remaining amount
+                              levelAmountAfterDiscount: amountAfterDiscount, // Update the amount after discount
                               isLevelFullPayment: paidAmount >= assignedLevelCost // Automatically set full payment status
                             }));
+                            setUnsavedChanges(true);
                           }}
                           min={0}
                           max={100}
@@ -788,24 +787,25 @@ const MarketingDataDetail = () => {
                         value={marketingData.levelPaidAmount}
                         onChange={(e) => {
                           const value = parseFloat(e.target.value); // Convert to number
-                          const assignedLevelCost = marketingData.assignedLevelCost; // Total cost of the assigned level
-
+                          const assignedLevelCost = marketingData?.assignedLevel.details.price;// Total cost of the assigned level
+                          console.log(marketingData?.assignedLevel)
                           if (value > assignedLevelCost) {
                             alert(`Paid amount cannot exceed ${assignedLevelCost}`);
                           } else {
                             // Calculate the discount percentage if the paid amount is less than the cost
-                            const discountPercentage = ((1 - value / assignedLevelCost) * 100)?.toFixed(2);
-                            const amountAfterDiscount = value;
+                            const discountPercentage = value < assignedLevelCost ? ((1 - value / assignedLevelCost) * 100) : 0;
+                            const amountAfterDiscount = discountPercentage > 0 ? value : assignedLevelCost;
 
                             // Update the paid amount, discount, and the calculated amount after discount
                             setMarketingData((prevData) => ({
                               ...prevData,
                               levelPaidAmount: value,
                               levelDiscount: discountPercentage, // Update the discount
-                              levelPaidRemainingAmount: (assignedLevelCost - value)?.toFixed(2), // Update the remaining amount
-                              levelAmountAfterDiscount: amountAfterDiscount?.toFixed(2), // Update the amount after discount
+                              levelPaidRemainingAmount: (assignedLevelCost - value), // Update the remaining amount
+                              levelAmountAfterDiscount: amountAfterDiscount, // Update the amount after discount
                               isLevelFullPayment: value >= assignedLevelCost // Automatically set full payment status
                             }));
+                            setUnsavedChanges(true);
                           }
                         }}
                       />
@@ -848,6 +848,7 @@ const MarketingDataDetail = () => {
                     )}
                   </td>
                 </tr>
+
 
                 <tr>
                   <td>Is Level Fully Paid</td>

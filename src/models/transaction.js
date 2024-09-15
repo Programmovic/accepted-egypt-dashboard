@@ -2,12 +2,24 @@ const mongoose = require('mongoose');
 const Student = require('./student');
 const Batch = require('./batch');
 const PaymentMethod = require('./paymentMethod'); // Import the PaymentMethod model
+const Level = require('./level'); // Import the PaymentMethod model
+const PlacementTestSettings = require('./placement_test_settings'); // Import the PaymentMethod model
 
 const transactionSchema = new mongoose.Schema({
   student: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Student',
     description: 'The student associated with the transaction',
+  },
+  level: {
+    type: String,
+    ref: 'Level',
+    description: 'The course or class related to the transaction',
+  },
+  placementTest: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'PlacementTestSettings',
+    description: 'The course or class related to the transaction',
   },
   batch: {
     type: mongoose.Schema.Types.ObjectId,
@@ -40,7 +52,7 @@ const transactionSchema = new mongoose.Schema({
     type: String,
   },
   paymentMethod: { // Reference to PaymentMethod model
-    type: mongoose.Schema.Types.ObjectId,
+    type: String,
     ref: 'PaymentMethod',
     description: 'The payment method used for the transaction',
   },
