@@ -2,7 +2,7 @@ import connectDB from "@lib/db";
 import PendingPayment from "../../../models/pendingLeadPayment";
 import Student from "../../../models/student";
 import PlacementTest from "../../../models/placement_test";
-import Transaction from "../../../models/Transaction";
+import Transaction from "../../../models/transaction";
 import WaitingList from "../../../models/waiting_list";
 
 export default async (req, res) => {
@@ -82,7 +82,7 @@ export default async (req, res) => {
               status: "Scheduled",
               studentNationalID: student.nationalId,
               studentPhoneNumber: student.phoneNumber,
-              cost: marketingData.cost,
+              cost: marketingData.placementTestAmountAfterDiscount,
             });
             await placementTestEntry.save();
           }
@@ -107,12 +107,15 @@ export default async (req, res) => {
         // Handle Level Fee Payment
         else if (paymentStatus === "Verified" && paymentType === "Level Fee") {
           // Find or create the transaction entry
-          let transaction = await Transaction.findOne({ student: student._id });
+          let transaction = await Transaction.findOne({
+            student: student._id,
+            level: student.level,
+          });
 
           if (!transaction) {
             const newTransaction = new Transaction({
               student: student._id,
-              level: marketingData.assignedLevel || null,
+              level: marketingData.assignedLevel.name || null,
               type: "income",
               amount: updatedPayment.amountPaid,
               description: "Level Fee Payment",
@@ -125,7 +128,7 @@ export default async (req, res) => {
             student: student._id,
             source: "EWFS",
           });
-          console.log(waitingListEntry)
+          console.log(waitingListEntry);
 
           if (!waitingListEntry) {
             const newStudent = new WaitingList({

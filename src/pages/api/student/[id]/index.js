@@ -1,7 +1,9 @@
 import connectDB from "@lib/db";
 import Student from "../../../../models/student";
 import Attendance from "../../../../models/attendance";
+import Assessment from "../../../../models/progress_exit_test";
 import Lecture from "../../../../models/lecture";
+import Level from "../../../../models/level";
 
 export default async (req, res) => {
   try {
@@ -48,9 +50,30 @@ export default async (req, res) => {
       return res.status(200).json({ student: updatedStudent });
     } else if (req.method === "GET") {
       const { id } = req.query;
-      const students = await Student.find({ _id: id });
-      // You can also fetch associated placement test and transaction data here if needed
-      return res.status(200).json({ students });
+
+      try {
+        // Find the student by ID
+        const student = await Student.findById(id);
+
+        if (!student) {
+          return res.status(404).json({ message: "Student not found" });
+        }
+
+        // Fetch associated progress/exit tests for the student, and populate the new level details
+        const assessments = await Assessment.findOne({
+          student: id,
+          batch: student.batch,
+        });
+        console.log(assessments)
+        const level = await Level.findOne({ name: assessments.newLevel });
+
+
+        // Structure the response to include student data and assessments with the populated level information
+        return res.status(200).json({ student, level });
+      } catch (error) {
+        console.error("Error fetching student or assessments:", error);
+        return res.status(500).json({ message: "Server error" });
+      }
     } else {
       return res.status(400).json({ error: "Invalid request" });
     }

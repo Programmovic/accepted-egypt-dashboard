@@ -6,9 +6,14 @@ import Employee from "../../../models/employee"; // Import Employee model
 import Department from "../../../models/department";
 import Position from "../../../models/position";
 import PlacementTest from "../../../models/placement_test";
+import Attendance from "../../../models/attendance";
+import Transaction from "../../../models/transaction";
+import WaitingList from "../../../models/waiting_list";
 import PendingPayment from "../../../models/pendingLeadPayment";
+import Lecture from "../../../models/lecture";
 import Student from "../../../models/student";
 import Level from "../../../models/level";
+import Batch from "../../../models/batch";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
 
@@ -64,12 +69,19 @@ export default async (req, res) => {
           name: marketingData.assignedLevel,
         });
 
-        // Construct the response object with level details embedded
+        // Fetch Batches related to this level
+        let batches = [];
+        if (level) {
+          batches = await Batch.find({ level: level._id });
+        }
+
+        // Construct the response object with level details and batches embedded
         const response = {
           ...marketingData.toJSON(),
           assignedLevel: {
             name: marketingData.assignedLevel,
             details: level ? level.toJSON() : null, // Include level details or null if not found
+            batches: batches.map((batch) => batch.toJSON()), // Include batch details
           },
         };
 
@@ -90,7 +102,7 @@ export default async (req, res) => {
         } else if (pending) {
           allMarketingData = await MarketingData.find({
             paymentMethod: { $ne: "" },
-            paidAmount: { $ne: null },
+            levelPaidAmount: { $ne: null },
             verificationStatus: { $ne: "Verified" },
           })
 
@@ -153,16 +165,17 @@ export default async (req, res) => {
     try {
       const { id } = req.query; // Assuming `id` is passed as a query parameter
       let updates = req.body;
+
       // Log the initial updates
       console.log("Initial updates:", updates);
 
       // Extract only the name from the assignedLevel object
       if (updates?.assignedLevel?.name) {
         updates.assignedLevel = updates.assignedLevel.name;
+      } else {
+        updates.assignedLevel = "";
       }
 
-      // Log the updated updates
-      console.log("Updated updates:", updates);
       // Extract the token from cookies
       const cookies = req.headers.cookie
         ? cookie.parse(req.headers.cookie)
@@ -181,6 +194,85 @@ export default async (req, res) => {
       const originalMarketingData = await MarketingData.findById(id);
       if (!originalMarketingData) {
         return res.status(404).json({ error: "Marketing data not found" });
+      }
+
+      // Handle batch assignment logic if assignedBatch exists
+      if (updates.assignedBatch) {
+        const { levelDiscount, assignedBatch, levelPaidAmount } = updates;
+
+        // Ensure student hasn't been assigned to a assignedBatch before
+        if (originalMarketingData.assignedBatch) {
+          return res
+            .status(400)
+            .json({ error: "Student is already assigned to a assignedBatch" });
+        }
+
+        // Find the assignedBatch by ID
+        const batchData = await Batch.findById(assignedBatch);
+        if (!batchData) {
+          return res.status(404).json({ error: "Batch not found" });
+        }
+        // Find the student by phoneNo1 or phoneNo2
+        const studentData = await Student.findOne({
+          $or: [
+            { phoneNumber: originalMarketingData.phoneNo1 },
+            { phoneNumber: originalMarketingData.phoneNo2 },
+          ],
+        });
+
+        console.log(studentData);
+        if (!studentData) {
+          return res.status(404).json({ error: "Batch not found" });
+        }
+        // // Calculate due amount
+        // const dueAmount = +(+batchData.cost - (levelDiscount / 100) * +batchData.cost) - (+levelPaidAmount);
+
+        // Update student data
+        studentData.batch = assignedBatch;
+        studentData.status = "Joined Batch";
+        studentData.WaitingList = false;
+
+        // Save the updated student record
+        await studentData.save();
+        // Update the waiting list entry to mark it as archived
+        const updatedWaitingList = await WaitingList.findOneAndUpdate(
+          {
+            student: studentData._id,
+          },
+          {
+            $set: { isArchived: true }, // Mark as archived
+          },
+          { new: true } // Return the updated document
+        );
+        // Find an existing transaction for the student that doesn't have a batch assigned yet
+        const existingTransaction = await Transaction.findOne({
+          student: studentData._id,
+          batch: { $exists: false }, // Find transactions without a batch assigned
+        });
+
+        if (existingTransaction) {
+          // Update the transaction with the selected batch
+          existingTransaction.batch = assignedBatch;
+          // Save the updated transaction
+          await existingTransaction.save();
+        } else {
+          // Handle the case where no transaction without a batch is found
+          return res
+            .status(404)
+            .json({ error: "Transaction not found for update" });
+        }
+
+        // Handle attendance for all lectures in the assigned batch
+        const lectures = await Lecture.find({ batch: assignedBatch });
+        for (const lectureId of lectures) {
+          const attendanceRecord = new Attendance({
+            lecture: lectureId,
+            trainee: studentData._id,
+            date: new Date(), // Current date
+            status: "Not Assigned",
+          });
+          await attendanceRecord.save();
+        }
       }
 
       // Check for duplicate phone numbers
@@ -217,29 +309,27 @@ export default async (req, res) => {
       const [existingPhoneNo1, existingPhoneNo2] = await Promise.all(
         phoneNumberChecks
       );
-
       if (existingPhoneNo1) {
         return res.status(400).json({
           error: "Phone number already exists in another record",
           conflictData: existingPhoneNo1,
-          originalData: originalMarketingData.toJSON(), // Return the original data
+          originalData: originalMarketingData.toJSON(),
         });
       }
       if (existingPhoneNo2) {
         return res.status(400).json({
           error: "Phone number already exists in another record",
           conflictData: existingPhoneNo2,
-          originalData: originalMarketingData.toJSON(), // Return the original data
+          originalData: originalMarketingData.toJSON(),
         });
       }
 
-      // Update the MarketingData document by ID
+      // Update the MarketingData document
       const updatedMarketingData = await MarketingData.findByIdAndUpdate(
         id,
         updates,
         { new: true }
       );
-      console.log(updatedMarketingData);
       if (!updatedMarketingData) {
         return res
           .status(404)
@@ -251,15 +341,12 @@ export default async (req, res) => {
         marketingDataId: id,
         oldData: originalMarketingData.toObject(),
         newData: updatedMarketingData.toObject(),
-        editedBy: decoded.adminId, // Use the decoded admin ID
+        editedBy: decoded.adminId,
       });
       await historyEntry.save();
 
-      // Check for candidate interest status
-      if (
-        updates.candidateStatusForSalesPerson &&
-        updates.candidateStatusForSalesPerson.toLowerCase() === "interested"
-      ) {
+      // Handle prospect and pending payments logic
+      if (updates.candidateStatusForSalesPerson?.toLowerCase() === "interested") {
         const prospectData = {
           name: updatedMarketingData.name,
           phoneNumber: updatedMarketingData.phoneNo1,
@@ -272,10 +359,7 @@ export default async (req, res) => {
         };
 
         const existingProspect = await Prospect.findOne({
-          $or: [
-            { phoneNumber: prospectData.phoneNumber },
-            { email: prospectData.email },
-          ],
+          $or: [{ phoneNumber: prospectData.phoneNumber }, { email: prospectData.email }],
         });
 
         if (!existingProspect) {
@@ -284,52 +368,43 @@ export default async (req, res) => {
         }
       }
 
-      // Remove prospect if verificationStatus is set to verified
-      if (
-        updates.verificationStatus &&
-        updates.verificationStatus.toLowerCase() === "verified"
-      ) {
+      if (updates.verificationStatus?.toLowerCase() === "verified") {
         await Prospect.findOneAndDelete({
-          $or: [
-            { phoneNumber: updatedMarketingData.phoneNo1 },
-            { email: updatedMarketingData.email },
-          ],
+          $or: [{ phoneNumber: updatedMarketingData.phoneNo1 }, { email: updatedMarketingData.email }],
         });
       }
 
-      // Check if a pending payment for the same lead and type already exists
-      const existingPendingPayment = await PendingPayment.findOne({
-        leadId: id,
-        paymentType: "Placement Test",
-      });
-
-      // If no existing payment is found, create a new one
-      if (!existingPendingPayment && updates.placementTestAmountAfterDiscount) {
-        const pendingPayment = new PendingPayment({
+      if (updates.placementTestAmountAfterDiscount) {
+        const existingPendingPayment = await PendingPayment.findOne({
           leadId: id,
-          customerName: updatedMarketingData.name,
-          customerPhone: updatedMarketingData.phoneNo1,
-          amountPaid: updates.placementTestAmountAfterDiscount,
-          paymentMethod: updates.paymentMethod || "Bank Transfer", // Use provided payment method or default
           paymentType: "Placement Test",
-          paymentDate: new Date(), // Set appropriate payment date
-          createdBy: decoded.adminId,
-          updatedBy: decoded.adminId,
         });
 
-        await pendingPayment.save();
+        if (!existingPendingPayment) {
+          const pendingPayment = new PendingPayment({
+            leadId: id,
+            customerName: updatedMarketingData.name,
+            customerPhone: updatedMarketingData.phoneNo1,
+            amountPaid: updates.placementTestAmountAfterDiscount,
+            paymentMethod: updates.paymentMethod || "Bank Transfer",
+            paymentType: "Placement Test",
+            paymentDate: new Date(),
+            createdBy: decoded.adminId,
+            updatedBy: decoded.adminId,
+          });
+          await pendingPayment.save();
+        }
       }
 
-      // Create pending payment for level fee verification if applicable
       if (updates.levelPaidAmount) {
         const pendingPayment = new PendingPayment({
           leadId: id,
           customerName: updatedMarketingData.name,
           customerPhone: updatedMarketingData.phoneNo1,
           amountPaid: updates.levelPaidAmount,
-          paymentMethod: updates.paymentMethod || "Bank Transfer", // Use provided payment method or default
+          paymentMethod: updates.paymentMethod || "Bank Transfer",
           paymentType: "Level Fee",
-          paymentDate: new Date(), // Set appropriate payment date
+          paymentDate: new Date(),
           createdBy: decoded.adminId,
           updatedBy: decoded.adminId,
         });

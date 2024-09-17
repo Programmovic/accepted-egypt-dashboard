@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Level = require("./level"); // Import Level model
 const PendingPayment = require("./pendingLeadPayment"); // Import PendingPayment model
-
+const Batch = require("./batch"); 
 const marketingDataSchema = new mongoose.Schema(
   {
     name: {
@@ -167,6 +167,10 @@ const marketingDataSchema = new mongoose.Schema(
     levelPaidRemainingAmount: {
       type: Number,
       default: 0,
+    },
+    assignedBatch: {
+      type: String,
+      ref: "Batch", // Reference to the Level model
     },
     verificationStatus: {
       type: String,

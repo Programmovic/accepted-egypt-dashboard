@@ -79,6 +79,7 @@ const MarketingDataDetail = () => {
     placementTestDiscount: 0,
     placementTestAmountAfterDiscount: 0,
     assignedLevel: "",
+    assignedBatch: "",
     levelPaidAmount: 0,
     levelDiscount: 0, // Added field
     isLevelFullPayment: false,
@@ -278,7 +279,7 @@ const MarketingDataDetail = () => {
         [name]: value,
       });
     }
-
+console.log(marketingData);
     setUnsavedChanges(true);
   };
 
@@ -286,7 +287,7 @@ const MarketingDataDetail = () => {
   const handleSave = async () => {
     // Show loading toast
     const toastId = toast.loading("Saving marketing data...");
-console.log(marketingData)
+    console.log(marketingData)
     try {
       await axios.put(`/api/marketing?id=${id}`, marketingData);
       setUnsavedChanges(false);
@@ -507,26 +508,8 @@ console.log(marketingData)
                     )}
                   </td>
                 </tr>
-                <tr>
-                  <td>
-                    Schedule Placement Test
-                  </td>
-                  <td>
-                    <Form.Control
-                      as="select"
-                      name="placementTest"
-                      value={marketingData.placementTest}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select a test</option>
-                      {placementTests.map((test) => (
-                        <option key={test._id} value={test._id}>
-                          {test.cost} EGP - {new Date(test.date).toLocaleDateString()} - From {test.startTime} to {test.endTime} - {test.studentCount} of {test.limitTrainees}
-                        </option>
-                      ))}
-                    </Form.Control>
-                  </td>
-                </tr>
+
+
                 <tr>
                   <td>Placement Test Discount (%)</td>
                   <td>
@@ -856,7 +839,26 @@ console.log(marketingData)
                     {marketingData.isLevelFullPayment ? 'Yes' : 'No'}
                   </td>
                 </tr>
-
+                <tr>
+                  <td>
+                    Select Batch
+                  </td>
+                  <td>
+                    <Form.Control
+                      as="select"
+                      name="assignedBatch"
+                      value={marketingData.assignedBatch}
+                      onChange={handleChange}
+                    >
+                      <option value="">Select a batch</option>
+                      {marketingData?.assignedLevel?.batches?.map((batch) => (
+                        <option key={batch._id} value={batch._id}>
+                          {batch.name} - {batch.status} - Code: {batch.code} - Cost: {batch.cost} EGP - Starts at {new Date(batch.shouldStartAt).toLocaleDateString()} - Ends at {new Date(batch.shouldEndAt).toLocaleDateString()} - {batch.limitTrainees} Trainees Limit
+                        </option>
+                      ))}
+                    </Form.Control>
+                  </td>
+                </tr>
 
                 <tr>
                   <td>Reference Number</td>

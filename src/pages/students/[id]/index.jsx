@@ -18,6 +18,7 @@ import { ClassCard } from "@components/Classes";
 import { useRouter } from "next/router";
 import IdentityCard from "../../../components/StudentIDCard";
 import StudentHistoryDisplay from "../../../components/StudentHistory";
+import StudentFinance from "../../../components/StudentFinance";
 
 const StudentProfile = () => {
   const [studentData, setStudentData] = useState({});
@@ -63,19 +64,38 @@ const StudentProfile = () => {
       );
     }
   };
-
-  // Function to fetch student data
+  const [marketingData, setMarketingData] = useState({
+    assignedLevel: {
+      details: {
+        price: 0, // Default price of the level
+      },
+    },
+    levelDiscount: 0, // Default discount percentage
+    levelPaidAmount: 0, // Paid amount
+    levelAmountAfterDiscount: 0, // Amount after discount is applied
+    levelPaidRemainingAmount: 0, // Remaining amount to be paid
+    isLevelFullPayment: false, // Boolean to check if the payment is full
+  });
   const fetchStudentData = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(`/api/student/${id}`); // Replace with your actual API endpoint
 
       if (response.status === 200) {
         console.log(response);
-        setStudentData(response.data.students[0]);
+        setMarketingData((prevData) => ({
+          ...prevData,
+          assignedLevel: {
+            details: {
+              price: response?.data?.level?.price, // Default price of the level
+            },
+          },
+        }));
+        setStudentData(response.data.student);
       }
     } catch (error) {
-      console.error("Error fetching student data:", error);
-      toast.error("Failed to fetch student data. Please try again later.", {
+      console.error("Error updating finance or fetching student data:", error);
+      toast.error("Failed to update finance or fetch student data. Please try again later.", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -226,7 +246,7 @@ const StudentProfile = () => {
   const handleBatchUpdate = async () => {
     try {
       // Send a request to update the student's batch with selectedBatch
-      console.log(selectedBatch )
+      console.log(selectedBatch)
       const response = await axios.put(`/api/student/${id}`, {
         batch: selectedBatch || null,
       });
@@ -286,6 +306,24 @@ const StudentProfile = () => {
       fetchTransactions();
     }
   }, [id]);
+  const [showFinancialModal, setShowFinancialModal] = useState(false);
+
+  const [unsavedChanges, setUnsavedChanges] = useState(false);
+
+  // Function to open the modal
+  const handleOpenFinancialModal = () => setShowFinancialModal(true);
+
+  // Function to close the modal
+  const handleCloseFinancialModal = () => setShowFinancialModal(false);
+
+  // Function to handle form changes (if needed)
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setMarketingData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
+  };
 
   return (
     <AdminLayout>
@@ -297,221 +335,219 @@ const StudentProfile = () => {
           isLoading={loading}
         />
         <ClassCard
-          data={`${
-            attendances.filter((attendance) => attendance.status === "Attended")
-              .length
-          } (${(
-            (attendances.filter(
-              (attendance) => attendance.status === "Attended"
-            ).length /
-              attendances.length) *
-            100
-          ).toFixed(2)}%)`}
+          data={`${attendances.filter((attendance) => attendance.status === "Attended")
+            .length
+            } (${(
+              (attendances.filter(
+                (attendance) => attendance.status === "Attended"
+              ).length /
+                attendances.length) *
+              100
+            ).toFixed(2)}%)`}
           title="Total Attendend Lectures"
           enableOptions={false}
           isLoading={loading}
         />
         <ClassCard
-          data={`${
-            attendances.filter((attendance) => attendance.status === "Absent")
-              .length
-          } (${(
-            (attendances.filter((attendance) => attendance.status === "Absent")
-              .length /
-              attendances.length) *
-            100
-          ).toFixed(2)}%)`}
+          data={`${attendances.filter((attendance) => attendance.status === "Absent")
+            .length
+            } (${(
+              (attendances.filter((attendance) => attendance.status === "Absent")
+                .length /
+                attendances.length) *
+              100
+            ).toFixed(2)}%)`}
           title="Total Absent Lectures"
           enableOptions={false}
           isLoading={loading}
         />
         <ClassCard
-          data={`${
-            attendances.filter((attendance) => attendance.status === "Execused")
-              .length
-          } (${(
-            (attendances.filter(
-              (attendance) => attendance.status === "Execused"
-            ).length /
-              attendances.length) *
-            100
-          ).toFixed(2)}%)`}
+          data={`${attendances.filter((attendance) => attendance.status === "Execused")
+            .length
+            } (${(
+              (attendances.filter(
+                (attendance) => attendance.status === "Execused"
+              ).length /
+                attendances.length) *
+              100
+            ).toFixed(2)}%)`}
           title="Total Execused Lectures"
           enableOptions={false}
           isLoading={loading}
         />
         <ClassCard
-          data={`${
-            attendances.filter((attendance) => attendance.status === "Late")
-              .length
-          } (${(
-            (attendances.filter((attendance) => attendance.status === "Late")
-              .length /
-              attendances.length) *
-            100
-          ).toFixed(2)}%)`}
+          data={`${attendances.filter((attendance) => attendance.status === "Late")
+            .length
+            } (${(
+              (attendances.filter((attendance) => attendance.status === "Late")
+                .length /
+                attendances.length) *
+              100
+            ).toFixed(2)}%)`}
           title="Total Late Lectures"
           enableOptions={false}
           isLoading={loading}
         />
         <ClassCard
-          data={`${
-            attendances.filter(
-              (attendance) => attendance.status === "Not Assigned"
-            ).length
-          } (${(
-            (attendances.filter(
-              (attendance) => attendance.status === "Not Assigned"
-            ).length /
-              attendances.length) *
-            100
-          ).toFixed(2)}%)`}
+          data={`${attendances.filter(
+            (attendance) => attendance.status === "Not Assigned"
+          ).length
+            } (${(
+              (attendances.filter(
+                (attendance) => attendance.status === "Not Assigned"
+              ).length /
+                attendances.length) *
+              100
+            ).toFixed(2)}%)`}
           title="Not Assigned Lectures"
           enableOptions={false}
           isLoading={loading}
         />
       </div>
-      <Container className="mt-5">
-        <IdentityCard
-          studentData={studentData}
-          showIdentityModal={showIdentityModal}
-          setShowIdentityModal={setShowIdentityModal}
-        />
-        <div>
-      <Row className="mb-3">
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>ID</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>{studentData._id}</td>
-            </tr>
-          </tbody>
-        </Table>
-      </Row>
-      <StudentHistoryDisplay id={id}/>
-    </div>
-        <Row>
-          <Col xs={4}>
-            <Form.Group className="my-3" controlId="name">
-              <Form.Label>Name</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="First name"
-                defaultValue={studentData.name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </Form.Group>
-          </Col>
-          <Col xs={4}>
-            <Form.Group className="my-3" controlId="phoneNumber">
-              <Form.Label>Mobile Number</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter phone number"
-                defaultValue={studentData.phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-              />
-            </Form.Group>
-          </Col>
-          <Col xs={4}>
-            <Form.Group className="my-3" controlId="email">
-              <Form.Label>Email</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Enter email id"
-                defaultValue={studentData.email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </Form.Group>
-          </Col>
-          <Col xs={4}>
-            <Form.Group className="my-3" controlId="nationalId">
-              <Form.Label>National Id</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="National Id"
-                defaultValue={studentData.nationalId}
-                onChange={(e) => setNationalId(e.target.value)}
-              />
-            </Form.Group>
-          </Col>
-          <Col xs={4}>
-            <Form.Group className="my-3" controlId="status">
-              <Form.Label>Status</Form.Label>
-              <Form.Control
-                type="text"
-                placeholder="Status"
-                defaultValue={studentData.status}
-                disabled
-              />
-            </Form.Group>
-          </Col>
-          <Col xs={4}>
-            <Form.Group className="my-3" controlId="paid">
-              <Form.Label>Paid (EGP)</Form.Label>
-              <Form.Control
-                type="text"
-                defaultValue={studentData.paid}
-                disabled
-              />
-            </Form.Group>
-          </Col>
-          <Col xs={4}>
-            <Form.Group className="my-3" controlId="due">
-              <Form.Label>Due (EGP)</Form.Label>
-              <Form.Control
-                type="text"
-                defaultValue={studentData.due}
-                disabled
-              />
-            </Form.Group>
-          </Col>
-          <Col xs={4}>
-            <Form.Group className="my-3" controlId="level">
-              <Form.Label>Level</Form.Label>
-              <Form.Control
-                type="text"
-                defaultValue={studentData.level}
-                disabled
-              />
-            </Form.Group>
-          </Col>
-          <Col xs={4}>
-            <Form.Group className="my-3" controlId="placementTest">
-              <Form.Label>Placement Test</Form.Label>
-              <Form.Control
-                type="text"
-                value={new Date(studentData?.placementTestDate).toLocaleString(
-                  undefined,
-                  { year: "numeric", day: "numeric", month: "long" }
-                )}
-                disabled
-              />
-            </Form.Group>
-          </Col>
+      <IdentityCard
+        studentData={studentData}
+        showIdentityModal={showIdentityModal}
+        setShowIdentityModal={setShowIdentityModal}
+      />
+      <StudentFinance paid={studentData.paid} due={studentData.due} />
+
+      <div>
+        <Row className="mb-3">
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{studentData._id}</td>
+              </tr>
+            </tbody>
+          </Table>
         </Row>
-        <div className="mt-3 justify-content-between d-flex">
-          <Button variant="primary" type="button" onClick={handleSave}>
-            Update
-          </Button>
-          <Button variant="primary" type="button" onClick={openBatchModal}>
-            Update Batch
-          </Button>
-          <Button
-            variant="outline-primary"
-            type="button"
-            className="fw-bold"
-            onClick={openIdentityModal}
-          >
-            View Card
-          </Button>
-          {/* Button to open the batch update modal */}
-        </div>
-      </Container>
+        <StudentHistoryDisplay id={id} />
+      </div>
+      <Row>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="name">
+            <Form.Label>Name</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="First name"
+              defaultValue={studentData.name}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </Form.Group>
+        </Col>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="phoneNumber">
+            <Form.Label>Mobile Number</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter phone number"
+              defaultValue={studentData.phoneNumber}
+              onChange={(e) => setPhoneNumber(e.target.value)}
+            />
+          </Form.Group>
+        </Col>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="email">
+            <Form.Label>Email</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter email id"
+              defaultValue={studentData.email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </Form.Group>
+        </Col>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="nationalId">
+            <Form.Label>National Id</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="National Id"
+              defaultValue={studentData.nationalId}
+              onChange={(e) => setNationalId(e.target.value)}
+            />
+          </Form.Group>
+        </Col>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="status">
+            <Form.Label>Status</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Status"
+              defaultValue={studentData.status}
+              disabled
+            />
+          </Form.Group>
+        </Col>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="paid">
+            <Form.Label>Paid (EGP)</Form.Label>
+            <Form.Control
+              type="text"
+              defaultValue={studentData.paid}
+              disabled
+            />
+          </Form.Group>
+        </Col>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="due">
+            <Form.Label>Due (EGP)</Form.Label>
+            <Form.Control
+              type="text"
+              defaultValue={studentData.due}
+              disabled
+            />
+          </Form.Group>
+        </Col>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="level">
+            <Form.Label>Level</Form.Label>
+            <Form.Control
+              type="text"
+              defaultValue={studentData.level}
+              disabled
+            />
+          </Form.Group>
+        </Col>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="placementTest">
+            <Form.Label>Placement Test</Form.Label>
+            <Form.Control
+              type="text"
+              value={new Date(studentData?.placementTestDate).toLocaleString(
+                undefined,
+                { year: "numeric", day: "numeric", month: "long" }
+              )}
+              disabled
+            />
+          </Form.Group>
+        </Col>
+      </Row>
+      <div className="mt-3 justify-content-between d-flex">
+        <Button variant="primary" type="button" onClick={handleSave}>
+          Update
+        </Button>
+        <Button variant="primary" type="button" onClick={openBatchModal}>
+          Update Batch
+        </Button>
+        <Button variant="primary" onClick={handleOpenFinancialModal}>
+          Renew
+        </Button>
+        <Button
+          variant="outline-primary"
+          type="button"
+          className="fw-bold"
+          onClick={openIdentityModal}
+        >
+          View Card
+        </Button>
+        {/* Button to open the batch update modal */}
+      </div>
       <Modal show={showBatchModal} onHide={() => setShowBatchModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Update Student's Batch</Modal.Title>
@@ -542,6 +578,112 @@ const StudentProfile = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      <Modal show={showFinancialModal} onHide={() => setShowFinancialModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Update Student's Level</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {/* Level Discount (%) */}
+          <Form.Group className="my-3" controlId="levelDiscount">
+            <Form.Label>Level Discount (%)</Form.Label>
+            <div className="d-flex justify-content-between">
+              <Form.Range
+                name="levelDiscount"
+                value={marketingData.levelDiscount}
+                onChange={(e) => {
+                  const discount = parseFloat(e.target.value); // Get the discount value from the slider
+                  console.log(marketingData)
+                  const assignedLevelCost = marketingData?.assignedLevel.details.price; // Total cost of the assigned level
+
+                  // Calculate the amount after discount
+                  const amountAfterDiscount = (100 - discount) / 100 * assignedLevelCost;
+
+                  // Update the paid amount and the remaining amount
+                  const paidAmount = marketingData.levelPaidAmount > amountAfterDiscount
+                    ? amountAfterDiscount
+                    : marketingData.levelPaidAmount;
+                  const remainingAmount = amountAfterDiscount - paidAmount;
+
+                  setMarketingData((prevData) => ({
+                    ...prevData,
+                    levelDiscount: discount,
+                    levelAmountAfterDiscount: amountAfterDiscount, // Update amount after discount
+                    levelPaidAmount: paidAmount, // Adjust paid amount if discount applied
+                    levelPaidRemainingAmount: remainingAmount, // Update remaining amount
+                    isLevelFullPayment: paidAmount >= amountAfterDiscount, // Check if fully paid
+                  }));
+                  setUnsavedChanges(true);
+                }}
+                min={0}
+                max={100}
+              />
+              <span className="ms-3">{marketingData.levelDiscount}%</span>
+            </div>
+          </Form.Group>
+
+          {/* Level Paid Amount */}
+          <Form.Group className="my-3" controlId="levelPaidAmount">
+            <Form.Label>Level Paid Amount</Form.Label>
+            <Form.Control
+              type="number"
+              name="levelPaidAmount"
+              value={marketingData.levelPaidAmount}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value); // Convert to number
+                const assignedLevelCost = marketingData?.assignedLevel.details.price; // Total cost of the assigned level
+                const amountAfterDiscount = marketingData.levelAmountAfterDiscount;
+
+                if (value > amountAfterDiscount) {
+                  alert(`Paid amount cannot exceed ${amountAfterDiscount}`);
+                } else {
+                  const remainingAmount = amountAfterDiscount - value;
+                  const discountPercentage = 100 - (value / assignedLevelCost) * 100;
+
+                  setMarketingData((prevData) => ({
+                    ...prevData,
+                    levelPaidAmount: value,
+                    levelPaidRemainingAmount: remainingAmount, // Update remaining amount
+                    levelDiscount: discountPercentage, // Automatically adjust discount
+                    isLevelFullPayment: value >= amountAfterDiscount, // Set full payment status
+                  }));
+                  setUnsavedChanges(true);
+                }
+              }}
+            />
+          </Form.Group>
+
+          {/* Level Amount After Discount */}
+          <Form.Group className="my-3" controlId="levelAmountAfterDiscount">
+            <Form.Label>Level Amount After Discount</Form.Label>
+            <Form.Control
+              type="number"
+              name="levelAmountAfterDiscount"
+              value={marketingData.levelAmountAfterDiscount}
+              disabled
+            />
+          </Form.Group>
+
+          {/* Level Paid Remaining Amount */}
+          <Form.Group className="my-3" controlId="levelPaidRemainingAmount">
+            <Form.Label>Level Paid Remaining Amount</Form.Label>
+            <Form.Control
+              type="number"
+              name="levelPaidRemainingAmount"
+              value={marketingData.levelPaidRemainingAmount}
+              disabled
+            />
+          </Form.Group>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowFinancialModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary">
+            Update
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <Card className="mt-5">
         <Card.Header>Lectures for {batchData?.name}</Card.Header>
         <Card.Body>
@@ -588,38 +730,38 @@ const StudentProfile = () => {
       <Card className="mt-5">
         <Card.Header>Transactions</Card.Header>
         <Card.Body>
-        <Table striped bordered hover>
-  <thead>
-    <tr>
-      <th>Transaction ID</th>
-      <th>Date</th>
-      <th>Batch</th>
-      <th>Type</th>
-      {transactions.some(transaction => transaction.type === "expenses") && (
-        <th>Expense Type</th>
-      )}
-      <th>Amount</th>
-      <th>Description</th>
-      {/* Add more columns as needed */}
-    </tr>
-  </thead>
-  <tbody>
-    {transactions.map((transaction) => (
-      <tr key={transaction._id}>
-        <td>{transaction._id}</td>
-        <td>{new Date(transaction.createdAt).toLocaleString()}</td>
-        <td>{transaction?.batch?.name || (<span className="text-danger fw-bold">No Batch</span>)}</td>
-        <td>{transaction.type}</td>
-        {transaction.type === "expenses" && (
-          <td>{transaction.expense_type}</td>
-        )}
-        <td>{transaction.amount}</td>
-        <td>{transaction.description}</td>
-        {/* Add more cells for additional transaction data */}
-      </tr>
-    ))}
-  </tbody>
-</Table>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Transaction ID</th>
+                <th>Date</th>
+                <th>Batch</th>
+                <th>Type</th>
+                {transactions.some(transaction => transaction.type === "expenses") && (
+                  <th>Expense Type</th>
+                )}
+                <th>Amount</th>
+                <th>Description</th>
+                {/* Add more columns as needed */}
+              </tr>
+            </thead>
+            <tbody>
+              {transactions.map((transaction) => (
+                <tr key={transaction._id}>
+                  <td>{transaction._id}</td>
+                  <td>{new Date(transaction.createdAt).toLocaleString()}</td>
+                  <td>{transaction?.batch?.name || (<span className="text-danger fw-bold">No Batch</span>)}</td>
+                  <td>{transaction.type}</td>
+                  {transaction.type === "expenses" && (
+                    <td>{transaction.expense_type}</td>
+                  )}
+                  <td>{transaction.amount}</td>
+                  <td>{transaction.description}</td>
+                  {/* Add more cells for additional transaction data */}
+                </tr>
+              ))}
+            </tbody>
+          </Table>
 
         </Card.Body>
       </Card>

@@ -64,6 +64,7 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
     <Table striped bordered hover>
       <thead>
         <tr>
+          <th>Payment Type</th>
           <th>Customer Name</th>
           <th>Customer Phone</th>
           <th>Amount Paid</th>
@@ -77,6 +78,7 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
       <tbody>
         {pendingPayments?.map((payment) => (
           <tr key={payment._id}>
+            <td>{payment.paymentType}</td>
             <td>{payment.customerName}</td>
             <td>{payment.customerPhone}</td>
             <td>{payment.amountPaid}</td>
