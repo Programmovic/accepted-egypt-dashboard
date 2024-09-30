@@ -1,5 +1,6 @@
 const mongoose = require("mongoose");
 const StudentHistory = require("./studentHistory"); // Adjust the path as needed
+const ElsaAccount = require("./ElsaAccount"); // Adjust the path as needed
 
 const studentSchema = new mongoose.Schema(
   {
@@ -15,6 +16,10 @@ const studentSchema = new mongoose.Schema(
     placementTest: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "PlacementTest",
+    },
+    elsaAccount: {
+      type: String,
+      ref: "ElsaAccount",
     },
     batch: { type: mongoose.Schema.Types.ObjectId, ref: "Batch" },
     placementTestDate: { type: Date },

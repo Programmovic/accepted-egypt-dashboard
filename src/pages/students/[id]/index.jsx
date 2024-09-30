@@ -80,7 +80,7 @@ const StudentProfile = () => {
     try {
       setLoading(true);
       const response = await axios.get(`/api/student/${id}`); // Replace with your actual API endpoint
-
+console.log(response.data.student)
       if (response.status === 200) {
         console.log(response);
         setMarketingData((prevData) => ({
@@ -532,12 +532,13 @@ const StudentProfile = () => {
         <Button variant="primary" type="button" onClick={handleSave}>
           Update
         </Button>
+        <Button variant="primary" onClick={handleOpenFinancialModal}>
+          Complete renew fees
+        </Button>
         <Button variant="primary" type="button" onClick={openBatchModal}>
           Update Batch
         </Button>
-        <Button variant="primary" onClick={handleOpenFinancialModal}>
-          Renew
-        </Button>
+        
         <Button
           variant="outline-primary"
           type="button"

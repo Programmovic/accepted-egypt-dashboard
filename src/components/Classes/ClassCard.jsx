@@ -16,7 +16,7 @@ export default function ClassCard(props) {
 
 
   return (
-    <div className="col-sm-6 col-lg-3">
+    <div className="col-sm-6 col-lg-4">
       <Card text="white" className="mb-4 border shadow-sm">
         <Card.Body
           className="pb-0 d-flex justify-content-between align-items-start text-dark"

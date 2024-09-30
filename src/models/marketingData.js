@@ -152,6 +152,9 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
       ref: "Level", // Reference to the Level model
     },
+    assignedLevelComment: {
+      type: String,
+    },
     levelPaidAmount: {
       type: Number,
       default: 0,

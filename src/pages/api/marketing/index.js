@@ -111,6 +111,7 @@ export default async (req, res) => {
         } else if (recruitment) {
           allMarketingData = await MarketingData.find({
             candidateSignUpFor: "Recruitment",
+            assignedToSales: { $exists: true, $ne: null, $ne: "" },
           }).sort({ createdAt: -1 });
         } else if (test_waiting_list) {
           allMarketingData = await MarketingData.find({
@@ -346,7 +347,9 @@ export default async (req, res) => {
       await historyEntry.save();
 
       // Handle prospect and pending payments logic
-      if (updates.candidateStatusForSalesPerson?.toLowerCase() === "interested") {
+      if (
+        updates.candidateStatusForSalesPerson?.toLowerCase() === "interested"
+      ) {
         const prospectData = {
           name: updatedMarketingData.name,
           phoneNumber: updatedMarketingData.phoneNo1,
@@ -359,7 +362,10 @@ export default async (req, res) => {
         };
 
         const existingProspect = await Prospect.findOne({
-          $or: [{ phoneNumber: prospectData.phoneNumber }, { email: prospectData.email }],
+          $or: [
+            { phoneNumber: prospectData.phoneNumber },
+            { email: prospectData.email },
+          ],
         });
 
         if (!existingProspect) {
@@ -370,7 +376,10 @@ export default async (req, res) => {
 
       if (updates.verificationStatus?.toLowerCase() === "verified") {
         await Prospect.findOneAndDelete({
-          $or: [{ phoneNumber: updatedMarketingData.phoneNo1 }, { email: updatedMarketingData.email }],
+          $or: [
+            { phoneNumber: updatedMarketingData.phoneNo1 },
+            { email: updatedMarketingData.email },
+          ],
         });
       }
 

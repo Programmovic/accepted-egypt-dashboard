@@ -888,7 +888,7 @@ const MarketingData = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
-            <div style={{ overflowX: "auto" }}>
+            <div style={{ overflowX: "auto", overflowY: 'auto', maxHeight: "900px" }}>
             <Table striped bordered hover>
               <thead>
                 <tr>

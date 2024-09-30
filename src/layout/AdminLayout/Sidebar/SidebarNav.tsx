@@ -216,6 +216,9 @@ export default function SidebarNav() {
           <SidebarNavItem icon={faHome} href="/positions">
             Positions
           </SidebarNavItem>
+          <SidebarNavItem icon={faHome} href="/students/elsa_accounts">
+            Elsa Accounts
+          </SidebarNavItem>
         </SidebarNavGroup>
       )}
       <SidebarNavGroup toggleIcon={faBullhorn} toggleText="Marketing">
@@ -228,7 +231,7 @@ export default function SidebarNav() {
         <SidebarNavItem icon={faUser} href="/recruitment">
         Recruitment
         </SidebarNavItem>
-        <SidebarNavItem icon={faUser} href="/marketing">
+        <SidebarNavItem icon={faUser} href="/placer">
         Placer
         </SidebarNavItem>
       </SidebarNavGroup>

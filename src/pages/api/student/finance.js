@@ -18,8 +18,7 @@ export default async (req, res) => {
       }
 
       for (const student of students) {
-        console.log(`Processing student: ${student.name} (ID: ${student._id})`);
-
+ 
         // Fetch all transactions for the student
         const transactions = await Transaction.find({ student: student._id });
 
@@ -27,8 +26,6 @@ export default async (req, res) => {
         const totalPaid = transactions.reduce((sum, transaction) => {
           return sum + (transaction.type === "income" ? transaction.amount : 0);
         }, 0);
-
-        console.log(`Total Paid Amount from Transactions for ${student.name}: ${totalPaid}`);
 
         let totalRequired = 0;
 
@@ -50,9 +47,6 @@ export default async (req, res) => {
           });
         }
 
-        // Log the total required amount
-        console.log(`Total Required Amount for ${student.name}: ${totalRequired}`);
-
         // Ensure totalPaid and totalRequired are valid numbers
         const validTotalPaid = isNaN(totalPaid) ? 0 : totalPaid;
         const validTotalRequired = isNaN(totalRequired) ? 0 : totalRequired;
@@ -60,8 +54,6 @@ export default async (req, res) => {
         // Calculate the due amount safely
         const dueAmount = validTotalRequired - validTotalPaid;
 
-        // Log the final calculated due amount
-        console.log(`Final Due Amount for ${student.name}: ${dueAmount}`);
 
         // Update the student's paid and due fields
         await Student.findByIdAndUpdate(
@@ -70,7 +62,6 @@ export default async (req, res) => {
           { new: true }
         );
 
-        console.log(`Student updated: ${student.name}, Paid: ${validTotalPaid}, Due: ${dueAmount}`);
       }
 
       return res.status(200).json({ message: "All students updated successfully" });

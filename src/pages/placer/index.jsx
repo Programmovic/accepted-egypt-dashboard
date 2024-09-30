@@ -301,7 +301,7 @@ const SalesMemberAssignedData = () => {
 
       <Card>
 
-        <Card.Header>Recruitment Data for Sales Agent</Card.Header>
+        <Card.Header>Recruitment Data for Placer</Card.Header>
         <Card.Body>
           {loading ? (
             <p>Loading marketing data...</p>
@@ -340,7 +340,7 @@ const SalesMemberAssignedData = () => {
                       {index + 1}
                     </td>
                     <td>
-                      <Link legacyBehavior href={`/recruitment/detailed_marketing_item/${item._id}`}>
+                      <Link legacyBehavior href={`/placer/detailed_marketing_item/${item._id}`}>
                         <a>{item.name}</a>
                       </Link>
                     </td>
