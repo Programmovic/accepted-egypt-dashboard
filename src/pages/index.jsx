@@ -110,6 +110,73 @@ const Help = () => {
             </AccordionDetails>
           </Accordion>
 
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle1">
+                Inventory Tab
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                The <strong>Inventory</strong> tab is used for managing physical assets of the institution. It includes:
+              </Typography>
+              <ul>
+                <li>Scan: Scan items for inventory management.</li>
+                <li>Laptops: Manage the inventory of laptops and their allocation.</li>
+              </ul>
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle1">
+                Finance Tab
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                The <strong>Finance</strong> tab oversees financial transactions and student payments. It includes:
+              </Typography>
+              <ul>
+                <li>Payment Methods: Configure available payment methods.</li>
+                <li>Transactions: Review and manage transactions.</li>
+                <li>Students With Due: List students with outstanding payments.</li>
+              </ul>
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle1">
+                Human Resources Tab
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                The <strong>Human Resources</strong> tab is for managing employee information.
+              </Typography>
+              <ul>
+                <li>Employees: Manage employee records and information.</li>
+              </ul>
+            </AccordionDetails>
+          </Accordion>
+
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle1">
+                Help Tab
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                The <strong>Help</strong> tab provides guidance on how to use the system effectively.
+              </Typography>
+              <ul>
+                <li>How to Use?: A resource for understanding system functionalities.</li>
+              </ul>
+            </AccordionDetails>
+          </Accordion>
+
           <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
             Detailed Workflow
           </Typography>
