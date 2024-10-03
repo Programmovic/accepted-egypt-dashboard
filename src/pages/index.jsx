@@ -1,125 +1,156 @@
 import React from "react";
+import { Container, Row, Col } from "react-bootstrap";
+import { Box, Typography, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { AdminLayout } from "@layout";
 
 const Help = () => {
   return (
     <AdminLayout>
-      <div>
-        <h2>Accepted Management System Documentation</h2>
+      <Container>
+        <Box sx={{ py: 4 }}>
+          <Typography variant="h4" gutterBottom align="center">
+            Accepted Management System Documentation
+          </Typography>
 
-        <h3>Overview</h3>
-        <p>
-          The <strong>Accepted Management System</strong> is designed to manage the operations of an educational institution, including administrative setup, marketing, sales processes, and academic management. This system uses a sidebar navigation that allows access to various tabs for different functions.
-        </p>
+          <Typography variant="h6" gutterBottom>
+            Overview
+          </Typography>
+          <Typography paragraph>
+            The <strong>Accepted Management System</strong> is designed to manage the operations of an educational institution, including administrative setup, marketing, sales processes, and academic management. This system uses a sidebar navigation that allows access to various tabs for different functions.
+          </Typography>
 
-        <h3>Sidebar Tabs and Their Functions</h3>
+          <Typography variant="h6" gutterBottom>
+            Sidebar Tabs and Their Functions
+          </Typography>
 
-        <ol>
-          <li>
-            <strong>Administration Tab</strong>
-            <p>
-              The <strong>Administration</strong> tab is used for configuring the system. It includes the following sections:
-            </p>
-            <ul>
-              <li><strong>Admins</strong>: Manage admin users.</li>
-              <li><strong>Branches</strong>: Set up different branches of the institution.</li>
-              <li><strong>Levels</strong>: Define the academic levels offered.</li>
-              <li><strong>Rooms</strong>: Add and manage rooms used for classes and tests.</li>
-              <li><strong>Schedule</strong>: Configure schedules for classes, tests, and events.</li>
-              <li><strong>Room Utilizations</strong>: Monitor the usage of rooms for optimal scheduling.</li>
-              <li><strong>Courses</strong>: Create and manage courses.</li>
-              <li><strong>Sales Dropdowns</strong>: Configure dropdown options for sales processes.</li>
-              <li><strong>Recruitment Dropdowns</strong>: Set up options related to recruitment activities.</li>
-              <li><strong>Departments</strong>: Manage different departments within the organization.</li>
-              <li><strong>Positions</strong>: Define roles and positions within the institution.</li>
-              <li><strong>ILSA Accounts</strong>: Manage accounts related to ILSA (an external system or feature).</li>
-            </ul>
-            <p>The Administration tab allows system administrators to configure all dropdown fields used throughout the system, ensuring proper functionality in all areas.</p>
-          </li>
+          {/* Accordion for each section */}
+          <Accordion defaultExpanded>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle1">
+                Administration Tab
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                The <strong>Administration</strong> tab is used for configuring the system. It includes the following sections:
+              </Typography>
+              <ul>
+                <li>Admins: Manage admin users.</li>
+                <li>Branches: Set up different branches of the institution.</li>
+                <li>Levels: Define the academic levels offered.</li>
+                <li>Rooms: Add and manage rooms used for classes and tests.</li>
+                <li>Schedule: Configure schedules for classes, tests, and events.</li>
+                <li>Room Utilizations: Monitor the usage of rooms for optimal scheduling.</li>
+                <li>Courses: Create and manage courses.</li>
+                <li>Sales Dropdowns: Configure dropdown options for sales processes.</li>
+                <li>Recruitment Dropdowns: Set up options related to recruitment activities.</li>
+                <li>Departments: Manage different departments within the organization.</li>
+                <li>Positions: Define roles and positions within the institution.</li>
+                <li>ILSA Accounts: Manage accounts related to ILSA.</li>
+              </ul>
+            </AccordionDetails>
+          </Accordion>
 
-          <li>
-            <strong>Marketing Tab</strong>
-            <p>
-              The <strong>Marketing</strong> tab handles the management of leads collected by the marketing team.
-            </p>
-            <ul>
-              <li><strong>Leads</strong>: Marketing managers and members enter the data they have collected about potential students or clients. After entering this data, they can review and assign it to the <strong>Sales Supervisors</strong>.</li>
-            </ul>
-          </li>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle1">
+                Marketing Tab
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                The <strong>Marketing</strong> tab handles the management of leads collected by the marketing team.
+              </Typography>
+              <ul>
+                <li>Leads: Marketing managers and members enter the data they have collected about potential students or clients.</li>
+              </ul>
+            </AccordionDetails>
+          </Accordion>
 
-          <li>
-            <strong>Sales Tab</strong>
-            <p>
-              The <strong>Sales</strong> tab is where the sales process takes place. It includes different roles and steps:
-            </p>
-            <ul>
-              <li><strong>Sales Supervisor</strong>: After receiving the leads from the marketing team, the sales supervisor reviews and assigns them to individual sales agents.</li>
-              <li><strong>Sales Member</strong>: Sales members access their assigned leads and manage each lead's details and progress. Each lead’s page includes the following fields:</li>
-            </ul>
-            <ul>
-              <li><strong>Name</strong></li>
-              <li><strong>Phone Number 1</strong></li>
-              <li><strong>Phone Number 2</strong></li>
-              <li><strong>Status</strong></li>
-              <li><strong>Training Location</strong></li>
-              <li><strong>Candidate Signup For</strong></li>
-              <li><strong>Candidate Status for Salesperson</strong></li>
-              <li><strong>Sales Rejection Reason</strong></li>
-              <li><strong>Placement Test Discount</strong></li>
-              <li><strong>Placement Test Paid Amount</strong></li>
-              <li><strong>Placement Test Amount After Discount</strong></li>
-              <li><strong>Payment Message</strong></li>
-              <li><strong>Screenshot of Payment Proof</strong></li>
-              <li><strong>Assigned Level</strong></li>
-              <li><strong>Level Discount</strong></li>
-              <li><strong>Level Paid Amount</strong></li>
-              <li><strong>Level Amount After Discount</strong></li>
-              <li><strong>Remaining Amount After Discount</strong></li>
-              <li><strong>Is Level Fully Paid?</strong></li>
-              <li><strong>Patch Selection</strong></li>
-              <li><strong>Reference Number</strong></li>
-              <li><strong>Chat Summary</strong></li>
-              <li><strong>Language Issues</strong></li>
-            </ul>
-            <p>
-              The sales agent communicates with the customer to ensure payments are made for placement tests and level enrollments. After receiving payment, there is a <strong>pending transaction</strong> that needs to be verified by the <strong>Operation Manager</strong>.
-            </p>
-            <p>
-              After the payment is verified, the sales agent can assign the placement test to the customer.
-            </p>
-          </li>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle1">
+                Sales Tab
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                The <strong>Sales</strong> tab is where the sales process takes place. It includes different roles and steps:
+              </Typography>
+              <ul>
+                <li>Sales Supervisor: Reviews assigned leads and delegates them to sales agents.</li>
+                <li>Sales Agent: Manages each lead’s details and progress.</li>
+              </ul>
+              <Typography>
+                The sales agent communicates with the customer to ensure payments are made for placement tests and level enrollments. After receiving payment, there is a pending transaction that needs to be verified by the Operation Manager.
+              </Typography>
+              <Typography>
+                Once verified, sales agents assign the placement test to the customer.
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
 
-          <li>
-            <strong>Academic Tab</strong>
-            <p>
-              The <strong>Academic</strong> tab manages student placement and academic progress.
-            </p>
-            <ul>
-              <li><strong>Placement Test</strong>: Sales agents create placement tests for students by navigating to <strong>Academic → Placement Test → Add Placement Test</strong>. The system will not allow the sales process to continue until a level is assigned to the student based on the placement test results.</li>
-            </ul>
-            <p>Once the level is assigned, the sales member will proceed with payment collection for the assigned level, following the same process as the placement test.</p>
-          </li>
-        </ol>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+              <Typography variant="subtitle1">
+                Academic Tab
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Typography>
+                The <strong>Academic</strong> tab manages student placement and academic progress. Sales agents create placement tests by navigating to <strong>Academic → Placement Test → Add Placement Test</strong>.
+              </Typography>
+              <Typography>
+                The system will not allow the sales process to continue until a level is assigned to the student based on the placement test results.
+              </Typography>
+              <Typography>
+                Once the level is assigned, sales members proceed with payment collection for the level, following the same process as the placement test.
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
 
-        <h3>Detailed Workflow</h3>
-        <ol>
-          <li><strong>Marketing Process</strong>: The marketing team enters collected leads and assigns them to sales supervisors.</li>
-          <li><strong>Sales Process</strong>:</li>
-          <ul>
-            <li>Sales Supervisor reviews assigned leads and delegates them to sales agents.</li>
-            <li>Sales Agents contact the leads, request payment for the placement test, and submit proof of payment.</li>
-            <li>Payment is verified by the Operation Manager.</li>
-            <li>Once verified, sales agents assign the placement test to the customer.</li>
-            <li>The Academic Department assigns a level based on the test results.</li>
-          </ul>
-          <li><strong>Academic Process</strong>: After a level is assigned, sales agents follow the same payment and verification process for the level enrollment.</li>
-        </ol>
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            Detailed Workflow
+          </Typography>
+          <Row>
+            <Col>
+              <Typography variant="subtitle1" gutterBottom>
+                Marketing Process
+              </Typography>
+              <Typography paragraph>
+                The marketing team enters collected leads and assigns them to sales supervisors.
+              </Typography>
+            </Col>
+            <Col>
+              <Typography variant="subtitle1" gutterBottom>
+                Sales Process
+              </Typography>
+              <ul>
+                <li>Sales Supervisor reviews assigned leads and delegates them to sales agents.</li>
+                <li>Sales Agents request payment for placement tests and submit proof of payment.</li>
+                <li>Payment is verified by the Operation Manager.</li>
+                <li>Once verified, sales agents assign the placement test to the customer.</li>
+              </ul>
+            </Col>
+            <Col>
+              <Typography variant="subtitle1" gutterBottom>
+                Academic Process
+              </Typography>
+              <Typography paragraph>
+                After a level is assigned, sales agents follow the same payment and verification process for level enrollment.
+              </Typography>
+            </Col>
+          </Row>
 
-        <h3>Conclusion</h3>
-        <p>
-          The <strong>Accepted Management System</strong> is a comprehensive tool that streamlines the process from marketing lead generation to sales and academic placement. It ensures that all steps, from room management to student enrollment, are tracked, monitored, and verified for smooth operation.
-        </p>
-      </div>
+          <Typography variant="h6" gutterBottom sx={{ mt: 4 }}>
+            Conclusion
+          </Typography>
+          <Typography paragraph>
+            The <strong>Accepted Management System</strong> streamlines the process from marketing to sales and academic placement. It ensures that all steps, from room management to student enrollment, are tracked, monitored, and verified for smooth operation.
+          </Typography>
+        </Box>
+      </Container>
     </AdminLayout>
   );
 };
