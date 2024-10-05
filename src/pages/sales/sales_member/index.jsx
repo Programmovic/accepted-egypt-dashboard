@@ -34,7 +34,7 @@ const SalesMemberAssignedData = () => {
 
   const fetchMarketingData = async () => {
     try {
-      const response = await axios.get("/api/marketing?assignedToMember=true");
+      const response = await axios.get("/api/marketing?ewfs=true");
       if (response.status === 200) {
         const data = response.data;
         setMarketingData(data.marketingData);

@@ -1,5 +1,5 @@
 import { NextPage } from "next";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Cookies from "js-cookie";
@@ -14,14 +14,10 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  // Retrieve the "redirect" query parameter from the router object
-  const { redirect } = router.query;
+  const login = async (event) => {
+    // Prevent form from reloading the page
+    event.preventDefault();
 
-  const getRedirect = () => {
-    return redirect ? decodeURIComponent(redirect) : "/";
-  };
-
-  const login = async () => {
     if (submitting) {
       return;
     }
@@ -39,10 +35,11 @@ const Login = () => {
       });
 
       if (res.status === 200) {
+        // Save token in cookies
         Cookies.set("client_token", res.data.token, { expires: 1 });
 
-        // Redirect to the last visited page or the default home page
-        router.push(getRedirect());
+        // Navigate back to the previous page
+        router.back();
         toast.success("Login successful!", { position: "top-right" });
       } else {
         toast.error(
@@ -79,7 +76,7 @@ const Login = () => {
                   Sign In to your account
                 </Typography>
 
-                <form>
+                <form onSubmit={login}>
                   <TextField
                     fullWidth
                     margin="normal"
@@ -111,7 +108,6 @@ const Login = () => {
                     color="primary"
                     type="submit"
                     disabled={submitting}
-                    onClick={login}
                   >
                     {submitting ? "Logging in..." : "Login"}
                   </Button>

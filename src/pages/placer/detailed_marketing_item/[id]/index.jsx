@@ -37,6 +37,7 @@ const MarketingDataDetail = () => {
     placementTestDiscount: 0,
     placementTestAmountAfterDiscount: 0,
     assignedLevel: "",
+    assignedLevelComment: "",
     assignedBatch: "",
     levelPaidAmount: 0,
     levelDiscount: 0, // Added field
@@ -335,13 +336,6 @@ const MarketingDataDetail = () => {
           >
             Assign Level
           </Button>
-          {/* <Button
-            variant="success"
-            onClick={handleMoveToWaitingList}
-            disabled={!selectedPlacementTest?.assignedLevel}
-          >
-            Move to Waiting List
-          </Button> */}
         </Modal.Footer>
       </Modal>
       <Card>

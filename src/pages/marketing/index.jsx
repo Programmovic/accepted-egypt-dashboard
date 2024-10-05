@@ -54,7 +54,7 @@ const MarketingData = () => {
     setNewName(item.name);
     setNewPhoneNo1(item.phoneNo1);
     setNewPhoneNo2(item.phoneNo2);
-    setNewAssignTo(item.assignTo);
+    setNewAssignTo(item.candidateSignUpFor);
     setNewSource(item.source);
     // Open the modal
     setShowModal(true);
@@ -142,7 +142,7 @@ const MarketingData = () => {
 
     if (assignedTo) {
       filteredMarketingData = filteredMarketingData.filter((item) =>
-        item.assignTo.toLowerCase().includes(assignedTo.toLowerCase())
+        item.candidateSignUpFor.toLowerCase().includes(assignedTo.toLowerCase())
       );
     }
 
@@ -224,7 +224,7 @@ const MarketingData = () => {
         name: newName,
         phoneNo1: newPhoneNo1,
         phoneNo2: newPhoneNo2,
-        assignTo: newAssignTo,
+        candidateSignUpFor: newAssignTo,
         chatSummary: newChatSummary,
         source: newSource,
         languageIssues: newLanguageIssues,
@@ -554,7 +554,7 @@ const MarketingData = () => {
         name: "",
         phoneNo1: "",
         phoneNo2: "",
-        assignTo: "",
+        candidateSignUptFor: "",
         source: "",
       },
     ];
@@ -592,7 +592,7 @@ const MarketingData = () => {
       "Name", "Phone No. 1", "Phone No. 2", "Assign To", "Source", "Language Issues", "Assigned To Moderation", "Assignation Date", "Assigned To Sales"
     ];
     const data = filteredData.map(item => [
-      item.name, item.phoneNo1, item.phoneNo2, item.assignTo, item.source, item.languageIssues, item.assignedToModeration, item.assignationDate, item.assignedToSales
+      item.name, item.phoneNo1, item.phoneNo2, item.candidateSignUpFor, item.source, item.languageIssues, item.assignedToModeration, item.assignationDate, item.assignedToSales
     ]);
 
     const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
@@ -725,7 +725,7 @@ const MarketingData = () => {
                   name: newName,
                   phoneNo1: newPhoneNo1,
                   phoneNo2: newPhoneNo2,
-                  assignTo: newAssignTo,
+                  candidateSignUpFor: newAssignTo,
                   source: newSource,
                 });
               } else {
@@ -912,7 +912,7 @@ const MarketingData = () => {
                     <td>{item.name}</td>
                     <td>{item.phoneNo1}</td>
                     <td>{item.phoneNo2}</td>
-                    <td>{item.assignTo}</td>
+                    <td>{item.candidateSignUpFor}</td>
                     <td>{item.source}</td>
                     <td>
                       <Form.Control

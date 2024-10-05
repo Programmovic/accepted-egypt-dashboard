@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Level = require("./level"); // Import Level model
 const PendingPayment = require("./pendingLeadPayment"); // Import PendingPayment model
-const Batch = require("./batch"); 
+const Batch = require("./batch");
 const marketingDataSchema = new mongoose.Schema(
   {
     name: {
@@ -99,12 +99,20 @@ const marketingDataSchema = new mongoose.Schema(
     phoneInterviewDate: {
       type: String,
     },
+    phoneInterviewComment: {
+      type: String,
+      default: "", // Optional default empty comment
+    },
     faceToFaceStatus: {
       type: String,
       ref: "FaceToFaceStatus",
     },
     faceToFaceDate: {
       type: String,
+    },
+    faceToFaceComment: {
+      type: String,
+      default: "", // Optional default empty comment
     },
     feedbackSessionStatus: {
       type: String,
@@ -113,13 +121,31 @@ const marketingDataSchema = new mongoose.Schema(
     feedbackSessionDate: {
       type: String,
     },
+    feedbackSessionComment: {
+      type: String,
+      default: "", // Optional default empty comment
+    },
     testResultStatus: {
       type: String,
-      ref: "FeedbackSessionStatus",
     },
     testResultDate: {
       type: String,
     },
+    testResultComment: {
+      type: String,
+      default: "", // Optional default empty comment
+    },
+    companyInterviewStatus: {
+      type: String,
+    },
+    companyInterviewDate: {
+      type: String,
+    },
+    companyInterviewComment: {
+      type: String,
+      default: "", // Optional default empty comment
+    },
+
     onBoardingName: {
       type: String,
       ref: "Employee",
@@ -191,7 +217,6 @@ const marketingDataSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
-
 
 module.exports =
   mongoose.models.MarketingData ||

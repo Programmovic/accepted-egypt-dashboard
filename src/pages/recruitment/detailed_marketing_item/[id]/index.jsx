@@ -348,15 +348,6 @@ const MarketingDataDetail = () => {
                     ) : (
                       marketingData.candidateStatusForRecruiter
                     )}
-                    <Form.Group className="my-3">
-                      <Form.Label>Note:</Form.Label>
-                      <Form.Control
-                        name="assignedLevelComment"
-                        as="textarea"
-                        value={marketingData.assignedLevelComment}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
                   </td>
                 </tr>
 
@@ -381,11 +372,20 @@ const MarketingDataDetail = () => {
                       marketingData.phoneInterviewStatus
                     )}
                     <Form.Group className="my-3">
+                      <Form.Label>Date:</Form.Label>
+                      <Form.Control
+                        name="phoneInterviewDate"
+                        type="date"
+                        value={marketingData.phoneInterviewDate}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                    <Form.Group className="my-3">
                       <Form.Label>Note:</Form.Label>
                       <Form.Control
-                        name="assignedLevelComment"
+                        name="phoneInterviewComment"
                         as="textarea"
-                        value={marketingData.assignedLevelComment}
+                        value={marketingData.phoneInterviewComment}
                         onChange={handleChange}
                       />
                     </Form.Group>
@@ -413,11 +413,20 @@ const MarketingDataDetail = () => {
                       marketingData.faceToFaceStatus
                     )}
                     <Form.Group className="my-3">
+                      <Form.Label>Date:</Form.Label>
+                      <Form.Control
+                        name="faceToFaceDate"
+                        type="date"
+                        value={marketingData.faceToFaceDate}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                    <Form.Group className="my-3">
                       <Form.Label>Note:</Form.Label>
                       <Form.Control
-                        name="assignedLevelComment"
+                        name="phoneInterviewComment"
                         as="textarea"
-                        value={marketingData.assignedLevelComment}
+                        value={marketingData.phoneInterviewComment}
                         onChange={handleChange}
                       />
                     </Form.Group>
@@ -445,11 +454,20 @@ const MarketingDataDetail = () => {
                       marketingData.feedbackSessionStatus
                     )}
                     <Form.Group className="my-3">
+                      <Form.Label>Date:</Form.Label>
+                      <Form.Control
+                        name="feedbackSessionDate"
+                        type="date"
+                        value={marketingData.feedbackSessionDate}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                    <Form.Group className="my-3">
                       <Form.Label>Note:</Form.Label>
                       <Form.Control
-                        name="assignedLevelComment"
+                        name="feedbackSessionComment"
                         as="textarea"
-                        value={marketingData.assignedLevelComment}
+                        value={marketingData.feedbackSessionComment}
                         onChange={handleChange}
                       />
                     </Form.Group>
@@ -462,8 +480,8 @@ const MarketingDataDetail = () => {
                     {editing ? (
                       <Form.Control
                         as="select"
-                        name="recruitmentTestResultStatus"
-                        value={marketingData.recruitmentTestResultStatus}
+                        name="companyInterviewStatus"
+                        value={marketingData.companyInterviewStatus}
                         onChange={handleChange}
                       >
                         <option value="">Select Recruitment Test Result Status</option>
@@ -477,11 +495,20 @@ const MarketingDataDetail = () => {
                       marketingData.recruitmentTestResultStatus
                     )}
                     <Form.Group className="my-3">
+                      <Form.Label>Date:</Form.Label>
+                      <Form.Control
+                        name="companyInterviewDate"
+                        type="date"
+                        value={marketingData.companyInterviewDate}
+                        onChange={handleChange}
+                      />
+                    </Form.Group>
+                    <Form.Group className="my-3">
                       <Form.Label>Note:</Form.Label>
                       <Form.Control
-                        name="assignedLevelComment"
+                        name="companyInterviewComment"
                         as="textarea"
-                        value={marketingData.assignedLevelComment}
+                        value={marketingData.companyInterviewComment}
                         onChange={handleChange}
                       />
                     </Form.Group>
@@ -489,46 +516,16 @@ const MarketingDataDetail = () => {
                 </tr>
 
                 <tr>
-                  <td>Training Location</td>
+                  <td>Assigned Level</td>
                   <td>
                     {editing ? (
                       <Form.Control
-                        as="select"
-                        name="trainingLocation"
-                        value={marketingData.trainingLocation}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select Training Location</option>
-                        {trainingLocations.map((status) => (
-                          <option key={status._id} value={status.name}>
-                            {status.name}
-                          </option>
-                        ))}
-                      </Form.Control>
+                        type="text"
+                        value={marketingData.assignedLevel.name || "Still Not Assigned"}
+                        disabled={true} // Disable the input if the assignedTo field is empty
+                      />
                     ) : (
-                      marketingData.trainingLocation
-                    )}
-                  </td>
-                </tr>
-                <tr>
-                  <td>Candidate Sign Up For</td>
-                  <td>
-                    {editing ? (
-                      <Form.Control
-                        as="select"
-                        name="candidateSignUpFor"
-                        value={marketingData.candidateSignUpFor}
-                        onChange={handleChange}
-                      >
-                        <option value="">Select Candidate Sign Up For</option>
-                        {candidateSignUpFor.map((status) => (
-                          <option key={status._id} value={status.status}>
-                            {status.status}
-                          </option>
-                        ))}
-                      </Form.Control>
-                    ) : (
-                      marketingData.candidateSignUpFor
+                      marketingData.assignedLevel
                     )}
                   </td>
                 </tr>

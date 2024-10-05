@@ -52,6 +52,7 @@ export default async (req, res) => {
         pending,
         recruitment,
         test_waiting_list,
+        ewfs,
       } = req.query;
 
       if (id) {
@@ -111,6 +112,11 @@ export default async (req, res) => {
         } else if (recruitment) {
           allMarketingData = await MarketingData.find({
             candidateSignUpFor: "Recruitment",
+            assignedToSales: { $exists: true, $ne: null, $ne: "" },
+          }).sort({ createdAt: -1 });
+        } else if (ewfs) {
+          allMarketingData = await MarketingData.find({
+            candidateSignUpFor: "EWFS",
             assignedToSales: { $exists: true, $ne: null, $ne: "" },
           }).sort({ createdAt: -1 });
         } else if (test_waiting_list) {
