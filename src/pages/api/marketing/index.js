@@ -179,9 +179,7 @@ export default async (req, res) => {
       // Extract only the name from the assignedLevel object
       if (updates?.assignedLevel?.name) {
         updates.assignedLevel = updates.assignedLevel.name;
-      } else {
-        updates.assignedLevel = "";
-      }
+      } 
 
       // Extract the token from cookies
       const cookies = req.headers.cookie
@@ -331,12 +329,25 @@ export default async (req, res) => {
         });
       }
 
+      // Utility function to convert empty strings to null
+      const convertEmptyStringsToNull = (obj) => {
+        Object.keys(obj).forEach((key) => {
+          if (obj[key] === "") {
+            obj[key] = null;
+          }
+        });
+      };
+
+      // Prepare the updates object (assuming it's defined and populated)
+      convertEmptyStringsToNull(updates);
+
       // Update the MarketingData document
       const updatedMarketingData = await MarketingData.findByIdAndUpdate(
         id,
         updates,
         { new: true }
       );
+
       if (!updatedMarketingData) {
         return res
           .status(404)

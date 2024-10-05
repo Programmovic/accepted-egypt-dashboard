@@ -55,7 +55,9 @@ const MarketingDataDetail = () => {
     onBoardingName: "",
     recruiterName: "",
     placerName: "",
-    updatedBy: ""
+    updatedBy: "",
+    companyCommission: "",
+    companyInterviewDate: ""
   });
 
 
@@ -188,6 +190,27 @@ const MarketingDataDetail = () => {
 
   }, [id, apiUrl, salesStatusApiUrl]);
   console.log(paymentMethods)
+  // Assuming lastEditDates are initialized or fetched appropriately
+const lastEditDates = {
+  phoneInterview: marketingData.phoneInterviewDate 
+    ? new Date(marketingData.phoneInterviewDate).toISOString().split('T')[0] 
+    : new Date().toISOString().split('T')[0],
+    
+  faceToFace: marketingData.faceToFaceDate 
+    ? new Date(marketingData.faceToFaceDate).toISOString().split('T')[0] 
+    : new Date().toISOString().split('T')[0],
+
+  feedbackSession: marketingData.feedbackSessionDate 
+    ? new Date(marketingData.feedbackSessionDate).toISOString().split('T')[0] 
+    : new Date().toISOString().split('T')[0],
+    
+  recruitmentTest: marketingData.companyInterviewDate 
+    ? new Date(marketingData.companyInterviewDate).toISOString().split('T')[0] 
+    : new Date().toISOString().split('T')[0],
+};
+
+
+
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
 
@@ -203,6 +226,30 @@ const MarketingDataDetail = () => {
         [name]: discountValue,
         amountAfterDiscount: marketingData.paidAmount * (1 - discountValue / 100),
       });
+    } else if (name === "phoneInterviewStatus") {
+      setMarketingData(prevData => ({
+        ...prevData,
+        [name]: value,
+        phoneInterviewDate: lastEditDates.phoneInterview,
+      }));
+    } else if (name === "faceToFaceStatus") {
+      setMarketingData(prevData => ({
+        ...prevData,
+        [name]: value,
+        faceToFaceDate: lastEditDates.faceToFace,
+      }));
+    } else if (name === "feedbackSessionStatus") {
+      setMarketingData(prevData => ({
+        ...prevData,
+        [name]: value,
+        feedbackSessionDate: lastEditDates.feedbackSession,
+      }));
+    } else if (name === "companyInterviewStatus") {
+      setMarketingData(prevData => ({
+        ...prevData,
+        [name]: value,
+        companyInterviewDate: lastEditDates.recruitmentTest,
+      }));
     } else {
       setMarketingData({
         ...marketingData,
@@ -267,7 +314,7 @@ const MarketingDataDetail = () => {
         <Card.Header className="d-flex justify-content-between align-items-center">
           <span>Marketing Data Details</span>{" "}
           <span>
-            Last Updated: {new Date(marketingData?.updatedAt).toLocaleString()}
+          Last Updated: {marketingData?.updatedAt ? new Date(marketingData.updatedAt).toLocaleString() : "N/A"}
           </span>
           <div>
             <Button variant="outline-primary" onClick={() => router.push(`/sales/sales_member/detailed_marketing_item/${id}/logs`)}>
@@ -424,9 +471,9 @@ const MarketingDataDetail = () => {
                     <Form.Group className="my-3">
                       <Form.Label>Note:</Form.Label>
                       <Form.Control
-                        name="phoneInterviewComment"
+                        name="faceToFaceComment"
                         as="textarea"
-                        value={marketingData.phoneInterviewComment}
+                        value={marketingData.faceToFaceComment}
                         onChange={handleChange}
                       />
                     </Form.Group>
@@ -521,7 +568,7 @@ const MarketingDataDetail = () => {
                     {editing ? (
                       <Form.Control
                         type="text"
-                        value={marketingData.assignedLevel.name || "Still Not Assigned"}
+                        value={marketingData.assignedLevel.name}
                         disabled={true} // Disable the input if the assignedTo field is empty
                       />
                     ) : (
@@ -550,7 +597,20 @@ const MarketingDataDetail = () => {
                     </Form.Control>
                   </td>
                 </tr>
-
+                <tr>
+                  <td>Commission in EGP</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        type="number"
+                        value={marketingData.companyCommission}
+                        name="companyCommission"
+                      />
+                    ) : (
+                      marketingData.companyCommission
+                    )}
+                  </td>
+                </tr>
                 <tr>
                   <td>Chat Summary</td>
                   <td>

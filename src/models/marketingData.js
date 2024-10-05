@@ -145,7 +145,9 @@ const marketingDataSchema = new mongoose.Schema(
       type: String,
       default: "", // Optional default empty comment
     },
-
+    companyCommission: {
+      type: Number,
+    },
     onBoardingName: {
       type: String,
       ref: "Employee",
