@@ -1,10 +1,26 @@
-import React from "react";
+import React, { useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { Box, Typography, Accordion, AccordionSummary, AccordionDetails } from "@mui/material";
+import { Box, Typography, Accordion, AccordionSummary, AccordionDetails, Tooltip, Card, CardContent, } from "@mui/material";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { AdminLayout } from "@layout";
+import { motion } from 'framer-motion';
 
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.5, ease: 'easeInOut' },
+  },
+};
 const Help = () => {
+  // State to track which process is currently visible
+  const [visibleProcess, setVisibleProcess] = useState(0);
+
+  // Function to handle showing the next process
+  const handleNextProcess = () => {
+    setVisibleProcess((prev) => Math.min(prev + 1, 2)); // Max 2 for three processes
+  };
   return (
     <AdminLayout>
       <Container>
@@ -177,38 +193,101 @@ const Help = () => {
             </AccordionDetails>
           </Accordion>
 
-          <Typography fontFamily={"inherit"} variant="h6" gutterBottom sx={{ mt: 4 }}>
-            Detailed Workflow
-          </Typography>
-          <Row>
-            <Col>
-              <Typography fontFamily={"inherit"} variant="subtitle1" gutterBottom>
-                Marketing Process
-              </Typography>
-              <Typography fontFamily={"inherit"} paragraph>
-                The marketing team enters collected leads and assigns them to sales supervisors.
-              </Typography>
-            </Col>
-            <Col>
-              <Typography fontFamily={"inherit"} variant="subtitle1" gutterBottom>
-                Sales Process
-              </Typography>
-              <ul>
-                <li>Sales Supervisor reviews assigned leads and delegates them to sales agents.</li>
-                <li>Sales Agents request payment for placement tests and submit proof of payment.</li>
-                <li>Payment is verified by the Operation Manager.</li>
-                <li>Once verified, sales agents assign the placement test to the customer.</li>
-              </ul>
-            </Col>
-            <Col>
-              <Typography fontFamily={"inherit"} variant="subtitle1" gutterBottom>
-                Academic Process
-              </Typography>
-              <Typography fontFamily={"inherit"} paragraph>
-                After a level is assigned, sales agents follow the same payment and verification process for level enrollment.
-              </Typography>
-            </Col>
-          </Row>
+          <Box sx={{ mt: 4 }}>
+            <Typography fontFamily={"inherit"} variant="h4" gutterBottom>
+              Detailed Workflow
+            </Typography>
+            <Row className="gy-4">
+              {/* Marketing Process */}
+              {visibleProcess >= 0 && (
+                <Col>
+                  <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={cardVariants}
+                    onClick={handleNextProcess}
+                    sx={{ cursor: 'pointer' }} // Change cursor to indicate clickability
+                  >
+                    <Card elevation={3} sx={{ borderRadius: 2, backgroundColor: '#f5f5f5' }}>
+                      <CardContent>
+                        <Typography fontFamily={"inherit"} variant="h6" gutterBottom>
+                          Marketing Process
+                        </Typography>
+                        <Typography fontFamily={"inherit"} paragraph>
+                          The marketing team enters collected leads and assigns them to sales supervisors.
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Click to next
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </Col>
+              )}
+
+              {/* Sales Process */}
+              {visibleProcess >= 1 && (
+                <Col>
+                  <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={cardVariants}
+                    onClick={handleNextProcess}
+                    sx={{ cursor: 'pointer' }} // Change cursor to indicate clickability
+                  >
+                    <Card elevation={3} sx={{ borderRadius: 2, backgroundColor: '#f5f5f5' }}>
+                      <CardContent>
+                        <Typography fontFamily={"inherit"} variant="h6" gutterBottom>
+                          Sales Process
+                        </Typography>
+                        <Typography fontFamily={"inherit"} component="div" paragraph>
+                          <ul>
+                            <li>Sales Supervisor reviews assigned leads and delegates them to sales agents.</li>
+                            <li>Sales Agents request payment for placement tests and submit proof of payment.</li>
+                            <li>Payment is verified by the Operation Manager.</li>
+                            <li>Once verified, sales agents assign the placement test to the customer.</li>
+                          </ul>
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Click to next
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </Col>
+              )}
+
+              {/* Academic Process */}
+              {visibleProcess >= 2 && (
+                <Col>
+                  <motion.div
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={cardVariants}
+                    onClick={() => setVisibleProcess(0)} // You can change this action as needed
+                    sx={{ cursor: 'pointer' }} // Change cursor to indicate clickability
+                  >
+                    <Card elevation={3} sx={{ borderRadius: 2, backgroundColor: '#f5f5f5' }}>
+                      <CardContent>
+                        <Typography fontFamily={"inherit"} variant="h6" gutterBottom>
+                          Academic Process
+                        </Typography>
+                        <Typography fontFamily={"inherit"} paragraph>
+                          After a level is assigned, sales agents follow the same payment and verification process for level enrollment.
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          Click to finish
+                        </Typography>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                </Col>
+              )}
+            </Row>
+          </Box>
 
           <Typography fontFamily={"inherit"} variant="h6" gutterBottom sx={{ mt: 4 }}>
             Conclusion
