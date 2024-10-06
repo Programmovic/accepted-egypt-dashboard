@@ -558,7 +558,7 @@ const MarketingDataDetail = () => {
                       <div className="d-flex justify-content-between">
                         <Form.Range
                           name="placementTestDiscount"
-                          value={marketingData.placementTestDiscount}
+                          value={marketingData.placementTestDiscount.toFixed(2)}
                           disabled={marketingData.placementTestDiscount}
                           onChange={(e) => {
                             const discount = parseFloat(e.target.value); // Get the discount value from slider
@@ -770,7 +770,7 @@ const MarketingDataDetail = () => {
                       <div className="d-flex justify-content-between">
                         <Form.Range
                           name="levelDiscount"
-                          value={marketingData.levelDiscount}
+                          value={marketingData.levelDiscount.toFixed(2)}
                           onChange={(e) => {
                             const discount = parseFloat(e.target.value); // Get the discount value from slider
                             const assignedLevelCost = marketingData?.assignedLevel.details.price; // Total cost of the assigned level
