@@ -415,7 +415,7 @@ const calculateFinalPrice = () => {
               {currentItems.map((waitingListItem, index) => (
                 <tr
                   key={waitingListItem._id}
-                  onClick={() => openWaitingListDetailsModal(waitingListItem)}
+                  // onClick={() => openWaitingListDetailsModal(waitingListItem)}
                   style={{ cursor: "pointer" }}
                 >
                   <td>{index + 1}</td>
