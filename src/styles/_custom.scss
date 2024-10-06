@@ -630,3 +630,22 @@ ol.progress-meter li.todo:before {
   0%   { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
+
+.floating-save-button {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000;
+  padding: 10px 20px;
+  background-color: #ffc107;
+  color: white;
+  font-weight: bold;
+  border-radius: 50px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease;
+}
+
+.floating-save-button:hover {
+  background-color: #e0a800;
+}
+
