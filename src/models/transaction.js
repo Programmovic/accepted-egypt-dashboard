@@ -53,7 +53,6 @@ const transactionSchema = new mongoose.Schema({
   },
   paymentMethod: { // Reference to PaymentMethod model
     type: String,
-    ref: 'PaymentMethod',
     description: 'The payment method used for the transaction',
   },
 }, {

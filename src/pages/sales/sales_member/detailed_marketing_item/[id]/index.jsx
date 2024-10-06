@@ -540,6 +540,7 @@ const MarketingDataDetail = () => {
                         <Form.Range
                           name="placementTestDiscount"
                           value={marketingData.placementTestDiscount}
+                          disabled={marketingData.placementTestDiscount}
                           onChange={(e) => {
                             const discount = parseFloat(e.target.value); // Get the discount value from slider
 
@@ -586,6 +587,7 @@ const MarketingDataDetail = () => {
                         type="number"
                         name="placementTestPaidAmount"
                         value={marketingData.placementTestPaidAmount}
+                        disabled={marketingData.placementTestPaidAmount}
                         onChange={(e) => {
                           const value = parseFloat(e.target.value); // Convert to number
                           const placementTestCost = marketingData.placementTest.cost; // Total cost of the placement test

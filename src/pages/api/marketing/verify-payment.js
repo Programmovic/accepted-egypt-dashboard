@@ -87,10 +87,19 @@ export default async (req, res) => {
             await placementTestEntry.save();
           }
 
-          // Find or create the transaction entry
-          let transaction = await Transaction.findOne({ student: student._id });
+          console.log(
+            "Looking for existing transaction for student:",
+            student._id
+          );
+          let transaction = await Transaction.findOne({
+            student: student._id,
+            description: "Placement Test Payment",
+          });
+          console.log("Transaction found:", transaction);
 
           if (!transaction) {
+            console.log("No transaction found, creating a new one.");
+
             const newTransaction = new Transaction({
               student: student._id,
               placementTest: marketingData.placementTest || null,
@@ -100,7 +109,11 @@ export default async (req, res) => {
               paymentMethod: updatedPayment.paymentMethod,
             });
 
+            console.log("New transaction data:", newTransaction);
+
+            // Save the new transaction
             await newTransaction.save();
+            console.log("New transaction saved successfully.");
           }
         }
 
