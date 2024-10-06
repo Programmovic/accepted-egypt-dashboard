@@ -931,7 +931,7 @@ const MarketingDataDetail = () => {
                     <Form.Control
                       as="select"
                       name="assignedBatch"
-                      value={marketingData?.assignedBatch?._id}
+                      value={marketingData?.assignedBatch}
                       onChange={handleChange}
                     >
                       <option value="">Select a batch</option>
