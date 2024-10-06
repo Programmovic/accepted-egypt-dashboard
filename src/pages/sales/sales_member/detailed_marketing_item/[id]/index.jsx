@@ -627,7 +627,7 @@ const MarketingDataDetail = () => {
                               setMarketingData((prevData) => ({
                                 ...prevData,
                                 placementTestPaidAmount: +value,
-                                placementTestDiscount: +discountPercentage, // Update the discount
+                                placementTestDiscount: +discountPercentage.toFixed(2), // Update the discount
                                 placementTestAmountAfterDiscount: +amountAfterDiscount, // Update the amount after discount
                               }));
                             } else {
@@ -826,7 +826,7 @@ const MarketingDataDetail = () => {
                             setMarketingData((prevData) => ({
                               ...prevData,
                               levelPaidAmount: value,
-                              levelDiscount: discountPercentage, // Update the discount
+                              levelDiscount: +discountPercentage.toFixed(2), // Update the discount
                               levelPaidRemainingAmount: (assignedLevelCost - value), // Update the remaining amount
                               levelAmountAfterDiscount: amountAfterDiscount, // Update the amount after discount
                               isLevelFullPayment: value >= assignedLevelCost // Automatically set full payment status
