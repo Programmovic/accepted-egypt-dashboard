@@ -8,11 +8,9 @@ export default async (req, res) => {
 
   if (req.method === "GET") {
     try {
-      console.log(laptopId)
+      console.log(laptopId);
       // Check if the laptop with the given ID exists
-      const laptop = await Inventory.findById(laptopId).populate(
-        "assignedTo"
-      );
+      const laptop = await Inventory.findById(laptopId).populate("assignedTo").populate("history.employeeId");
 
       if (!laptop) {
         // Handle the case when the laptop is not found
@@ -26,16 +24,37 @@ export default async (req, res) => {
       return res.status(500).json({ error: "Could not fetch the laptop" });
     }
   } else if (req.method === "PUT") {
-    // Handle updating the laptop details
-    try {
-      const updatedLaptop = await Inventory.findByIdAndUpdate(laptopId, req.body, {
-        new: true, // Return the updated document
-        runValidators: true, // Validate the new data against the model schema
-      });
+    const { assignedTo, itemName, itemCategory, description } = req.body;
 
-      if (!updatedLaptop) {
+    try {
+      // Fetch the existing laptop data
+      const laptop = await Inventory.findById(laptopId);
+
+      if (!laptop) {
         return res.status(404).json({ error: "Inventory not found" });
       }
+
+      // Update history if there's a change in assignment
+      if (laptop.assignedTo.toString() !== assignedTo) {
+        const currentAssignment = {
+          employeeId: laptop.assignedTo,
+          assignedDate: laptop.assignedDate,
+          unassignedDate: Date.now(), // Set the unassigned date to now
+        };
+
+        // Update the history
+        laptop.history.push(currentAssignment);
+      }
+
+      // Update the laptop details
+      laptop.itemName = itemName || laptop.itemName;
+      laptop.itemCategory = itemCategory || laptop.itemCategory;
+      laptop.description = description || laptop.description;
+      laptop.assignedTo = assignedTo; // Update the assignedTo field
+      laptop.assignedDate = Date.now(); // Update to current date
+
+      // Save the updated laptop document
+      const updatedLaptop = await laptop.save();
 
       return res.status(200).json(updatedLaptop);
     } catch (error) {
@@ -51,7 +70,9 @@ export default async (req, res) => {
         return res.status(404).json({ error: "Inventory not found" });
       }
 
-      return res.status(200).json({ message: "Inventory deleted successfully" });
+      return res
+        .status(200)
+        .json({ message: "Inventory deleted successfully" });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Could not delete the laptop" });

@@ -16,13 +16,30 @@ const assignedItemSchema = new mongoose.Schema(
     },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Employee", // Reference to the Employee model (replace with your actual employee model name)
+      ref: "Employee",
       required: true,
     },
     assignedDate: {
       type: Date,
       default: Date.now,
     },
+    history: [
+      {
+        employeeId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Employee",
+          required: true,
+        },
+        assignedDate: {
+          type: Date,
+          required: true,
+        },
+        unassignedDate: {
+          type: Date, // This will be updated when the item is unassigned
+          default: null,
+        },
+      },
+    ], // Add history field directly in the main schema
   },
   {
     timestamps: true,
