@@ -54,7 +54,7 @@ const DataTable = ({ filteredData, currentItems, salesMembers, paginationEnabled
           </tr>
         </thead>
         <tbody>
-          {(paginationEnabled ? currentItems : filteredData).map((item, index) => (
+          {(paginationEnabled ? currentItems : filteredData)?.map((item, index) => (
             <tr key={index}>
               <td className={(index + 1 >= rangeStart && index + 1 <= rangeEnd) ? "bg-success text-light" : ""}>
                 {index + 1}

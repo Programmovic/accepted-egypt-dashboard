@@ -11,7 +11,7 @@ import TextField from "@mui/material/TextField";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import RangeAssignment from "../../../components/RangeAssignment";
 
-import DataTable from "../../../components/MarketingDataTable";
+import DataTable from "../../../components/SalesDataTable";
 
 const SalesModeratorData = () => {
   const [marketingData, setMarketingData] = useState([]);
@@ -381,11 +381,11 @@ const SalesModeratorData = () => {
           ) : (
             <>
               <DataTable
+              currentItems= {currentItems}
                 filteredData={filteredData}
                 salesMembers={salesMembers}
                 handleUpdateMarketingData={handleUpdateMarketingData}
-                handleEdit={handleEdit}
-                handleDeleteMarketingData={handleDeleteMarketingData}
+                paginationEnabled={paginationEnabled}
               />
               {paginationEnabled && (
                 <Pagination className="d-flex justify-content-center">
