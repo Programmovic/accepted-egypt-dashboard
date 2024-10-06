@@ -102,7 +102,7 @@ const Transactions = () => {
         type: newTransactionType,
         expense_type:
           newTransactionType === "Expense" &&
-          newTransactionExpenseType === "Other"
+            newTransactionExpenseType === "Other"
             ? newTransactionDescription
             : newTransactionExpenseType,
         amount: newTransactionAmount,
@@ -246,10 +246,15 @@ const Transactions = () => {
   // Calculate statistics
   useEffect(() => {
     const totalTransactions = filteredTransactions.length;
-    const totalTransactionAmount = filteredTransactions.reduce(
-      (total, transaction) => total + transaction.amount,
-      0
-    );
+
+    const totalTransactionAmount = filteredTransactions.reduce((total, transaction) => {
+      if (transaction.type === "income") {
+        return total + transaction.amount;
+      }
+      return total;
+    }, 0);
+    console.log("Total income transaction amount:", totalTransactionAmount);
+
     const averageTransactionAmount =
       totalTransactions > 0 ? totalTransactionAmount / totalTransactions : 0;
     const receivedAmount = filteredTransactions.reduce((total, transaction) => {
@@ -711,12 +716,12 @@ const Transactions = () => {
                   <td>
                     {transaction.batch
                       ? batches.find((batch) => batch._id === transaction.batch)
-                          ?.name
+                        ?.name
                       : "No Batch"}
                   </td>
                   <td>{transaction.type}</td>
                   <td>{transaction.amount} EGP</td>
-                  <td>{transaction?.paymentMethod?.type}</td>
+                  <td>{transaction?.paymentMethod}</td>
                   <td>{transaction.description}</td>
                   <td>
                     {new Date(transaction.createdAt).toLocaleDateString()}

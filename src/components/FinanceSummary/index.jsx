@@ -12,7 +12,8 @@ const TransactionsSummary = ({
   statistics,
   expenseOptions,
 }) => {
-  const totalReceivedAmount = statistics.receivedAmount;
+  console.log(statistics)
+  const totalReceivedAmount = statistics.totalTransactionAmount;
   const totalExpensedAmount = statistics.expensesAmount;
   const receivedAmountSummary = useRef(null);
   const levelIncomeSummary = useRef(null);
