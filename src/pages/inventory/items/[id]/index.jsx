@@ -139,8 +139,8 @@ const LaptopDetails = () => {
     try {
       const response = await axios.delete(laptopApiUrl);
       if (response.status === 200) {
-        alert("Laptop deleted successfully!");
-        router.push("/laptops");
+        alert("Item deleted successfully!");
+        router.push("/inventory/items");
       }
     } catch (error) {
       console.error("Error deleting laptop:", error);
@@ -170,7 +170,7 @@ const LaptopDetails = () => {
       <Card>
         <Card.Header className="d-flex justify-content-between align-items-center">
           <div>
-            Laptop Details
+            Item Details
             {laptop && (
               <Badge pill variant="primary" className="ms-2">
                 {laptop._id}
@@ -185,17 +185,17 @@ const LaptopDetails = () => {
               Download PDF
             </Button>
             <Button variant="outline-danger" className="me-2" onClick={handleDeleteLaptop}>
-              Delete Laptop
+              Delete Item
             </Button>
             <Button variant="outline-primary" onClick={() => setShowEditModal(true)}>
-              Edit Laptop
+              Edit Item
             </Button>
           </div>
         </Card.Header>
         <Card.Body>
           {laptop && (
             <div ref={modalRef}>
-              <h5 className="fw-bold mb-4">Laptop Information</h5>
+              <h5 className="fw-bold mb-4">Item Information</h5>
               <Table bordered responsive>
                 <tbody>
                   <tr>
@@ -258,7 +258,7 @@ const LaptopDetails = () => {
       {/* QR Code Modal */}
       <Modal show={showQRModal} onHide={() => setShowQRModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>QR Code for Laptop</Modal.Title>
+          <Modal.Title>QR Code for Item</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Canvas text={`http://example.com/laptop/${id}`} />
@@ -273,10 +273,10 @@ const LaptopDetails = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Edit Laptop Modal */}
+      {/* Edit Item Modal */}
       <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Edit Laptop</Modal.Title>
+          <Modal.Title>Edit Item</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
