@@ -828,6 +828,41 @@ const MarketingDataDetail = () => {
                     ) : (
                       marketingData.levelPaidAmount
                     )}
+                    {/* Check if levelAmountAfterDiscount has a value and display the warning */}
+                    {marketingData.levelAmountAfterDiscount && unsavedChanges ? (
+  <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+    <div
+      style={{
+        backgroundColor: '#fff3cd',
+        color: '#856404',
+        padding: '10px 15px',
+        borderRadius: '5px',
+        marginRight: '15px',
+        fontSize: '14px',
+        fontWeight: '500',
+        border: '1px solid #ffeeba',
+        display: 'flex',
+        alignItems: 'center',
+      }}
+    >
+      <i className="fas fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+      Please Save
+    </div>
+    <Button
+      onClick={handleSave}
+      variant="warning"
+      style={{
+        fontWeight: 'bold',
+        padding: '8px 16px',
+        borderRadius: '5px',
+        fontSize: '14px',
+      }}
+    >
+      Save Changes
+    </Button>
+  </div>
+) : null}
+
                   </td>
                 </tr>
 
@@ -835,18 +870,22 @@ const MarketingDataDetail = () => {
                   <td>Level Amount After Discount</td>
                   <td>
                     {editing ? (
-                      <Form.Control
-                        type="number"
-                        name="levelAmountAfterDiscount"
-                        value={marketingData.levelAmountAfterDiscount}
-                        onChange={handleChange}
-                        disabled
-                      />
+                      <>
+                        <Form.Control
+                          type="number"
+                          name="levelAmountAfterDiscount"
+                          value={marketingData.levelAmountAfterDiscount}
+                          onChange={handleChange}
+                          disabled
+                        />
+                        
+                      </>
                     ) : (
                       marketingData.levelAmountAfterDiscount
                     )}
                   </td>
                 </tr>
+
 
                 <tr>
                   <td>Level Paid Remaining Amount</td>
