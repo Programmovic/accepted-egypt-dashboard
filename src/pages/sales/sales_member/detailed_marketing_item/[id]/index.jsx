@@ -347,15 +347,15 @@ const MarketingDataDetail = () => {
               Save
             </Button>
             {/* Floating Save Button */}
-  {unsavedChanges && (
-    <Button
-      variant="warning"
-      className="floating-save-button"
-      onClick={handleSave}
-    >
-      Save Changes
-    </Button>
-  )}
+            {unsavedChanges && (
+              <Button
+                variant="warning"
+                className="text-dark floating-save-button"
+                onClick={handleSave}
+              >
+                Save Changes
+              </Button>
+            )}
 
           </div>
         </Card.Header>
