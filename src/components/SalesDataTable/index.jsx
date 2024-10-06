@@ -62,9 +62,9 @@ const DataTable = ({ filteredData, currentItems, salesMembers, paginationEnabled
               <td>{item.name}</td>
               <td>{item.phoneNo1}</td>
               <td>{item.phoneNo2}</td>
-              <td>{item.candidateSignedUpFor}</td>
+              <td>{item.candidateSignUpFor}</td>
               <td>{item.chatSummary}</td>
-              <td>{item.Source}</td>
+              <td>{item.source}</td>
               <td>{item.languageIssues}</td>
               <td>
                 <Form.Control
