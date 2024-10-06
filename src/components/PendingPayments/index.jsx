@@ -76,31 +76,50 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
         </tr>
       </thead>
       <tbody>
-        {pendingPayments?.map((payment) => (
-          <tr key={payment._id}>
-            <td>{payment.paymentType}</td>
-            <td>{payment.customerName}</td>
-            <td>{payment.customerPhone}</td>
-            <td>{payment.amountPaid}</td>
-            <td>{payment.paymentMethod}</td>
-            <td>
-              <Form.Control
-                as="select"
-                disabled={payment.paymentStatus === "Pending" ? false : true}
-                value={payment.paymentStatus}
-                onChange={(e) => handleStatusChange(payment._id, e.target.value, payment.paymentType, payment.leadId)}
-              >
-                <option value="Pending">Pending</option>
-                <option value="Verified">Verified</option>
-                <option value="Rejected">Rejected</option>
-              </Form.Control>
-            </td>
-            <td>{new Date(payment.paymentDate).toLocaleDateString()}</td>
-            <td>{payment.referenceNumber}</td>
-            <td>{payment.notes}</td>
-          </tr>
-        ))}
-      </tbody>
+  {pendingPayments?.map((payment) => (
+    <tr
+      key={payment._id}
+      className={
+        payment.paymentStatus === "Verified"
+          ? "table-success"
+          : payment.paymentStatus === "Pending"
+          ? "table-warning"
+          : payment.paymentStatus === "Rejected"
+          ? "table-danger"
+          : ""
+      }
+    >
+      <td>{payment.paymentType}</td>
+      <td>{payment.customerName}</td>
+      <td>{payment.customerPhone}</td>
+      <td>{payment.amountPaid}</td>
+      <td>{payment.paymentMethod}</td>
+      <td>
+        <Form.Control
+          as="select"
+          disabled={payment.paymentStatus === "Verified"}
+          value={payment.paymentStatus}
+          onChange={(e) =>
+            handleStatusChange(
+              payment._id,
+              e.target.value,
+              payment.paymentType,
+              payment.leadId
+            )
+          }
+        >
+          <option value="Pending">Pending</option>
+          <option value="Verified">Verified</option>
+          <option value="Rejected">Rejected</option>
+        </Form.Control>
+      </td>
+      <td>{new Date(payment.paymentDate).toLocaleDateString()}</td>
+      <td>{payment.referenceNumber}</td>
+      <td>{payment.notes}</td>
+    </tr>
+  ))}
+</tbody>
+
     </Table>
   );
 };
