@@ -21,6 +21,7 @@ import { Delete } from "@mui/icons-material";
 import { Edit } from "@mui/icons-material";
 import { ClassCard } from "@components/Classes";
 import { Alert, Container } from 'react-bootstrap';
+import DataTable from "../../components/MarketingDataTable";
 
 const MarketingData = () => {
   const router = useRouter();
@@ -302,9 +303,9 @@ const MarketingData = () => {
 
   const handleDeleteMarketingData = async (id) => {
     const isConfirmed = window.confirm("Are you sure you want to delete this marketing data?");
-    
+
     if (!isConfirmed) return; // Do nothing if the user cancels
-  
+
     try {
       await axios.delete(`/api/marketing?id=${id}`);
       closeModal();
@@ -316,7 +317,7 @@ const MarketingData = () => {
       toast.error(error.message);
     }
   };
-  
+
 
 
   const [messages, setMessages] = useState({ errors: [], successes: [] }); // State for storing messages
@@ -867,7 +868,7 @@ const MarketingData = () => {
 
         {/* Success Messages */}
         {messages.successes.length > 0 && (
-          <div  className="px-5 py-3" style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1rem', backgroundColor: "rgb(245, 245, 245)", borderRadius: "8px" }}>
+          <div className="px-5 py-3" style={{ maxHeight: '200px', overflowY: 'auto', marginBottom: '1rem', backgroundColor: "rgb(245, 245, 245)", borderRadius: "8px" }}>
             {messages.successes.map((msg, index) => (
               <Alert key={index} variant="success">
                 {msg}
@@ -889,70 +890,13 @@ const MarketingData = () => {
             <p>{error}</p>
           ) : (
             <div style={{ overflowX: "auto", overflowY: 'auto', maxHeight: "900px" }}>
-            <Table striped bordered hover>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Name</th>
-                  <th>Phone no1</th>
-                  <th>Phone no2</th>
-                  <th>Candidate Signed Up For</th>
-                  <th>Source</th>
-                  <th>Assigned to Sales Supervisor</th>
-                  <th>Assignation Date</th>
-                  <th>Created At</th>
-                  <th>Last Updated</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((item, index) => (
-                  <tr key={index}>
-                    <td>{index + 1}</td>
-                    <td>{item.name}</td>
-                    <td>{item.phoneNo1}</td>
-                    <td>{item.phoneNo2}</td>
-                    <td>{item.candidateSignUpFor}</td>
-                    <td>{item.source}</td>
-                    <td>
-                      <Form.Control
-                        as="select"
-                        value={item.assignedToModeration}
-                        onChange={(e) => {
-                          const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000;
-                          const timeSinceLastAssignation = new Date() - new Date(item.assignationDate);
-
-                          if (item.assignedToModeration && timeSinceLastAssignation < threeDaysInMillis) {
-                            toast.error("You cannot reassign within 3 days of the last assignation.");
-                          } else {
-                            setNewAssignedToModeration(e.target.value);
-                            handleUpdateMarketingData(item._id, {
-                              assignedToModeration: e.target.value,
-                              assignationDate: new Date(),
-                            });
-                          }
-                        }}
-                      >
-                        <option value="" hidden>Select a sales supervisor</option>
-                        {salesModerators.map((moderator) => (
-                          <option key={moderator._id} value={moderator.name}>
-                            {moderator.name}
-                          </option>
-                        ))}
-                      </Form.Control>
-                    </td>
-
-                    <td>{item.assignationDate && new Date(item.assignationDate).toLocaleDateString()}</td>
-                    <td>{item.createdAt && new Date(item.createdAt).toLocaleString()}</td>
-                    <td>{item.updatedAt && new Date(item.updatedAt).toLocaleString()}</td>
-                    <td className="d-flex justify-content-between">
-                      <Button variant="warning" onClick={() => handleEdit(item)}><Edit style={{ color: 'white' }} /></Button>
-                      <Button variant="danger" className="ms-2" onClick={() => handleDeleteMarketingData(item._id)}><Delete style={{ color: 'white' }} /></Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </Table>
+              <DataTable
+                filteredData={filteredData}
+                salesModerators={salesModerators}
+                handleUpdateMarketingData={handleUpdateMarketingData}
+                handleEdit={handleEdit}
+                handleDeleteMarketingData={handleDeleteMarketingData}
+              />
             </div>
           )}
         </Card.Body>

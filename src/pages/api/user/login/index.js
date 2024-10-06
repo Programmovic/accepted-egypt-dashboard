@@ -27,7 +27,7 @@ export default async (req, res) => {
 
       // Generate a JWT token with admin ID and username
       const token = jwt.sign({ adminId: admin._id, username: admin.username, role: admin.role }, 'your-secret-key', {
-        expiresIn: '1h',
+        expiresIn: '365d',
       });
 
       // Set the token as a cookie in the response

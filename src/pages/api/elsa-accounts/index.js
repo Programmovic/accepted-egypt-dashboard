@@ -21,19 +21,29 @@ export default async (req, res) => {
           comment,
         } = req.body;
         console.log(req.body);
-        // Create new Elsa Account
-        const newElsaAccount = new ElsaAccount({
-          student,
-          email,
-          subscriptionStatus,
-          subscriptionStartDate,
-          subscriptionEndDate,
-          monthlyCost,
-          createdByAdmin,
-          adminName,
-          paymentDetails,
-          comment,
-        });
+        // Function to replace empty strings with null
+const replaceEmptyStringsWithNull = (obj) => {
+  return Object.fromEntries(
+    Object.entries(obj).map(([key, value]) => [key, value === "" ? null : value])
+  );
+};
+
+// Create new Elsa Account
+const newElsaAccountData = {
+  student,
+  email,
+  subscriptionStatus,
+  subscriptionStartDate,
+  subscriptionEndDate,
+  monthlyCost,
+  createdByAdmin,
+  adminName,
+  paymentDetails,
+  comment,
+};
+
+const newElsaAccount = new ElsaAccount(replaceEmptyStringsWithNull(newElsaAccountData));
+
 
         const savedElsaAccount = await newElsaAccount.save();
         return res.status(201).json({ elsaAccount: savedElsaAccount });

@@ -17,9 +17,10 @@ const AttendancePage = () => {
         setLoading(true);
         try {
           const response = await axios.get(`/api/student/${scannedData}`);
+          console.log(response)
           if (response.status === 200) {
-            setStudentData(response.data.students[0]);
-            fetchAttendances(response.data.students[0]._id);
+            setStudentData(response.data.student);
+            fetchAttendances(response.data.student._id);
           }
         } catch (error) {
           console.error("Error fetching student data:", error);

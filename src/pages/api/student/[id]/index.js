@@ -54,7 +54,7 @@ export default async (req, res) => {
       try {
         // Find the student by ID
         const student = await Student.findById(id);
-
+console.log(student)
         if (!student) {
           return res.status(404).json({ message: "Student not found" });
         }
@@ -65,7 +65,7 @@ export default async (req, res) => {
           batch: student.batch,
         });
         console.log(assessments)
-        const level = await Level.findOne({ name: assessments.newLevel });
+        const level = await Level.findOne({ name: assessments?.newLevel });
 
 
         // Structure the response to include student data and assessments with the populated level information

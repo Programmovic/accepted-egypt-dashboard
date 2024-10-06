@@ -78,7 +78,6 @@ const MarketingDataDetail = () => {
     placementTestPaidAmount: 0,
     placementTestDiscount: 0,
     placementTestAmountAfterDiscount: 0,
-    assignedLevel: "",
     assignedBatch: "",
     levelPaidAmount: 0,
     levelDiscount: 0, // Added field
@@ -141,6 +140,7 @@ const MarketingDataDetail = () => {
     const fetchMarketingData = async () => {
       try {
         const response = await axios.get(apiUrl);
+        console.log(response)
         if (response.status === 200) {
           setMarketingData((prevData) => ({
             ...prevData,
@@ -279,7 +279,7 @@ const MarketingDataDetail = () => {
         [name]: value,
       });
     }
-console.log(marketingData);
+    console.log(marketingData);
     setUnsavedChanges(true);
   };
 
@@ -509,6 +509,28 @@ console.log(marketingData);
                   </td>
                 </tr>
 
+                <tr>
+                  <td>Placement Test</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        as="select"
+                        name="placementTest"
+                        value={marketingData?.placementTest?._id}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Placement Test</option>
+                        {placementTests.map((test) => (
+                          <option key={test._id} value={test._id}>
+                            {test.cost} EGP - {new Date(test.date).toLocaleDateString()} - From {test.startTime} to {test.endTime} - {test.studentCount} of {test.limitTrainees}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    ) : (
+                      marketingData.placementTest
+                    )}
+                  </td>
+                </tr>
 
                 <tr>
                   <td>Placement Test Discount (%)</td>
@@ -712,7 +734,7 @@ console.log(marketingData);
                     {editing ? (
                       <Form.Control
                         type="text"
-                        value={marketingData.assignedLevel.name || "Still Not Assigned"}
+                        value={marketingData?.assignedLevel?.name || "Still Not Assigned"}
                         disabled={true} // Disable the input if the assignedTo field is empty
                       />
                     ) : (
@@ -847,7 +869,7 @@ console.log(marketingData);
                     <Form.Control
                       as="select"
                       name="assignedBatch"
-                      value={marketingData.assignedBatch}
+                      value={marketingData?.assignedBatch?._id}
                       onChange={handleChange}
                     >
                       <option value="">Select a batch</option>

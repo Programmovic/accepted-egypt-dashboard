@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { Card, Table, Badge, Modal, Button } from "react-bootstrap";
+import { Card, Table, Badge, Modal, Button, Form } from "react-bootstrap";
 import { AdminLayout } from "@layout";
 import { useRouter } from "next/router";
 import html2canvas from "html2canvas";
@@ -11,9 +11,11 @@ import { usePDF, Resolution } from "react-to-pdf";
 const LaptopDetails = () => {
   const [laptop, setLaptop] = useState(null);
   const [showQRModal, setShowQRModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [updatedLaptop, setUpdatedLaptop] = useState({}); // State for holding updated laptop details
   const router = useRouter();
   const { id } = router.query;
-  const laptopApiUrl = `/api/laptops/${id}`;
+  const laptopApiUrl = `/api/inventory/${id}`;
   const { Canvas } = useQRCode();
   const modalRef = useRef(null);
   const { toPDF, targetRef } = usePDF({
@@ -39,6 +41,7 @@ const LaptopDetails = () => {
   const fetchLaptop = async () => {
     try {
       const response = await axios.get(laptopApiUrl);
+      console.log(response)
       if (response.status === 200) {
         setLaptop(response.data);
       }
@@ -84,6 +87,31 @@ const LaptopDetails = () => {
     }
   };
 
+  const handleEditLaptop = async () => {
+    try {
+      const response = await axios.put(laptopApiUrl, updatedLaptop);
+      console.log(response)
+      if (response.status === 200) {
+        setLaptop(response.data);
+        setShowEditModal(false);
+      }
+    } catch (error) {
+      console.error("Error updating laptop:", error);
+    }
+  };
+
+  const handleDeleteLaptop = async () => {
+    try {
+      const response = await axios.delete(laptopApiUrl);
+      if (response.status === 200) {
+        alert("Laptop deleted successfully!");
+        router.push("/laptops"); // Redirect to the laptops list page or another appropriate page
+      }
+    } catch (error) {
+      console.error("Error deleting laptop:", error);
+    }
+  };
+
   return (
     <AdminLayout>
       <Card>
@@ -106,6 +134,12 @@ const LaptopDetails = () => {
             </Button>
             <Button variant="outline-light" onClick={toPDF}>
               Download PDF
+            </Button>
+            <Button variant="outline-danger" onClick={handleDeleteLaptop}>
+              Delete Laptop
+            </Button>
+            <Button variant="outline-primary" onClick={() => setShowEditModal(true)}>
+              Edit Laptop
             </Button>
           </div>
         </Card.Header>
@@ -138,6 +172,53 @@ const LaptopDetails = () => {
         </Card.Body>
       </Card>
 
+      {/* Edit Laptop Modal */}
+      <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+        <Modal.Header closeButton>
+          <Modal.Title>Edit Laptop</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formBrand">
+              <Form.Label>Brand</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter laptop brand"
+                value={updatedLaptop.brand || laptop?.brand || ""}
+                onChange={(e) => setUpdatedLaptop({ ...updatedLaptop, brand: e.target.value })}
+              />
+            </Form.Group>
+            <Form.Group controlId="formModel">
+              <Form.Label>Model</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter laptop model"
+                value={updatedLaptop.model || laptop?.model || ""}
+                onChange={(e) => setUpdatedLaptop({ ...updatedLaptop, model: e.target.value })}
+              />
+            </Form.Group>
+            <Form.Group controlId="formAssignedTo">
+              <Form.Label>Assigned To</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter assigned person's name"
+                value={updatedLaptop.assignedTo?.name || laptop?.assignedTo?.name || ""}
+                onChange={(e) => setUpdatedLaptop({ ...updatedLaptop, assignedTo: { name: e.target.value } })}
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowEditModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleEditLaptop}>
+            Save Changes
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* QR Code Modal */}
       <Modal show={showQRModal} onHide={() => setShowQRModal(false)}>
         <Modal.Header closeButton>
           <Modal.Title>QR Code</Modal.Title>
@@ -150,7 +231,7 @@ const LaptopDetails = () => {
                 Brand: laptop?.brand,
                 Model: laptop?.model,
                 AssignedTo: laptop?.assignedTo?.name,
-                AssignedDate: new Date(laptop?.assignedDate).toLocaleString()
+                AssignedDate: new Date(laptop?.assignedDate).toLocaleString(),
               })}
               options={{
                 errorCorrectionLevel: "M",

@@ -247,7 +247,7 @@ const Batches = () => {
         description: newBatchDescription,
         level: selectedLevel,
         levelName: selectedLevelName,
-        instructor: newBatchInstructor, // Add other batch attributes here
+        instructor: newBatchInstructor?.value, // Add other batch attributes here
         // Add other batch attributes here
       });
       closeModal();
@@ -917,12 +917,12 @@ console.log(selectedBatch)
 
                   <Select
                     value={newBatchInstructor}
-                    options={instructors.map((student) => ({
-                      value: student._id,
-                      label: student.name,
+                    options={instructors.map((instructor) => ({
+                      value: instructor._id,
+                      label: instructor.name,
                     }))}
                     onChange={(e) => {
-                      setNewBatchInstructor(e?.value);
+                      setNewBatchInstructor(e);
                     }}
                     isClearable={true}
                     isSearchable={true}

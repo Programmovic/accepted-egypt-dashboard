@@ -11,6 +11,8 @@ import TextField from "@mui/material/TextField";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import RangeAssignment from "../../../components/RangeAssignment";
 
+import DataTable from "../../../components/MarketingDataTable";
+
 const SalesModeratorData = () => {
   const [marketingData, setMarketingData] = useState([]);
   const [salesModerators, setSalesModerators] = useState([]);
@@ -378,65 +380,13 @@ const SalesModeratorData = () => {
             <p>{error}</p>
           ) : (
             <>
-              <Table striped bordered hover>
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Phone no1</th>
-                    <th>Phone no2</th>
-                    <th>Assign to</th>
-                    <th>Chat Summary</th>
-                    <th>Source</th>
-                    <th>Language Issues</th>
-                    <th>Assigned to Member</th>
-                    <th>Assignation Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(paginationEnabled ? currentItems : filteredData).map((item, index) => (
-                    <tr key={index}>
-                      <td className={(index + 1 >= rangeStart && index + 1 <= rangeEnd) && "bg-success text-light"}>{index + 1}</td>
-                      <td>{item.name}</td>
-                      <td>{item.phoneNo1}</td>
-                      <td>{item.phoneNo2}</td>
-                      <td>{item.assignTo}</td>
-                      <td>{item.chatSummary}</td>
-                      <td>{item.Source}</td>
-                      <td>{item.languageIssues}</td>
-                      <td>
-                        <Form.Control
-                          as="select"
-                          value={item.assignedToSales}
-                          onChange={(e) => {
-                            const threeDaysInMillis = 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
-                            const timeSinceLastAssignation = new Date() - new Date(item.salesMemberAssignationDate);
-
-                            if (item.assignedToSales && timeSinceLastAssignation < threeDaysInMillis) {
-                              toast.error("You cannot reassign within 3 days of the last assignation.");
-                            } else {
-                              handleUpdateMarketingData(item._id, {
-                                assignedToSales: e.target.value,
-                                salesMemberAssignationDate: new Date(),
-                              });
-                            }
-                          }}
-                        >
-                          <option value="" hidden>Select a sales member</option>
-                          {salesMembers.map((moderator) => (
-                            <option key={moderator._id} value={moderator.name}>
-                              {moderator.name}
-                            </option>
-                          ))}
-                        </Form.Control>
-
-                      </td>
-
-                      <td>{item.salesMemberAssignationDate && new Date(item.salesMemberAssignationDate).toLocaleDateString()}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
+              <DataTable
+                filteredData={filteredData}
+                salesMembers={salesMembers}
+                handleUpdateMarketingData={handleUpdateMarketingData}
+                handleEdit={handleEdit}
+                handleDeleteMarketingData={handleDeleteMarketingData}
+              />
               {paginationEnabled && (
                 <Pagination className="d-flex justify-content-center">
                   <Pagination.Prev

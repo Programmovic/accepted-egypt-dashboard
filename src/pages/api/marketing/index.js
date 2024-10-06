@@ -116,7 +116,7 @@ export default async (req, res) => {
           }).sort({ createdAt: -1 });
         } else if (ewfs) {
           allMarketingData = await MarketingData.find({
-            candidateSignUpFor: "EWFS",
+            candidateSignUpFor: "E3WFS",
             assignedToSales: { $exists: true, $ne: null, $ne: "" },
           }).sort({ createdAt: -1 });
         } else if (test_waiting_list) {
@@ -176,10 +176,19 @@ export default async (req, res) => {
       // Log the initial updates
       console.log("Initial updates:", updates);
 
-      // Extract only the name from the assignedLevel object
-      if (updates?.assignedLevel?.name) {
-        updates.assignedLevel = updates.assignedLevel.name;
-      } 
+      // Ensure assignedLevel is either a string or extracted from the object
+      if (updates?.assignedLevel) {
+        if (
+          typeof updates.assignedLevel === "object" &&
+          updates.assignedLevel.name
+        ) {
+          // If assignedLevel is an object, extract the name property
+          updates.assignedLevel = updates.assignedLevel.name;
+        } else if (typeof updates.assignedLevel !== "string") {
+          // If assignedLevel is neither a string nor a valid object, assign null or handle the error
+          updates.assignedLevel = null; // or throw an error if necessary
+        }
+      }
 
       // Extract the token from cookies
       const cookies = req.headers.cookie

@@ -191,23 +191,23 @@ const MarketingDataDetail = () => {
   }, [id, apiUrl, salesStatusApiUrl]);
   console.log(paymentMethods)
   // Assuming lastEditDates are initialized or fetched appropriately
-const lastEditDates = {
-  phoneInterview: marketingData.phoneInterviewDate 
-    ? new Date(marketingData.phoneInterviewDate).toISOString().split('T')[0] 
-    : new Date().toISOString().split('T')[0],
-    
-  faceToFace: marketingData.faceToFaceDate 
-    ? new Date(marketingData.faceToFaceDate).toISOString().split('T')[0] 
-    : new Date().toISOString().split('T')[0],
+  const lastEditDates = {
+    phoneInterview: marketingData.phoneInterviewDate
+      ? new Date(marketingData.phoneInterviewDate).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0],
 
-  feedbackSession: marketingData.feedbackSessionDate 
-    ? new Date(marketingData.feedbackSessionDate).toISOString().split('T')[0] 
-    : new Date().toISOString().split('T')[0],
-    
-  recruitmentTest: marketingData.companyInterviewDate 
-    ? new Date(marketingData.companyInterviewDate).toISOString().split('T')[0] 
-    : new Date().toISOString().split('T')[0],
-};
+    faceToFace: marketingData.faceToFaceDate
+      ? new Date(marketingData.faceToFaceDate).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0],
+
+    feedbackSession: marketingData.feedbackSessionDate
+      ? new Date(marketingData.feedbackSessionDate).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0],
+
+    recruitmentTest: marketingData.companyInterviewDate
+      ? new Date(marketingData.companyInterviewDate).toISOString().split('T')[0]
+      : new Date().toISOString().split('T')[0],
+  };
 
 
 
@@ -314,7 +314,7 @@ const lastEditDates = {
         <Card.Header className="d-flex justify-content-between align-items-center">
           <span>Marketing Data Details</span>{" "}
           <span>
-          Last Updated: {marketingData?.updatedAt ? new Date(marketingData.updatedAt).toLocaleString() : "N/A"}
+            Last Updated: {marketingData?.updatedAt ? new Date(marketingData.updatedAt).toLocaleString() : "N/A"}
           </span>
           <div>
             <Button variant="outline-primary" onClick={() => router.push(`/sales/sales_member/detailed_marketing_item/${id}/logs`)}>

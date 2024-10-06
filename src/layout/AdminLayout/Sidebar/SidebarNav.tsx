@@ -293,8 +293,8 @@ export default function SidebarNav() {
         <SidebarNavItem icon={faSearch} href="/inventory/laptops/scan">
           Scan
         </SidebarNavItem>
-        <SidebarNavItem icon={faComputer} href="/inventory/laptops">
-          Laptops
+        <SidebarNavItem icon={faComputer} href="/inventory/items">
+          Items
         </SidebarNavItem>
       </SidebarNavGroup>
 
