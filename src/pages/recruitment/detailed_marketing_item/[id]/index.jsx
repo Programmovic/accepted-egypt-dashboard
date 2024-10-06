@@ -150,12 +150,22 @@ const MarketingDataDetail = () => {
         console.error("Error fetching recruitment test result status:", error);
       }
     };
-
+    const fetchCandidateSignUpForStatus = async () => {
+      try {
+        const response = await axios.get('/api/candidate_signup_for');
+        if (response.status === 200) {
+          setCandidateSignUpFor(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching candidate sign up statuses:", error);
+      }
+    };
     const fetchData = async () => {
       try {
         await Promise.all([
           fetchMarketingData(),
           fetchCandidateStatusForRecruiter(),
+          fetchCandidateSignUpForStatus(),
           fetchPhoneInterviewStatus(),
           fetchFaceToFaceStatus(),
           fetchFeedbackSessionStatus(),
@@ -372,6 +382,28 @@ const MarketingDataDetail = () => {
                       />
                     ) : (
                       marketingData.phoneNo2
+                    )}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Candidate Sign Up For</td>
+                  <td>
+                    {editing ? (
+                      <Form.Control
+                        as="select"
+                        name="candidateSignUpFor"
+                        value={marketingData.candidateSignUpFor}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select Candidate Sign Up For</option>
+                        {candidateSignUpFor.map((status) => (
+                          <option key={status._id} value={status.status}>
+                            {status.status}
+                          </option>
+                        ))}
+                      </Form.Control>
+                    ) : (
+                      marketingData.candidateSignUpFor
                     )}
                   </td>
                 </tr>
