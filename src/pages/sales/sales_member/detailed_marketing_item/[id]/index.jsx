@@ -346,6 +346,16 @@ const MarketingDataDetail = () => {
             <Button variant="outline-primary" className="ms-2" onClick={handleSave} disabled={!unsavedChanges}>
               Save
             </Button>
+            {/* Floating Save Button */}
+  {unsavedChanges && (
+    <Button
+      variant="warning"
+      className="floating-save-button"
+      onClick={handleSave}
+    >
+      Save Changes
+    </Button>
+  )}
 
           </div>
         </Card.Header>
@@ -830,38 +840,38 @@ const MarketingDataDetail = () => {
                     )}
                     {/* Check if levelAmountAfterDiscount has a value and display the warning */}
                     {marketingData.levelAmountAfterDiscount && unsavedChanges ? (
-  <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
-    <div
-      style={{
-        backgroundColor: '#fff3cd',
-        color: '#856404',
-        padding: '10px 15px',
-        borderRadius: '5px',
-        marginRight: '15px',
-        fontSize: '14px',
-        fontWeight: '500',
-        border: '1px solid #ffeeba',
-        display: 'flex',
-        alignItems: 'center',
-      }}
-    >
-      <i className="fas fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
-      Please Save
-    </div>
-    <Button
-      onClick={handleSave}
-      variant="warning"
-      style={{
-        fontWeight: 'bold',
-        padding: '8px 16px',
-        borderRadius: '5px',
-        fontSize: '14px',
-      }}
-    >
-      Save Changes
-    </Button>
-  </div>
-) : null}
+                      <div style={{ display: 'flex', alignItems: 'center', marginTop: '10px' }}>
+                        <div
+                          style={{
+                            backgroundColor: '#fff3cd',
+                            color: '#856404',
+                            padding: '10px 15px',
+                            borderRadius: '5px',
+                            marginRight: '15px',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            border: '1px solid #ffeeba',
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <i className="fas fa-exclamation-triangle" style={{ marginRight: '8px' }}></i>
+                          Please Save
+                        </div>
+                        <Button
+                          onClick={handleSave}
+                          variant="warning"
+                          style={{
+                            fontWeight: 'bold',
+                            padding: '8px 16px',
+                            borderRadius: '5px',
+                            fontSize: '14px',
+                          }}
+                        >
+                          Save Changes
+                        </Button>
+                      </div>
+                    ) : null}
 
                   </td>
                 </tr>
@@ -878,7 +888,7 @@ const MarketingDataDetail = () => {
                           onChange={handleChange}
                           disabled
                         />
-                        
+
                       </>
                     ) : (
                       marketingData.levelAmountAfterDiscount
