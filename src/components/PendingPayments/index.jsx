@@ -86,6 +86,7 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
             <td>
               <Form.Control
                 as="select"
+                disabled={payment.paymentStatus === "Pending" ? false : true}
                 value={payment.paymentStatus}
                 onChange={(e) => handleStatusChange(payment._id, e.target.value, payment.paymentType, payment.leadId)}
               >

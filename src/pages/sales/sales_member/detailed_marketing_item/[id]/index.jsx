@@ -517,7 +517,16 @@ const MarketingDataDetail = () => {
                         as="select"
                         name="placementTest"
                         value={marketingData?.placementTest?._id}
-                        onChange={handleChange}
+                        onChange={() => {
+                          handleChange();
+                          setMarketingData((prevData) => ({
+                            ...prevData,
+                            placementTestDiscount: 0,
+                            placementTestPaidAmount: marketingData?.placementTest?.cost, // Update the paid amount
+                            placementTestAmountAfterDiscount: marketingData?.placementTest?.cost, // Update the amount after discount
+                          }));
+
+                        }}
                       >
                         <option value="">Select Placement Test</option>
                         {placementTests.map((test) => (
