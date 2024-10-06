@@ -29,7 +29,7 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
   };
 
   useEffect(() => {
-    fetchPendingPayments(); // Fetch payments whether `marketingDataId` is present or not
+    marketingDataId && fetchPendingPayments(); // Fetch payments whether `marketingDataId` is present or not
   }, [marketingDataId]);
 
   const handleStatusChange = async (paymentId, newStatus, paymentType, marketingDataId) => {
