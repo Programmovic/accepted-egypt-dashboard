@@ -61,7 +61,7 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
   if (error) return <Alert variant="danger">{error}</Alert>;
 
   return (
-    <Table striped bordered hover>
+    <Table striped hover borderless >
       <thead>
         <tr>
           <th>Payment Type</th>
@@ -77,24 +77,82 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
       </thead>
       <tbody>
   {pendingPayments?.map((payment) => (
-    <tr
-      key={payment._id}
-      className={
+    <tr key={payment._id}>
+      <td
+        className={
+          payment.paymentStatus === "Verified"
+            ? "bg-success text-white"
+            : payment.paymentStatus === "Pending"
+            ? "bg-warning"
+            : payment.paymentStatus === "Rejected"
+            ? "bg-danger text-white"
+            : ""
+        }
+      >
+        {payment.paymentType}
+      </td>
+      <td
+        className={
+          payment.paymentStatus === "Verified"
+            ? "bg-success text-white"
+            : payment.paymentStatus === "Pending"
+            ? "bg-warning"
+            : payment.paymentStatus === "Rejected"
+            ? "bg-danger text-white"
+            : ""
+        }
+      >
+        {payment.customerName}
+      </td>
+      <td
+        className={
+          payment.paymentStatus === "Verified"
+            ? "bg-success text-white"
+            : payment.paymentStatus === "Pending"
+            ? "bg-warning"
+            : payment.paymentStatus === "Rejected"
+            ? "bg-danger text-white"
+            : ""
+        }
+      >
+        {payment.customerPhone}
+      </td>
+      <td
+        className={
+          payment.paymentStatus === "Verified"
+            ? "bg-success text-white"
+            : payment.paymentStatus === "Pending"
+            ? "bg-warning"
+            : payment.paymentStatus === "Rejected"
+            ? "bg-danger text-white"
+            : ""
+        }
+      >
+        {payment.amountPaid}
+      </td>
+      <td
+        className={
+          payment.paymentStatus === "Verified"
+            ? "bg-success text-white"
+            : payment.paymentStatus === "Pending"
+            ? "bg-warning"
+            : payment.paymentStatus === "Rejected"
+            ? "bg-danger text-white"
+            : ""
+        }
+      >
+        {payment.paymentMethod}
+      </td>
+      <td
+       className={
         payment.paymentStatus === "Verified"
-          ? "table-success"
+          ? "bg-success text-white"
           : payment.paymentStatus === "Pending"
-          ? "table-warning"
+          ? "bg-warning"
           : payment.paymentStatus === "Rejected"
-          ? "table-danger"
+          ? "bg-danger text-white"
           : ""
-      }
-    >
-      <td>{payment.paymentType}</td>
-      <td>{payment.customerName}</td>
-      <td>{payment.customerPhone}</td>
-      <td>{payment.amountPaid}</td>
-      <td>{payment.paymentMethod}</td>
-      <td>
+      }>
         <Form.Control
           as="select"
           disabled={payment.paymentStatus === "Verified"}
@@ -113,12 +171,49 @@ const PendingPaymentsTable = ({ marketingDataId }) => {
           <option value="Rejected">Rejected</option>
         </Form.Control>
       </td>
-      <td>{new Date(payment.paymentDate).toLocaleDateString()}</td>
-      <td>{payment.referenceNumber}</td>
-      <td>{payment.notes}</td>
+      <td
+        className={
+          payment.paymentStatus === "Verified"
+            ? "bg-success text-white"
+            : payment.paymentStatus === "Pending"
+            ? "bg-warning"
+            : payment.paymentStatus === "Rejected"
+            ? "bg-danger text-white"
+            : ""
+        }
+      >
+        {new Date(payment.paymentDate).toLocaleDateString()}
+      </td>
+      <td
+        className={
+          payment.paymentStatus === "Verified"
+            ? "bg-success text-white"
+            : payment.paymentStatus === "Pending"
+            ? "bg-warning"
+            : payment.paymentStatus === "Rejected"
+            ? "bg-danger text-white"
+            : ""
+        }
+      >
+        {payment.referenceNumber}
+      </td>
+      <td
+        className={
+          payment.paymentStatus === "Verified"
+            ? "bg-success text-white"
+            : payment.paymentStatus === "Pending"
+            ? "bg-warning"
+            : payment.paymentStatus === "Rejected"
+            ? "bg-danger text-white"
+            : ""
+        }
+      >
+        {payment.notes}
+      </td>
     </tr>
   ))}
 </tbody>
+
 
     </Table>
   );
