@@ -771,6 +771,7 @@ const MarketingDataDetail = () => {
                         <Form.Range
                           name="levelDiscount"
                           value={marketingData.levelDiscount.toFixed(2)}
+                          disabled={marketingData.levelDiscount}
                           onChange={(e) => {
                             const discount = parseFloat(e.target.value); // Get the discount value from slider
                             const assignedLevelCost = marketingData?.assignedLevel.details.price; // Total cost of the assigned level
@@ -811,6 +812,7 @@ const MarketingDataDetail = () => {
                         type="number"
                         name="levelPaidAmount"
                         value={marketingData.levelPaidAmount}
+                        disabled={marketingData.levelPaidAmount}
                         onChange={(e) => {
                           const value = parseFloat(e.target.value); // Convert to number
                           const assignedLevelCost = marketingData?.assignedLevel.details.price;// Total cost of the assigned level
