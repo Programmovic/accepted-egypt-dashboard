@@ -23,10 +23,10 @@ const StudentFinance = ({ paid, due }) => {
         sx={{
           padding: 2,
           borderRadius: 2,
-          border: "2px solid #00000029",
+          border: "none",
           textAlign: 'center',
           flex: 1,
-          boxShadow: 1,
+          boxShadow: "0 1rem 3rem rgba(0,0,0,.175)",
         }}
       >
         <div className="border-start border-4  border-end border-success px-3">
@@ -45,10 +45,10 @@ const StudentFinance = ({ paid, due }) => {
           padding: 2,
           borderRadius: 2,
           textAlign: 'center',
-
-          border: "2px solid #00000029",
+          border: "none",
+          textAlign: 'center',
           flex: 1,
-          boxShadow: 1,
+          boxShadow: "0 1rem 3rem rgba(0,0,0,.175)",
         }}
       >
         <div className="border-start border-end border-4 border-danger px-3">
