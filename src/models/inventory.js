@@ -12,12 +12,10 @@ const assignedItemSchema = new mongoose.Schema(
     },
     description: {
       type: String,
-      required: true,
     },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Employee",
-      required: true,
     },
     assignedDate: {
       type: Date,

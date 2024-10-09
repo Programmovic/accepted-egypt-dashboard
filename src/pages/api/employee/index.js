@@ -1,20 +1,52 @@
 import connectDB from "@lib/db";
 import Employee from "../../../models/employee";
+import authMiddleware from "../../../middlewares/authorization"; // Import your middleware
 
 export default async (req, res) => {
   await connectDB();
+
+  // Run the authorization check
+  await new Promise((resolve, reject) => {
+    authMiddleware(req, res, (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+
+  // Check if the user role is super_admin
+  if (req.user.role !== "super_admin") {
+    console.log(req.user.adminId)
+    if (req.method === "GET") {
+      try {
+        const employees = await Employee.find({_id: req.user.employee})
+          .populate("position")
+          .populate("department");
+          console.log(employees)
+        if (!employees) {
+          return res.status(404).json({ error: "Employee not found" });
+        }
+        return res.status(200).json(employees); // Return only the user's own data
+      } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Failed to fetch employee data" });
+      }
+    }
+
+    return res.status(403).json({
+      error:
+        "Access denied. You do not have permission to perform this action.",
+    });
+  }
 
   if (req.method === "POST") {
     // Create a new employee
     try {
       const newEmployee = new Employee(req.body);
       await newEmployee.save();
-      return res
-        .status(201)
-        .json({
-          message: "Employee created successfully",
-          employee: newEmployee,
-        });
+      return res.status(201).json({
+        message: "Employee created successfully",
+        employee: newEmployee,
+      });
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Failed to create employee" });

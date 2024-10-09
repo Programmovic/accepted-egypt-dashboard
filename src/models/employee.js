@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Position = require("./position");
 const Department = require("./department");
+const Admin = require("./admin"); // Import the Admin model
+
 const employeeSchema = new mongoose.Schema(
   {
     name: {
@@ -17,12 +19,12 @@ const employeeSchema = new mongoose.Schema(
       required: true,
     },
     position: {
-      type: String,
-      ref: 'Position',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Position", // Reference to Position model
     },
     department: {
-      type: String,
-      ref: 'Department',
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Department", // Reference to Department model
     },
     address: {
       street: String,
@@ -46,6 +48,11 @@ const employeeSchema = new mongoose.Schema(
       name: String,
       phoneNumber: String,
       relationship: String,
+    },
+    admin: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Admin", // Reference to Admin model
+      required: true, // Ensures that each employee has an admin
     },
     // Other fields as needed
   },

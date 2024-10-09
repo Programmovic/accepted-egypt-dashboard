@@ -11,8 +11,11 @@ import { DownloadTableExcel } from "react-export-table-to-excel";
 import { faFile } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import Router from "next/router";
+import useAuth from "../../hooks/useAuth";
 
 const Transactions = () => {
+  const token = useAuth();
+  console.log(token)
   const [transactions, setTransactions] = useState([]);
   const [filteredTransactions, setFilteredTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -75,7 +78,12 @@ const Transactions = () => {
   }, []);
   const fetchTransactionData = async () => {
     try {
-      const response = await axios.get("/api/transaction");
+      const response = await axios.get("/api/transaction", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Adjust according to your API's authentication scheme
+        },
+      });
+      console.log(response);
       if (response.status === 200) {
         const transactionData = response.data;
         setTransactions(transactionData);

@@ -1,13 +1,16 @@
 import connectDB from "@lib/db";
 import Admin from "@models/admin";
+import Employee from "@models/employee";
 import bcrypt from "bcrypt";
+const { v4: uuidv4 } = require("uuid"); // Import UUID for token generation
 
 export default async (req, res) => {
   await connectDB();
   if (req.method === "POST") {
     // Create a new admin
     try {
-      const { username, password, role } = req.body;
+      const { username, password, role, token, tokenExpiration, employee } =
+        req.body;
       // Check if an admin with the same username already exists
       const existingAdmin = await Admin.findOne({ username });
       if (existingAdmin) {
@@ -16,11 +19,23 @@ export default async (req, res) => {
           .json({ error: "Admin with this username already exists" });
       }
       // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await bcrypt.hash(
+        password || "admin@accepted",
+        10
+      );
       // Create a new Admin document with the hashed password
-      const newAdmin = new Admin({ username, password: hashedPassword, role });
+      const newAdmin = new Admin({
+        username,
+        password: hashedPassword,
+        role,
+        token,
+        tokenExpiration,
+        employee,
+      });
       // Save the new admin to the database
       await newAdmin.save();
+      await Employee.findByIdAndUpdate(employee, { admin: newAdmin._id });
+
       return res.status(201).json(newAdmin);
     } catch (error) {
       console.error(error);
@@ -39,11 +54,10 @@ export default async (req, res) => {
     // Update an admin
     try {
       const { id } = req.query;
-      const { username, role } = req.body;
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const updatedUser = req.body;
       const updatedAdmin = await Admin.findByIdAndUpdate(
         id,
-        { username, role },
+        updatedUser,
         { new: true }
       );
       if (!updatedAdmin) {

@@ -2,12 +2,11 @@ import { useState, useEffect, useRef } from "react";
 import { Card, Form, Button, Row, Col, Modal, Table, Tabs, Tab, Badge } from "react-bootstrap";
 import axios from "axios";
 import { AdminLayout } from "@layout";
-import { useRouter } from "next/router"; // Import useRouter from next/router
+import { useRouter } from "next/router";
 import { useQRCode } from "next-qrcode";
 import { DownloadTableExcel } from "react-export-table-to-excel";
-import { faFile } from "@fortawesome/free-regular-svg-icons";
+import { faFile, faPrint } from "@fortawesome/free-regular-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { set } from "nprogress";
 
 const Inventory = () => {
   const router = useRouter(); // Initialize useRouter
@@ -46,7 +45,9 @@ const Inventory = () => {
     order: "desc", // Default sorting order
     checked: false, // Initial checkbox state
   });
-
+  const handlePrintQRCodes = () => {
+    window.print();
+  };
   const fetchInventoryData = async () => {
     try {
       const response = await axios.get("/api/inventory"); // Adjust API endpoint URL
@@ -81,14 +82,22 @@ const Inventory = () => {
   }, []);
 
   const handleAddItem = async () => {
+    // Mix category and name for description if description is not provided
+    const finalDescription = itemDescriptionModal || `${itemTypeModal}: ${itemNameModal}`;
+
+    // Assign today's date if assignedTo is selected and assignedDate is not provided
+    const today = new Date().toISOString().split('T')[0]; // Get today's date in YYYY-MM-DD format
+    const finalAssignedDate = assignedToModal && !assignedDateModal ? today : assignedDateModal;
+
+    const formData = {
+      itemCategory: itemTypeModal,
+      itemName: itemNameModal,
+      description: finalDescription,
+      assignedTo: assignedToModal || null,
+      assignedDate: finalAssignedDate || null,
+    };
     try {
-      const response = await axios.post("/api/inventory", { // Adjust API endpoint URL
-        itemCategory: itemTypeModal,
-        itemName: itemNameModal,
-        description: itemDescriptionModal,
-        assignedTo: assignedToModal || null,
-        assignedDate: assignedDateModal || null,
-      });
+      const response = await axios.post("/api/inventory", formData);
       if (response.status === 201) {
         setItems([...items, response.data]);
         setItemTypeModal("");
@@ -178,7 +187,14 @@ const Inventory = () => {
             <Button className="me-2" variant="outline-danger" onClick={handleDeleteAllItems}>
               Delete All Items
             </Button>
-
+            <Button
+              variant="outline-primary"
+              className="me-2"
+              onClick={handlePrintQRCodes}
+            >
+              <FontAwesomeIcon icon={faPrint} className="me-1" />
+              Print QR Codes
+            </Button>
             <DownloadTableExcel
               filename="Inventory Summary"
               sheet="InventorySummary"
@@ -233,80 +249,82 @@ const Inventory = () => {
           ) : error ? (
             <p>{error}</p>
           ) : (
-            <Table striped bordered hover ref={inventoryTable}>
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Name</th>
-                  <th>Assigned To</th>
-                  <th>Assigned Date</th>
-                  <th>Status</th>
-                  <th>QR Code</th>
-                </tr>
-              </thead>
-              <tbody>
-                {items
-                  .filter((item) =>
-                    (itemTypeFilter === "" ||
-                      item.itemCategory.toLowerCase() === itemTypeFilter.toLowerCase()) &&
-                    item.itemName.toLowerCase().includes(itemNameFilter.toLowerCase()) &&
-                    // Include items where assignedTo is empty or matches the filter
-                    (!assignedToFilter || !item.assignedTo || item.assignedTo.name.toLowerCase().includes(assignedToFilter.toLowerCase())) &&
-                    // Include items where assignedDate is empty or matches the filter
-                    (!assignedDateFilter || item.assignedDate.includes(assignedDateFilter))
-                  )
-                  // Sort by createdAt if checked
-                  .sort((a, b) => {
-                    if (sortByCreatedAt.checked) {
-                      if (sortByCreatedAt.order === "asc") {
-                        return new Date(a.createdAt) - new Date(b.createdAt);
+            <>
+              <Table striped bordered hover ref={inventoryTable}>
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Assigned To</th>
+                    <th>Assigned Date</th>
+                    <th>Status</th>
+                    <th>QR Code</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items
+                    .filter((item) =>
+                      (itemTypeFilter === "" ||
+                        item.itemCategory.toLowerCase() === itemTypeFilter.toLowerCase()) &&
+                      item.itemName.toLowerCase().includes(itemNameFilter.toLowerCase()) &&
+                      // Include items where assignedTo is empty or matches the filter
+                      (!assignedToFilter || !item.assignedTo || item.assignedTo.name.toLowerCase().includes(assignedToFilter.toLowerCase())) &&
+                      // Include items where assignedDate is empty or matches the filter
+                      (!assignedDateFilter || item.assignedDate.includes(assignedDateFilter))
+                    )
+                    // Sort by createdAt if checked
+                    .sort((a, b) => {
+                      if (sortByCreatedAt.checked) {
+                        if (sortByCreatedAt.order === "asc") {
+                          return new Date(a.createdAt) - new Date(b.createdAt);
+                        } else {
+                          return new Date(b.createdAt) - new Date(a.createdAt);
+                        }
                       } else {
-                        return new Date(b.createdAt) - new Date(a.createdAt);
+                        // If not checked, maintain the original order
+                        return 0;
                       }
-                    } else {
-                      // If not checked, maintain the original order
-                      return 0;
-                    }
-                  })
-                  .map((item) => (
-                    <tr key={item._id} onClick={() => handleRowClick(item._id)}>
-                      <td className="align-middle">{item.itemCategory}</td>
-                      <td className="align-middle">{item.itemName}</td>
-                      <td className="align-middle">{item.assignedTo ? item.assignedTo.name : 'N/A'}</td>
-                      <td className="align-middle">{item.assignedDate ? new Date(item.assignedDate).toLocaleString() : 'N/A'}</td>
-                      <td className="align-middle text-center">
-                        {item.assignedTo ? (
-                          <Badge bg="success">Assigned</Badge>
-                        ) : (
-                          <Badge bg="danger">Not Assigned</Badge>
-                        )}
-                      </td>
-                      {/* QR Code column */}
-                      <td className="text-center">
-                        <Canvas
-                          text={JSON.stringify({
-                            SerialNumber: item._id,
-                            Type: item.itemType,
-                            Name: item.itemName,
-                            AssignedTo: item.assignedTo ? item.assignedTo.name : 'N/A',
-                            AssignedDate: item.assignedDate || 'N/A',
-                          })}
-                          options={{
-                            errorCorrectionLevel: "M",
-                            margin: 1,
-                            scale: 10,
-                            width: 150,
-                            color: {
-                              dark: "#000",
-                              light: "#fff",
-                            },
-                          }}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-              </tbody>
-            </Table>
+                    })
+                    .map((item) => (
+                      <tr key={item._id} onClick={() => handleRowClick(item._id)}>
+                        <td className="align-middle">{item.itemCategory}</td>
+                        <td className="align-middle">{item.itemName}</td>
+                        <td className="align-middle">{item.assignedTo ? item.assignedTo.name : 'N/A'}</td>
+                        <td className="align-middle">{item.assignedDate ? new Date(item.assignedDate).toLocaleString() : 'N/A'}</td>
+                        <td className="align-middle text-center">
+                          {item.assignedTo ? (
+                            <Badge bg="success">Assigned</Badge>
+                          ) : (
+                            <Badge bg="danger">Not Assigned</Badge>
+                          )}
+                        </td>
+                        {/* QR Code column */}
+                        <td className="text-center">
+                          <Canvas
+                            text={JSON.stringify({
+                              SerialNumber: item._id,
+                              Type: item.itemType,
+                              Name: item.itemName,
+                              AssignedTo: item.assignedTo ? item.assignedTo.name : 'N/A',
+                              AssignedDate: item.assignedDate || 'N/A',
+                            })}
+                            options={{
+                              errorCorrectionLevel: "M",
+                              margin: 1,
+                              scale: 10,
+                              width: 150,
+                              color: {
+                                dark: "#000",
+                                light: "#fff",
+                              },
+                            }}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </Table>
+            </>
           )}
         </Card.Body>
       </Card>

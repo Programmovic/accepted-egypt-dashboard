@@ -199,12 +199,12 @@ const LaptopDetails = () => {
               <Table bordered responsive>
                 <tbody>
                   <tr>
-                    <td className="fw-bold">Brand:</td>
+                    <td className="fw-bold">Name:</td>
                     <td>{laptop.itemName}</td>
                   </tr>
                   <tr>
-                    <td className="fw-bold">Model:</td>
-                    <td>{laptop.itemType}</td>
+                    <td className="fw-bold">Type:</td>
+                    <td>{laptop.itemCategory}</td>
                   </tr>
                   <tr>
                     <td className="fw-bold">Assigned To:</td>

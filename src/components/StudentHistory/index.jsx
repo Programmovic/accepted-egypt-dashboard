@@ -24,13 +24,13 @@ const StudentHistoryDisplay = ({ id }) => {
       }
     };
 
-    fetchStudentHistory();
-  }, []);
+    id && fetchStudentHistory();
+  }, [id]);
 
 
 
   return (
-    <Card className="my-3 px-4 pt-3 pb-1" style={{ backgroundColor: 'rgb(245, 245, 245)', borderRadius: '8px' }}>
+    <Card className="my-3 px-4 pt-3 pb-1" style={{ backgroundColor: 'rgb(245, 245, 245)', borderRadius: '3px' }}>
       <Card.Body>
         <Card.Title>Student History</Card.Title>
         <Table striped bordered hover responsive>

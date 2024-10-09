@@ -3,13 +3,23 @@ import Admin from "@models/admin";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { serialize } from "cookie";
-
+import authMiddleware from "../../../../middlewares/authorization"; // Import your middleware
 
 export default async (req, res) => {
+  await connectDB(); // Connect to the database
+
+  // Run the authorization check
+  await new Promise((resolve, reject) => {
+    authMiddleware(req, res, (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+
+  const { role } = req.user;
+
   if (req.method === "POST") {
     try {
-      await connectDB(); // Connect to the database
-
       const { username, password } = req.body;
 
       // Find the admin by username
@@ -22,14 +32,19 @@ export default async (req, res) => {
         return res.status(401).json({ error: "Invalid username or password" });
       }
 
-      // Verify the password
-      const passwordMatch = await bcrypt.compare(password, admin.password);
+      // Check if the admin is a super admin
+      if (role === "super_admin") {
+        console.log(`Super admin logged in without password: ${username}`);
+      } else {
+        // For other roles, verify the password
+        const passwordMatch = await bcrypt.compare(password, admin.password);
 
-      if (!passwordMatch) {
-        console.warn(
-          `Login attempt failed: Password mismatch for username: ${username}`
-        );
-        return res.status(401).json({ error: "Invalid username or password" });
+        if (!passwordMatch) {
+          console.warn(
+            `Login attempt failed: Password mismatch for username: ${username}`
+          );
+          return res.status(401).json({ error: "Invalid username or password" });
+        }
       }
 
       // Generate a JWT token with admin ID and username

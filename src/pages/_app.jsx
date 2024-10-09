@@ -6,8 +6,10 @@ import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 import { SSRProvider } from 'react-bootstrap';
 import { ToastContainer } from 'react-toastify';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ProgressBar } from '@components/ProgressBar';
+import {AuthProvider} from '../context/authProvider'
 
 // Configure FontAwesome
 config.autoAddCss = false;
@@ -44,7 +46,16 @@ const theme = createTheme({
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
-    // Function to update finance information
+    const handleUpdateBatchesStatus = async () => {
+      try {
+        const response = await axios.post(`/api/batch/update_status`, {
+          action: "updateBatchStatus",
+        });
+      } catch (error) {
+        // console.error("Error updating batch:", error);
+        // toast.error("Failed to update the batch");
+      }
+    };
     const updateFinance = async () => {
       try {
         const response = await axios.put('/api/student/finance'); // Adjust URL and method as necessary
@@ -53,12 +64,13 @@ function MyApp({ Component, pageProps }) {
         console.error('Error updating finance:', error);
       }
     };
-
+    handleUpdateBatchesStatus()
     // Call the updateFinance function when the app starts
     updateFinance();
   }, []);
 
   return (
+    <AuthProvider>
     <ThemeProvider theme={theme}>
       <SSRProvider>
         <ProgressBar />
@@ -66,6 +78,7 @@ function MyApp({ Component, pageProps }) {
         <ToastContainer />
       </SSRProvider>
     </ThemeProvider>
+    </AuthProvider>
   );
 }
 

@@ -17,10 +17,11 @@ import "react-toastify/dist/ReactToastify.css";
 import Link from "next/link"; // Import Link from Next.js
 import { useRouter } from "next/router"; // Import useRouter from Next.js
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import useAuth from "../../hooks/useAuth";
 
 const Employees = () => {
   const router = useRouter(); // Initialize the router
-
+  const token = useAuth();
   const [employees, setEmployees] = useState([]);
   const [filteredEmployees, setFilteredEmployees] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +46,11 @@ const Employees = () => {
   // Function to fetch Employee data
   const fetchEmployeeData = async () => {
     try {
-      const response = await axios.get("/api/employee");
+      const response = await axios.get("/api/employee", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Adjust according to your API's authentication scheme
+        },
+      });
       if (response.status === 200) {
         const employeeData = response.data;
         setEmployees(employeeData);
