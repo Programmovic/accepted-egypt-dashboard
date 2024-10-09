@@ -157,7 +157,7 @@ export default async (req, res) => {
         })
           .populate("position")
           .populate("department");
-
+console.log(salesAgents)
         return res.status(200).json({
           marketingData: allMarketingData,
           salesModerators: salesSupervisors,

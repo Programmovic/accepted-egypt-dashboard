@@ -77,6 +77,7 @@ const MarketingData = () => {
 
     try {
       const response = await axios.get("/api/marketing");
+      console.log(response)
       if (response.status === 200) {
         const data = response.data;
         setMarketingData(data.marketingData);

@@ -178,7 +178,7 @@ export default function SidebarNav() {
 
   return (
     <ul className="list-unstyled accepted_navs">
-      {userRole === "admin" && (
+      {userRole === "super_admin" && (
         <SidebarNavGroup toggleIcon={faCog} toggleText="Administration">
           <SidebarNavItem icon={faUser} href="/admins">
             Admins
