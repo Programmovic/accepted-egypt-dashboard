@@ -27,6 +27,7 @@ const SetPassword = () => {
         number: false,
         specialChar: false,
     });
+    const [isFetching, setIsFetching] = useState(false); // Renamed from 'loading'
 
     useEffect(() => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -34,6 +35,7 @@ const SetPassword = () => {
         setToken(tokenFromUrl);
 
         const fetchUserData = async () => {
+            setIsFetching(true); // Start fetching
             try {
                 const response = await axios.get(`/api/user/set-password?token=${tokenFromUrl}`);
                 setUserData(response.data);
@@ -43,6 +45,8 @@ const SetPassword = () => {
                     position: "top-right",
                     autoClose: 3000,
                 });
+            } finally {
+                setIsFetching(false); // Stop fetching
             }
         };
 
@@ -177,7 +181,7 @@ const SetPassword = () => {
                     <Card className="shadow-lg border-0 mb-4">
                         <Card.Body>
                             <h4 className="text-center">Employee Data</h4>
-                            {employeeData ? (
+                            {employeeData && !isFetching ? (
                                 <Table striped bordered hover>
                                     <tbody>
                                         <tr>
@@ -223,7 +227,10 @@ const SetPassword = () => {
                 <Col md={6}>
                     <Card className="shadow-lg border-0 mb-4">
                         <Card.Body>
-                            {userData ? (
+                            {isFetching && (
+                                <h2 className="text-center">Loading....</h2>
+                            )}
+                            {userData && !isFetching ? (
                                 <>
                                     <h2 className="text-center">Hi, {userData.username}!</h2>
                                     <h6 className="text-center mt-3">Set Your Password</h6>
