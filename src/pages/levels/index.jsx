@@ -171,6 +171,7 @@ const Levels = () => {
                   <th>Level Price</th>
                   <th>Number of batches</th>
                   <th>Batch codes</th>
+                  <th>Total Number of students</th>
                   <th>Number of students</th>
                 </tr>
               </thead>
@@ -181,8 +182,28 @@ const Levels = () => {
                     <td>{level.code}</td>
                     <td>{level.price}</td>
                     <td>{level.batchCount}</td>
-                    <td>{level.batchCodes.join(", ") || '-'}</td>
+                    <td>
+                      {level.batchCodes.length > 0 ? (
+                        level.batchCodes.map((code, index) => (
+                          <div key={index}>{code}</div> // Each batch code in its own div
+                        ))
+                      ) : (
+                        '-'
+                      )}
+                    </td>
                     <td>{level.studentCount}</td>
+                    <td>
+                    {level.studentsPerBatch.length > 0 ? (
+  level.studentsPerBatch.map((batch, index) => (
+    <div key={index}>
+      {batch.batchCode} &rarr; {batch.studentCount} {/* Using HTML entity for right arrow */}
+    </div>
+  ))
+) : (
+  '-'
+)}
+
+                    </td>
                   </tr>
                 ))}
               </tbody>

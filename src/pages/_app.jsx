@@ -46,6 +46,14 @@ const theme = createTheme({
 
 function MyApp({ Component, pageProps }) {
   useEffect(() => {
+    const updateLevelsCodes = async () => {
+      try {
+        const response = await axios.post(`/api/level/confirm_codes`);
+      } catch (error) {
+        // console.error("Error updating batch:", error);
+        // toast.error("Failed to update the batch");
+      }
+    };
     const handleUpdateBatchesStatus = async () => {
       try {
         const response = await axios.post(`/api/batch/update_status`, {
@@ -65,7 +73,7 @@ function MyApp({ Component, pageProps }) {
       }
     };
     handleUpdateBatchesStatus()
-    // Call the updateFinance function when the app starts
+    updateLevelsCodes()
     updateFinance();
   }, []);
 

@@ -19,6 +19,7 @@ import { useRouter } from "next/router";
 import IdentityCard from "../../../components/StudentIDCard";
 import StudentHistoryDisplay from "../../../components/StudentHistory";
 import StudentFinance from "../../../components/StudentFinance";
+import StudentNotifications from "../../../components/StudentNotifications";
 
 const StudentProfile = () => {
   const [studentData, setStudentData] = useState({});
@@ -327,6 +328,8 @@ console.log(response.data.student)
 
   return (
     <AdminLayout>
+      <StudentNotifications studentId={id} />
+
       <div className="row">
         <ClassCard
           data={lectures.length}
@@ -409,7 +412,7 @@ console.log(response.data.student)
         showIdentityModal={showIdentityModal}
         setShowIdentityModal={setShowIdentityModal}
       />
-      <StudentFinance paid={studentData.paid} due={studentData.due} />
+      <StudentFinance paid={studentData.paid} due={studentData.due} balance={studentData.balance} />
 
       <div>
         <Row className="mb-3">

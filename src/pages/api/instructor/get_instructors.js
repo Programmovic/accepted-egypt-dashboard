@@ -7,17 +7,16 @@ export default async (req, res) => {
 
   if (req.method === "GET") {
     try {
-      // Find the "Teaching" department
-      const teachingDepartment = await Department.findOne({ name: "Teaching" });
+      // Find all employees and populate their position and department details
+      const allEmployees = await Employee.find()
+        .populate("position") // Populate position details
+        .populate("department"); // Populate department details
 
-      if (!teachingDepartment) {
-        return res.status(404).json({ error: "Teaching department not found" });
-      }
 
-      // Find all employees in the "Teaching" department
-      const teachingEmployees = await Employee.find({ department: teachingDepartment._id })
-        .populate("position") // Assuming you want to populate the position details
-        .populate("department") // Populate department details as well
+      // Filter employees to get only those in the "Teaching" department
+      const teachingEmployees = allEmployees.filter(
+        (employee) => employee.department && employee.department.name === "Teaching"
+      );
 
       return res.status(200).json(teachingEmployees);
     } catch (error) {

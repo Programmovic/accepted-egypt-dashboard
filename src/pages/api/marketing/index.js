@@ -128,36 +128,27 @@ export default async (req, res) => {
           // Fetch all MarketingData records and sort by creation date (newest first)
           allMarketingData = await MarketingData.find();
         }
-        const positions = await Position.find({
-          name: { $in: ["Supervisor", "Agent"] },
-        }).select("_id name");
-
-        // Create a mapping for position names to IDs
-        const positionMap = positions.reduce((acc, p) => {
-          acc[p.name] = p._id;
-          return acc;
-        }, {});
-        const departments = await Department.find({
-          name: "Sales",
-        }).select("_id name");
-
-        const departmentIds = departments.map((d) => d._id);
-        // Fetch supervisors in the Sales department
-        const salesSupervisors = await Employee.find({
-          department: { $in: departmentIds },
-          position: positionMap["Supervisor"], // Use positionMap to get the Supervisor ID
-        })
-          .populate("position")
-          .populate("department");
-
-        // Fetch agents in the Sales department
-        const salesAgents = await Employee.find({
-          department: { $in: departmentIds },
-          position: positionMap["Agent"], // Use positionMap to get the Agent ID
-        })
-          .populate("position")
-          .populate("department");
-console.log(salesAgents)
+        // Find all employees and populate their position and department details
+        const allEmployees = await Employee.find()
+          .populate("position") // Populate position details
+          .populate("department"); // Populate department details
+console.log(allEmployees)
+        // Filter employees to get only those in the "Sales" department with the position of "Supervisor"
+        const salesSupervisors = allEmployees.filter(
+          (employee) =>
+            employee.department &&
+            employee.department.name === 'Sales' &&
+            employee.position &&
+            employee.position.name === 'Supervisor' // Assuming position has a title field
+        );
+        // Filter employees to get only those in the "Sales" department with the position of "Supervisor"
+        const salesAgents = allEmployees.filter(
+          (employee) =>
+            employee.department &&
+            employee.department.name === "Sales" &&
+            employee.position &&
+            employee.position.name === "Agent" // Assuming position has a title field
+        );
         return res.status(200).json({
           marketingData: allMarketingData,
           salesModerators: salesSupervisors,

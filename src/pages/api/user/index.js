@@ -44,7 +44,10 @@ export default async (req, res) => {
   } else if (req.method === "GET") {
     // Fetch all admins
     try {
-      const allAdmins = await Admin.find();
+      const allAdmins = await Admin.find().populate({
+        path: "employee",
+        populate: [{ path: "position" }, { path: "department" }],
+      });
       return res.status(200).json(allAdmins);
     } catch (error) {
       console.error(error);
@@ -55,11 +58,9 @@ export default async (req, res) => {
     try {
       const { id } = req.query;
       const updatedUser = req.body;
-      const updatedAdmin = await Admin.findByIdAndUpdate(
-        id,
-        updatedUser,
-        { new: true }
-      );
+      const updatedAdmin = await Admin.findByIdAndUpdate(id, updatedUser, {
+        new: true,
+      });
       if (!updatedAdmin) {
         return res.status(404).json({ error: "Admin not found" });
       }

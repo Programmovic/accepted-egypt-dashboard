@@ -25,36 +25,49 @@ export default async (req, res) => {
     try {
       // Fetch all levels
       const allLevels = await Level.find();
-
+  
       // For each level, find batches and count students
       const levelsWithDetails = await Promise.all(
         allLevels.map(async (level) => {
           // Find batches assigned to this level
           const batches = await Batch.find({ level: level._id });
-
+  
           // Extract batch codes
           const batchCodes = batches.map((batch) => batch.code);
-
-          // Count students assigned to those batches
+  
+          // Count total students assigned to those batches
           const studentCount = await Student.countDocuments({
             batch: { $in: batches.map((batch) => batch._id) },
           });
-
+  
+          // Count students in each batch
+          const studentsPerBatch = await Promise.all(
+            batches.map(async (batch) => {
+              const count = await Student.countDocuments({ batch: batch._id });
+              return {
+                batchCode: batch.code,
+                studentCount: count,
+              };
+            })
+          );
+  
           return {
             ...level._doc, // Spread level document fields
             batchCount: batches.length,
             batchCodes,
             studentCount,
+            studentsPerBatch, // Include the student count per batch
           };
         })
       );
-
+  
       return res.status(200).json(levelsWithDetails);
     } catch (error) {
       console.error(error);
       return res.status(500).json({ error: "Could not fetch Attendance records" });
     }
-  } else if (req.method === "DELETE") {
+  }
+  else if (req.method === "DELETE") {
     try {
       // Delete all Attendance documents (clear the attendance data)
       await Level.deleteMany({});

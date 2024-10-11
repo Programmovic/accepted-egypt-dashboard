@@ -3,12 +3,14 @@ import { Table, Modal, Button, Form } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsisVertical } from "@fortawesome/free-solid-svg-icons";
 import { Dropdown } from "react-bootstrap";
+import { useRouter } from "next/navigation";
 
 export default function UserList(props) {
   const { users, onUpdate, onDelete } = props;
   const [showModal, setShowModal] = useState(false);
   const [userData, setUserData] = useState(null);
-
+  const router = useRouter();
+console.log(users)
   const formatDateTime = (dateTimeString) => {
     const options = { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" };
     return new Date(dateTimeString).toLocaleString(undefined, options);
@@ -51,7 +53,7 @@ export default function UserList(props) {
               <td>{index + 1}</td>
               <td>{user.username}</td>
               <td className="text-center">{user.role}</td>
-              <td className="text-center">{formatDateTime(user.dateOfJoin)}</td>
+              <td className="text-center">{formatDateTime(user.createdAt || user.dateOfJoin)}</td>
               <td>
                 <Dropdown align="center">
                   <Dropdown.Toggle
@@ -70,6 +72,12 @@ export default function UserList(props) {
                       onClick={() => handleDeleteClick(user._id)}
                     >
                       Delete
+                    </Dropdown.Item>
+                    <Dropdown.Item
+                      className="text-danger"
+                      onClick={() => router.push(`/employees/${user?.employee?._id}`)}
+                    >
+                      View
                     </Dropdown.Item>
                   </Dropdown.Menu>
                 </Dropdown>

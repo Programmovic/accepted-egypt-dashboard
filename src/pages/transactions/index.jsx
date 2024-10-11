@@ -266,7 +266,7 @@ const Transactions = () => {
     const averageTransactionAmount =
       totalTransactions > 0 ? totalTransactionAmount / totalTransactions : 0;
     const receivedAmount = filteredTransactions.reduce((total, transaction) => {
-      if (transaction.type === "Income") {
+      if (transaction.type === "income") {
         return total + transaction.amount;
       }
       return total;
@@ -378,7 +378,7 @@ const Transactions = () => {
         const levelName = batch.levelName;
 
         // Calculate income only for "Income" type transactions
-        if (transaction.type === "Income") {
+        if (transaction.type === "income") {
           // Initialize the level's income if it's not in the levelIncomes object
           if (!levelIncomes[levelName]) {
             levelIncomes[levelName] = 0;
@@ -588,9 +588,9 @@ const Transactions = () => {
                       type="checkbox"
                       label="Received"
                       id="type1"
-                      checked={filterType === "Income"}
+                      checked={filterType === "income"}
                       onChange={() =>
-                        setFilterType(filterType === "Income" ? "" : "Income")
+                        setFilterType(filterType === "income" ? "" : "Income")
                       }
                     />
                     <Form.Check
@@ -769,8 +769,8 @@ const Transactions = () => {
                   name="transactionType"
                   id="incomeRadio"
                   label="Receivable (income)"
-                  value="Income"
-                  checked={newTransactionType === "Income"}
+                  value="income"
+                  checked={newTransactionType === "income"}
                   onChange={handleTypeChange}
                   required
                 />
@@ -883,7 +883,7 @@ const Transactions = () => {
                   <option value="" hidden>
                     Select The Transaction Description
                   </option>
-                  <option value="Course Fee">Course Fee</option>
+                  <option value="Level Fee Payment">Course Fee</option>
                   <option value="Material">Material</option>
                 </Form.Control>
               </Form.Group>

@@ -24,6 +24,7 @@ const studentSchema = new mongoose.Schema(
     batch: { type: mongoose.Schema.Types.ObjectId, ref: "Batch" },
     placementTestDate: { type: Date },
     due: { type: Number, default: 0 },
+    balance: { type: Number, default: 0 },
     joinedDate: { type: Date, default: Date.now },
     createdByAdmin: { type: mongoose.Schema.Types.ObjectId, ref: "Admin" },
     adminName: { type: String },
