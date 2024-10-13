@@ -1,10 +1,11 @@
 // components/OnlineAdmins.js
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import { useRouter } from 'next/router';
 const OnlineAdmins = () => {
   const [onlineAdmins, setOnlineAdmins] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useRouter(); // Initialize useNavigate
 
   useEffect(() => {
     const fetchOnlineAdmins = async () => {
@@ -27,8 +28,12 @@ const OnlineAdmins = () => {
 
   // Sort admins to show online ones first
   const sortedAdmins = onlineAdmins.sort((a, b) => {
-    return (b.isOnline === true) - (a.isOnline === true);
+    return (b.isOnline === false) - (a.isOnline === true);
   });
+
+  const handleAdminClick = (id) => {
+    navigate.push(`/employees/${id}`); // Navigate to the specified URL
+  };
 
   return (
     <div className="d-flex align-items-center flex-wrap"> {/* Flex container */}
@@ -46,9 +51,11 @@ const OnlineAdmins = () => {
               alignItems: 'center',
               justifyContent: 'center',
               marginRight: '-20px', // Space between the circle and text
-              border: '1px solid white'
+              border: '1px solid white',
+              cursor: 'pointer'
             }}
             title={admin.username}
+            onClick={admin?.employee?._id ? () => handleAdminClick(admin.employee._id) : undefined} // Only add onClick if employee exists
           >
             {admin.username[0].toUpperCase()} {/* Display the first character */}
           </div>

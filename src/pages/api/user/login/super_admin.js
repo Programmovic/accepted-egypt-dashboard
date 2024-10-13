@@ -46,6 +46,10 @@ export default async (req, res) => {
           return res.status(401).json({ error: "Invalid username or password" });
         }
       }
+// Mark admin as online and set last active timestamp
+admin.isOnline = true; // Set admin status to online
+admin.lastActive = new Date(); // Set last active time to now
+await admin.save(); // Save changes to the database
 
       // Generate a JWT token with admin ID and username
       const token = jwt.sign(
