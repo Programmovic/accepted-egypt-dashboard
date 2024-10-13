@@ -10,6 +10,7 @@ import { saveAs } from "file-saver";
 import TextField from "@mui/material/TextField";
 import FilterAltIcon from "@mui/icons-material/FilterAlt";
 import RangeAssignment from "../../../components/RangeAssignment";
+import useAuth from "../../../hooks/useAuth";
 
 import DataTable from "../../../components/SalesDataTable";
 
@@ -21,7 +22,7 @@ const SalesModeratorData = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [filterName, setFilterName] = useState("");
-
+  const token = useAuth();
   const [filterPhone, setFilterPhone] = useState("");
   const [filterDate, setFilterDate] = useState("");
   const [assignedTo, setAssignedTo] = useState("");
@@ -46,37 +47,41 @@ const SalesModeratorData = () => {
     const toastId = toast.loading("Fetching marketing data...");
 
     try {
-        const response = await axios.get("/api/marketing?assignedToModerator=true");
-        
-        if (response.status === 200) {
-            const data = response.data;
-            setMarketingData(data.marketingData);
-            setSalesModerators(data.salesModerators);
-            setSalesMembers(data.salesMembers);
-            setFilteredData(data.marketingData);
+      const response = await axios.get("/api/marketing?assignedToModerator=true", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Adjust according to your API's authentication scheme
+        },
+      });
 
-            // Update toast with success message
-            toast.update(toastId, {
-                render: "Marketing data fetched successfully!",
-                type: "success",
-                isLoading: false,
-                autoClose: 3000,
-            });
-            setLoading(false);
-        }
-    } catch (error) {
-        console.error("Error fetching marketing data:", error.message);
-        setError("Failed to fetch marketing data. Please try again later.");
+      if (response.status === 200) {
+        const data = response.data;
+        setMarketingData(data.marketingData);
+        setSalesModerators(data.salesModerators);
+        setSalesMembers(data.salesMembers);
+        setFilteredData(data.marketingData);
 
-        // Update toast with error message
+        // Update toast with success message
         toast.update(toastId, {
-            render: "Error fetching marketing data.",
-            type: "error",
-            isLoading: false,
-            autoClose: 3000,
+          render: "Marketing data fetched successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
         });
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error("Error fetching marketing data:", error.message);
+      setError("Failed to fetch marketing data. Please try again later.");
+
+      // Update toast with error message
+      toast.update(toastId, {
+        render: "Error fetching marketing data.",
+        type: "error",
+        isLoading: false,
+        autoClose: 3000,
+      });
     }
-};
+  };
 
 
   useEffect(() => {
@@ -381,7 +386,7 @@ const SalesModeratorData = () => {
           ) : (
             <>
               <DataTable
-              currentItems= {currentItems}
+                currentItems={currentItems}
                 filteredData={filteredData}
                 salesMembers={salesMembers}
                 handleUpdateMarketingData={handleUpdateMarketingData}

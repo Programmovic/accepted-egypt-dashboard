@@ -10,8 +10,10 @@ import { saveAs } from "file-saver";
 import { TextField } from "@mui/material";
 import { faFilter } from "@fortawesome/free-solid-svg-icons";
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
+import useAuth from "../../../hooks/useAuth";
 
 const SalesMemberAssignedData = () => {
+  const token = useAuth();
   const [marketingData, setMarketingData] = useState([]);
   const [salesModerators, setSalesModerators] = useState([]);
   const [salesMembers, setSalesMembers] = useState([]);
@@ -34,7 +36,11 @@ const SalesMemberAssignedData = () => {
 
   const fetchMarketingData = async () => {
     try {
-      const response = await axios.get("/api/marketing?ewfs=true");
+      const response = await axios.get("/api/marketing?ewfs=true", {
+        headers: {
+          Authorization: `Bearer ${token}`, // Adjust according to your API's authentication scheme
+        },
+      });
       if (response.status === 200) {
         const data = response.data;
         setMarketingData(data.marketingData);

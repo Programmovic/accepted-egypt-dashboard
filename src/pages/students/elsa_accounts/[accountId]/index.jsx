@@ -109,7 +109,7 @@ const ElsaAccountHistory = () => {
                 <tbody>
                   {history.map((record, index) => (
                     <tr key={index}>
-                      <td>{record.student.name}</td>
+                      <td>{record?.student?.name}</td>
                       <td>
                         <Badge
                           bg={
@@ -119,9 +119,9 @@ const ElsaAccountHistory = () => {
                           Expired
                         </Badge>
                       </td>
-                      <td>${record.monthlyCost}</td>
-                      <td>{new Date(record.subscriptionPeriod.startDate).toLocaleDateString()}</td>
-                      <td>{new Date(record.subscriptionPeriod.endDate).toLocaleDateString()}</td>
+                      <td>${record?.monthlyCost}</td>
+                      <td>{new Date(record?.subscriptionPeriod?.startDate).toLocaleDateString()}</td>
+                      <td>{new Date(record?.subscriptionPeriod?.endDate).toLocaleDateString()}</td>
                     </tr>
                   ))}
                 </tbody>

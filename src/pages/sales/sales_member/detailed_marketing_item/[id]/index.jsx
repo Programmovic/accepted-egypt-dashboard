@@ -302,7 +302,7 @@ const MarketingDataDetail = () => {
 
       console.log(marketingData);
     } catch (error) {
-      console.error("Error saving marketing data:", error.message);
+      console.error("Error saving marketing data:", error);
 
       // Update toast with error message
       toast.update(toastId, {

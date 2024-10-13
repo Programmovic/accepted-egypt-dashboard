@@ -54,6 +54,7 @@ export default async (req, res) => {
           username: admin.username,
           role: admin.role,
           employee: admin.employee,
+          
         },
         process.env.JWT_SECRET,
         { expiresIn: "365d" } // Consider using a shorter expiration for security reasons

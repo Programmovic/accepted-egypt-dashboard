@@ -21,6 +21,9 @@ const studentSchema = new mongoose.Schema(
       type: String,
       ref: "ElsaAccount",
     },
+    subscriptionStartDate: {
+      type: Date,
+    },
     batch: { type: mongoose.Schema.Types.ObjectId, ref: "Batch" },
     placementTestDate: { type: Date },
     due: { type: Number, default: 0 },

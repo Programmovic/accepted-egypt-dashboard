@@ -16,6 +16,7 @@ import Level from "../../../models/level";
 import Batch from "../../../models/batch";
 import jwt from "jsonwebtoken";
 import cookie from "cookie";
+import authMiddleware from "../../../middlewares/authorization"; // Import your middleware
 
 export default async (req, res) => {
   await connectDB();
@@ -91,15 +92,61 @@ export default async (req, res) => {
       } else {
         let allMarketingData = [];
         if (assignedToModerator) {
-          // Fetch all MarketingData records assigned to moderators and sort by creation date (newest first)
-          allMarketingData = await MarketingData.find({
-            assignedToModeration: { $exists: true, $ne: null, $ne: "" },
+          // Run the authorization check
+          await new Promise((resolve, reject) => {
+            authMiddleware(req, res, (err) => {
+              if (err) return reject(err);
+              resolve();
+            });
           });
+
+          // Fetch all MarketingData records assigned to moderators and sort by creation date (newest first)
+          if (req.user.role === "super_admin") {
+            allMarketingData = await MarketingData.find({
+              assignedToModeration: { $exists: true, $ne: null, $ne: "" },
+            });
+          } else {
+            console.log(req.user.employee);
+            const employee = await Employee.findOne({ _id: req.user.employee });
+            console.log(employee);
+
+            allMarketingData = await MarketingData.find({
+              assignedToModeration: {
+                $eq: employee.name, // Check if assignedToModeration equals the employee
+                $exists: true,
+                $ne: null,
+                $ne: "",
+              },
+            });
+          }
         } else if (assignedToMember) {
-          // Fetch all MarketingData records assigned to members and sort by creation date (newest first)
-          allMarketingData = await MarketingData.find({
-            assignedToSales: { $exists: true, $ne: null, $ne: "" },
-          }).sort({ createdAt: -1 });
+          // Run the authorization check
+          await new Promise((resolve, reject) => {
+            authMiddleware(req, res, (err) => {
+              if (err) return reject(err);
+              resolve();
+            });
+          });
+
+          // Fetch all MarketingData records assigned to moderators and sort by creation date (newest first)
+          if (req.user.role === "super_admin") {
+            allMarketingData = await MarketingData.find({
+              assignedToSales: { $exists: true, $ne: null, $ne: "" },
+            }).sort({ createdAt: -1 });
+          } else {
+            console.log(req.user.employee);
+            const employee = await Employee.findOne({ _id: req.user.employee });
+            console.log(employee);
+
+            allMarketingData = await MarketingData.find({
+              assignedToSales: {
+                $eq: employee.name, // Check if assignedToModeration equals the employee
+                $exists: true,
+                $ne: null,
+                $ne: "",
+              },
+            });
+          }
         } else if (pending) {
           allMarketingData = await MarketingData.find({
             paymentMethod: { $ne: "" },
@@ -115,6 +162,36 @@ export default async (req, res) => {
             assignedToSales: { $exists: true, $ne: null, $ne: "" },
           }).sort({ createdAt: -1 });
         } else if (ewfs) {
+          // Run the authorization check
+          await new Promise((resolve, reject) => {
+            authMiddleware(req, res, (err) => {
+              if (err) return reject(err);
+              resolve();
+            });
+          });
+
+          // Fetch all MarketingData records assigned to moderators and sort by creation date (newest first)
+          if (req.user.role === "super_admin") {
+            allMarketingData = await MarketingData.find({
+              candidateSignUpFor: "E3WFS",
+              assignedToSales: { $exists: true, $ne: null, $ne: "" },
+            }).sort({ createdAt: -1 });
+          } else {
+            console.log(req.user.employee);
+            const employee = await Employee.findOne({ _id: req.user.employee });
+            console.log(employee);
+
+            allMarketingData = await MarketingData.find({
+              candidateSignUpFor: "E3WFS",
+              assignedToSales: {
+                $eq: employee.name, // Check if assignedToModeration equals the employee
+                $exists: true,
+                $ne: null,
+                $ne: "",
+              },
+            });
+          }
+
           allMarketingData = await MarketingData.find({
             candidateSignUpFor: "E3WFS",
             assignedToSales: { $exists: true, $ne: null, $ne: "" },
@@ -132,14 +209,14 @@ export default async (req, res) => {
         const allEmployees = await Employee.find()
           .populate("position") // Populate position details
           .populate("department"); // Populate department details
-console.log(allEmployees)
+        console.log(allEmployees);
         // Filter employees to get only those in the "Sales" department with the position of "Supervisor"
         const salesSupervisors = allEmployees.filter(
           (employee) =>
             employee.department &&
-            employee.department.name === 'Sales' &&
+            employee.department.name === "Sales" &&
             employee.position &&
-            employee.position.name === 'Supervisor' // Assuming position has a title field
+            employee.position.name === "Supervisor" // Assuming position has a title field
         );
         // Filter employees to get only those in the "Sales" department with the position of "Supervisor"
         const salesAgents = allEmployees.filter(
@@ -164,8 +241,8 @@ console.log(allEmployees)
       const { id } = req.query; // Assuming `id` is passed as a query parameter
       let updates = req.body;
 
-      // Log the initial updates
-      console.log("Initial updates:", updates);
+      // // Log the initial updates
+      // console.log("Initial updates:", updates);
 
       // Ensure assignedLevel is either a string or extracted from the object
       if (updates?.assignedLevel) {
@@ -204,13 +281,6 @@ console.log(allEmployees)
       // Handle batch assignment logic if assignedBatch exists
       if (updates.assignedBatch) {
         const { levelDiscount, assignedBatch, levelPaidAmount } = updates;
-
-        // Ensure student hasn't been assigned to a assignedBatch before
-        if (originalMarketingData.assignedBatch) {
-          return res
-            .status(400)
-            .json({ error: "Student is already assigned to a assignedBatch" });
-        }
 
         // Find the assignedBatch by ID
         const batchData = await Batch.findById(assignedBatch);
@@ -260,11 +330,6 @@ console.log(allEmployees)
           existingTransaction.batch = assignedBatch;
           // Save the updated transaction
           await existingTransaction.save();
-        } else {
-          // Handle the case where no transaction without a batch is found
-          return res
-            .status(404)
-            .json({ error: "Transaction not found for update" });
         }
 
         // Handle attendance for all lectures in the assigned batch
@@ -341,10 +406,24 @@ console.log(allEmployees)
       // Prepare the updates object (assuming it's defined and populated)
       convertEmptyStringsToNull(updates);
 
-      // Update the MarketingData document
+      // Create an object to hold only changed or empty fields
+      const fieldsToUpdate = {};
+      for (const key in updates) {
+        // Check if the field is different from the original or if it's empty
+        console.log(updates[key], originalMarketingData[key]);
+        if (
+          updates[key] !== originalMarketingData[key] &&
+          updates[key] !== null
+        ) {
+          fieldsToUpdate[key] = updates[key];
+        }
+      }
+      console.log(fieldsToUpdate);
+
+      // Update the MarketingData document with only the changed or empty fields
       const updatedMarketingData = await MarketingData.findByIdAndUpdate(
         id,
-        updates,
+        fieldsToUpdate,
         { new: true }
       );
 

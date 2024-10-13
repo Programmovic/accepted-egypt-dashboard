@@ -4,17 +4,20 @@ import Attendance from "../../../../models/attendance";
 import Assessment from "../../../../models/progress_exit_test";
 import Lecture from "../../../../models/lecture";
 import Level from "../../../../models/level";
+import Transaction from "../../../../models/transaction";
+
 
 export default async (req, res) => {
   try {
     await connectDB();
 
     if (req.method === "POST") {
+      // Handle POST requests (if any additional logic is required)
     } else if (req.method === "PUT") {
       const { id } = req.query;
-      const updateData = req.body; // Assuming your request body contains the updated data
-      console.log(updateData);
-      // Find the student by ID and update the batch
+      const updateData = req.body;
+
+      // Find the student by ID and update the data
       const updatedStudent = await Student.findOneAndUpdate(
         { _id: id },
         updateData,
@@ -37,12 +40,10 @@ export default async (req, res) => {
           const newAttendance = new Attendance({
             lecture: lecture._id,
             trainee: updatedStudent._id,
-            date: new Date(), // Set the current date or specify a date
-            status: "Not Assigned", // Set the default status or specify one
-            // You can add more details to the attendance entry if needed
+            date: new Date(),
+            status: "Not Assigned",
           });
 
-          // Save the new attendance entry
           await newAttendance.save();
         });
       }
@@ -53,23 +54,33 @@ export default async (req, res) => {
 
       try {
         // Find the student by ID
-        const student = await Student.findById(id);
-console.log(student)
+        const student = await Student.findById(id).populate("elsaAccount").populate('batch');
+
         if (!student) {
           return res.status(404).json({ message: "Student not found" });
         }
 
-        // Fetch associated progress/exit tests for the student, and populate the new level details
+        // Fetch associated assessments for the student and level information
         const assessments = await Assessment.findOne({
           student: id,
           batch: student.batch,
         });
-        console.log(assessments)
         const level = await Level.findOne({ name: assessments?.newLevel });
 
+        // Find transactions associated with the student ID
+        const transactions = await Transaction.find({ student: id })
+          .populate("student")
+          .populate("batch");
 
-        // Structure the response to include student data and assessments with the populated level information
-        return res.status(200).json({ student, level });
+        if (!transactions || transactions.length === 0) {
+          return res
+            .status(404)
+            .json({ message: "Transactions not found for the student" });
+        }
+        const batchLectures = await Lecture.find({ batch: student.batch });
+        const allAttendances = await Attendance.find({ trainee: id });
+        // Return structured response including student data, assessments, level, and transactions
+        return res.status(200).json({ student, level, transactions, batchLectures, allAttendances });
       } catch (error) {
         console.error("Error fetching student or assessments:", error);
         return res.status(500).json({ message: "Server error" });

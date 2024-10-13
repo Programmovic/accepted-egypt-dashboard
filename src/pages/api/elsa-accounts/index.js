@@ -22,28 +22,32 @@ export default async (req, res) => {
         } = req.body;
         console.log(req.body);
         // Function to replace empty strings with null
-const replaceEmptyStringsWithNull = (obj) => {
-  return Object.fromEntries(
-    Object.entries(obj).map(([key, value]) => [key, value === "" ? null : value])
-  );
-};
+        const replaceEmptyStringsWithNull = (obj) => {
+          return Object.fromEntries(
+            Object.entries(obj).map(([key, value]) => [
+              key,
+              value === "" ? null : value,
+            ])
+          );
+        };
 
-// Create new Elsa Account
-const newElsaAccountData = {
-  student,
-  email,
-  subscriptionStatus,
-  subscriptionStartDate,
-  subscriptionEndDate,
-  monthlyCost,
-  createdByAdmin,
-  adminName,
-  paymentDetails,
-  comment,
-};
+        // Create new Elsa Account
+        const newElsaAccountData = {
+          student,
+          email,
+          subscriptionStatus,
+          subscriptionStartDate,
+          subscriptionEndDate,
+          monthlyCost,
+          createdByAdmin,
+          adminName,
+          paymentDetails,
+          comment,
+        };
 
-const newElsaAccount = new ElsaAccount(replaceEmptyStringsWithNull(newElsaAccountData));
-
+        const newElsaAccount = new ElsaAccount(
+          replaceEmptyStringsWithNull(newElsaAccountData)
+        );
 
         const savedElsaAccount = await newElsaAccount.save();
         return res.status(201).json({ elsaAccount: savedElsaAccount });
@@ -85,14 +89,32 @@ const newElsaAccount = new ElsaAccount(replaceEmptyStringsWithNull(newElsaAccoun
         ) {
           // Assign the new student's email to the Elsa Account
           const newStudent = await Student.findById(updateData.student);
+
           if (newStudent) {
+            console.log("Student found: ", newStudent); // Debugging line
             newStudent.elsaAccount = id;
-            updateData.subscriptionStartDate = new Date(); // Set subscription start date to now
-            // Optionally, set subscription end date (e.g., one month later)
-            updateData.subscriptionEndDate = new Date(
-              new Date().setMonth(new Date().getMonth() + 1)
-            );
+
+            // Set subscription start date to now
+            updateData.subscriptionStartDate = new Date();
+            console.log(
+              "Subscription start date set: ",
+              updateData.subscriptionStartDate
+            ); // Log after setting start date
+
+            // Set subscription end date to one month later
+            let subscriptionEndDate = new Date();
+            subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + 1);
+            updateData.subscriptionEndDate = subscriptionEndDate;
+            console.log(
+              "Subscription end date set: ",
+              updateData.subscriptionEndDate
+            ); // Log after setting end date
+            newStudent.save(); // Save the updated student
+          } else {
+            console.log("No student found with ID: ", updateData.student);
           }
+        } else {
+          console.log("Student not updated or same as existing.");
         }
 
         // Update the Elsa Account with new data
@@ -117,7 +139,9 @@ const newElsaAccount = new ElsaAccount(replaceEmptyStringsWithNull(newElsaAccoun
 
         if (id) {
           // Only proceed if the id is valid
-          elsaAccount = await ElsaAccount.findById(id).populate("student").populate("history.student"); ;
+          elsaAccount = await ElsaAccount.findById(id)
+            .populate("student")
+            .populate("history.student");
         } else if (!id) {
           // If no ID is provided, return all Elsa accounts
           elsaAccount = await ElsaAccount.find().populate("student");

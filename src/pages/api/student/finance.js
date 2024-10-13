@@ -21,10 +21,7 @@ export default async (req, res) => {
       for (const student of students) {
         // Fetch all transactions for the student
         const transactions = await Transaction.find({ student: student._id });
-        console.log(
-          `Transactions found for student ${student._id}:`,
-          transactions
-        );
+        
 
         // Calculate the total paid amount from the transactions
         const totalPaid = transactions.reduce((sum, transaction) => {

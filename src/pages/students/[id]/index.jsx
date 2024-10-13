@@ -20,6 +20,7 @@ import IdentityCard from "../../../components/StudentIDCard";
 import StudentHistoryDisplay from "../../../components/StudentHistory";
 import StudentFinance from "../../../components/StudentFinance";
 import StudentNotifications from "../../../components/StudentNotifications";
+import calculateTimeDuration from "../../../lib/calculateTimeDuration"
 
 const StudentProfile = () => {
   const [studentData, setStudentData] = useState({});
@@ -34,6 +35,7 @@ const StudentProfile = () => {
   const [email, setEmail] = useState(studentData.email);
   const [nationalId, setNationalId] = useState(studentData.nationalId);
   const [status, setStatus] = useState(studentData.status);
+  const [transactions, setTransactions] = useState([]);
 
   // Add state variables for other fields as needed
   const handleSave = async () => {
@@ -81,7 +83,7 @@ const StudentProfile = () => {
     try {
       setLoading(true);
       const response = await axios.get(`/api/student/${id}`); // Replace with your actual API endpoint
-console.log(response.data.student)
+      console.log(response.data.student)
       if (response.status === 200) {
         console.log(response);
         setMarketingData((prevData) => ({
@@ -93,28 +95,14 @@ console.log(response.data.student)
           },
         }));
         setStudentData(response.data.student);
+        setTransactions(response.data.transactions);
+        setBatchData(response.data.student.batch);
+        setLectures(response.data.batchLectures);
+        setAttendances(response.data.allAttendances);
       }
     } catch (error) {
       console.error("Error updating finance or fetching student data:", error);
       toast.error("Failed to update finance or fetch student data. Please try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-  const fetchBatchData = async () => {
-    try {
-      const response = await axios.get(`/api/batch/${studentData.batch}/batch`); // Replace with your actual API endpoint for batch data
-
-      if (response.status === 200) {
-        console.log(response);
-        setBatchData(response.data); // Adjust the response data structure accordingly
-      }
-    } catch (error) {
-      console.error("Error fetching batch data:", error);
-      toast.error("Failed to fetch batch data. Please try again later.", {
         position: "top-right",
         autoClose: 3000,
       });
@@ -141,99 +129,16 @@ console.log(response.data.student)
       setLoading(false);
     }
   };
-  const fetchLecturesForBatch = async () => {
-    try {
-      const response = await axios.get(`/api/batch/${studentData.batch}`); // Replace with your actual API endpoint for batch lectures
 
-      if (response.status === 200) {
-        setLectures(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching batch lectures:", error);
-      toast.error("Failed to fetch batch lectures. Please try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  };
-  const fetchAttendancesForStudent = async () => {
-    try {
-      const response = await axios.get(
-        `/api/attendance/student-attendances?studentId=${studentData._id}`
-      ); // Replace with your actual API endpoint for batch lectures
 
-      if (response.status === 200) {
-        console.log(response);
-        setAttendances(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching batch lectures:", error);
-      toast.error("Failed to fetch batch lectures. Please try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  };
   useEffect(() => {
     if (id) {
       fetchStudentData();
-      {
-        studentData.batch && fetchBatchData();
-      }
-      {
-        studentData.batch && fetchLecturesForBatch();
-      }
-      {
-        studentData._id && fetchAttendancesForStudent();
-      }
-      fetchPlacementTests();
       fetchBatchesData();
     }
-  }, [id, studentData.batch, studentData._id, studentData.placementTestDate]);
-  function calculateTimeDuration(startTime, endTime) {
-    // Split the time strings into hours and minutes
-    const [startHour, startMinute] = startTime.split(":");
-    const [endHour, endMinute] = endTime.split(":");
+  }, [id]);
 
-    // Convert hours and minutes to numbers
-    const startHourNum = parseInt(startHour, 10);
-    const startMinuteNum = parseInt(startMinute, 10);
-    const endHourNum = parseInt(endHour, 10);
-    const endMinuteNum = parseInt(endMinute, 10);
 
-    // Calculate the duration in minutes
-    const totalMinutesStart = startHourNum * 60 + startMinuteNum;
-    const totalMinutesEnd = endHourNum * 60 + endMinuteNum;
-    const duration = totalMinutesEnd - totalMinutesStart;
-
-    return duration;
-  }
-  const [placementTests, setPlacementTests] = useState([]);
-
-  const [showPlacementTestModal, setShowPlacementTestModal] = useState(false);
-  const [selectedPlacementTest, setSelectedPlacementTest] = useState(null);
-  const openPlacementTestModal = (student) => {
-    setSelectedPlacementTest(null); // Clear the selected placement test
-    setShowPlacementTestModal(true);
-  };
-  const handlePlacementTestSelect = (event) => {
-    const testId = event.target.value;
-    setSelectedPlacementTest(testId);
-  };
-  const fetchPlacementTests = async () => {
-    try {
-      const response = await axios.get("/api/placement_test_settings");
-      if (response.status === 200) {
-        setPlacementTests(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching placement tests:", error);
-      toast.error("Failed to fetch placement tests. Please try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  };
 
   const [showBatchModal, setShowBatchModal] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(studentData.batch);
@@ -277,36 +182,9 @@ console.log(response.data.student)
     setShowIdentityModal(true);
   };
 
-  // Function to close the identity card modal
-  const closeIdentityModal = () => {
-    setShowIdentityModal(false);
-  };
 
-  const [transactions, setTransactions] = useState([]);
 
-  // Function to fetch transactions related to the student
-  const fetchTransactions = async () => {
-    try {
-      const response = await axios.get(`/api/student/${id}/transactions`); // Adjust the API endpoint as per your backend implementation
-      console.log(response);
-      if (response.status === 200) {
-        setTransactions(response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-      toast.error("Failed to fetch transactions. Please try again later.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
-    }
-  };
 
-  // Fetch transactions when the component mounts or when student ID changes
-  useEffect(() => {
-    if (id) {
-      fetchTransactions();
-    }
-  }, [id]);
   const [showFinancialModal, setShowFinancialModal] = useState(false);
 
   const [unsavedChanges, setUnsavedChanges] = useState(false);
@@ -314,17 +192,6 @@ console.log(response.data.student)
   // Function to open the modal
   const handleOpenFinancialModal = () => setShowFinancialModal(true);
 
-  // Function to close the modal
-  const handleCloseFinancialModal = () => setShowFinancialModal(false);
-
-  // Function to handle form changes (if needed)
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setMarketingData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
-  };
 
   return (
     <AdminLayout>
@@ -530,6 +397,44 @@ console.log(response.data.student)
             />
           </Form.Group>
         </Col>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="placementTest">
+            <Form.Label>Elsa Account</Form.Label>
+            <Form.Control
+              type="text"
+              value={studentData?.elsaAccount?.email}
+              disabled
+            />
+          </Form.Group>
+        </Col>
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="subscriptionStartDate">
+            <Form.Label>Subscription Start Date</Form.Label>
+            <Form.Control
+              type="text"
+              value={new Date(studentData?.elsaAccount?.subscriptionStartDate).toLocaleString(
+                undefined,
+                { year: "numeric", day: "numeric", month: "long" }
+              )} // Splitting the date to remove time part
+              disabled
+            />
+          </Form.Group>
+        </Col>
+
+        <Col xs={4}>
+          <Form.Group className="my-3" controlId="subscriptionEndDate">
+            <Form.Label>Subscription End Date</Form.Label>
+            <Form.Control
+              type="text"
+              value={new Date(studentData?.elsaAccount?.subscriptionEndDate).toLocaleString(
+                undefined,
+                { year: "numeric", day: "numeric", month: "long" }
+              )} // Splitting the date to remove time part
+              disabled
+            />
+          </Form.Group>
+        </Col>
+
       </Row>
       <div className="mt-3 justify-content-between d-flex">
         <Button variant="primary" type="button" onClick={handleSave}>
@@ -541,7 +446,7 @@ console.log(response.data.student)
         <Button variant="primary" type="button" onClick={openBatchModal}>
           Update Batch
         </Button>
-        
+
         <Button
           variant="outline-primary"
           type="button"
