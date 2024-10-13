@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const Employee = require("./employee"); // Import the Admin model
-
 const adminSchema = new mongoose.Schema({
   username: {
     type: String,
@@ -27,10 +26,15 @@ const adminSchema = new mongoose.Schema({
   },
   employee: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Employee", // Reference to Admin model
-    required: true, // Ensures that each employee has an admin
+    ref: "Employee",
   },
-  // Add other fields as needed for your admin entity
+  isOnline: {
+    type: Boolean, // Tracks whether the admin is online or offline
+    default: false, // Default is offline
+  },
+  lastActive: {
+    type: Date, // To track the last time the admin was active
+  },
 }, { timestamps: true });
 
 module.exports = mongoose.models.Admin || mongoose.model("Admin", adminSchema);

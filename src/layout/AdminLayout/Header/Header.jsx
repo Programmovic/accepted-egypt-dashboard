@@ -6,13 +6,8 @@ import Breadcrumb from '@layout/AdminLayout/Breadcrumb/Breadcrumb'
 import HeaderFeaturedNav from '@layout/AdminLayout/Header/HeaderFeaturedNav'
 import HeaderNotificationNav from '@layout/AdminLayout/Header/HeaderNotificationNav'
 import HeaderProfileNav from '@layout/AdminLayout/Header/HeaderProfileNav'
-
-type HeaderProps = {
-  toggleSidebar: () => void;
-  toggleSidebarMd: () => void;
-}
-
-export default function Header(props: HeaderProps) {
+import OnlineAdmins from '../../../components/OnlineAdmins'
+export default function Header(props) {
   const { toggleSidebar, toggleSidebarMd } = props
 
   return (
@@ -34,6 +29,7 @@ export default function Header(props: HeaderProps) {
         >
           <FontAwesomeIcon icon={faBars} />
         </Button>
+        <OnlineAdmins /> 
         <Link href="/" className="header-brand d-md-none">
           <svg width="80" height="46">
             <title>CoreUI Logo</title>

@@ -66,7 +66,11 @@ const Employees = () => {
   // Function to add a new Employee
   const handleAddEmployee = async () => {
     try {
-      const response = await axios.post("/api/employee", newEmployeeData);
+      const response = await axios.post("/api/employee", newEmployeeData, {
+        headers: {
+          Authorization: `Bearer ${token}`, // Adjust according to your API's authentication scheme
+        },
+      });
       if (response.status === 201) {
         // Data added successfully
         fetchEmployeeData();

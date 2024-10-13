@@ -51,7 +51,7 @@ console.log(users)
           {users?.map((user, index) => (
             <tr key={user._id}>
               <td>{index + 1}</td>
-              <td>{user.username}</td>
+              <td>{user?.username}</td>
               <td className="text-center">{user.role}</td>
               <td className="text-center">{formatDateTime(user.createdAt || user.dateOfJoin)}</td>
               <td>

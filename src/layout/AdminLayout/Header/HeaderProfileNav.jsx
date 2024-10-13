@@ -6,12 +6,10 @@ import Cookies from "js-cookie";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import useAuth from "../../../hooks/useAuth";
 
-type ItemWithIconProps = {
-  icon: React.ReactNode;
-} & PropsWithChildren;
 
-const ItemWithIcon = (props: ItemWithIconProps) => {
+const ItemWithIcon = (props) => {
   const { icon, children } = props;
 
   return (
@@ -27,13 +25,23 @@ export default function HeaderProfileNav() {
   const [userRole, setUserRole] = useState("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const token = useAuth();
+  console.log(token);
   const [showPopover, setShowPopover] = useState(false);
 
   const logout = async () => {
     toast.info("Logging out...", { autoClose: false, toastId: "logout-toast" }); // Show loading toast with a unique ID
 
     try {
-      const res = await axios.post("/api/user/logout");
+      const res = await axios.post(
+        "/api/user/logout",
+        {}, // No data to send in a POST request
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Correctly set the Authorization header
+          },
+        }
+      );
       if (res.status === 200) {
         toast.dismiss("logout-toast"); // Dismiss loading toast
         toast.success("Logged out successfully!");

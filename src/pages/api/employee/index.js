@@ -31,13 +31,13 @@ export default async (req, res) => {
         return res.status(500).json({ error: "Failed to fetch employee data" });
       }
     }
+    
 
     return res.status(403).json({
       error:
         "Access denied. You do not have permission to perform this action.",
     });
   }
-
   if (req.method === "POST") {
     // Create a new employee
     try {
@@ -51,7 +51,9 @@ export default async (req, res) => {
       console.error(error);
       return res.status(500).json({ error: "Failed to create employee" });
     }
-  } else if (req.method === "GET") {
+  } 
+
+  else if (req.method === "GET") {
     // Retrieve all employees
     try {
       const employees = await Employee.find()

@@ -1,8 +1,9 @@
 import jwt from 'jsonwebtoken';
 
 const authMiddleware = (req, res, next) => {
+    
     const token = req.headers.authorization?.split(' ')[1]; // Assuming Bearer token format
-
+    console.log(token)
     if (!token) {
         return res.status(401).json({ error: 'Authorization token required' });
     }

@@ -52,7 +52,6 @@ const employeeSchema = new mongoose.Schema(
     admin: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Admin", // Reference to Admin model
-      required: true, // Ensures that each employee has an admin
     },
     // Other fields as needed
   },

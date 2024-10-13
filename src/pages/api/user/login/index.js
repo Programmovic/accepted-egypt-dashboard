@@ -4,7 +4,6 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { serialize } from "cookie";
 
-
 export default async (req, res) => {
   if (req.method === "POST") {
     try {
@@ -16,9 +15,7 @@ export default async (req, res) => {
       const admin = await Admin.findOne({ username });
 
       if (!admin) {
-        console.warn(
-          `Login attempt failed: No admin found for username: ${username}`
-        );
+        console.warn(`Login attempt failed: No admin found for username: ${username}`);
         return res.status(401).json({ error: "Invalid username or password" });
       }
 
@@ -26,11 +23,14 @@ export default async (req, res) => {
       const passwordMatch = await bcrypt.compare(password, admin.password);
 
       if (!passwordMatch) {
-        console.warn(
-          `Login attempt failed: Password mismatch for username: ${username}`
-        );
+        console.warn(`Login attempt failed: Password mismatch for username: ${username}`);
         return res.status(401).json({ error: "Invalid username or password" });
       }
+
+      // Mark admin as online and set last active timestamp
+      admin.isOnline = true; // Set admin status to online
+      admin.lastActive = new Date(); // Set last active time to now
+      await admin.save(); // Save changes to the database
 
       // Generate a JWT token with admin ID and username
       const token = jwt.sign(
@@ -59,7 +59,7 @@ export default async (req, res) => {
       res.setHeader(
         "Set-Cookie",
         serialize("username", admin.username, {
-          httpOnly: false, // You may set it to true if needed
+          httpOnly: false,
           maxAge: 3600, // 1 hour
           sameSite: "strict",
           secure: process.env.NODE_ENV === "production",
@@ -68,8 +68,7 @@ export default async (req, res) => {
       res.setHeader(
         "Set-Cookie",
         serialize("adminId", admin._id.toString(), {
-          // Convert ObjectId to string
-          httpOnly: false, // You may set it to true if needed
+          httpOnly: false,
           maxAge: 3600, // 1 hour
           sameSite: "strict",
           secure: process.env.NODE_ENV === "production",
